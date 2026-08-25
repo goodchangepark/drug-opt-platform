@@ -13,6 +13,9 @@ from sqlalchemy.orm import Session
 
 from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
 from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, MatchedMolecularPair, QSARModel
+from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPredictionRun,
+                    csv_export, ensure_admet_schema, inputs_hash,
+                    measurement_out, parse_csv, validate_measurement)
 from .database import Base, SessionLocal, engine, get_db
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
@@ -28,6 +31,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 def startup():
     if not app.dependency_overrides:
         Base.metadata.create_all(bind=engine)
+        ensure_admet_schema(engine)
     import backend.activity_models
 
 
@@ -38,7 +42,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 2, "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 3, "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -267,6 +271,155 @@ def _assay_out(assay: AssayDefinition):
         "reference_structure_smiles": assay.reference_structure_smiles,
         "reference_activity": assay.reference_activity, "reference_source": assay.reference_source,
         "reference_provenance_url": assay.reference_provenance_url, "notes": assay.notes,
+    }
+
+
+def _admet_endpoint_out(endpoint: ADMETEndpoint):
+    return {"id": endpoint.id, "name": endpoint.name, "category": endpoint.category,
+            "description": endpoint.description, "preferred_unit": endpoint.preferred_unit,
+            "direction": endpoint.direction}
+
+
+def get_or_create_admet_endpoint(db: Session, project_id: int, name: str):
+    name = str(name).strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="endpoint is required")
+    endpoint = db.scalar(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id, ADMETEndpoint.name == name))
+    return endpoint or ADMETEndpoint(project_id=project_id, name=name)
+
+
+def add_admet_measurement(db: Session, project_id: int, payload: dict) -> dict:
+    version = db.get(CompoundVersion, payload.get("version_id"))
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if not compound or compound.project_id != project_id:
+        raise HTTPException(status_code=404, detail="CompoundVersion is not in this project")
+    value, mean_value, sd = validate_measurement(payload)
+    endpoint = get_or_create_admet_endpoint(db, project_id, payload.get("endpoint", ""))
+    db.add(endpoint); db.flush()
+    row = ADMETMeasurement(
+        version_id=version.id, endpoint_id=endpoint.id,
+        species=str(payload.get("species") or ""), matrix=str(payload.get("matrix") or ""),
+        value=value, unit=str(payload.get("unit", "")).strip(), qualifier=payload.get("qualifier") or "=",
+        replicate=str(payload.get("replicate") or "R1"), mean_value=mean_value,
+        standard_deviation=sd, sample_size=int(payload["n"]) if payload.get("n") else None,
+        method=str(payload.get("method") or ""), source=str(payload.get("source") or "User experimental"),
+        experiment_date=str(payload.get("date") or ""), notes=str(payload.get("notes") or ""),
+        provenance_json={"data_type": "experimental"},
+    )
+    if not row.unit:
+        db.rollback(); raise HTTPException(status_code=400, detail="unit is required")
+    db.add(row); db.commit(); db.refresh(row)
+    return measurement_out(row)
+
+
+@app.get("/api/projects/{project_id}/admet")
+def list_admet(project_id: int, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    versions = {version.id: (compound.compound_id, version.version_number)
+                for compound in project.compounds for version in compound.versions}
+    rows = db.scalars(select(ADMETMeasurement).join(
+        ADMETEndpoint, ADMETEndpoint.id == ADMETMeasurement.endpoint_id
+    ).where(ADMETEndpoint.project_id == project_id).order_by(ADMETMeasurement.created_at.desc())).all()
+    models = db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name)).all()
+    version_ids = list(versions)
+    runs = db.scalars(
+        select(ADMETPredictionRun)
+        .where(ADMETPredictionRun.version_id.in_(version_ids))
+        .order_by(ADMETPredictionRun.started_at.desc())
+        .limit(20)
+    ).all() if version_ids else []
+    return {
+        "endpoints": [_admet_endpoint_out(e) for e in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))],
+        "measurements": [measurement_out(row) for row in rows],
+        "models": [{"id": m.id, "endpoint": m.endpoint_name, "model_name": m.model_name,
+                    "model_version": m.model_version, "status": m.implementation_status,
+                    "active": m.is_active} for m in models],
+        "prediction_runs": [{"id": r.id, "version_id": r.version_id, "status": r.status,
+                             "message": r.message, "started_at": r.started_at.isoformat()} for r in runs],
+        "csv_columns": ["compound_id", "version_number"] + [
+            column for column in ("endpoint", "species", "matrix", "value", "unit", "qualifier", "replicate",
+                                  "mean", "sd", "n", "method", "source", "date", "notes")
+        ],
+        "labels_by_version": {str(key): value for key, value in versions.items()},
+    }
+
+
+@app.post("/api/projects/{project_id}/admet/measurements", status_code=201)
+def create_admet_measurement(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return add_admet_measurement(db, project_id, payload)
+
+
+@app.post("/api/projects/{project_id}/admet/import-preview")
+def admet_import_preview(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    if not db.get(Project, project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    records, columns = parse_csv(payload.get("csv", ""))
+    valid, errors = [], []
+    labels = {compound.compound_id: compound for compound in db.scalars(select(Compound).where(Compound.project_id == project_id))}
+    for number, record in enumerate(records, 2):
+        compound = labels.get(str(record.get("compound_id", "")).strip())
+        version_number = str(record.get("version_number") or "").strip() or (
+            str(compound.current_version) if compound else "")
+        version = next((v for v in (compound.versions if compound else []) if str(v.version_number) == version_number), None)
+        try:
+            validate_measurement(record)
+            if not version:
+                raise ValueError("unknown compound/version")
+            valid.append({"row": number, **record})
+        except HTTPException as exc:
+            errors.append({"row": number, "error": str(exc.detail)})
+        except (ValueError, TypeError) as exc:
+            errors.append({"row": number, "error": str(exc)})
+    return {"columns": columns, "valid_count": len(valid), "errors": errors, "rows": valid}
+
+
+@app.post("/api/projects/{project_id}/admet/import", status_code=201)
+def admet_import(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    preview = admet_import_preview(project_id, {"csv": payload.get("csv", "")}, db)
+    if preview["errors"]:
+        raise HTTPException(status_code=400, detail={"message": "Import validation failed", "errors": preview["errors"]})
+    labels = {compound.compound_id: compound for compound in db.scalars(select(Compound).where(Compound.project_id == project_id))}
+    created = []
+    for item in preview["rows"]:
+        compound = labels[str(item["compound_id"]).strip()]
+        version_number = int(item.get("version_number") or compound.current_version)
+        version = next(version for version in compound.versions if version.version_number == version_number)
+        created.append(add_admet_measurement(db, project_id, {**item, "version_id": version.id}))
+    return {"imported": len(created), "measurements": created}
+
+
+@app.get("/api/projects/{project_id}/admet/export.csv")
+def admet_export(project_id: int, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    labels = {}
+    for compound in project.compounds:
+        for version in compound.versions:
+            labels[version.id] = (compound.compound_id, version.version_number)
+    rows = db.scalars(select(ADMETMeasurement).join(ADMETEndpoint, ADMETEndpoint.id == ADMETMeasurement.endpoint_id)
+                      .where(ADMETEndpoint.project_id == project_id)).all()
+    return csv_export(rows, labels)
+
+
+@app.post("/api/admet/predict/{row_id}", status_code=202)
+def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
+    version = db.get(CompoundVersion, row_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
+    run = ADMETPredictionRun(version_id=row_id, inputs_hash=inputs_hash([row_id]), status="NOT_INSTALLED")
+    db.add(run); db.commit(); db.refresh(run)
+    return {
+        "type": "Predicted", "run_id": run.id, "status": run.status, "message": run.message,
+        "models_available": len(active_models), "predictions": [],
     }
 
 
