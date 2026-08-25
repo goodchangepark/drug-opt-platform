@@ -28,6 +28,9 @@ const EMPTY_ADMET_FORM={
  endpoint:'Solubility',species:'',matrix:'',value:'',unit:'',qualifier:'=',replicate:'R1',
  mean:'',sd:'',n:'',method:'',source:'User experimental',date:'',notes:''
 };
+const EMPTY_METABOLITE_FORM={
+ smiles:'',transformation:'',observed_mass:'',mass_unit:'Da',source:'User experimental',experiment:'LC-MS/MS',notes:''
+};
 
 function App(){
  const [projects,setProjects]=useState([]),[projectId,setProjectId]=useState(null),[project,setProject]=useState(null);
@@ -37,6 +40,8 @@ function App(){
  const [projectTab,setProjectTab]=useState('compounds'),[detailTab,setDetailTab]=useState('overview');
  const [admet,setAdmet]=useState(null),[admetVersionId,setAdmetVersionId]=useState(''),[admetForm,setAdmetForm]=useState({...EMPTY_ADMET_FORM});
  const [admetCsv,setAdmetCsv]=useState(''),[admetCsvPreview,setAdmetCsvPreview]=useState(null),[admetBusy,setAdmetBusy]=useState(false);
+ const [metabolism,setMetabolism]=useState(null),[metabolismBusy,setMetabolismBusy]=useState(false),[metabolicTop,setMetabolicTop]=useState(3),[selectedSpotId,setSelectedSpotId]=useState(null);
+ const [metaboliteForm,setMetaboliteForm]=useState({...EMPTY_METABOLITE_FORM});
 
  const currentVersions=project?.compounds||[];
  const versionLabel=versionId=>{
@@ -58,14 +63,18 @@ function App(){
   if(!id)return null;
   const data=await api.get('/projects/'+id+'/admet');setAdmet(data);return data;
  };
+ const loadMetabolism=async(id=projectId)=>{
+  if(!id)return null;
+  const data=await api.get('/projects/'+id+'/metabolism');setMetabolism(data);return data;
+ };
 
  useEffect(()=>{loadProjects().catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
-  setProject(null);setDetail(null);setSelected([]);setComparison(null);setAdmet(null);setAdmetCsvPreview(null);
+  setProject(null);setDetail(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setAdmetCsvPreview(null);setSelectedSpotId(null);
   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
  },[projectId]);
  useEffect(()=>{
-  if(projectId&&(projectTab==='admet'||(detail&&detailTab==='admet')))loadAdmet().catch(error=>setMessage(String(error)));
+  if(projectId&&(projectTab==='admet'||(detail&&detailTab==='admet')))Promise.all([loadAdmet(),loadMetabolism()]).catch(error=>setMessage(String(error)));
  },[projectId,projectTab,detailTab,detail?.row_id]);
 
  const createProject=async()=>{
@@ -115,6 +124,21 @@ function App(){
   setAdmetBusy(true);
   try{const result=await api.post('/admet/predict/'+versionId,{});await loadAdmet();setMessage(result.message)}
   catch(error){setMessage(String(error))}finally{setAdmetBusy(false)}
+ };
+ const runMetabolism=async versionId=>{
+  if(!versionId)return;
+  setMetabolismBusy(true);
+  try{
+   const result=await api.post('/metabolism/predict/'+versionId,{});const data=await loadMetabolism();
+   const run=(data?.runs||[]).find(item=>item.version_id===Number(versionId));setSelectedSpotId(run?.spots?.[0]?.id||null);setMessage(result.message);
+  }catch(error){setMessage(String(error))}finally{setMetabolismBusy(false)}
+ };
+ const saveExperimentalMetabolite=async versionId=>{
+  setMetabolismBusy(true);
+  try{
+   await api.post('/projects/'+projectId+'/metabolism/experimental',{...metaboliteForm,version_id:Number(versionId)});
+   setMetaboliteForm({...EMPTY_METABOLITE_FORM});await loadMetabolism();setMessage('Experimental metabolite saved');
+  }catch(error){setMessage(String(error))}finally{setMetabolismBusy(false)}
  };
 
  function admetMeasurementTable(rows){
@@ -265,6 +289,91 @@ function App(){
   ]);
  }
 
+ function metabolismPanel(versionId){
+  const run=(metabolism?.runs||[]).find(item=>item.version_id===Number(versionId));
+  const experimental=(metabolism?.experimental_metabolites||[]).filter(item=>item.version_id===Number(versionId));
+  const topLimit=metabolicTop==='ALL'?Number.MAX_SAFE_INTEGER:Number(metabolicTop);
+  const spots=(run?.spots||[]).filter(spot=>spot.rank<=topLimit);
+  const metabolites=(run?.predicted_metabolites||[]).filter(item=>item.rank<=topLimit);
+  const selected=(run?.spots||[]).find(spot=>spot.id===selectedSpotId)||spots[0];
+  const summary=run?.liability_summary||{};
+  const setMetaboliteValue=(key,value)=>setMetaboliteForm(current=>({...current,[key]:value}));
+  return e('div',{style:{marginTop:'24px'}},[
+   e('div',{className:'row toolbar',key:'heading'},[
+    e('h4',{},'Metabolism · Metabolic Soft Spots'),
+    e('div',{className:'row'},[
+     e('label',{key:'top',className:'small'},['Show ',e('select',{key:'select',value:metabolicTop,onChange:event=>setMetabolicTop(event.target.value==='ALL'?'ALL':Number(event.target.value))},(metabolism?.settings?.available_top_spots||[3,5,10,'ALL']).map(value=>e('option',{key:value,value},value==='ALL'?'All':'Top '+value)))]),
+     e('button',{key:'run',disabled:metabolismBusy,onClick:()=>runMetabolism(versionId)},metabolismBusy?'Generating…':run?'Regenerate / use cache':'Generate hypotheses')
+    ])
+   ]),
+   e('p',{key:'scope',className:'small'},'Atom indices are zero-based RDKit indices. Rule priors rank hypotheses but are not atom probabilities. CYP substrate and microsomal results are supporting compound-level evidence only.'),
+   !run?Empty({children:'No metabolic soft-spot run for this CompoundVersion.'}):e('div',{key:'run'},[
+    e('div',{key:'status',className:'small'},[Badge({ok:run.status==='COMPLETE',text:run.status}),e('span',{key:'message'},' · '+run.message)]),
+    e('div',{className:'grid',style:{marginTop:'14px'},key:'visual'},[
+     e('div',{className:'col-6 structure',key:'svg'},Svg({src:run.highlighted_svg})),
+     e('div',{className:'col-6',key:'table'},spots.length?e('table',{},[
+      e('thead',{key:'head'},e('tr',{},['Rank','Atom','Environment','Transformation','Phase','Confidence'].map(label=>e('th',{key:label},label)))),
+      e('tbody',{key:'body'},spots.map(spot=>e('tr',{key:spot.id,onClick:()=>setSelectedSpotId(spot.id),style:{cursor:'pointer',background:selected?.id===spot.id?'rgba(43,110,242,.10)':''}},[
+       e('td',{key:'rank',className:'mono'},spot.rank),e('td',{key:'atom',className:'mono'},spot.atom_index),e('td',{key:'env',className:'mono small'},spot.atom_environment),
+       e('td',{key:'transform'},spot.transformation),e('td',{key:'phase'},spot.phase),e('td',{key:'confidence'},spot.confidence)
+      ])))
+     ]):Empty({children:'No supported transformation matched this structure.'}))
+    ]),
+    selected&&e('details',{key:'selected',open:true},[
+     e('summary',{key:'summary'},'Selected spot details · Rank '+selected.rank+' '+selected.transformation),
+     e('div',{key:'body',className:'small'},[
+      e('div',{key:'atom'},e('strong',{},'Atom: '),selected.atom_index+' · '+selected.atom_environment),
+      e('div',{key:'phase'},e('strong',{},'Transformation / phase: '),selected.transformation+' · '+selected.phase),
+      e('div',{key:'cyp'},e('strong',{},'CYP attribution: '),selected.cyp_isoform),
+      e('div',{key:'score'},e('strong',{},'Ranking evidence: '),Number(selected.score).toPrecision(4)+' · '+selected.score_type),
+      e('div',{key:'model'},e('strong',{},'Model evidence: '),(selected.model_evidence?.status||'UNKNOWN')+' — '+(selected.model_evidence?.reason||'')),
+      e('div',{key:'rules'},e('strong',{},'Rules: '),(selected.rule_evidence?.rules||[]).map(rule=>rule.rule_name+' ('+rule.empirical_prior+')').join(' · ')),
+      e('div',{key:'strategy'},e('strong',{},'General mitigation strategies (not analog proposals): '),(selected.rule_evidence?.mitigation_strategies||[]).join(' · ')),
+      e('div',{key:'provenance'},e('strong',{},'Provenance: '),selected.provenance.engine+' '+selected.provenance.engine_version+' · '+selected.provenance.source+' · '+selected.provenance.license+' · '+selected.provenance.prediction_timestamp)
+     ])
+    ]),
+    e('h4',{key:'liability-title',style:{marginTop:'20px'}},'Metabolic Liability Summary'),
+    e('div',{key:'liability',className:'small'},[
+     e('div',{key:'primary'},[e('strong',{},'Primary predicted liability: '),summary.primary_predicted_liability||'—']),
+     e('div',{key:'support'},[e('strong',{},'Supporting evidence: '),summary.supporting_evidence||'—']),
+     e('div',{key:'microsomal'},[e('strong',{},'Microsomal evidence: '),(summary.microsomal_evidence||[]).length?summary.microsomal_evidence.map(item=>item.source+' '+item.endpoint+' '+item.value+' '+item.unit+' ('+item.confidence+')').join(' · '):'None']),
+     e('div',{key:'cyp'},[e('strong',{},'CYP evidence: '),(summary.cyp_evidence||[]).length?summary.cyp_evidence.map(item=>item.endpoint+' '+item.classification+' ('+item.confidence+')').join(' · '):'None']),
+     e('div',{key:'limit'},summary.cyp_attribution_limit||''),
+     e('div',{key:'strategies'},[e('strong',{},'Strategy: '),(summary.mitigation_strategies||[]).join(' · '),e('span',{key:'scope'},' · '+(summary.strategy_scope||''))])
+    ]),
+    e('h4',{key:'predicted-title',style:{marginTop:'20px'}},'Predicted Metabolites'),
+    e('div',{key:'predicted-label',className:'fail small'},'PREDICTED METABOLITE HYPOTHESIS — chemically validated candidates, not confirmed metabolites.'),
+    metabolites.length?e('table',{key:'metabolites'},[
+     e('thead',{key:'head'},e('tr',{},['Rank','Structure','Transformation','Source atom','Phase','Confidence',''].map(label=>e('th',{key:label},label)))),
+     e('tbody',{key:'body'},metabolites.map(item=>e('tr',{key:item.id},[
+      e('td',{key:'rank'},item.rank),e('td',{key:'smiles',className:'mono small'},item.canonical_smiles),e('td',{key:'transform'},item.transformation),e('td',{key:'atom'},item.source_atom),e('td',{key:'phase'},item.phase),e('td',{key:'confidence'},item.confidence),
+      e('td',{key:'details'},e('details',{},[e('summary',{key:'summary'},'Details'),e('div',{key:'body',className:'small'},'Evidence: '+item.evidence.chemical_validation+' · Engine '+item.provenance.transformation_engine+' '+item.provenance.transformation_engine_version+' · '+item.provenance.source+' · '+item.provenance.license)]))
+     ])))
+    ]):Empty({children:'No unique sanitized metabolite hypotheses for the selected rank range.'}),
+    e('details',{key:'tool',style:{marginTop:'14px'}},[
+     e('summary',{key:'summary'},'Engine details and validation'),
+     e('div',{key:'body',className:'small'},[(metabolism?.tool?.name||run.engine)+' '+(metabolism?.tool?.version||run.engine_version)+' · '+(metabolism?.tool?.license||'')+' · ',e('a',{key:'source',href:metabolism?.tool?.source,target:'_blank',rel:'noreferrer'},metabolism?.tool?.source),e('div',{key:'validation'},Object.entries(metabolism?.tool?.publisher_validation||{}).map(([key,value])=>key+': '+value).join(' · ')),e('div',{key:'model'},'Atom-level model: '+run.model_status.status+' — '+run.model_status.reason)])
+    ])
+   ]),
+   e('h4',{key:'experimental-title',style:{marginTop:'24px'}},'Experimental Metabolites'),
+   e('p',{key:'experimental-help',className:'small'},'Record LC-MS/MS or other observed evidence separately from predicted hypotheses. Structure is optional when unknown.'),
+   e('div',{className:'grid',key:'experimental-form'},[
+    e('div',{className:'col-6',key:'smiles'},Field({label:'Structure / SMILES (optional)',value:metaboliteForm.smiles,onChange:value=>setMetaboliteValue('smiles',value)})),
+    e('div',{className:'col-3',key:'transformation'},Field({label:'Transformation',value:metaboliteForm.transformation,onChange:value=>setMetaboliteValue('transformation',value)})),
+    e('div',{className:'col-3',key:'mass'},Field({label:'Observed mass',type:'number',value:metaboliteForm.observed_mass,onChange:value=>setMetaboliteValue('observed_mass',value)})),
+    e('div',{className:'col-3',key:'unit'},Field({label:'Mass unit',value:metaboliteForm.mass_unit,onChange:value=>setMetaboliteValue('mass_unit',value)})),
+    e('div',{className:'col-3',key:'source'},Field({label:'Source',value:metaboliteForm.source,onChange:value=>setMetaboliteValue('source',value)})),
+    e('div',{className:'col-3',key:'experiment'},Field({label:'Experiment',value:metaboliteForm.experiment,onChange:value=>setMetaboliteValue('experiment',value)})),
+    e('div',{className:'col-3',key:'notes'},Field({label:'Notes',value:metaboliteForm.notes,onChange:value=>setMetaboliteValue('notes',value)}))
+   ]),
+   e('button',{key:'save-experimental',style:{marginTop:'10px'},disabled:metabolismBusy||!metaboliteForm.transformation,onClick:()=>saveExperimentalMetabolite(versionId)},metabolismBusy?'Saving…':'Save experimental metabolite'),
+   experimental.length?e('table',{key:'experimental-table',style:{marginTop:'14px'}},[
+    e('thead',{key:'head'},e('tr',{},['Type','Structure','Transformation','Observed mass','Source','Experiment','Notes'].map(label=>e('th',{key:label},label)))),
+    e('tbody',{key:'body'},experimental.map(item=>e('tr',{key:item.id},[e('td',{key:'type'},item.label),e('td',{key:'smiles',className:'mono small'},item.canonical_smiles||'Unknown'),e('td',{key:'transform'},item.transformation),e('td',{key:'mass'},item.observed_mass==null?'—':item.observed_mass+' '+item.mass_unit),e('td',{key:'source'},item.source||'—'),e('td',{key:'experiment'},item.experiment||'—'),e('td',{key:'notes'},item.notes||'—')])))
+   ]):Empty({children:'No experimental metabolites recorded for this CompoundVersion.'})
+  ]);
+ }
+
  function compoundDetail(){
   if(!detail)return null;
   const detailMeasurements=(admet?.measurements||[]).filter(row=>row.version_id===detail.version.id);
@@ -295,6 +404,7 @@ function App(){
     e('h4',{key:'cyp-title',style:{marginTop:'18px'}},'Metabolism · CYP'),
     e('div',{key:'cyp-table'},cypPredictionTable(detailPredictions.filter(row=>row.endpoint.startsWith('CYP')))),
     e('div',{key:'cyp-unavailable',className:'small'},(admet?.models||[]).filter(model=>model.endpoint.startsWith('CYP')&&!model.active).map(model=>model.endpoint+': MODEL_UNAVAILABLE — '+model.unavailable_reason).join(' · ')),
+    e('div',{key:'metabolic-soft-spots'},metabolismPanel(detail.version.id)),
     e('h4',{key:'stage3a-title',style:{marginTop:'18px'}},'Solubility & Caco-2'),
     e('div',{key:'prediction-table'},admetPredictionTable(detailPredictions.filter(row=>['Solubility','Permeability'].includes(row.endpoint)))),
     e('h4',{key:'audit-title',style:{marginTop:'22px'}},'Prediction audit'),
@@ -304,7 +414,7 @@ function App(){
  }
 
  return e('div',{className:'shell'},[
-  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3C · CYP Prediction'),
+  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3D · Metabolic Hypotheses'),
    e('h3',{style:{marginTop:'24px'}},'Projects'),e('ul',{className:'projects'},projects.map(item=>e('li',{key:item.id},e('button',{className:'project-link '+(item.id===projectId?'active':''),onClick:()=>setProjectId(item.id)},item.name,e('div',{className:'tag'},(item.target||'No target')+' · '+item.compound_count+' compounds'))))),
    e('div',{style:{marginTop:'28px'}},[
     ...['name','target','indication','mechanism_modality'].map(key=>e('div',{key,style:{marginBottom:'8px'}},e(Field,{label:key.replace(/_/g,' '),value:form[key],onChange:value=>setForm({...form,[key]:value})}))),

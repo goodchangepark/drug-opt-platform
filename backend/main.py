@@ -1,5 +1,6 @@
 import hashlib
 import json
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -17,16 +18,25 @@ from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefin
 from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
-from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparison_for_prediction, cyp_experimental_evidence,
+from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimental, comparison_for_prediction, cyp_experimental_evidence,
                               metabolic_stability_assessment, model_files_available, predict_endpoint)
 from .database import Base, SessionLocal, engine, get_db
+from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
+                                  ENGINE_NAME as METABOLISM_ENGINE,
+                                  ENGINE_SOURCE as METABOLISM_SOURCE,
+                                  ENGINE_VERSION as METABOLISM_VERSION,
+                                  PREDICTED_LABEL, PUBLISHER_VALIDATION,
+                                  predict_soft_spots)
+from .metabolism import (ExperimentalMetabolite, MetabolicPredictionRun,
+                         MetabolicSoftSpot, PredictedMetabolite,
+                         ensure_metabolism_schema)
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3c")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3d")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -35,6 +45,7 @@ def startup():
     if not app.dependency_overrides:
         Base.metadata.create_all(bind=engine)
         ensure_admet_schema(engine)
+        ensure_metabolism_schema(engine)
     import backend.activity_models
 
 
@@ -45,7 +56,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 3, "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 3, "step": "3D", "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -606,6 +617,291 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         "models_available": len(available_models), "cache_hit": False, "predictions": predictions,
         "unavailable": unavailable,
     }
+
+
+def _soft_spot_out(row: MetabolicSoftSpot):
+    return {
+        "id": row.id, "run_id": row.run_id, "version_id": row.version_id,
+        "rank": row.rank, "atom_index": row.atom_index,
+        "atom_environment": row.atom_environment, "transformation": row.transformation,
+        "phase": row.phase, "cyp_isoform": row.cyp_isoform,
+        "model_evidence": row.model_evidence_json or {},
+        "rule_evidence": row.rule_evidence_json or {},
+        "score": row.score, "score_type": row.score_type,
+        "confidence": row.confidence, "provenance": row.provenance_json or {},
+        "created_at": row.created_at.isoformat(),
+    }
+
+
+def _predicted_metabolite_out(row: PredictedMetabolite):
+    return {
+        "id": row.id, "run_id": row.run_id, "soft_spot_id": row.soft_spot_id,
+        "version_id": row.version_id, "canonical_smiles": row.canonical_smiles,
+        "isomeric_smiles": row.isomeric_smiles, "transformation": row.transformation,
+        "source_atom": row.source_atom, "phase": row.phase, "rank": row.rank,
+        "confidence": row.confidence, "evidence": row.evidence_json or {},
+        "provenance": row.provenance_json or {}, "label": PREDICTED_LABEL,
+        "created_at": row.created_at.isoformat(), "type": "Predicted",
+    }
+
+
+def _experimental_metabolite_out(row: ExperimentalMetabolite):
+    return {
+        "id": row.id, "version_id": row.version_id,
+        "canonical_smiles": row.canonical_smiles, "isomeric_smiles": row.isomeric_smiles,
+        "transformation": row.transformation, "observed_mass": row.observed_mass,
+        "mass_unit": row.mass_unit, "source": row.source,
+        "experiment": row.experiment, "notes": row.notes,
+        "provenance": row.provenance_json or {}, "label": "EXPERIMENTAL METABOLITE",
+        "created_at": row.created_at.isoformat(), "type": "Experimental",
+    }
+
+
+def _metabolic_run_out(run: MetabolicPredictionRun):
+    spots = sorted(run.spots, key=lambda row: row.rank)
+    metabolites = sorted(run.metabolites, key=lambda row: (row.rank, row.id))
+    return {
+        "id": run.id, "version_id": run.version_id, "inputs_hash": run.inputs_hash,
+        "engine": run.engine_name, "engine_version": run.engine_version,
+        "status": run.status, "message": run.message,
+        "model_status": run.model_status_json or {},
+        "liability_summary": run.liability_summary_json or {},
+        "highlighted_svg": run.highlighted_svg,
+        "spots": [_soft_spot_out(row) for row in spots],
+        "predicted_metabolites": [_predicted_metabolite_out(row) for row in metabolites],
+        "started_at": run.started_at.isoformat(),
+        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+    }
+
+
+def _metabolism_evidence_context(db: Session, version: CompoundVersion, project_id: int) -> dict:
+    measurements = db.scalars(
+        select(ADMETMeasurement).where(ADMETMeasurement.version_id == version.id)
+        .order_by(ADMETMeasurement.created_at.desc())
+    ).all()
+    endpoint_names = {row.id: row.name for row in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id)
+    )}
+    predictions = db.scalars(
+        select(ADMETPrediction).where(ADMETPrediction.version_id == version.id)
+        .order_by(ADMETPrediction.created_at.desc())
+    ).all()
+    latest = {}
+    for prediction in predictions:
+        latest.setdefault(prediction.model.endpoint_name, prediction)
+
+    microsomal = []
+    for endpoint in ("HLM intrinsic clearance", "RLM intrinsic clearance"):
+        experimental = None
+        for measurement in measurements:
+            measurement_endpoint = endpoint_names.get(measurement.endpoint_id, "")
+            normalized, note = comparable_experimental(
+                endpoint, measurement, measurement_endpoint,
+            )
+            if normalized is not None:
+                experimental = {
+                    "endpoint": endpoint, "source": "Experimental",
+                    "measurement_id": measurement.id, "value": normalized,
+                    "unit": MODEL_SPECS[endpoint]["unit"], "conversion": note,
+                    "confidence": "EXPERIMENTAL",
+                    "assessment": metabolic_stability_assessment(endpoint, normalized),
+                }
+                break
+            if measurement_endpoint.strip().lower() == endpoint.lower():
+                raw_value = measurement.mean_value if measurement.mean_value is not None else measurement.value
+                if raw_value is not None:
+                    experimental = {
+                        "endpoint": endpoint, "source": "Experimental",
+                        "measurement_id": measurement.id, "value": raw_value,
+                        "unit": measurement.unit, "conversion": note,
+                        "confidence": "EXPERIMENTAL", "assessment": None,
+                        "comparison_status": "Retained as experimental evidence; not normalized to the prediction unit",
+                    }
+                    break
+        if experimental:
+            microsomal.append(experimental)
+            continue
+        prediction = latest.get(endpoint)
+        if prediction:
+            assessment = (prediction.outputs_json or {}).get("metabolic_stability_assessment")
+            microsomal.append({
+                "endpoint": endpoint, "source": "Predicted", "prediction_id": prediction.id,
+                "value": prediction.predicted_value, "unit": prediction.unit,
+                "confidence": prediction.confidence, "domain": prediction.applicability_domain,
+                "assessment": assessment,
+            })
+
+    cyp = []
+    for endpoint, prediction in latest.items():
+        spec = MODEL_SPECS.get(endpoint, {})
+        if spec.get("role") != "SUBSTRATE":
+            continue
+        output = prediction.outputs_json or {}
+        cyp.append({
+            "endpoint": endpoint, "isoform": spec["isoform"],
+            "classification": output.get("classification"),
+            "probability": output.get("probability", prediction.predicted_value),
+            "confidence": prediction.confidence,
+            "domain": prediction.applicability_domain,
+            "prediction_id": prediction.id,
+            "attribution": "Compound-level substrate evidence only; no atom or reaction assignment.",
+        })
+    return {"microsomal": microsomal, "cyp": sorted(cyp, key=lambda row: row["isoform"])}
+
+
+@app.post("/api/metabolism/predict/{version_id}", status_code=202)
+def run_metabolism_predictions(version_id: int, db: Session = Depends(get_db)):
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    context = _metabolism_evidence_context(db, version, compound.project_id)
+    digest = hashlib.sha256(json.dumps({
+        "version_id": version.id, "smiles": version.canonical_smiles,
+        "engine_version": METABOLISM_VERSION, "context": context,
+    }, sort_keys=True).encode()).hexdigest()
+    cached = db.scalar(
+        select(MetabolicPredictionRun).where(
+            MetabolicPredictionRun.version_id == version_id,
+            MetabolicPredictionRun.inputs_hash == digest,
+            MetabolicPredictionRun.engine_version == METABOLISM_VERSION,
+            MetabolicPredictionRun.status == "COMPLETE",
+        ).order_by(MetabolicPredictionRun.started_at.desc())
+    )
+    if cached:
+        return {"status": "CACHED", "cache_hit": True, "message": "Cached soft spots and metabolite hypotheses reused.", "run": _metabolic_run_out(cached)}
+
+    run = MetabolicPredictionRun(
+        version_id=version_id, inputs_hash=digest, engine_name=METABOLISM_ENGINE,
+        engine_version=METABOLISM_VERSION, status="RUNNING",
+        message="Running atom-mapped SyGMa rules with RDKit chemical validation.",
+    )
+    db.add(run); db.flush()
+    try:
+        result = predict_soft_spots(version.canonical_smiles, context=context)
+        run.model_status_json = result["model_status"]
+        run.liability_summary_json = result["liability_summary"]
+        run.highlighted_svg = result["highlighted_svg"]
+        timestamp = datetime.now(timezone.utc).isoformat()
+        spots_by_rank = {}
+        for item in result["spots"]:
+            provenance = {
+                "prediction_timestamp": timestamp, "compound_version_id": version.id,
+                "engine": METABOLISM_ENGINE, "engine_version": METABOLISM_VERSION,
+                "source": METABOLISM_SOURCE, "license": METABOLISM_LICENSE,
+                "training_data": "SyGMa empirical rules derived from the historical MDL Metabolite database; source database is discontinued",
+                "publisher_validation": PUBLISHER_VALIDATION,
+                "atom_index_basis": "RDKit zero-based canonical molecule atom index",
+            }
+            spot = MetabolicSoftSpot(
+                run_id=run.id, version_id=version.id, rank=item["rank"],
+                atom_index=item["atom_index"], atom_environment=item["atom_environment"],
+                transformation=item["transformation"], phase=item["phase"],
+                cyp_isoform=item["cyp_isoform"], model_evidence_json=item["model_evidence"],
+                rule_evidence_json=item["rule_evidence"], score=item["score"],
+                score_type=item["score_type"], confidence=item["confidence"],
+                provenance_json=provenance,
+            )
+            db.add(spot); db.flush(); spots_by_rank[item["rank"]] = spot
+        for item in result["metabolites"]:
+            spot = spots_by_rank[item["rank"]]
+            db.add(PredictedMetabolite(
+                run_id=run.id, soft_spot_id=spot.id, version_id=version.id,
+                canonical_smiles=item["canonical_smiles"], isomeric_smiles=item["isomeric_smiles"],
+                transformation=item["transformation"], source_atom=item["source_atom"],
+                phase=item["phase"], rank=item["rank"], confidence=item["confidence"],
+                evidence_json=item["evidence"], provenance_json={
+                    "prediction_timestamp": timestamp, "compound_version_id": version.id,
+                    "transformation_engine": METABOLISM_ENGINE,
+                    "transformation_engine_version": METABOLISM_VERSION,
+                    "source": METABOLISM_SOURCE, "license": METABOLISM_LICENSE,
+                    "label": PREDICTED_LABEL,
+                },
+            ))
+        run.status = "COMPLETE"
+        run.message = f"Stored {len(result['spots'])} ranked soft spots and {len(result['metabolites'])} unique sanitized metabolite hypotheses."
+        run.completed_at = datetime.now(timezone.utc)
+        db.commit(); db.refresh(run)
+    except Exception as exc:
+        run.status, run.message = "FAILED", f"Metabolic hypothesis generation failed: {exc}"
+        run.completed_at = datetime.now(timezone.utc)
+        db.commit()
+        raise HTTPException(status_code=500, detail=run.message)
+    return {"status": run.status, "cache_hit": False, "message": run.message, "run": _metabolic_run_out(run)}
+
+
+@app.get("/api/projects/{project_id}/metabolism")
+def list_metabolism(project_id: int, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    version_ids = [version.id for compound in project.compounds for version in compound.versions]
+    runs = db.scalars(
+        select(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id.in_(version_ids))
+        .order_by(MetabolicPredictionRun.started_at.desc())
+    ).all() if version_ids else []
+    latest_by_version = {}
+    for run in runs:
+        latest_by_version.setdefault(run.version_id, run)
+    experimental = db.scalars(
+        select(ExperimentalMetabolite).where(ExperimentalMetabolite.version_id.in_(version_ids))
+        .order_by(ExperimentalMetabolite.created_at.desc())
+    ).all() if version_ids else []
+    return {
+        "runs": [_metabolic_run_out(run) for run in latest_by_version.values()],
+        "experimental_metabolites": [_experimental_metabolite_out(row) for row in experimental],
+        "tool": {
+            "name": METABOLISM_ENGINE, "version": METABOLISM_VERSION,
+            "source": METABOLISM_SOURCE, "license": METABOLISM_LICENSE,
+            "publisher_validation": PUBLISHER_VALIDATION,
+        },
+        "settings": {"default_top_spots": 3, "available_top_spots": [3, 5, 10, "ALL"]},
+    }
+
+
+@app.post("/api/projects/{project_id}/metabolism/experimental", status_code=201)
+def create_experimental_metabolite(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    version = db.get(CompoundVersion, payload.get("version_id"))
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if not compound or compound.project_id != project_id:
+        raise HTTPException(status_code=404, detail="CompoundVersion is not in this project")
+    transformation = str(payload.get("transformation") or "").strip()
+    if not transformation:
+        raise HTTPException(status_code=400, detail="transformation is required")
+    smiles = str(payload.get("smiles") or "").strip()
+    canonical = isomeric = ""
+    if smiles:
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            raise HTTPException(status_code=400, detail="Invalid experimental metabolite SMILES")
+        canonical = Chem.MolToSmiles(mol, canonical=True, isomericSmiles=False)
+        isomeric = Chem.MolToSmiles(mol, canonical=True, isomericSmiles=True)
+    try:
+        observed_mass = float(payload["observed_mass"]) if payload.get("observed_mass") not in (None, "") else None
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="observed_mass must be numeric")
+    if observed_mass is not None and observed_mass <= 0:
+        raise HTTPException(status_code=400, detail="observed_mass must be positive")
+    mass_unit = str(payload.get("mass_unit") or "").strip()
+    if observed_mass is not None and not mass_unit:
+        raise HTTPException(status_code=400, detail="mass_unit is required when observed_mass is supplied")
+    row = ExperimentalMetabolite(
+        version_id=version.id, canonical_smiles=canonical, isomeric_smiles=isomeric,
+        transformation=transformation, observed_mass=observed_mass, mass_unit=mass_unit,
+        source=str(payload.get("source") or "User experimental"),
+        experiment=str(payload.get("experiment") or ""), notes=str(payload.get("notes") or ""),
+        provenance_json={
+            "data_type": "experimental_metabolite", "compound_version_id": version.id,
+            "recorded_at": datetime.now(timezone.utc).isoformat(),
+            **(payload.get("provenance") or {}),
+        },
+    )
+    db.add(row); db.commit(); db.refresh(row)
+    return _experimental_metabolite_out(row)
 
 
 @app.get("/api/projects/{project_id}/assays")
