@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
-from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, QSARModel
+from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, MatchedMolecularPair, QSARModel
 from .database import Base, SessionLocal, engine, get_db
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
@@ -277,10 +277,14 @@ def list_assays(project_id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/api/projects/{project_id}/assays", status_code=201)
-def create_assay(project_id: int, payload: dict, db: Session = Depends(get_db)):
+def create_assay(project_id: int, payload: dict, db: Session = Depends(get_db), supersedes_id: int | None = None):
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    if supersedes_id:
+        old=db.get(AssayDefinition,supersedes_id)
+        if not old or old.project_id!=project_id: raise HTTPException(status_code=404,detail="Assay to supersede not found")
+        old.active=False; payload["supersedes_id"]=old.id; payload["version_number"]=old.version_number+1
     assay = AssayDefinition(project_id=project_id, **payload)
     db.add(assay); db.commit(); db.refresh(assay)
     return _assay_out(assay)
@@ -470,7 +474,43 @@ def activity_cliffs(project_id: int, assay_id: int, similarity_threshold: float 
        sim=tanimoto_similarity(af,bf);delta=abs(ae["pactivity_mean"]-be["pactivity_mean"])
        if sim>=similarity_threshold and delta>=delta_threshold:
         rows.append({"a":{"compound_id":a.compound_id,"pactivity":ae["pactivity_mean"],"svg":av.svg},"b":{"compound_id":b.compound_id,"pactivity":be["pactivity_mean"],"svg":bv.svg},"similarity":round(sim,3),"delta_pactivity":round(delta,3)})
+    for pair in rows:
+        version_a=next(v.id for v in next(c for c in compounds if c.compound_id==pair["a"]["compound_id"]).versions if v.version_number==next(c.current_version for c in compounds if c.compound_id==pair["a"]["compound_id"]))
+        version_b=next(v.id for v in next(c for c in compounds if c.compound_id==pair["b"]["compound_id"]).versions if v.version_number==next(c.current_version for c in compounds if c.compound_id==pair["b"]["compound_id"]))
+        db.add(MatchedMolecularPair(assay_id=assay_id,version_a_id=version_a,version_b_id=version_b,
+                                    similarity=pair["similarity"],delta_pactivity=pair["delta_pactivity"],
+                                    transformation_smiles=f"{pair['a']['compound_id']}>>{pair['b']['compound_id']}",
+                                    is_cliff=True,provenance_json={"thresholds":pair and {"similarity":similarity_threshold,"delta_pactivity":delta_threshold},
+                                                                   "method":"Morgan Tanimoto + pActivity delta"}))
+    db.commit()
     return {"thresholds":{"similarity":similarity_threshold,"delta_pactivity":delta_threshold},"cliffs":rows}
+
+
+@app.get("/api/projects/{project_id}/mmp")
+def matched_pairs(project_id: int, assay_id: int, min_similarity: float = .6, max_delta: float = 1.0, db: Session = Depends(get_db)):
+    assay=db.get(AssayDefinition,assay_id)
+    if not assay or assay.project_id!=project_id: raise HTTPException(status_code=404,detail="Assay not found")
+    compounds=db.scalars(select(Compound).where(Compound.project_id==project_id)).all(); items=[]
+    for c in compounds:
+        v=next((v for v in c.versions if v.version_number==c.current_version),None); summary=_experimental_summary(db,v.id,assay_id)
+        if not summary: continue
+        _,fp,_,_=fingerprint_and_descriptors(v.canonical_smiles); items.append({"c":c,"v":v,"summary":summary,"fp":fp})
+    pairs=[]
+    for i,a in enumerate(items):
+        for b in items[i+1:]:
+            sim=tanimoto_similarity(a["fp"],b["fp"])
+            if sim<min_similarity or abs(a["summary"]["pactivity_mean"]-b["summary"]["pactivity_mean"])>max_delta:
+                continue
+            delta=b["summary"]["pactivity_mean"]-a["summary"]["pactivity_mean"]
+            pair=MatchedMolecularPair(assay_id=assay_id,version_a_id=a["v"].id,version_b_id=b["v"].id,similarity=round(sim,3),
+                                      delta_pactivity=round(delta,3),transformation_smiles=f'{a["c"].compound_id}>>{b["c"].compound_id}',
+                                      is_cliff=False,
+                                      provenance_json={"method":"Morgan/Tanimoto candidate pair; full MCS canonicalization deferred",
+                                                       "experimental_priority":"Experimental mean pActivity values used"})
+            db.add(pair); pairs.append({"a":a["c"].compound_id,"b":b["c"].compound_id,"similarity":round(sim,3),
+                                        "delta_pactivity":round(delta,3),"direction":"B improves over A" if delta>=0 else "A improves over B"})
+    db.commit()
+    return {"filters":{"min_similarity":min_similarity,"max_abs_delta_pactivity":max_delta},"pairs":pairs}
 
 
 @app.get("/api/projects/{project_id}/sar-export.csv")
