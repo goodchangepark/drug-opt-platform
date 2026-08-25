@@ -1,19 +1,26 @@
 import json
 
+import numpy as np
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from rdkit import Chem
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
+from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, QSARModel
 from .database import Base, SessionLocal, engine, get_db
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
+from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
+                   fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
+                   pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.1.0-stage1")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.2.0-stage2")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -21,6 +28,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 def startup():
     if not app.dependency_overrides:
         Base.metadata.create_all(bind=engine)
+    import backend.activity_models
 
 
 def _project_out(db: Session, project: Project):
@@ -30,7 +38,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 1, "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 2, "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -243,6 +251,236 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
     ranges = {metric: {"min": min(r[metric] for r in rows if r[metric] is not None),
                        "max": max(r[metric] for r in rows if r[metric] is not None)} for metric in metrics}
     return {"metrics": metrics, "ranges": ranges, "compounds": rows}
+
+
+def _assay_out(assay: AssayDefinition):
+    return {
+        "id": assay.id, "assay_uid": assay.assay_uid, "version_number": assay.version_number,
+        "active": assay.active, "name": assay.name, "target": assay.target, "target_type": assay.target_type,
+        "assay_category": assay.assay_category, "measurement_type": assay.measurement_type,
+        "custom_measurement_name": assay.custom_measurement_name, "unit": assay.unit,
+        "species": assay.species, "cell_line": assay.cell_line, "mutation_variant": assay.mutation_variant,
+        "protein_construct": assay.protein_construct, "substrate": assay.substrate,
+        "atp_concentration": assay.atp_concentration, "incubation_time": assay.incubation_time,
+        "detection_method": assay.detection_method, "experimental_conditions": assay.experimental_conditions,
+        "protocol": assay.protocol, "reference_compound": assay.reference_compound,
+        "reference_structure_smiles": assay.reference_structure_smiles,
+        "reference_activity": assay.reference_activity, "reference_source": assay.reference_source,
+        "reference_provenance_url": assay.reference_provenance_url, "notes": assay.notes,
+    }
+
+
+@app.get("/api/projects/{project_id}/assays")
+def list_assays(project_id: int, db: Session = Depends(get_db)):
+    assays = db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == project_id).order_by(AssayDefinition.created_at)).all()
+    return [_assay_out(a) for a in assays if a.active]
+
+
+@app.post("/api/projects/{project_id}/assays", status_code=201)
+def create_assay(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    assay = AssayDefinition(project_id=project_id, **payload)
+    db.add(assay); db.commit(); db.refresh(assay)
+    return _assay_out(assay)
+
+
+def _experimental_summary(db: Session, version_id: int, assay_id: int):
+    rows = db.scalars(select(ActivityMeasurement).where(
+        ActivityMeasurement.version_id == version_id,
+        ActivityMeasurement.assay_id == assay_id).order_by(ActivityMeasurement.created_at)).all()
+    if not rows:
+        return None
+    values = [row.normalized_value_nm for row in rows]
+    mean = sum(values) / len(values)
+    sd = (sum((v - mean) ** 2 for v in values) / len(values)) ** 0.5 if len(values) > 1 else 0
+    return {
+        "type": "Experimental", "n": len(rows), "mean_nm": round(mean, 4), "sd_nm": round(sd, 4),
+        "cv_percent": round(sd / mean * 100, 2) if mean else None,
+        "pactivity_mean": round(pactivity(mean), 3),
+        "raw_measurements": [{"value": r.raw_value, "unit": r.original_unit, "qualifier": r.qualifier,
+                              "normalized_nm": r.normalized_value_nm, "replicate": r.replicate_label,
+                              "source": r.source} for r in rows],
+        "latest_created_at": rows[-1].created_at.isoformat(),
+    }
+
+
+@app.post("/api/assays/{assay_id}/measurements", status_code=201)
+def add_measurement(assay_id: int, payload: dict, db: Session = Depends(get_db)):
+    assay = db.get(AssayDefinition, assay_id)
+    if not assay or not assay.active: raise HTTPException(status_code=404, detail="Active assay not found")
+    version = db.get(CompoundVersion, payload.get("version_id"))
+    if not version: raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    try:
+        normalized, provenance = normalize_concentration(float(payload["value"]), str(payload.get("unit", assay.unit)))
+        transformed = pactivity(normalized)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Activity validation failed: {exc}")
+    row = ActivityMeasurement(
+        assay_id=assay_id, version_id=version.id, raw_value=float(payload["value"]),
+        original_unit=str(payload.get("unit", assay.unit)), normalized_value_nm=normalized,
+        qualifier=str(payload.get("qualifier", "=")), replicate_label=str(payload.get("replicate_label") or f"R{db.scalar(select(func.count(ActivityMeasurement.id)).where(ActivityMeasurement.version_id==version.id, ActivityMeasurement.assay_id==assay_id))+1}"),
+        experiment_date=str(payload.get("experiment_date", "")), source=str(payload.get("source", "User experimental")),
+        notes=str(payload.get("notes", "")),
+        provenance_json={**provenance, "transformation": "-log10(value [M])", "transformed_pactivity": transformed},
+    )
+    db.add(row); db.commit(); db.refresh(row)
+    return {"measurement_id": row.id, **_experimental_summary(db, version.id, assay_id)}
+
+
+@app.post("/api/activities/import-preview")
+def import_preview(payload: dict, db: Session = Depends(get_db)):
+    import csv, io
+    text=payload.get("csv",""); reader=csv.DictReader(io.StringIO(text))
+    valid,errors=[],[]
+    for line,row in enumerate(reader, start=2):
+        compound=db.scalar(select(Compound).join(Project,Project.id==Compound.project_id).where(Compound.project_id==payload.get("project_id"),Compound.compound_id==str(row.get("compound_id","")).strip()))
+        assay=db.scalar(select(AssayDefinition).where(AssayDefinition.project_id==payload.get("project_id"),AssayDefinition.name==str(row.get("assay","")).strip(),AssayDefinition.active==True))
+        try:
+            value=float(row.get("value")); unit=row.get("unit") or (assay.unit if assay else "nM")
+            normalized,_=normalize_concentration(value,unit); pactivity(normalized)
+            if not compound: raise ValueError("compound not found")
+            if not assay: raise ValueError("active assay not found")
+            valid.append({"line":line,"compound_id":compound.compound_id,"assay":assay.name,"value":value,"unit":unit})
+        except Exception as exc:
+            errors.append({"line":line,"error":str(exc)})
+    return {"valid":valid,"errors":errors,"can_import":len(errors)==0 and bool(valid)}
+
+
+@app.post("/api/activities/import", status_code=201)
+def import_activities(payload: dict, db: Session = Depends(get_db)):
+    preview=import_preview({"project_id":payload.get("project_id"),"csv":payload.get("csv","")},db)
+    if not preview["valid"]: return {"imported":0,**preview}
+    count=0
+    for item in preview["valid"]:
+        compound=db.scalar(select(Compound).where(Compound.project_id==payload["project_id"],Compound.compound_id==item["compound_id"]))
+        assay=db.scalar(select(AssayDefinition).where(AssayDefinition.project_id==payload["project_id"],AssayDefinition.name==item["assay"],AssayDefinition.active==True))
+        version=next(v for v in compound.versions if v.version_number==compound.current_version)
+        add_measurement(assay.id,{"version_id":version.id,"value":item["value"],"unit":item["unit"]},db);count+=1
+    return {"imported":count,"errors":preview["errors"]}
+
+
+@app.get("/api/projects/{project_id}/sar")
+def sar_table(project_id: int, assay_id: int, db: Session = Depends(get_db)):
+    assay=db.get(AssayDefinition,assay_id)
+    if not assay or assay.project_id!=project_id: raise HTTPException(status_code=404,detail="Assay not found")
+    compounds=db.scalars(select(Compound).where(Compound.project_id==project_id)).all();rows=[]
+    dataset=[]
+    for compound in compounds:
+        version=next((v for v in compound.versions if v.version_number==compound.current_version),None)
+        exp=_experimental_summary(db,version.id,assay.id)
+        mol,fp,desc,scaffold=fingerprint_and_descriptors(version.canonical_smiles)
+        prediction=db.scalar(select(ActivityPrediction).where(ActivityPrediction.version_id==version.id,ActivityPrediction.assay_id==assay.id).order_by(ActivityPrediction.created_at.desc()))
+        rows.append({"row_id":compound.id,"compound":compound.compound_id,"name":compound.name,"svg":version.svg,
+                     "properties":{k:version.properties_json.get(k) for k in ["molecular_weight","clogp","tpsa","qed"]},
+                     "experimental":exp,"predicted":{"type":"AI Predicted","pactivity":prediction.predicted_pactivity,
+                        "value_nm":round(prediction.predicted_value_nm,3),"confidence":prediction.confidence,
+                        "applicability_domain":prediction.applicability_domain} if prediction else None,
+                     "fingerprint":fp,"descriptors":desc,"scaffold":scaffold})
+        if exp:dataset.append({"row_id":compound.id,"compound_id":compound.compound_id,"smiles":version.canonical_smiles,
+                               "target":exp["pactivity_mean"],"fingerprints":fp,"descriptors":desc,"scaffold":scaffold})
+    return {"assay":_assay_out(assay),"compounds":[{key:value for key,value in row.items() if key!="fingerprint"} for row in rows],"training_compounds":[r["compound_id"] for r in dataset]}
+
+
+@app.post("/api/assays/{assay_id}/models/train")
+def train_assay_model(assay_id: int, db: Session = Depends(get_db)):
+    assay=db.get(AssayDefinition,assay_id)
+    if not assay or not assay.active: raise HTTPException(status_code=404,detail="Active assay not found")
+    compounds=db.scalars(select(Compound).where(Compound.project_id==assay.project_id)).all()
+    rows=[];features=[];targets=[];scaffolds=[];descriptor_rows=[];fingerprints=[]
+    for compound in compounds:
+        current=next((v for v in compound.versions if v.version_number==compound.current_version),None)
+        summary=_experimental_summary(db,current.id,assay_id)
+        if not summary: continue
+        _,fp,desc,scaffold=fingerprint_and_descriptors(current.canonical_smiles)
+        fingerprints.append(fp);descriptor_rows.append(desc);features.append(feature_vector(fp,desc));targets.append(summary["pactivity_mean"]);scaffolds.append(scaffold)
+        rows.append({"row_id":compound.id,"compound_id":compound.compound_id,"name":compound.name,"smiles":current.canonical_smiles,"svg":current.svg,"activity_nm":summary["mean_nm"],"pactivity":summary["pactivity_mean"]})
+    n=len(targets)
+    policy={"N":n,"status":"INSUFFICIENT DATA" if n<5 else ("SIMILARITY ONLY" if n<15 else ("SIMPLE QSAR ALLOWED" if n<30 else "CROSS-VALIDATED QSAR"))}
+    if n<15:
+        return {"policy":policy,"model":None,"message":"Formal QSAR requires at least 15 experimental compounds."}
+    encoded,name,metrics,reason,n=train_model({"features":features,"targets":targets,"scaffolds":scaffolds})
+    sklearn_version=__import__("sklearn").__version__
+    model=QSARModel(assay_id=assay_id,algorithm=name,sklearn_version=sklearn_version,rdkit_version=ENGINE_VERSION,
+                    fingerprint_config=FINGERPRINT_CONFIG,descriptor_config=DESCRIPTOR_NAMES,
+                    training_n=n,metrics=metrics,selection_reason=reason,pickle_data=encoded)
+    db.add(model);db.commit();db.refresh(model)
+    return {"policy":policy,"model":{"model_uid":model.model_uid,"algorithm":name,"training_n":n,
+                                     "validation_method":"random KFold CV + Murcko scaffold GroupKFold","metrics":metrics,
+                                     "selection_reason":reason}}
+
+
+@app.post("/api/assays/{assay_id}/predict/{row_id}", status_code=201)
+def predict_activity(assay_id: int, row_id: int, db: Session = Depends(get_db)):
+    assay=db.get(AssayDefinition,assay_id);compound=db.get(Compound,row_id)
+    if not assay or not assay.active or not compound or compound.project_id!=assay.project_id: raise HTTPException(status_code=404,detail="Active assay/compound pair not found")
+    current=next(v for v in compound.versions if v.version_number==compound.current_version)
+    existing=_experimental_summary(db,current.id,assay_id)
+    _,target_fp,target_desc,_=fingerprint_and_descriptors(current.canonical_smiles)
+    dataset={"rows":[],"fingerprints":[],"descriptors":[]}
+    for other in db.scalars(select(Compound).where(Compound.project_id==assay.project_id)).all():
+        version=next(v for v in other.versions if v.version_number==other.current_version)
+        summary=_experimental_summary(db,version.id,assay_id)
+        if not summary: continue
+        _,fp,desc,_=fingerprint_and_descriptors(version.canonical_smiles)
+        dataset["rows"].append({"row_id":other.id,"compound_id":other.compound_id,"activity_nm":summary["mean_nm"],"pactivity":summary["pactivity_mean"]});dataset["fingerprints"].append(fp);dataset["descriptors"].append([desc[name] for name in DESCRIPTOR_NAMES])
+    neighbors=nearest_neighbors(target_fp,dataset)
+    domain,confidence,max_similarity,outside=applicability(neighbors,target_desc,{"descriptors":np.array(dataset["descriptors"]) if dataset["descriptors"] else np.empty((0,len(DESCRIPTOR_NAMES)))})
+    model_row=db.scalar(select(QSARModel).where(QSARModel.assay_id==assay_id).order_by(QSARModel.created_at.desc()))
+    n=len(dataset["rows"])
+    if model_row and n>=15:
+        data=pickle.loads(base64.b64decode(model_row.pickle_data));model=data["model"]
+        x=np.vstack([feature_vector(fingerprint_and_descriptors(current.canonical_smiles)[1],target_desc)])
+        predicted_p=float(np.asarray(model.predict(x))[0]);ptype=f"QSAR {data['name']}";uncertainty=None
+    elif n>=5:
+        weights=np.array([neighbor["similarity"]**4 for neighbor in neighbors[:min(5,len(neighbors))]])
+        values=np.array([neighbor["pactivity"] for neighbor in neighbors[:len(weights)]])
+        predicted_p=float(np.average(values,weights=weights));ptype="Similarity nearest neighbor"
+        uncertainty=float(np.std(values)/max(len(weights),1)**.5) if len(weights)>1 else .75
+    else:
+        raise HTTPException(status_code=409,detail={"status":"INSUFFICIENT DATA","message":"Fewer than five experimental compounds are available.","nearest_neighbors":neighbors})
+    prediction=ActivityPrediction(assay_id=assay_id,version_id=current.id,model_id=model_row.id if model_row else None,
+                                  prediction_type=ptype,predicted_pactivity=predicted_p,predicted_value_nm=value_from_pactivity(predicted_p),
+                                  confidence="LOW" if domain=="OUT OF DOMAIN" else confidence,applicability_domain=domain,
+                                  nearest_neighbors=neighbors,uncertainty=uncertainty,
+                                  provenance_json={"source":"Validated QSAR/similarity deterministic engine","rdkit_version":ENGINE_VERSION,
+                                                   "sklearn_version":__import__("sklearn").__version__,
+                                                   "fingerprint":FINGERPRINT_CONFIG,"descriptors":DESCRIPTOR_NAMES,
+                                                   "training_n":model_row.training_n if model_row else n,
+                                                   "model_metrics":model_row.metrics if model_row else None,
+                                                   "max_similarity":max_similarity,"descriptor_outside_training_space":outside,
+                                                   "experimental_priority_note":"Experimental values always override predictions."})
+    db.add(prediction);db.commit();db.refresh(prediction)
+    return {"prediction_id":prediction.id,"type":"Predicted","prediction_type":ptype,"pactivity":round(predicted_p,3),
+            "value_nm":round(value_from_pactivity(predicted_p),3),"confidence":confidence,"applicability_domain":domain,
+            "nearest_neighbors":neighbors,"provenance":prediction.provenance_json}
+
+
+@app.get("/api/projects/{project_id}/cliffs")
+def activity_cliffs(project_id: int, assay_id: int, similarity_threshold: float = .7, delta_threshold: float = 1.0, db: Session = Depends(get_db)):
+    assay=db.get(AssayDefinition,assay_id);rows=[]
+    if not assay or assay.project_id!=project_id:raise HTTPException(status_code=404,detail="Assay not found")
+    compounds=db.scalars(select(Compound).where(Compound.project_id==project_id)).all();items=[]
+    for c in compounds:
+      v=next(v for v in c.versions if v.version_number==c.current_version);e=_experimental_summary(db,v.id,assay_id)
+      if e: _,fp,_,_=fingerprint_and_descriptors(v.canonical_smiles);items.append((c,v,e,fp))
+    for i,(a,av,ae,af) in enumerate(items):
+      for b,bv,be,bf in items[i+1:]:
+       sim=tanimoto_similarity(af,bf);delta=abs(ae["pactivity_mean"]-be["pactivity_mean"])
+       if sim>=similarity_threshold and delta>=delta_threshold:
+        rows.append({"a":{"compound_id":a.compound_id,"pactivity":ae["pactivity_mean"],"svg":av.svg},"b":{"compound_id":b.compound_id,"pactivity":be["pactivity_mean"],"svg":bv.svg},"similarity":round(sim,3),"delta_pactivity":round(delta,3)})
+    return {"thresholds":{"similarity":similarity_threshold,"delta_pactivity":delta_threshold},"cliffs":rows}
+
+
+@app.get("/api/projects/{project_id}/sar-export.csv")
+def sar_export(project_id: int, assay_id: int, db: Session = Depends(get_db)):
+    from fastapi.responses import PlainTextResponse
+    result=sar_table(project_id,assay_id,db);lines=["compound_id,structure_source,activity_source,value_nm,pactivity,MW,cLogP,TPSA,QED"]
+    for row in result["compounds"]:
+      activity=row["experimental"]; source="Experimental" if activity else "No experimental value"; val=(activity["mean_nm"] if activity else "");p=(activity["pactivity_mean"] if activity else "")
+      lines.append(",".join(map(str,[row["compound"],source,source,val,p,row["properties"]["molecular_weight"],row["properties"]["clogp"],row["properties"]["tpsa"],row["properties"]["qed"]])))
+    return PlainTextResponse("\n".join(lines),media_type="text/csv")
 
 
 @app.get("/", response_class=HTMLResponse)
