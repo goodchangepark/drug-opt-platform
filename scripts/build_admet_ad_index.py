@@ -32,6 +32,8 @@ for cyp_key in (
 ):
     cyp_root = ROOT / "models" / "admetica" / "cyp" / cyp_key
     datasets.append((cyp_root / "training.csv", "smiles", None, cyp_root / "ad_index.npz"))
+transporter_root = ROOT / "models" / "admetica" / "transporter" / "pgp-inhibitor"
+datasets.append((transporter_root / "training.csv", "Smiles", None, transporter_root / "ad_index.npz"))
 clearance_root = ROOT / "models/openadmet/microsomal_clearance"
 for species in ("HLM", "RLM", "MLM"):
     datasets.append((

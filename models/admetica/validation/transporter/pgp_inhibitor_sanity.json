@@ -1,0 +1,13 @@
+{
+  "endpoint": "Human P-gp/ABCB1 inhibitor classification",
+  "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+  "independent_validation": "NOT_AVAILABLE",
+  "metrics": null,
+  "reason": "Reference compounds overlap or closely match the Broccatelli training chemistry; this is a directionality sanity check only.",
+  "reference_structure_source": "PubChem PUG REST, retrieved 2026-08-25",
+  "results": [
+    {"compound": "Verapamil", "known_direction": "P-gp inhibitor", "probability": 0.999378, "prediction": "INHIBITOR", "domain": "IN_DOMAIN", "nearest_training_similarity": 1.0, "direction_correct": true},
+    {"compound": "Tariquidar", "known_direction": "P-gp inhibitor", "probability": 0.999809, "prediction": "INHIBITOR", "domain": "IN_DOMAIN", "nearest_training_similarity": 0.9014, "direction_correct": true},
+    {"compound": "Zosuquidar", "known_direction": "P-gp inhibitor", "probability": 0.999983, "prediction": "INHIBITOR", "domain": "IN_DOMAIN", "nearest_training_similarity": 1.0, "direction_correct": true}
+  ]
+}

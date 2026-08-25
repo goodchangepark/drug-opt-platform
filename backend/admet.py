@@ -13,6 +13,50 @@ from .models import CompoundVersion, utcnow
 from .admet_predictor import MODEL_SPECS, registry_seed
 
 
+TRANSPORTER_UNAVAILABLE = {
+    "P-gp substrate": {
+        "transporter": "P-gp / ABCB1", "role": "SUBSTRATE", "species": "Human",
+        "reason": "Distinct public substrate models were identified, but no checkpoint with sufficiently documented validation, reusable local weights, and clear redistribution terms qualified; the P-gp inhibitor checkpoint is never reused.",
+    },
+    "BCRP substrate": {
+        "transporter": "BCRP / ABCG2", "role": "SUBSTRATE", "species": "Human",
+        "reason": "No scientifically qualified public, locally deployable BCRP substrate checkpoint with documented assay provenance and validation was found.",
+    },
+    "BCRP inhibitor": {
+        "transporter": "BCRP / ABCG2", "role": "INHIBITOR", "species": "Human",
+        "reason": "Web predictors and datasets exist, but no scientifically qualified public checkpoint with clear local redistribution terms was found.",
+    },
+    "BSEP inhibitor": {
+        "transporter": "BSEP / ABCB11", "role": "INHIBITOR", "species": "Human",
+        "reason": "Public web models/datasets exist, but no scientifically qualified reusable local checkpoint with clear license and validation provenance was found.",
+    },
+    "OATP1B1 inhibitor": {
+        "transporter": "OATP1B1 / SLCO1B1", "role": "INHIBITOR", "species": "Human",
+        "reason": "No scientifically qualified public, locally deployable OATP1B1 inhibitor checkpoint with clear redistribution terms was found.",
+    },
+    "OATP1B3 inhibitor": {
+        "transporter": "OATP1B3 / SLCO1B3", "role": "INHIBITOR", "species": "Human",
+        "reason": "No scientifically qualified public, locally deployable OATP1B3 inhibitor checkpoint with clear redistribution terms was found.",
+    },
+    "OCT1 inhibitor": {
+        "transporter": "OCT1 / SLC22A1", "role": "INHIBITOR", "species": "Human",
+        "reason": "The available public data are insufficient to qualify a licensed, validated local OCT1 inhibitor checkpoint.",
+    },
+    "OCT2 inhibitor": {
+        "transporter": "OCT2 / SLC22A2", "role": "INHIBITOR", "species": "Human",
+        "reason": "The available public data are insufficient to qualify a licensed, validated local OCT2 inhibitor checkpoint.",
+    },
+    "MATE1 inhibitor": {
+        "transporter": "MATE1 / SLC47A1", "role": "INHIBITOR", "species": "Human",
+        "reason": "No scientifically qualified public, locally deployable MATE1 inhibitor checkpoint with clear redistribution terms was found.",
+    },
+    "MATE2-K inhibitor": {
+        "transporter": "MATE2-K / SLC47A2", "role": "INHIBITOR", "species": "Human",
+        "reason": "No scientifically qualified public, locally deployable MATE2-K inhibitor checkpoint with clear redistribution terms was found.",
+    },
+}
+
+
 def ensure_admet_schema(engine):
     from sqlalchemy import inspect
     inspector = inspect(engine)
@@ -33,19 +77,26 @@ def ensure_admet_schema(engine):
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
             "Monkey liver microsomal intrinsic clearance",
             "CYP1A2 substrate", "CYP2C19 substrate",
-        ]
+        ] + list(TRANSPORTER_UNAVAILABLE)
         for name in registry_names:
             if name not in registered:
                 values = registry_seed(name) if name in MODEL_SPECS else {
                     "endpoint_name": name,
                     "model_name": f"{name} — no scientifically qualified model installed",
-                    "model_version": "unavailable-stage3c" if name.startswith("CYP") else "unavailable-stage3b", "implementation_status": "MODEL_UNAVAILABLE",
+                    "model_version": (
+                        "unavailable-stage3e" if name in TRANSPORTER_UNAVAILABLE else
+                        ("unavailable-stage3c" if name.startswith("CYP") else "unavailable-stage3b")
+                    ), "implementation_status": "MODEL_UNAVAILABLE",
                     "is_active": False,
-                    "provenance_json": {"reason": (
-                        "A released upstream checkpoint exists, but CYP1A2/CYP2C19 substrate endpoints lack publisher-reported validation and sufficiently clear dataset/assay provenance; disabled rather than emitting an unsupported prediction."
-                        if name in {"CYP1A2 substrate", "CYP2C19 substrate"} else
-                        "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."
-                    )},
+                    "provenance_json": (
+                        {**TRANSPORTER_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False}
+                        if name in TRANSPORTER_UNAVAILABLE else
+                        {"reason": (
+                            "A released upstream checkpoint exists, but CYP1A2/CYP2C19 substrate endpoints lack publisher-reported validation and sufficiently clear dataset/assay provenance; disabled rather than emitting an unsupported prediction."
+                            if name in {"CYP1A2 substrate", "CYP2C19 substrate"} else
+                            "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."
+                        )}
+                    ),
                 }
                 connection.execute(
                     ADMETModelRegistry.__table__.insert().values(**values)

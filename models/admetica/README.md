@@ -1,6 +1,6 @@
-# Admetica model assets (Stages 3A/3B)
+# Admetica model assets (Stages 3A-3E)
 
-The aqueous-solubility, Caco-2, and human PPB checkpoints are integrated. The assets came from the
+The aqueous-solubility, Caco-2, human PPB, CYP, and human P-gp inhibitor checkpoints are integrated. The assets came from the
 [Datagrok Admetica repository](https://github.com/datagrok-ai/admetica) at commit
 `d4f70569901c189f39fa37871e2aeabeef3adc83` under its MIT license. Original Chemprop 2.0
 checkpoints were deterministically converted with Chemprop 2.2.4's
@@ -11,10 +11,12 @@ checkpoints were deterministically converted with Chemprop 2.2.4's
 | Caco-2 | `87bedd7ea3b314557f803b6ec3f3e7726dba0cdcd19128fd232b2d10511bc8d1` | `685364e2d7607caa88b37d447e4910ec17aa33964f9947bb12881241fecc335f` |
 | Solubility | `1e41f9e30687954657d3ac19fd579febc1d66452bfa718c9951b87da115dd6f7` | `beffa08a63196e97e9e5d25a99300121a6314f71a23fc79716d6028f4f89ff94` |
 | Human PPB (% bound) | `88d4891f0738ae33689c59026a420102b92aa9db567982f36bdc7b5de3841525` | `b658f378274afa340c6af8473d2b6b4ac3f427e54ce19d37449181a619afa1d5` |
+| Human P-gp/ABCB1 inhibitor | `2d3f039a49c8ed1ea7ae084f538f0957530a48f602fa8501e02c97c3f96e146e` | `9c9c634c83c34a143cfb764b4f9f61154981b12385d05394bd51ab791bc68890` |
 
 AD-index SHA-256: Caco-2 `96e1001c24bd43c3c47802c2f2f87cbfb225f9feff71f5a0926a8574f4d27478`;
 Solubility `7c62d63d0e345b119f1ea14200feb6d14b35a3f07da58ec58ca10594135a3056`;
-Human PPB `cc8c050015ae5567b5ef78ad2bb7299697609722be4ee5bf71bd26c058fb86c4`.
+Human PPB `cc8c050015ae5567b5ef78ad2bb7299697609722be4ee5bf71bd26c058fb86c4`;
+P-gp inhibitor `e667f964428cff8e90e498853253d6c65bf897c36991fc60b99a4b2bd2578464`.
 
 The external Caco-2 reference file has SHA-256
 `2ac729c783a8b9995d99e2794f36bc3bf6f9d693faa3e1194ceb12b842899889`. It contains 34

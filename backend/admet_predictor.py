@@ -1,4 +1,4 @@
-"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A-3C)."""
+"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A-3E)."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ MODEL_ROOT = ROOT / "models" / "admetica"
 OPENADMET_ROOT = ROOT / "models" / "openadmet" / "microsomal_clearance"
 MODEL_VERSION = "admetica-d4f7056-chemprop-v2.1"
 CYP_MODEL_VERSION = "admetica-d4f7056-cyp-chemprop-v2.1"
+TRANSPORTER_MODEL_VERSION = "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
 
 MODEL_SPECS = {
     "Solubility": {
@@ -169,6 +170,62 @@ MODEL_SPECS["CYP3A4 substrate"]["independent_validation"] = {
     "note": "Directionality-only sanity set; AUROC/AUPRC/specificity/balanced accuracy/MCC cannot be calculated from positives alone.",
 }
 
+# The only transporter checkpoint qualified for local activation in Stage 3E.
+# P-gp substrate and every other requested transporter/role remain explicit
+# MODEL_UNAVAILABLE registry entries: endpoint family membership is not a
+# scientific basis for reusing this inhibitor model.
+MODEL_SPECS["P-gp inhibitor"] = {
+    "model_key": "transporter/pgp-inhibitor",
+    "model_family": "admetica",
+    "prediction_type": "binary_classification",
+    "model_version": TRANSPORTER_MODEL_VERSION,
+    "display_name": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+    "transporter": "P-gp / ABCB1",
+    "role": "INHIBITOR",
+    "species": "Human",
+    "decision_threshold": 0.5,
+    "endpoint_definition": (
+        "Binary human P-glycoprotein (P-gp/ABCB1) functional inhibitor classification. "
+        "The released model output is a binary-model probability score, not Ki, IC50, "
+        "efflux ratio, or substrate status."
+    ),
+    "assay_definition": (
+        "Broccatelli literature aggregation from more than 60 sources with heterogeneous "
+        "human P-gp functional assays, cell systems, probes, and conditions. The source "
+        "assigned inhibitor labels at IC50 <= 15 µM or >25-30% inhibition and non-inhibitor "
+        "labels at IC50 >= 100 µM or <10-12% inhibition where such evidence was reported."
+    ),
+    "unit": "probability",
+    "training_dataset": (
+        "Broccatelli et al. human P-gp inhibitor compilation as curated by Admetica "
+        "(1,275 reported compounds; 666 inhibitors, 609 non-inhibitors; 1,227 valid "
+        "structures in the packaged curated file)"
+    ),
+    "training_n": 1275,
+    "validation": {
+        "specificity": 0.916, "sensitivity": 0.863, "accuracy": 0.888,
+        "balanced_accuracy": 0.889, "scope": "Admetica publisher-reported validation",
+        "probability_calibration": "Not reported",
+    },
+    "independent_validation": {
+        "status": "NOT_AVAILABLE",
+        "reason": (
+            "No rigorously independent public structure/label set was qualified: accessible "
+            "alternatives share the Broccatelli/Chen source lineage or do not publish reusable structures."
+        ),
+    },
+    "source": "https://github.com/datagrok-ai/admetica",
+    "license": (
+        "MIT for the Admetica repository/checkpoint; the upstream literature aggregation "
+        "retains source-specific terms"
+    ),
+    "limitations": (
+        "Single deterministic checkpoint; probability calibration and rigorous independent "
+        "validation are unavailable. Training assays are heterogeneous, and exact training-set "
+        "overlap cannot establish prospective performance. Confidence is therefore capped at LOW."
+    ),
+}
+
 for _species, _task, _count in (("HLM", 0, 5086), ("RLM", 1, 670), ("MLM", 2, 5086)):
     MODEL_SPECS[f"{_species} intrinsic clearance"] = {
         "model_key": "microsomal_clearance",
@@ -244,7 +301,9 @@ _DESCRIPTOR_NAMES = ("MW", "cLogP", "TPSA", "HBD", "HBA", "RotB")
 
 def registry_seed(endpoint: str) -> dict:
     spec = MODEL_SPECS[endpoint]
-    if spec.get("role"):
+    if spec.get("transporter"):
+        supported_matrix = ["human transporter functional assay"]
+    elif spec.get("role"):
         supported_matrix = ["human recombinant CYP enzyme"]
     elif spec.get("matrix"):
         supported_matrix = [spec["matrix"]]
@@ -433,18 +492,23 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
         spec = MODEL_SPECS[endpoint]
         positive = value >= spec["decision_threshold"]
         positive_label = spec["role"]
+        target = spec.get("isoform") or spec.get("transporter")
         result.update({
             "probability": value,
             "classification": positive_label if positive else f"NON_{positive_label}",
-            "isoform": spec["isoform"],
             "role": spec["role"],
             "decision_threshold": spec["decision_threshold"],
             "liability_summary": ({
-                "flag": f"Potential {spec['isoform']} inhibition concern",
+                "flag": f"Potential {target} inhibition concern",
                 "rule": f"inhibitor probability >= {spec['decision_threshold']:.2f}",
                 "basis": "The model's fixed binary decision threshold; this is a screening flag, not an IC50 claim.",
             } if spec["role"] == "INHIBITOR" and positive else None),
         })
+        if spec.get("isoform"):
+            result["isoform"] = spec["isoform"]
+        if spec.get("transporter"):
+            result["transporter"] = spec["transporter"]
+            result["species"] = spec["species"]
     return result
 
 
@@ -473,6 +537,14 @@ def _normalise_unit(unit: str) -> str:
     return "".join(str(unit).lower().replace("μ", "µ").split())
 
 
+def _classification_target_terms(spec: dict) -> tuple[str, ...]:
+    if spec.get("transporter") == "P-gp / ABCB1":
+        return ("p-gp", "pgp", "p-glycoprotein", "abcb1")
+    if spec.get("transporter"):
+        return (spec["transporter"].lower(),)
+    return (spec["isoform"].lower(),)
+
+
 def comparable_experimental(endpoint: str, measurement, endpoint_name: str) -> tuple[float | None, str]:
     """Convert compatible experimental values to the model's logarithmic output scale."""
     name = endpoint_name.lower()
@@ -484,19 +556,20 @@ def comparable_experimental(endpoint: str, measurement, endpoint_name: str) -> t
     unit = _normalise_unit(measurement.unit)
     if MODEL_SPECS[endpoint].get("prediction_type") == "binary_classification":
         spec = MODEL_SPECS[endpoint]
-        identity = f"{endpoint_name} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
-        isoform = spec["isoform"].lower()
+        identity = f"{endpoint_name} {measurement.species} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
+        target_terms = _classification_target_terms(spec)
         role_terms = ("inhibitor", "inhibition") if spec["role"] == "INHIBITOR" else ("substrate",)
         opposite_terms = ("substrate",) if spec["role"] == "INHIBITOR" else ("inhibitor", "inhibition")
-        if isoform not in identity or not any(term in identity for term in role_terms):
-            return None, "Different CYP isoform or role"
+        family = "transporter" if spec.get("transporter") else "CYP"
+        if not any(term in identity for term in target_terms) or not any(term in identity for term in role_terms):
+            return None, f"Different {family} target or role"
         if any(term in identity for term in opposite_terms):
-            return None, "CYP inhibitor and substrate evidence cannot be interchanged"
+            return None, f"{family} inhibitor and substrate evidence cannot be interchanged"
         if any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
-            return None, "Non-human CYP evidence is not comparable to the human model"
+            return None, f"Non-human {family} evidence is not comparable to the human model"
         if unit in {"class", "binary", "classification", "0/1"} and value in {0.0, 1.0}:
             return value, "Experimental binary classification"
-        return None, "Quantitative CYP evidence is retained but not numerically compared with a classification prediction"
+        return None, f"Quantitative {family} evidence is retained but not numerically compared with a classification prediction"
     if endpoint == "Solubility":
         if "intrinsic" in name or "ph" in name or "intrinsic" in matrix_method or "ph" in matrix_method:
             return None, "pH-specific/intrinsic solubility is not comparable to aggregate aqueous LogS"
@@ -602,20 +675,20 @@ def comparison_for_prediction(endpoint: str, predicted_value: float, measurement
     return comparisons
 
 
-def cyp_experimental_evidence(endpoint: str, predicted_probability: float, measurements, endpoint_names: dict[int, str]) -> list[dict]:
-    """Return matching CYP evidence without inventing cross-type numerical errors."""
+def classification_experimental_evidence(endpoint: str, predicted_probability: float, measurements, endpoint_names: dict[int, str]) -> list[dict]:
+    """Return matching classification evidence without cross-role/target numerical errors."""
     spec = MODEL_SPECS.get(endpoint, {})
     if spec.get("prediction_type") != "binary_classification":
         return []
     result = []
-    isoform = spec["isoform"].lower()
+    target_terms = _classification_target_terms(spec)
     role_terms = ("inhibitor", "inhibition") if spec["role"] == "INHIBITOR" else ("substrate",)
     opposite_terms = ("substrate",) if spec["role"] == "INHIBITOR" else ("inhibitor", "inhibition")
     predicted_class = 1 if predicted_probability >= spec["decision_threshold"] else 0
     for measurement in measurements:
         endpoint_name = endpoint_names.get(measurement.endpoint_id, "")
-        identity = f"{endpoint_name} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
-        if isoform not in identity or not any(term in identity for term in role_terms):
+        identity = f"{endpoint_name} {measurement.species} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
+        if not any(term in identity for term in target_terms) or not any(term in identity for term in role_terms):
             continue
         if any(term in identity for term in opposite_terms) or any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
             continue
@@ -634,9 +707,14 @@ def cyp_experimental_evidence(endpoint: str, predicted_probability: float, measu
             "comparison_note": (
                 "Binary experimental class compared with the model class at the documented threshold."
                 if classification else
-                "Quantitative experimental CYP evidence (for example IC50) is displayed separately; no error is calculated against a classification probability."
+                "Quantitative experimental evidence (for example IC50) is displayed separately; no error is calculated against a classification probability."
             ),
             "absolute_error": None,
             "relative_error_percent": None,
         })
     return result
+
+
+def cyp_experimental_evidence(endpoint: str, predicted_probability: float, measurements, endpoint_names: dict[int, str]) -> list[dict]:
+    """Backward-compatible Stage 3C name for generic binary evidence matching."""
+    return classification_experimental_evidence(endpoint, predicted_probability, measurements, endpoint_names)

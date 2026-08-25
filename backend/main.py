@@ -36,7 +36,7 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3d")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3e")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -56,7 +56,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 3, "step": "3D", "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 3, "step": "3E", "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -542,7 +542,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
     run = ADMETPredictionRun(
         version_id=row_id, inputs_hash=digest, status="RUNNING",
-        message="Running endpoint-specific ADMET predictions through Stage 3C.",
+        message="Running endpoint-specific ADMET predictions through Stage 3E.",
     )
     db.add(run); db.flush()
     created, unavailable = [], []
@@ -580,7 +580,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         for key in ("assay_definition", "training_n", "independent_validation"):
             if MODEL_SPECS[model.endpoint_name].get(key) is not None:
                 output[key] = MODEL_SPECS[model.endpoint_name][key]
-        for key in ("probability", "classification", "isoform", "role", "decision_threshold", "liability_summary"):
+        for key in ("probability", "classification", "isoform", "transporter", "species", "role", "decision_threshold", "liability_summary"):
             if result.get(key) is not None:
                 output[key] = result[key]
         if result.get("derived_outputs") is not None:
@@ -599,7 +599,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if selected_predictions and unavailable:
         run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
     elif selected_predictions:
-        run.status, run.message = "COMPLETE", "Stage 3A/3B/3C endpoint predictions completed." + (
+        run.status, run.message = "COMPLETE", "Stage 3A-3E endpoint predictions completed." + (
             f" Reused {len(cached)} cached endpoint." if cached else ""
         )
     else:
