@@ -25,6 +25,13 @@ datasets = [
     (ROOT / "models/admetica/caco2/training.csv", "Drug", None, ROOT / "models/admetica/caco2/ad_index.npz"),
     (ROOT / "models/admetica/ppbr/training.csv", "Drug", None, ROOT / "models/admetica/ppbr/ad_index.npz"),
 ]
+for cyp_key in (
+    "cyp1a2-inhibitor", "cyp2c9-inhibitor", "cyp2c19-inhibitor",
+    "cyp2d6-inhibitor", "cyp3a4-inhibitor", "cyp2c9-substrate",
+    "cyp2d6-substrate", "cyp3a4-substrate",
+):
+    cyp_root = ROOT / "models" / "admetica" / "cyp" / cyp_key
+    datasets.append((cyp_root / "training.csv", "smiles", None, cyp_root / "ad_index.npz"))
 clearance_root = ROOT / "models/openadmet/microsomal_clearance"
 for species in ("HLM", "RLM", "MLM"):
     datasets.append((

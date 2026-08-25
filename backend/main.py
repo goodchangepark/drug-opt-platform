@@ -17,7 +17,7 @@ from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefin
 from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
-from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparison_for_prediction,
+from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparison_for_prediction, cyp_experimental_evidence,
                               metabolic_stability_assessment, model_files_available, predict_endpoint)
 from .database import Base, SessionLocal, engine, get_db
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
@@ -26,7 +26,7 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3b")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3c")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -308,7 +308,9 @@ def _admet_endpoint_out(endpoint: ADMETEndpoint):
 
 
 def _admet_model_out(model: ADMETModelRegistry):
-    available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (False, "No endpoint-specific model installed in the current stage")
+    available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (
+        False, (model.provenance_json or {}).get("reason", "No endpoint-specific model installed in the current stage"),
+    )
     return {
         "id": model.id, "endpoint": model.endpoint_name, "model_name": model.model_name,
         "model_version": model.model_version,
@@ -324,6 +326,10 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
     ) if prediction.predicted_value is not None and prediction.model.endpoint_name in MODEL_SPECS else []
     outputs = dict(prediction.outputs_json or {})
     outputs["experimental_comparisons"] = comparisons
+    if prediction.model.endpoint_name in MODEL_SPECS and MODEL_SPECS[prediction.model.endpoint_name].get("prediction_type") == "binary_classification":
+        outputs["experimental_evidence"] = cyp_experimental_evidence(
+            prediction.model.endpoint_name, prediction.predicted_value, measurements, endpoint_names,
+        )
     preferred = None
     if comparisons:
         first = comparisons[0]
@@ -525,7 +531,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
     run = ADMETPredictionRun(
         version_id=row_id, inputs_hash=digest, status="RUNNING",
-        message="Running endpoint-specific ADMET predictions through Stage 3B.",
+        message="Running endpoint-specific ADMET predictions through Stage 3C.",
     )
     db.add(run); db.flush()
     created, unavailable = [], []
@@ -560,6 +566,12 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             "applicability_domain_details": domain,
             "uncertainty_reason": result["uncertainty_reason"],
         }
+        for key in ("assay_definition", "training_n", "independent_validation"):
+            if MODEL_SPECS[model.endpoint_name].get(key) is not None:
+                output[key] = MODEL_SPECS[model.endpoint_name][key]
+        for key in ("probability", "classification", "isoform", "role", "decision_threshold", "liability_summary"):
+            if result.get(key) is not None:
+                output[key] = result[key]
         if result.get("derived_outputs") is not None:
             output["derived_outputs"] = result["derived_outputs"]
         if result.get("metabolic_stability_assessment") is not None:
@@ -576,7 +588,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if selected_predictions and unavailable:
         run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
     elif selected_predictions:
-        run.status, run.message = "COMPLETE", "Stage 3A/3B endpoint predictions completed." + (
+        run.status, run.message = "COMPLETE", "Stage 3A/3B/3C endpoint predictions completed." + (
             f" Reused {len(cached)} cached endpoint." if cached else ""
         )
     else:

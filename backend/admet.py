@@ -32,15 +32,20 @@ def ensure_admet_schema(engine):
         registry_names = list(MODEL_SPECS) + [
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
             "Monkey liver microsomal intrinsic clearance",
+            "CYP1A2 substrate", "CYP2C19 substrate",
         ]
         for name in registry_names:
             if name not in registered:
                 values = registry_seed(name) if name in MODEL_SPECS else {
                     "endpoint_name": name,
                     "model_name": f"{name} — no scientifically qualified model installed",
-                    "model_version": "unavailable-stage3b", "implementation_status": "MODEL_UNAVAILABLE",
+                    "model_version": "unavailable-stage3c" if name.startswith("CYP") else "unavailable-stage3b", "implementation_status": "MODEL_UNAVAILABLE",
                     "is_active": False,
-                    "provenance_json": {"reason": "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."},
+                    "provenance_json": {"reason": (
+                        "A released upstream checkpoint exists, but CYP1A2/CYP2C19 substrate endpoints lack publisher-reported validation and sufficiently clear dataset/assay provenance; disabled rather than emitting an unsupported prediction."
+                        if name in {"CYP1A2 substrate", "CYP2C19 substrate"} else
+                        "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."
+                    )},
                 }
                 connection.execute(
                     ADMETModelRegistry.__table__.insert().values(**values)

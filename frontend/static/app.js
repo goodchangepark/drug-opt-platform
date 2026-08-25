@@ -140,6 +140,7 @@ function App(){
     e('div',{key:'model'},e('strong',{},'Model: '),prediction.model.model_name+' · '+prediction.model.model_version),
     e('div',{key:'source'},[e('strong',{},'Source: '),e('a',{href:details.source||output.model_source,target:'_blank',rel:'noreferrer'},details.source||output.model_source)]),
     e('div',{key:'definition'},[e('strong',{},'Endpoint: '),details.endpoint_definition||output.endpoint_definition]),
+    (details.assay_definition||output.assay_definition)&&e('div',{key:'assay'},[e('strong',{},'Assay: '),details.assay_definition||output.assay_definition]),
     e('div',{key:'training'},[e('strong',{},'Training: '),details.training_dataset||output.training_dataset]),
     e('div',{key:'validation'},[e('strong',{},'Validation: '),Object.entries(validation).map(([key,value])=>key+' '+value).join(' · ')]),
     details.independent_validation&&e('div',{key:'independent'},[e('strong',{},'Independent validation: '),Object.entries(details.independent_validation).map(([key,value])=>key+' '+value).join(' · ')]),
@@ -147,8 +148,32 @@ function App(){
     e('div',{key:'ad'},[e('strong',{},'AD evidence: '),'nearest similarity '+(domain.nearest_training_similarity??'—')+' · chemical-space distance '+(domain.chemical_space_distance??'—')+(domain.descriptors_outside_range?.length?' · outside '+domain.descriptors_outside_range.join(', '):' · descriptors within training range')]),
     Object.keys(derived).length>0&&e('div',{key:'derived'},[e('strong',{},'Derived output: '),Object.entries(derived).map(([key,value])=>key+' '+(typeof value==='number'?Number(value).toPrecision(5):value)).join(' · ')]),
     assessment&&e('div',{key:'assessment'},[e('strong',{},'Metabolic assessment: '),assessment.category+(assessment.metabolic_liability_flag?' · '+assessment.metabolic_liability_flag:'')+' · '+(assessment.thresholds?.basis||'')]),
+    output.liability_summary&&e('div',{key:'cyp-liability'},[e('strong',{},'CYP liability rule: '),output.liability_summary.flag+' · '+output.liability_summary.rule+' · '+output.liability_summary.basis]),
     e('div',{key:'limits'},[e('strong',{},'Limitations: '),details.limitations||output.limitations])
    ])
+  ]);
+ }
+
+ function cypPredictionTable(rows){
+  if(!rows.length)return Empty({children:'No CYP predictions yet. Run prediction to evaluate installed endpoints.'});
+  return e('table',{},[
+   e('thead',{key:'head'},e('tr',{},['CYP','Role','Prediction','Probability','Experimental','Domain','Confidence','Model',''].map(label=>e('th',{key:label},label)))),
+   e('tbody',{key:'body'},rows.map(prediction=>{
+    const output=prediction.outputs||{},evidence=output.experimental_evidence||[];
+    const experimental=evidence.length?evidence.map(item=>item.value+' '+item.unit+' ('+item.comparison+')').join(' · '):'—';
+    const liability=output.liability_summary?.flag;
+    return e('tr',{key:prediction.id},[
+     e('td',{key:'isoform'},output.isoform||prediction.endpoint.split(' ')[0]),
+     e('td',{key:'role'},output.role||prediction.endpoint.split(' ')[1]?.toUpperCase()),
+     e('td',{key:'class'},[output.classification||'—',liability&&e('div',{key:'flag',className:'fail small'},liability)]),
+     e('td',{key:'probability',className:'mono'},Number(output.probability??prediction.predicted_value).toFixed(4)),
+     e('td',{key:'experimental'},experimental),
+     e('td',{key:'domain'},prediction.applicability_domain),
+     e('td',{key:'confidence'},prediction.confidence),
+     e('td',{key:'model',className:'small'},prediction.model?.model_name+' '+prediction.model?.model_version),
+     e('td',{key:'details'},predictionDetails(prediction))
+    ]);
+   }))
   ]);
  }
 
@@ -228,9 +253,11 @@ function App(){
     ])
    ]),
    e('div',{className:'card',key:'predicted'},[
-    e('div',{className:'row toolbar',key:'title'},[e('h3',{},'ADMET predictions through Stage 3B'),e('button',{disabled:admetBusy||!admetVersionId,onClick:()=>runPrediction(Number(admetVersionId))},admetBusy?'Predicting…':'Run prediction')]),
-    e('p',{key:'scope',className:'small'},'Distribution: human PPB (% bound) with derived fu. Metabolism: species-isolated HLM/RLM/MLM scaled log10(mL/min/kg), not raw µL/min/mg or t½. Solubility and Caco-2 retain their Stage 3A definitions.'),
-    admetPredictionTable(admet?.predictions||[]),
+    e('div',{className:'row toolbar',key:'title'},[e('h3',{},'ADMET predictions through Stage 3C'),e('button',{disabled:admetBusy||!admetVersionId,onClick:()=>runPrediction(Number(admetVersionId))},admetBusy?'Predicting…':'Run prediction')]),
+    e('p',{key:'scope',className:'small'},'CYP inhibitor and substrate classifiers are isolated endpoints. Probabilities are binary class probabilities and are never converted to IC50. CYP1A2/CYP2C19 substrate models remain unavailable. Stage 3A/3B endpoints retain their definitions.'),
+    admetPredictionTable((admet?.predictions||[]).filter(row=>!row.endpoint.startsWith('CYP'))),
+    e('h4',{key:'cyp-predictions-title',style:{marginTop:'22px'}},'CYP inhibitor / substrate predictions'),
+    cypPredictionTable((admet?.predictions||[]).filter(row=>row.endpoint.startsWith('CYP'))),
     e('h4',{key:'registry-title',style:{marginTop:'22px'}},'Model registry'),
     (admet?.models||[]).length?e('table',{key:'registry'},[e('thead',{key:'head'},e('tr',{},['Endpoint','Model','Version','Unit','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{key:'body'},admet.models.map(model=>e('tr',{key:model.id},[e('td',{key:'endpoint'},model.endpoint==='Permeability'?'Caco-2':model.endpoint),e('td',{key:'model'},model.model_name),e('td',{key:'version'},model.model_version),e('td',{key:'unit'},model.output_unit||'—'),e('td',{key:'status'},Badge({ok:model.active,text:model.status}))]))) ]):Empty({children:'No ADMET model registry entries.'}),
     e('div',{key:'selected',className:'small',style:{marginTop:'10px'}},admetVersionId?'Selected: '+versionLabel(admetVersionId):'Select a compound version above')
@@ -265,6 +292,9 @@ function App(){
     e('div',{key:'distribution-table'},admetPredictionTable(detailPredictions.filter(row=>row.endpoint==='Plasma protein binding'))),
     e('h4',{key:'metabolism-title',style:{marginTop:'18px'}},'Metabolism · HLM / RLM / MLM'),
     e('div',{key:'metabolism-table'},admetPredictionTable(detailPredictions.filter(row=>row.endpoint.endsWith('intrinsic clearance')))),
+    e('h4',{key:'cyp-title',style:{marginTop:'18px'}},'Metabolism · CYP'),
+    e('div',{key:'cyp-table'},cypPredictionTable(detailPredictions.filter(row=>row.endpoint.startsWith('CYP')))),
+    e('div',{key:'cyp-unavailable',className:'small'},(admet?.models||[]).filter(model=>model.endpoint.startsWith('CYP')&&!model.active).map(model=>model.endpoint+': MODEL_UNAVAILABLE — '+model.unavailable_reason).join(' · ')),
     e('h4',{key:'stage3a-title',style:{marginTop:'18px'}},'Solubility & Caco-2'),
     e('div',{key:'prediction-table'},admetPredictionTable(detailPredictions.filter(row=>['Solubility','Permeability'].includes(row.endpoint)))),
     e('h4',{key:'audit-title',style:{marginTop:'22px'}},'Prediction audit'),
@@ -274,7 +304,7 @@ function App(){
  }
 
  return e('div',{className:'shell'},[
-  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3B · PPB & Microsomal Stability'),
+  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3C · CYP Prediction'),
    e('h3',{style:{marginTop:'24px'}},'Projects'),e('ul',{className:'projects'},projects.map(item=>e('li',{key:item.id},e('button',{className:'project-link '+(item.id===projectId?'active':''),onClick:()=>setProjectId(item.id)},item.name,e('div',{className:'tag'},(item.target||'No target')+' · '+item.compound_count+' compounds'))))),
    e('div',{style:{marginTop:'28px'}},[
     ...['name','target','indication','mechanism_modality'].map(key=>e('div',{key,style:{marginBottom:'8px'}},e(Field,{label:key.replace(/_/g,' '),value:form[key],onChange:value=>setForm({...form,[key]:value})}))),

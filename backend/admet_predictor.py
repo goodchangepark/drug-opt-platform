@@ -1,4 +1,4 @@
-"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A/3B)."""
+"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A-3C)."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL_ROOT = ROOT / "models" / "admetica"
 OPENADMET_ROOT = ROOT / "models" / "openadmet" / "microsomal_clearance"
 MODEL_VERSION = "admetica-d4f7056-chemprop-v2.1"
+CYP_MODEL_VERSION = "admetica-d4f7056-cyp-chemprop-v2.1"
 
 MODEL_SPECS = {
     "Solubility": {
@@ -59,6 +60,113 @@ MODEL_SPECS = {
         "license": "MIT",
         "limitations": "Single deterministic checkpoint. Assay-level conditions are not retained in the model input. Predictions outside the physical 0-100% interval are not clipped or converted to fu.",
     },
+}
+
+# Each CYP classifier is an endpoint-specific checkpoint. Inhibition and
+# substrate status are intentionally distinct endpoints and never interchanged.
+_CYP_INHIBITOR_METRICS = {
+    "CYP1A2": (13239, 0.873, 0.866, 0.870, 0.869),
+    "CYP2C9": (12881, 0.830, 0.819, 0.826, 0.824),
+    "CYP2C19": (13427, 0.819, 0.830, 0.824, 0.825),
+    # The upstream overview's model-size cell says 11,127 while its dataset
+    # table/released CSV contains about 13.9k records. Preserve both facts.
+    "CYP2D6": (13898, 0.866, 0.751, 0.843, 0.808),
+    "CYP3A4": (12997, 0.815, 0.842, 0.826, 0.829),
+}
+_CYP_SUBSTRATE_METRICS = {
+    "CYP2C9": (899, 0.728, 0.757, 0.738, 0.742),
+    "CYP2D6": (941, 0.749, 0.769, 0.753, 0.759),
+    "CYP3A4": (1149, 0.569, 0.779, 0.718, 0.674),
+}
+
+for _isoform, (_count, _specificity, _sensitivity, _accuracy, _balanced) in _CYP_INHIBITOR_METRICS.items():
+    _slug = f"{_isoform.lower()}-inhibitor"
+    MODEL_SPECS[f"{_isoform} inhibitor"] = {
+        "model_key": f"cyp/{_slug}",
+        "model_family": "admetica",
+        "prediction_type": "binary_classification",
+        "model_version": CYP_MODEL_VERSION,
+        "display_name": f"Admetica Chemprop {_isoform} inhibitor",
+        "isoform": _isoform,
+        "role": "INHIBITOR",
+        "decision_threshold": 0.5,
+        "endpoint_definition": (
+            f"Binary {_isoform} functional inhibition at the PubChem AID 1851 activity threshold: "
+            "active when AC50 <= 10 µM in the human CYP pro-luciferin dealkylation assay. "
+            "The output is a class probability, not IC50 or AC50."
+        ),
+        "assay_definition": (
+            "Human recombinant CYP pro-luciferin substrate at Km; compounds tested from 40 µM "
+            "to 0.24 nM with NADPH, 60-minute enzyme incubation and luminescence readout."
+        ),
+        "unit": "probability",
+        "training_dataset": f"PubChem AID 1851 CYP panel as curated by Admetica ({_count:,} reported records)",
+        "training_n": _count,
+        "validation": {
+            "specificity": _specificity, "sensitivity": _sensitivity, "accuracy": _accuracy,
+            "balanced_accuracy": _balanced, "scope": "Admetica publisher-reported validation",
+        },
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific",
+        "limitations": (
+            "Single deterministic checkpoint; probability calibration was not reported. The functional "
+            "luminescence assay may also be reduced by substrate turnover or assay interference. No IC50 is inferred."
+        ),
+    }
+
+MODEL_SPECS["CYP2C9 inhibitor"]["validation"]["publisher_documentation_note"] = (
+    "The Admetica root overview reports balanced accuracy 0.824; its metabolism page reports 0.890. "
+    "The overview value is retained conservatively."
+)
+MODEL_SPECS["CYP2D6 inhibitor"]["validation"]["publisher_documentation_note"] = (
+    "The upstream dataset table/released data is approximately 13.9k records, while the model metrics table's size cell says 11,127."
+)
+
+for _isoform, (_count, _specificity, _sensitivity, _accuracy, _balanced) in _CYP_SUBSTRATE_METRICS.items():
+    _slug = f"{_isoform.lower()}-substrate"
+    _sources = (
+        "Carbon-Mangels et al. and Zaretzki et al. substrate compilations"
+        if _isoform in {"CYP2D6", "CYP3A4"} else
+        "Carbon-Mangels et al. CYP2C9 substrate classification compilation"
+    )
+    MODEL_SPECS[f"{_isoform} substrate"] = {
+        "model_key": f"cyp/{_slug}",
+        "model_family": "admetica",
+        "prediction_type": "binary_classification",
+        "model_version": CYP_MODEL_VERSION,
+        "display_name": f"Admetica Chemprop {_isoform} substrate",
+        "isoform": _isoform,
+        "role": "SUBSTRATE",
+        "decision_threshold": 0.5,
+        "endpoint_definition": f"Binary molecular substrate classification for {_isoform}; probability is not a turnover rate, Km, Vmax, or intrinsic clearance.",
+        "assay_definition": "Literature-aggregated substrate/non-substrate labels; heterogeneous source assays without a single harmonized concentration or kinetic protocol.",
+        "unit": "probability",
+        "training_dataset": f"{_sources} ({_count:,} reported records)",
+        "training_n": _count,
+        "validation": {
+            "specificity": _specificity, "sensitivity": _sensitivity, "accuracy": _accuracy,
+            "balanced_accuracy": _balanced, "scope": "Admetica publisher-reported validation",
+        },
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific",
+        "limitations": "Single deterministic checkpoint with heterogeneous literature labels and no reported probability calibration; no kinetic quantity is inferred.",
+    }
+
+_CYP_INDEPENDENT_INHIBITOR = {
+    "CYP2C9": {"n": 464, "both_classes": True, "AUROC": 0.5851, "AUPRC": 0.3813, "balanced_accuracy": 0.5717, "sensitivity": 0.5111, "specificity": 0.6322, "MCC": 0.1324},
+    "CYP2D6": {"n": 639, "both_classes": True, "AUROC": 0.5999, "AUPRC": 0.4164, "balanced_accuracy": 0.5657, "sensitivity": 0.5436, "specificity": 0.5878, "MCC": 0.1216},
+    "CYP3A4": {"n": 788, "both_classes": True, "AUROC": 0.6533, "AUPRC": 0.4471, "balanced_accuracy": 0.6096, "sensitivity": 0.6527, "specificity": 0.5665, "MCC": 0.2015},
+}
+for _isoform, _metrics in _CYP_INDEPENDENT_INHIBITOR.items():
+    MODEL_SPECS[f"{_isoform} inhibitor"]["independent_validation"] = {
+        "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+        "decision_threshold": 0.5,
+        **_metrics,
+    }
+MODEL_SPECS["CYP3A4 substrate"]["independent_validation"] = {
+    "dataset": "FDA-approved tyrosine kinase inhibitors; 2 canonical training overlaps excluded",
+    "n": 22, "both_classes": False, "positive_only": True, "sensitivity": 0.9545,
+    "note": "Directionality-only sanity set; AUROC/AUPRC/specificity/balanced accuracy/MCC cannot be calculated from positives alone.",
 }
 
 for _species, _task, _count in (("HLM", 0, 5086), ("RLM", 1, 670), ("MLM", 2, 5086)):
@@ -136,13 +244,23 @@ _DESCRIPTOR_NAMES = ("MW", "cLogP", "TPSA", "HBD", "HBA", "RotB")
 
 def registry_seed(endpoint: str) -> dict:
     spec = MODEL_SPECS[endpoint]
+    if spec.get("role"):
+        supported_matrix = ["human recombinant CYP enzyme"]
+    elif spec.get("matrix"):
+        supported_matrix = [spec["matrix"]]
+    elif endpoint == "Permeability":
+        supported_matrix = ["Caco-2"]
+    elif endpoint == "Plasma protein binding":
+        supported_matrix = ["human plasma"]
+    else:
+        supported_matrix = ["aqueous"]
     return {
         "endpoint_name": endpoint,
         "model_name": spec["display_name"],
         "model_version": spec["model_version"],
         "implementation_status": "READY",
-        "supported_species": [spec["species"]] if spec.get("species") else (["in vitro Caco-2"] if endpoint == "Permeability" else []),
-        "supported_matrix": [spec["matrix"]] if spec.get("matrix") else (["Caco-2"] if endpoint == "Permeability" else (["human plasma"] if endpoint == "Plasma protein binding" else ["aqueous"])),
+        "supported_species": [spec["species"]] if spec.get("species") else (["Human"] if spec.get("role") else (["in vitro Caco-2"] if endpoint == "Permeability" else [])),
+        "supported_matrix": supported_matrix,
         "output_unit": spec["unit"],
         "provenance_json": {key: value for key, value in spec.items() if key not in {"model_key", "display_name", "unit", "task_index"}},
         "is_active": True,
@@ -180,7 +298,7 @@ def _descriptors(mol) -> dict[str, float]:
     }
 
 
-@lru_cache(maxsize=8)
+@lru_cache(maxsize=32)
 def _training_index(endpoint: str):
     spec = MODEL_SPECS[endpoint]
     path = (OPENADMET_ROOT / f"ad_index_{spec['index_key']}.npz") if spec["model_family"] == "openadmet_clearance" else (MODEL_ROOT / spec["model_key"] / "ad_index.npz")
@@ -269,7 +387,22 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
     # A single deterministic checkpoint provides no ensemble uncertainty, so HIGH is never assigned.
     # Clearance generalization was weak on the canonical-overlap-excluded Biogen set;
     # domain membership therefore cannot elevate it above LOW.
-    confidence = "LOW" if endpoint.endswith("intrinsic clearance") else ("MEDIUM" if domain["classification"] == "IN_DOMAIN" else "LOW")
+    if MODEL_SPECS[endpoint].get("prediction_type") == "binary_classification":
+        # Confidence is deliberately independent of the predicted probability.
+        # It combines publisher performance, independent evidence availability,
+        # and the compound's applicability domain.
+        balanced = float(MODEL_SPECS[endpoint]["validation"]["balanced_accuracy"])
+        independent = MODEL_SPECS[endpoint].get("independent_validation", {})
+        independently_supported = (
+            independent.get("n", 0) >= 30 and independent.get("both_classes", False)
+            and float(independent.get("balanced_accuracy", 0.0)) >= 0.70
+        )
+        if domain["classification"] == "IN_DOMAIN" and balanced >= 0.80 and independently_supported:
+            confidence = "MEDIUM"
+        else:
+            confidence = "LOW"
+    else:
+        confidence = "LOW" if endpoint.endswith("intrinsic clearance") else ("MEDIUM" if domain["classification"] == "IN_DOMAIN" else "LOW")
     result = {
         "status": "COMPLETE",
         "predicted_value": value,
@@ -296,6 +429,22 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
             "transformation": "10 ** predicted log10(mL/min/kg)",
         }
         result["metabolic_stability_assessment"] = metabolic_stability_assessment(endpoint, value)
+    elif MODEL_SPECS[endpoint].get("prediction_type") == "binary_classification":
+        spec = MODEL_SPECS[endpoint]
+        positive = value >= spec["decision_threshold"]
+        positive_label = spec["role"]
+        result.update({
+            "probability": value,
+            "classification": positive_label if positive else f"NON_{positive_label}",
+            "isoform": spec["isoform"],
+            "role": spec["role"],
+            "decision_threshold": spec["decision_threshold"],
+            "liability_summary": ({
+                "flag": f"Potential {spec['isoform']} inhibition concern",
+                "rule": f"inhibitor probability >= {spec['decision_threshold']:.2f}",
+                "basis": "The model's fixed binary decision threshold; this is a screening flag, not an IC50 claim.",
+            } if spec["role"] == "INHIBITOR" and positive else None),
+        })
     return result
 
 
@@ -333,6 +482,21 @@ def comparable_experimental(endpoint: str, measurement, endpoint_name: str) -> t
         return None, "Missing/qualified experimental value"
     value = float(value)
     unit = _normalise_unit(measurement.unit)
+    if MODEL_SPECS[endpoint].get("prediction_type") == "binary_classification":
+        spec = MODEL_SPECS[endpoint]
+        identity = f"{endpoint_name} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
+        isoform = spec["isoform"].lower()
+        role_terms = ("inhibitor", "inhibition") if spec["role"] == "INHIBITOR" else ("substrate",)
+        opposite_terms = ("substrate",) if spec["role"] == "INHIBITOR" else ("inhibitor", "inhibition")
+        if isoform not in identity or not any(term in identity for term in role_terms):
+            return None, "Different CYP isoform or role"
+        if any(term in identity for term in opposite_terms):
+            return None, "CYP inhibitor and substrate evidence cannot be interchanged"
+        if any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
+            return None, "Non-human CYP evidence is not comparable to the human model"
+        if unit in {"class", "binary", "classification", "0/1"} and value in {0.0, 1.0}:
+            return value, "Experimental binary classification"
+        return None, "Quantitative CYP evidence is retained but not numerically compared with a classification prediction"
     if endpoint == "Solubility":
         if "intrinsic" in name or "ph" in name or "intrinsic" in matrix_method or "ph" in matrix_method:
             return None, "pH-specific/intrinsic solubility is not comparable to aggregate aqueous LogS"
@@ -404,6 +568,21 @@ def comparison_for_prediction(endpoint: str, predicted_value: float, measurement
         experimental_log, note = comparable_experimental(endpoint, measurement, endpoint_names[measurement.endpoint_id])
         if experimental_log is None:
             continue
+        if MODEL_SPECS[endpoint].get("prediction_type") == "binary_classification":
+            predicted_class = 1.0 if predicted_value >= MODEL_SPECS[endpoint]["decision_threshold"] else 0.0
+            comparisons.append({
+                "measurement_id": measurement.id,
+                "experimental_value": measurement.mean_value if measurement.mean_value is not None else measurement.value,
+                "experimental_unit": measurement.unit,
+                "experimental_normalized": experimental_log,
+                "predicted_normalized": predicted_class,
+                "normalized_unit": "class",
+                "absolute_error": None,
+                "relative_error_percent_linear_scale": None,
+                "classification_match": predicted_class == experimental_log,
+                "conversion": note,
+            })
+            continue
         if endpoint == "Plasma protein binding":
             predicted_linear, experimental_linear = predicted_value, experimental_log
         else:
@@ -421,3 +600,43 @@ def comparison_for_prediction(endpoint: str, predicted_value: float, measurement
             "conversion": note,
         })
     return comparisons
+
+
+def cyp_experimental_evidence(endpoint: str, predicted_probability: float, measurements, endpoint_names: dict[int, str]) -> list[dict]:
+    """Return matching CYP evidence without inventing cross-type numerical errors."""
+    spec = MODEL_SPECS.get(endpoint, {})
+    if spec.get("prediction_type") != "binary_classification":
+        return []
+    result = []
+    isoform = spec["isoform"].lower()
+    role_terms = ("inhibitor", "inhibition") if spec["role"] == "INHIBITOR" else ("substrate",)
+    opposite_terms = ("substrate",) if spec["role"] == "INHIBITOR" else ("inhibitor", "inhibition")
+    predicted_class = 1 if predicted_probability >= spec["decision_threshold"] else 0
+    for measurement in measurements:
+        endpoint_name = endpoint_names.get(measurement.endpoint_id, "")
+        identity = f"{endpoint_name} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
+        if isoform not in identity or not any(term in identity for term in role_terms):
+            continue
+        if any(term in identity for term in opposite_terms) or any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
+            continue
+        value = measurement.mean_value if measurement.mean_value is not None else measurement.value
+        if value is None:
+            continue
+        unit = _normalise_unit(measurement.unit)
+        classification = unit in {"class", "binary", "classification", "0/1"} and float(value) in {0.0, 1.0}
+        result.append({
+            "measurement_id": measurement.id,
+            "endpoint": endpoint_name,
+            "value": value,
+            "unit": measurement.unit,
+            "evidence_type": "CLASSIFICATION" if classification else "QUANTITATIVE",
+            "comparison": ("AGREES" if predicted_class == int(float(value)) else "DISAGREES") if classification else "NOT_NUMERICALLY_COMPARABLE",
+            "comparison_note": (
+                "Binary experimental class compared with the model class at the documented threshold."
+                if classification else
+                "Quantitative experimental CYP evidence (for example IC50) is displayed separately; no error is calculated against a classification probability."
+            ),
+            "absolute_error": None,
+            "relative_error_percent": None,
+        })
+    return result

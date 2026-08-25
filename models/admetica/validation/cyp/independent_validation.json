@@ -1,0 +1,88 @@
+{
+  "method": "Canonical isomeric-SMILES exact overlap removal; probabilities evaluated at fixed threshold 0.5.",
+  "inhibitors": {
+    "CYP2C9": {
+      "dataset": "ChEMBL 30 CYP2C9 inhibitor set distributed with Admetica",
+      "source": "https://github.com/datagrok-ai/admetica/tree/master/comparison/novartis/cyp",
+      "license": "MIT",
+      "canonical_training_overlap_removed": 0,
+      "n": 464,
+      "both_classes": true,
+      "decision_threshold": 0.5,
+      "AUROC": 0.5851,
+      "AUPRC": 0.3813,
+      "balanced_accuracy": 0.5717,
+      "sensitivity": 0.5111,
+      "specificity": 0.6322,
+      "MCC": 0.1324,
+      "confusion_matrix": {
+        "TN": 208,
+        "FP": 121,
+        "FN": 66,
+        "TP": 69
+      }
+    },
+    "CYP2D6": {
+      "dataset": "ChEMBL 30 CYP2D6 inhibitor set distributed with Admetica",
+      "source": "https://github.com/datagrok-ai/admetica/tree/master/comparison/novartis/cyp",
+      "license": "MIT",
+      "canonical_training_overlap_removed": 0,
+      "n": 639,
+      "both_classes": true,
+      "decision_threshold": 0.5,
+      "AUROC": 0.5999,
+      "AUPRC": 0.4164,
+      "balanced_accuracy": 0.5657,
+      "sensitivity": 0.5436,
+      "specificity": 0.5878,
+      "MCC": 0.1216,
+      "confusion_matrix": {
+        "TN": 261,
+        "FP": 183,
+        "FN": 89,
+        "TP": 106
+      }
+    },
+    "CYP3A4": {
+      "dataset": "ChEMBL 30 CYP3A4 inhibitor set distributed with Admetica",
+      "source": "https://github.com/datagrok-ai/admetica/tree/master/comparison/novartis/cyp",
+      "license": "MIT",
+      "canonical_training_overlap_removed": 0,
+      "n": 788,
+      "both_classes": true,
+      "decision_threshold": 0.5,
+      "AUROC": 0.6533,
+      "AUPRC": 0.4471,
+      "balanced_accuracy": 0.6096,
+      "sensitivity": 0.6527,
+      "specificity": 0.5665,
+      "MCC": 0.2015,
+      "confusion_matrix": {
+        "TN": 311,
+        "FP": 238,
+        "FN": 83,
+        "TP": 156
+      }
+    }
+  },
+  "substrates": {
+    "CYP3A4": {
+      "dataset": "24 FDA-approved tyrosine kinase inhibitors with experimental CYP3A4 substrate labels",
+      "source": "https://github.com/datagrok-ai/admetica/tree/master/comparison/predictors",
+      "license": "MIT",
+      "canonical_training_overlap_removed": 2,
+      "n": 22,
+      "both_classes": false,
+      "positive_only": true,
+      "decision_threshold": 0.5,
+      "sensitivity": 0.9545,
+      "note": "Positive-only directionality sanity set; AUROC, AUPRC, specificity, balanced accuracy and MCC are not identifiable."
+    }
+  },
+  "unvalidated": {
+    "CYP1A2 inhibitor": "No qualified independent public set packaged in this step.",
+    "CYP2C19 inhibitor": "No qualified independent public set packaged in this step.",
+    "CYP2C9 substrate": "No qualified independent public set packaged in this step.",
+    "CYP2D6 substrate": "No qualified independent public set packaged in this step."
+  }
+}
