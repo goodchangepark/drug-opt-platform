@@ -46,6 +46,20 @@ class AssayDefinition(Base):
     models: Mapped[list["QSARModel"]] = relationship(back_populates="assay", cascade="all, delete-orphan")
 
 
+class MatchedMolecularPair(Base):
+    __tablename__ = "matched_molecular_pairs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    assay_id: Mapped[int] = mapped_column(ForeignKey("assay_definitions.id", ondelete="CASCADE"), index=True)
+    version_a_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    version_b_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    similarity: Mapped[float] = mapped_column(Float, default=0.0)
+    delta_pactivity: Mapped[float] = mapped_column(Float, default=0.0)
+    transformation_smiles: Mapped[str] = mapped_column(String(500), default="")
+    is_cliff: Mapped[bool] = mapped_column(default=False)
+    provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 class ActivityMeasurement(Base):
     __tablename__ = "activity_measurements"
     id: Mapped[int] = mapped_column(primary_key=True)
