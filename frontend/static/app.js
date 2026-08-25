@@ -48,6 +48,11 @@ function App(){
  const [admetCsv,setAdmetCsv]=useState(''),[admetCsvPreview,setAdmetCsvPreview]=useState(null),[admetBusy,setAdmetBusy]=useState(false);
  const [metabolism,setMetabolism]=useState(null),[metabolismBusy,setMetabolismBusy]=useState(false),[metabolicTop,setMetabolicTop]=useState(3),[selectedSpotId,setSelectedSpotId]=useState(null);
  const [metaboliteForm,setMetaboliteForm]=useState({...EMPTY_METABOLITE_FORM});
+ const [optimizationConfig,setOptimizationConfig]=useState(null),[optimizationRuns,setOptimizationRuns]=useState([]),[optimizationRun,setOptimizationRun]=useState(null),[optimizationBusy,setOptimizationBusy]=useState(false),[assays,setAssays]=useState([]);
+ const [optimizationForm,setOptimizationForm]=useState({
+  assay_id:'',objectives:['Balanced optimization'],custom_objective:'',
+  constraints:{potency_max_nm:'',do_not_worsen_fold:'2',clogp_max:'4',tpsa_min:'40',tpsa_max:'100',mw_max:'550',similarity_min:'0.6',logs_min:'-4',caco2_logpapp_min:'-5.5',herg_do_not_increase:true},endpoint_weights:{}
+ });
 
  const currentVersions=project?.compounds||[];
  const versionLabel=versionId=>{
@@ -73,15 +78,23 @@ function App(){
   if(!id)return null;
   const data=await api.get('/projects/'+id+'/metabolism');setMetabolism(data);return data;
  };
+ const loadOptimization=async(versionId=detail?.version?.id,id=projectId)=>{
+  if(!id||!versionId)return null;
+  const [data,assayData]=await Promise.all([api.get('/projects/'+id+'/optimization?version_id='+versionId),api.get('/projects/'+id+'/assays')]);
+  setOptimizationConfig(data.config);setOptimizationRuns(data.runs||[]);setOptimizationRun((data.runs||[])[0]||null);setAssays(assayData.assays||assayData||[]);return data;
+ };
 
  useEffect(()=>{loadProjects().catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
-  setProject(null);setDetail(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setAdmetCsvPreview(null);setSelectedSpotId(null);
+  setProject(null);setDetail(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);
   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
  },[projectId]);
  useEffect(()=>{
   if(projectId&&(projectTab==='admet'||(detail&&detailTab==='admet')))Promise.all([loadAdmet(),loadMetabolism()]).catch(error=>setMessage(String(error)));
  },[projectId,projectTab,detailTab,detail?.row_id]);
+ useEffect(()=>{
+  if(projectId&&detail&&detailTab==='optimization')loadOptimization(detail.version.id).catch(error=>setMessage(String(error)));
+ },[projectId,detailTab,detail?.version?.id]);
 
  const createProject=async()=>{
   try{
@@ -145,6 +158,20 @@ function App(){
    await api.post('/projects/'+projectId+'/metabolism/experimental',{...metaboliteForm,version_id:Number(versionId)});
    setMetaboliteForm({...EMPTY_METABOLITE_FORM});await loadMetabolism();setMessage('Experimental metabolite saved');
   }catch(error){setMessage(String(error))}finally{setMetabolismBusy(false)}
+ };
+ const analyzeOptimization=async versionId=>{
+  setOptimizationBusy(true);
+  try{
+   const result=await api.post('/projects/'+projectId+'/optimization/runs',{...optimizationForm,parent_version_id:Number(versionId),assay_id:optimizationForm.assay_id||null});
+   setOptimizationRun(result);setOptimizationRuns(current=>[result,...current.filter(row=>row.id!==result.id)]);setMessage(result.message);
+  }catch(error){setMessage(String(error))}finally{setOptimizationBusy(false)}
+ };
+ const overrideOptimization=async payload=>{
+  if(!optimizationRun)return;
+  setOptimizationBusy(true);
+  try{
+   const result=await api.patch('/optimization/runs/'+optimizationRun.id+'/overrides',payload);setOptimizationRun(result);setOptimizationRuns(current=>current.map(row=>row.id===result.id?result:row));setMessage('Manual override saved and strategy reranked');
+  }catch(error){setMessage(String(error))}finally{setOptimizationBusy(false)}
  };
 
  function admetMeasurementTable(rows){
@@ -457,6 +484,92 @@ function App(){
   ]);
  }
 
+ function optimizationPanel(versionId){
+  const config=optimizationConfig||{objectives:[],evidence_hierarchy:[]},run=optimizationRun;
+  const setConstraint=(key,value)=>setOptimizationForm(current=>({...current,constraints:{...current.constraints,[key]:value}}));
+  const toggleObjective=name=>setOptimizationForm(current=>({...current,objectives:current.objectives.includes(name)?current.objectives.filter(value=>value!==name):[...current.objectives,name]}));
+  const addOverride=(key,value)=>{
+   const values=run?.manual_overrides?.[key]||[],encoded=JSON.stringify(value);
+   const next=values.some(item=>JSON.stringify(item)===encoded)?values:[...values,value];
+   overrideOptimization({[key]:next});
+  };
+  const admetProfile=run?.evidence?.admet||{},activity=run?.evidence?.activity||{},properties=run?.evidence?.properties||{};
+  const evidenceValue=row=>{
+   const preferred=row?.preferred;if(!preferred)return 'Unknown';
+   const value=preferred.classification??preferred.assessment?.category??preferred.value;
+   return String(value??'Unknown')+(preferred.unit?' '+preferred.unit:'')+' · '+preferred.type+' · '+(preferred.confidence||'UNKNOWN')+(preferred.applicability_domain?' · '+preferred.applicability_domain:'');
+  };
+  const constraintField=(key,label,type='number')=>e('div',{className:'col-3',key},Field({label,type,value:optimizationForm.constraints[key],onChange:value=>setConstraint(key,value)}));
+  const regionTable=(title,rows,protectedType)=>e('div',{className:'col-6 optimization-region',key:title},[
+   e('h3',{key:'title'},title),
+   rows?.length?e('table',{key:'table'},[
+    e('thead',{key:'head'},e('tr',{},['Atoms / fragment','Reason','Risk','Confidence','Override'].map(label=>e('th',{key:label},label)))),
+    e('tbody',{key:'body'},rows.map(row=>e('tr',{key:row.id},[
+     e('td',{key:'atoms',className:'mono small'},row.atom_indices?.length?row.atom_indices.join(', '):(row.fragment||'UNKNOWN')),
+     e('td',{key:'reason'},row.reason),e('td',{key:'risk'},row.risk||row.status),e('td',{key:'confidence'},row.confidence),
+     e('td',{key:'override'},row.atom_indices?.length?e('button',{className:'secondary',disabled:optimizationBusy,onClick:()=>addOverride(protectedType?'allow_atoms':'protect_atoms',row.atom_indices)},protectedType?'Allow modification':'Protect this atom/group'):'—')
+    ])))
+   ]):Empty({children:'No region evidence.'})
+  ]);
+  return e('div',{key:'optimization'},[
+   e('div',{className:'strategy-banner',key:'scope'},[
+    e('strong',{key:'title'},'Stage 4A deterministic strategy only'),
+    e('span',{key:'text'},' — ranks medicinal chemistry transformations; no analog structures, PK, overall score, or LLM reasoning are generated.')
+   ]),
+   e('div',{className:'card',key:'setup'},[
+    e('h3',{key:'title'},'Optimization Run'),
+    e('p',{key:'parent',className:'small'},'Parent: '+detail.compound_id+' v'+detail.current_version+' · CompoundVersion #'+versionId),
+    e('div',{className:'grid',key:'top'},[
+     e('div',{className:'col-4',key:'assay'},[e('label',{},'Selected assay'),e('select',{value:optimizationForm.assay_id,onChange:event=>setOptimizationForm(current=>({...current,assay_id:event.target.value}))},[e('option',{key:'none',value:''},'No assay selected'),...assays.map(assay=>e('option',{key:assay.id,value:assay.id},assay.name+' · '+assay.measurement_type))])]),
+     e('div',{className:'col-8',key:'objectives'},[e('label',{},'Optimization objective(s)'),e('div',{className:'objective-grid'},config.objectives.map(name=>e('label',{key:name,className:'check-option'},[e('input',{key:'input',type:'checkbox',checked:optimizationForm.objectives.includes(name),onChange:()=>toggleObjective(name)}),e('span',{key:'label'},name)])))])
+    ]),
+    optimizationForm.objectives.includes('Custom')&&e('div',{key:'custom',style:{marginTop:'10px'}},Field({label:'Custom objective',value:optimizationForm.custom_objective,onChange:value=>setOptimizationForm(current=>({...current,custom_objective:value}))})),
+    e('h4',{key:'constraints-title',style:{marginTop:'18px'}},'Constraints'),
+    e('div',{className:'grid',key:'constraints'},[
+     constraintField('potency_max_nm','Potency IC50 ≤ (nM)'),constraintField('do_not_worsen_fold','Do not worsen potency > fold'),constraintField('clogp_max','cLogP ≤'),constraintField('mw_max','MW ≤'),
+     constraintField('tpsa_min','TPSA minimum Å²'),constraintField('tpsa_max','TPSA maximum Å²'),constraintField('similarity_min','Future analog similarity ≥'),constraintField('logs_min','LogS minimum'),constraintField('caco2_logpapp_min','Caco-2 LogPapp minimum'),
+     e('div',{className:'col-3',key:'herg'},e('label',{className:'check-option'},[e('input',{type:'checkbox',checked:!!optimizationForm.constraints.herg_do_not_increase,onChange:event=>setConstraint('herg_do_not_increase',event.target.checked)}),e('span',{},'hERG: do not increase liability')]))
+    ]),
+    e('p',{key:'precedence',className:'small'},'Experimental evidence takes precedence over prediction. Low-confidence classification alone remains supporting-only. Similarity and do-not-worsen constraints are stored now as hard gates for a future proposal stage; Stage 4A does not create candidates.'),
+    e('button',{key:'analyze',disabled:optimizationBusy||!optimizationForm.objectives.length,onClick:()=>analyzeOptimization(versionId)},optimizationBusy?'Analyzing…':'Analyze strategy')
+   ]),
+   optimizationRuns.length>0&&e('div',{className:'row run-picker',key:'history'},[e('label',{key:'label'},'Saved runs'),e('select',{key:'select',value:run?.id||'',onChange:event=>setOptimizationRun(optimizationRuns.find(item=>item.id===Number(event.target.value)))},optimizationRuns.map(item=>e('option',{key:item.id,value:item.id},'#'+item.id+' · '+item.objectives.join(' + ')+' · '+item.status))) ]),
+   run&&e(React.Fragment,{key:'results'},[
+    e('div',{className:'card',key:'profile'},[
+     e('div',{className:'row toolbar',key:'head'},[e('h3',{},'Current profile'),e('span',{className:'small'},run.engine+' '+run.engine_version)]),
+     e('div',{className:'grid',key:'profile-grid'},[
+      e('div',{className:'col-4',key:'activity'},[e('h4',{},'Activity'),e('p',{className:'small'},activity.experimental?'Experimental '+activity.experimental.mean_nm+' nM':(activity.predicted?'Predicted '+activity.predicted.value_nm+' nM · '+activity.predicted.confidence:'Unknown for selected assay'))]),
+      e('div',{className:'col-4',key:'properties'},[e('h4',{},'Properties'),e('p',{className:'small'},['molecular_weight','clogp','tpsa','fraction_csp3'].map(key=>key+' '+(properties[key]?.value??'—')).join(' · ')+' · Calculated / RDKit')]),
+      e('div',{className:'col-4',key:'admet'},[e('h4',{},'ADMET / metabolism'),...Object.entries(admetProfile).slice(0,12).map(([name,row])=>e('div',{key:name,className:'small'},name+': '+evidenceValue(row))),Object.keys(admetProfile).length===0&&Empty({children:'No compatible experimental or predicted ADMET evidence.'})])
+     ]),
+     e('details',{key:'hierarchy'},[e('summary',{key:'summary'},'Evidence hierarchy'),e('ol',{key:'list',className:'small'},(run.evidence.evidence_hierarchy||[]).map(item=>e('li',{key:item.rank},item.type+' · ordinal weight '+item.weight)))])
+    ]),
+    e('div',{className:'card',key:'liabilities'},[
+     e('h3',{key:'title'},'Main liabilities'),
+     run.liabilities.length?e('table',{key:'table'},[
+      e('thead',{key:'head'},e('tr',{},['Rank','Liability','Evidence','Confidence','Actionability','Rationale'].map(label=>e('th',{key:label},label)))),
+      e('tbody',{key:'body'},run.liabilities.map(row=>e('tr',{key:row.id},[e('td',{},row.rank),e('td',{},row.title),e('td',{},row.evidence_type),e('td',{},row.confidence),e('td',{className:row.actionability==='ACTIONABLE'?'pass':'small'},row.actionability),e('td',{className:'small'},row.rationale)])))
+     ]):Empty({children:'No deterministic liability threshold was triggered. Unknown evidence remains visible in Current profile.'})
+    ]),
+    e('div',{className:'card grid',key:'regions'},[
+     e('div',{className:'col-12',key:'visual'},[e('h3',{},'Structure regions'),e('div',{className:'optimization-structure structure'},Svg({src:run.highlighted_svg})),e('div',{className:'region-legend'},[e('span',{className:'legend-protected'},'Protected'),e('span',{className:'legend-modifiable'},'Modifiable'),e('span',{className:'legend-soft'},'Metabolic soft spot')])]),
+     regionTable('Protected regions',run.protected_regions,true),regionTable('Modifiable regions',run.modifiable_regions,false)
+    ]),
+    e('div',{className:'card',key:'transformations'},[
+     e('h3',{key:'title'},'Recommended transformations'),e('p',{key:'scope',className:'small'},'Ranked strategies only. Reaction SMARTS is provenance, not an instruction that has been applied to the parent.'),
+     run.recommended_transformations.length?e('table',{key:'table'},[
+      e('thead',{key:'head'},e('tr',{},['Rank','Transformation','Expected effect','Potency risk','Evidence','Confidence','Manual','Details'].map(label=>e('th',{key:label},label)))),
+      e('tbody',{key:'body'},run.recommended_transformations.map(row=>e('tr',{key:row.id+'-'+row.rank},[
+       e('td',{key:'rank'},row.rank),e('td',{key:'name'},[e('strong',{key:'name'},row.name),e('div',{key:'purpose',className:'small'},row.purpose)]),e('td',{key:'effect'},row.expected_effect),e('td',{key:'risk'},row.potency_risk),e('td',{key:'evidence',className:'small'},row.evidence.join(' · ')),e('td',{key:'confidence'},row.confidence),
+       e('td',{key:'actions'},e('div',{className:'manual-actions'},[e('button',{key:'prioritize',className:'secondary',disabled:optimizationBusy,onClick:()=>addOverride('prioritize_transformations',row.id)},'Prioritize'),e('button',{key:'exclude',className:'danger',disabled:optimizationBusy,onClick:()=>addOverride('exclude_transformations',row.id)},'Exclude')])),
+       e('td',{key:'details'},e('details',{},[e('summary',{key:'summary'},'Details'),e('div',{key:'body',className:'small strategy-details'},[e('div',{key:'id'},'ID / version: '+row.id+' / '+row.version),e('div',{key:'smarts',className:'mono'},'Reaction SMARTS: '+row.reaction_smarts),e('div',{key:'motif'},'Applicable motif: '+row.applicable_motif+' · source atoms '+row.source_atom_indices.join(', ')),e('div',{key:'risk'},'Possible risk: '+row.possible_risk),e('div',{key:'source'},'Source/reference: '+row.source),e('div',{key:'status'},row.application_status)])]))
+      ])))
+     ]):Empty({children:'No applicable transformation strategy was ranked. No fake recommendation is generated.'})
+    ])
+   ])
+  ]);
+ }
+
  function compoundDetail(){
   if(!detail)return null;
   const detailMeasurements=(admet?.measurements||[]).filter(row=>row.version_id===detail.version.id);
@@ -464,7 +577,7 @@ function App(){
   const detailPredictions=(admet?.predictions||[]).filter(row=>row.version_id===detail.version.id);
   return e('div',{className:'card'},[
    e('div',{className:'row toolbar',key:'header'},[e('h3',{},detail.compound_id+' · v'+detail.current_version),e('div',{className:'row'},[
-    ...['overview','admet'].map(tab=>e('button',{key:tab,className:detailTab===tab?'':'secondary',onClick:()=>setDetailTab(tab)},tab.toUpperCase())),
+    ...['overview','admet','optimization'].map(tab=>e('button',{key:tab,className:detailTab===tab?'':'secondary',onClick:()=>setDetailTab(tab)},tab.toUpperCase())),
     e('button',{key:'modify',className:'secondary',onClick:updateStructure},'Modify structure / new version'),e('button',{key:'close',className:'secondary',onClick:()=>setDetail(null)},'Close')
    ])]),
    detailTab==='overview'&&e('div',{className:'grid',key:'overview'},[
@@ -503,12 +616,13 @@ function App(){
     e('div',{key:'safety-unavailable'},unavailableSafetyModels()),
     e('h4',{key:'audit-title',style:{marginTop:'22px'}},'Prediction audit'),
     detailRuns.length?e('table',{key:'runs'},[e('thead',{key:'head'},e('tr',{},['Run','Status','Message','Started'].map(label=>e('th',{key:label},label)))),e('tbody',{key:'body'},detailRuns.map(run=>e('tr',{key:run.id},[e('td',{},'#'+run.id),e('td',{},run.status),e('td',{},run.message),e('td',{},new Date(run.started_at).toLocaleString())]))) ]):Empty({children:'No ADMET prediction runs for this compound version.'})
-   ])
+   ]),
+   detailTab==='optimization'&&optimizationPanel(detail.version.id)
   ]);
  }
 
  return e('div',{className:'shell'},[
-  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3F · Safety & Integration'),
+  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 4A · Hit Optimization Strategy'),
    e('h3',{style:{marginTop:'24px'}},'Projects'),e('ul',{className:'projects'},projects.map(item=>e('li',{key:item.id},e('button',{className:'project-link '+(item.id===projectId?'active':''),onClick:()=>setProjectId(item.id)},item.name,e('div',{className:'tag'},(item.target||'No target')+' · '+item.compound_count+' compounds'))))),
    e('div',{style:{marginTop:'28px'}},[
     ...['name','target','indication','mechanism_modality'].map(key=>e('div',{key,style:{marginBottom:'8px'}},e(Field,{label:key.replace(/_/g,' '),value:form[key],onChange:value=>setForm({...form,[key]:value})}))),

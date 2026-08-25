@@ -1,0 +1,38 @@
+{
+  "scope": "Directional pipeline sanity examples, not an independent performance benchmark and not automatically generated analogs.",
+  "examples": [
+    {
+      "id": "N_DEALKYLATION_LIDOCAINE",
+      "parent": "Lidocaine",
+      "smiles": "CCN(CC)C(=O)c1c(C)cccc1C",
+      "public_liability": "Oxidative N-deethylation is a well-characterized metabolic route.",
+      "fixture_evidence": "Experimental-like public-reference HLM unstable classification used only to exercise evidence precedence.",
+      "objectives": ["Improve metabolic stability"],
+      "expected_transformation_id": "MET_N_DEALK_BLOCK",
+      "reference": "https://pubchem.ncbi.nlm.nih.gov/compound/Lidocaine",
+      "interpretation": "Checks that an N-alkyl handle plus microsomal concern exposes an N-dealkylation-blocking strategy; it does not validate improved clearance."
+    },
+    {
+      "id": "BENZYLIC_OXIDATION_MOTIF",
+      "parent": "Ethylbenzene public reference motif",
+      "smiles": "CCc1ccccc1",
+      "public_liability": "A benzylic C-H is a canonical oxidative-metabolism motif.",
+      "fixture_evidence": "Experimental-like public-reference HLM unstable classification used only to exercise strategy direction.",
+      "objectives": ["Improve metabolic stability"],
+      "expected_transformation_id": "MET_BENZYLIC_CH_REMOVAL",
+      "reference": "https://doi.org/10.1021/acs.jmedchem.9b01877",
+      "interpretation": "Checks that benzylic-C-H removal appears as a possible strategy; it does not assert a viable or potent product."
+    },
+    {
+      "id": "LIPOPHILIC_HERG_DIRECTION",
+      "parent": "Terfenadine",
+      "smiles": "CC(C)(C)c1ccc(cc1)C(O)CCCN1CCC(CC1)C(O)(c2ccccc2)c3ccccc3",
+      "public_liability": "A lipophilic/basic hERG-risk example used for directionality only.",
+      "fixture_evidence": "RDKit calculated cLogP; no hERG probability is fabricated.",
+      "objectives": ["Reduce hERG liability"],
+      "expected_transformation_id": "SOL_BASIC_CENTER_MOD",
+      "reference": "https://doi.org/10.1016/j.bmcl.2006.12.061",
+      "interpretation": "Checks that basic-center attenuation is ranked as a hERG-risk mitigation direction; it is not an efficacy, hERG, or clinical safety claim."
+    }
+  ]
+}

@@ -30,13 +30,18 @@ from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
 from .metabolism import (ExperimentalMetabolite, MetabolicPredictionRun,
                          MetabolicSoftSpot, PredictedMetabolite,
                          ensure_metabolism_schema)
+from .optimization import OptimizationRun, ensure_optimization_schema
+from .optimization_engine import (ENGINE_NAME as OPTIMIZATION_ENGINE,
+                                  ENGINE_VERSION as OPTIMIZATION_VERSION,
+                                  EVIDENCE_HIERARCHY, OBJECTIVES,
+                                  TRANSFORMATION_LIBRARY, analyze_run)
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3f")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.4.0-stage4a")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -46,6 +51,7 @@ def startup():
         Base.metadata.create_all(bind=engine)
         ensure_admet_schema(engine)
         ensure_metabolism_schema(engine)
+        ensure_optimization_schema(engine)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -59,7 +65,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 3, "step": "3F", "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 4, "step": "4A", "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -1226,6 +1232,149 @@ def sar_export(project_id: int, assay_id: int, db: Session = Depends(get_db)):
       activity=row["experimental"]; source="Experimental" if activity else "No experimental value"; val=(activity["mean_nm"] if activity else "");p=(activity["pactivity_mean"] if activity else "")
       lines.append(",".join(map(str,[row["compound"],source,source,val,p,row["properties"]["molecular_weight"],row["properties"]["clogp"],row["properties"]["tpsa"],row["properties"]["qed"]])))
     return PlainTextResponse("\n".join(lines),media_type="text/csv")
+
+
+def _optimization_out(run: OptimizationRun):
+    return {
+        "id": run.id, "project_id": run.project_id,
+        "parent_version_id": run.parent_version_id, "assay_id": run.assay_id,
+        "objectives": run.objectives_json or [], "custom_objective": run.custom_objective,
+        "constraints": run.constraints_json or {}, "endpoint_weights": run.endpoint_weights_json or {},
+        "manual_overrides": run.manual_overrides_json or {}, "status": run.status,
+        "message": run.message, "engine": run.engine_name, "engine_version": run.engine_version,
+        "evidence": run.evidence_json or {}, "liabilities": run.liabilities_json or [],
+        "protected_regions": run.protected_regions_json or [],
+        "modifiable_regions": run.modifiable_regions_json or [],
+        "recommended_transformations": run.transformations_json or [],
+        "highlighted_svg": run.highlighted_svg,
+        "legend": {"protected": "red", "modifiable": "orange", "metabolic_soft_spot": "purple"},
+        "created_at": run.created_at.isoformat(),
+        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+        "analog_generation": "NOT_PERFORMED",
+    }
+
+
+def _validated_optimization_payload(payload: dict):
+    objectives = list(dict.fromkeys(str(value).strip() for value in payload.get("objectives", []) if str(value).strip()))
+    invalid = [value for value in objectives if value not in OBJECTIVES]
+    if not objectives or invalid:
+        raise HTTPException(status_code=400, detail=f"At least one valid objective is required; invalid: {invalid}")
+    custom = str(payload.get("custom_objective") or "").strip()
+    if "Custom" in objectives and not custom:
+        raise HTTPException(status_code=400, detail="custom_objective is required for Custom")
+    constraints = dict(payload.get("constraints") or {})
+    numeric = {
+        "potency_max_nm", "do_not_worsen_fold", "clogp_max", "tpsa_min", "tpsa_max",
+        "mw_max", "similarity_min", "logs_min", "caco2_logpapp_min",
+    }
+    for key in numeric:
+        if constraints.get(key) in (None, ""):
+            constraints.pop(key, None)
+            continue
+        try:
+            constraints[key] = float(constraints[key])
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail=f"{key} must be numeric")
+    if "similarity_min" in constraints and not 0 <= constraints["similarity_min"] <= 1:
+        raise HTTPException(status_code=400, detail="similarity_min must be between 0 and 1")
+    if constraints.get("tpsa_min") is not None and constraints.get("tpsa_max") is not None and constraints["tpsa_min"] > constraints["tpsa_max"]:
+        raise HTTPException(status_code=400, detail="tpsa_min cannot exceed tpsa_max")
+    weights = {}
+    for key, value in dict(payload.get("endpoint_weights") or {}).items():
+        try:
+            weights[str(key)] = float(value)
+        except (TypeError, ValueError):
+            raise HTTPException(status_code=400, detail=f"Endpoint weight {key} must be numeric")
+        if weights[str(key)] < 0:
+            raise HTTPException(status_code=400, detail=f"Endpoint weight {key} cannot be negative")
+    return objectives, custom, constraints, weights
+
+
+@app.get("/api/optimization/config")
+def optimization_config():
+    return {
+        "engine": OPTIMIZATION_ENGINE, "engine_version": OPTIMIZATION_VERSION,
+        "objectives": list(OBJECTIVES), "evidence_hierarchy": list(EVIDENCE_HIERARCHY),
+        "transformation_library": list(TRANSFORMATION_LIBRARY),
+        "policy": {
+            "analog_generation": False, "llm": False, "overall_score": False,
+            "low_confidence_classification": "Supporting evidence only unless corroborated",
+            "experimental_precedence": True,
+        },
+    }
+
+
+@app.get("/api/projects/{project_id}/optimization")
+def list_optimization_runs(project_id: int, version_id: int | None = None, db: Session = Depends(get_db)):
+    if not db.get(Project, project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    query = select(OptimizationRun).where(OptimizationRun.project_id == project_id)
+    if version_id is not None:
+        query = query.where(OptimizationRun.parent_version_id == version_id)
+    rows = db.scalars(query.order_by(OptimizationRun.created_at.desc())).all()
+    return {"runs": [_optimization_out(row) for row in rows], "config": optimization_config()}
+
+
+@app.get("/api/optimization/runs/{run_id}")
+def get_optimization_run(run_id: int, db: Session = Depends(get_db)):
+    run = db.get(OptimizationRun, run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="OptimizationRun not found")
+    return _optimization_out(run)
+
+
+@app.post("/api/projects/{project_id}/optimization/runs", status_code=201)
+def create_optimization_run(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    version = db.get(CompoundVersion, payload.get("parent_version_id"))
+    if not project or not version:
+        raise HTTPException(status_code=404, detail="Project or parent CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if not compound or compound.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Parent CompoundVersion is not in this project")
+    assay_id = int(payload["assay_id"]) if payload.get("assay_id") not in (None, "") else None
+    assay = db.get(AssayDefinition, assay_id) if assay_id else None
+    if assay_id and (not assay or assay.project_id != project_id or not assay.active):
+        raise HTTPException(status_code=404, detail="Selected active assay is not in this project")
+    objectives, custom, constraints, weights = _validated_optimization_payload(payload)
+    if ("Improve potency" in objectives or "potency_max_nm" in constraints) and not assay:
+        raise HTTPException(status_code=400, detail="A selected assay is required for potency objectives or constraints")
+    run = OptimizationRun(
+        project_id=project_id, parent_version_id=version.id, assay_id=assay_id,
+        objectives_json=objectives, custom_objective=custom,
+        constraints_json=constraints, endpoint_weights_json=weights,
+        manual_overrides_json=dict(payload.get("manual_overrides") or {}),
+        status="RUNNING", message="Assembling Stage 1-3 evidence.",
+        engine_name=OPTIMIZATION_ENGINE, engine_version=OPTIMIZATION_VERSION,
+    )
+    db.add(run); db.flush()
+    try:
+        analyze_run(db, run)
+        db.commit(); db.refresh(run)
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Optimization analysis failed: {exc}")
+    return _optimization_out(run)
+
+
+@app.patch("/api/optimization/runs/{run_id}/overrides")
+def update_optimization_overrides(run_id: int, payload: dict, db: Session = Depends(get_db)):
+    run = db.get(OptimizationRun, run_id)
+    if not run:
+        raise HTTPException(status_code=404, detail="OptimizationRun not found")
+    allowed = {"protect_atoms", "allow_atoms", "exclude_transformations", "prioritize_transformations"}
+    if any(key not in allowed for key in payload):
+        raise HTTPException(status_code=400, detail="Unsupported manual override")
+    overrides = dict(run.manual_overrides_json or {})
+    for key, value in payload.items():
+        if not isinstance(value, list):
+            raise HTTPException(status_code=400, detail=f"{key} must be a list")
+        overrides[key] = value
+    run.manual_overrides_json = overrides
+    run.status = "RUNNING"
+    analyze_run(db, run)
+    db.commit(); db.refresh(run)
+    return _optimization_out(run)
 
 
 @app.get("/", response_class=HTMLResponse)
