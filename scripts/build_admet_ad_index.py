@@ -1,4 +1,4 @@
-"""Rebuild packaged Stage 3A applicability-domain indexes from training CSV files."""
+"""Rebuild packaged ADMET applicability-domain indexes from training CSV files."""
 
 import csv
 from pathlib import Path
@@ -9,7 +9,6 @@ from rdkit.Chem import Crippen, Descriptors, Lipinski, rdFingerprintGenerator
 
 
 ROOT = Path(__file__).resolve().parents[1]
-MODEL_ROOT = ROOT / "models" / "admetica"
 GENERATOR = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
 
 
@@ -21,11 +20,29 @@ def descriptors(mol):
 
 
 RDLogger.DisableLog("rdApp.*")
-for endpoint in ("solubility", "caco2"):
+datasets = [
+    (ROOT / "models/admetica/solubility/training.csv", "Drug", None, ROOT / "models/admetica/solubility/ad_index.npz"),
+    (ROOT / "models/admetica/caco2/training.csv", "Drug", None, ROOT / "models/admetica/caco2/ad_index.npz"),
+    (ROOT / "models/admetica/ppbr/training.csv", "Drug", None, ROOT / "models/admetica/ppbr/ad_index.npz"),
+]
+clearance_root = ROOT / "models/openadmet/microsomal_clearance"
+for species in ("HLM", "RLM", "MLM"):
+    datasets.append((
+        clearance_root / "X_train.csv", "OPENADMET_CANONICAL_SMILES", f"LOG_CLint_{species}",
+        clearance_root / f"ad_index_{species.lower()}.npz",
+    ))
+
+for csv_path, smiles_column, target_column, output_path in datasets:
     fingerprints, descriptor_rows = [], []
-    with (MODEL_ROOT / endpoint / "training.csv").open(newline="", encoding="utf-8") as stream:
-        for row in csv.DictReader(stream):
-            mol = Chem.MolFromSmiles(row.get("Drug", ""))
+    target_values = None
+    if target_column:
+        with (clearance_root / "y_train.csv").open(newline="", encoding="utf-8") as stream:
+            target_values = [row.get(target_column, "") for row in csv.DictReader(stream)]
+    with csv_path.open(newline="", encoding="utf-8") as stream:
+        for index, row in enumerate(csv.DictReader(stream)):
+            if target_values is not None and not target_values[index].strip():
+                continue
+            mol = Chem.MolFromSmiles(row.get(smiles_column, ""))
             if mol is None:
                 continue
             array = np.zeros(2048, dtype=np.uint8)
@@ -35,10 +52,10 @@ for endpoint in ("solubility", "caco2"):
     matrix = np.asarray(fingerprints, dtype=np.uint8)
     values = np.asarray(descriptor_rows, dtype=np.float32)
     np.savez_compressed(
-        MODEL_ROOT / endpoint / "ad_index.npz",
+        output_path,
         fingerprints=matrix,
         bit_counts=matrix.sum(axis=1),
         descriptor_min=values.min(axis=0),
         descriptor_max=values.max(axis=0),
     )
-    print(endpoint, matrix.shape)
+    print(output_path.relative_to(ROOT), matrix.shape)

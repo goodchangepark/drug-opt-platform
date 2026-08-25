@@ -1,4 +1,4 @@
-"""Endpoint-specific Stage 3A ADMET inference and scientific guardrails."""
+"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A/3B)."""
 
 from __future__ import annotations
 
@@ -14,11 +14,14 @@ from rdkit.Chem import Crippen, Descriptors, Lipinski, rdFingerprintGenerator
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_ROOT = ROOT / "models" / "admetica"
+OPENADMET_ROOT = ROOT / "models" / "openadmet" / "microsomal_clearance"
 MODEL_VERSION = "admetica-d4f7056-chemprop-v2.1"
 
 MODEL_SPECS = {
     "Solubility": {
         "model_key": "solubility",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-chemprop-v2.1",
         "display_name": "Admetica Chemprop Solubility",
         "endpoint_definition": "Aqueous solubility LogS = log10(S [mol/L]); aggregate aqueous measurements, not a pH-specific or intrinsic-solubility estimate.",
         "unit": "log10(mol/L)",
@@ -30,6 +33,8 @@ MODEL_SPECS = {
     },
     "Permeability": {
         "model_key": "caco2",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-chemprop-v2.1",
         "display_name": "Admetica Chemprop Caco-2",
         "endpoint_definition": "Caco-2 apparent permeability LogPapp = log10(Papp [cm/s]). The aggregated training file does not retain A→B/B→A direction or detailed assay conditions.",
         "unit": "log10(cm/s)",
@@ -39,7 +44,88 @@ MODEL_SPECS = {
         "license": "MIT",
         "limitations": "Assay direction and conditions are absent from the aggregate source. The value must not be treated as PAMPA, MDCK, or an efflux ratio.",
     },
+    "Plasma protein binding": {
+        "model_key": "ppbr",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-chemprop-v2.1",
+        "display_name": "Admetica Chemprop Human PPB",
+        "endpoint_definition": "Human plasma protein binding rate: percent of compound bound in human plasma. Derived fu is (100 - percent bound) / 100 and is not a separate model output.",
+        "unit": "% bound",
+        "species": "Human",
+        "training_dataset": "AstraZeneca/ChEMBL CHEMBL3301361 human plasma protein binding rate (2,790 rows distributed by Admetica)",
+        "validation": {"MAE_percent_bound": 6.919, "RMSE_percent_bound": 11.294, "R2": 0.609, "Spearman": 0.762},
+        "independent_validation": {"dataset": "Biogen prospective public ADME, canonical training overlap excluded", "n": 185, "MAE_percent_bound": 14.6194, "RMSE_percent_bound": 21.795, "R2": 0.4389, "Spearman": 0.6105},
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT",
+        "limitations": "Single deterministic checkpoint. Assay-level conditions are not retained in the model input. Predictions outside the physical 0-100% interval are not clipped or converted to fu.",
+    },
 }
+
+for _species, _task, _count in (("HLM", 0, 5086), ("RLM", 1, 670), ("MLM", 2, 5086)):
+    MODEL_SPECS[f"{_species} intrinsic clearance"] = {
+        "model_key": "microsomal_clearance",
+        "index_key": _species.lower(),
+        "model_family": "openadmet_clearance",
+        "task_index": _task,
+        "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+        "display_name": f"OpenADMET CheMeleon {_species} intrinsic clearance",
+        "endpoint_definition": f"{_species}: species-specific liver microsomal intrinsic clearance scaled to in-vivo clearance and expressed as log10(mL/min/kg). This is not raw µL/min/mg protein or a microsomal half-life.",
+        "unit": "log10(mL/min/kg)",
+        "species": {"HLM": "Human", "RLM": "Rat", "MLM": "Mouse"}[_species],
+        "matrix": f"{_species} liver microsomes",
+        "training_dataset": f"OpenADMET curated ChEMBL 35, ASAP-Polaris and ExpansionRx microsomal clearance; {_count:,} non-missing {_species} training labels in the released checkpoint",
+        "validation": {"released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."},
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0",
+        "limitations": "Released checkpoint was trained on all available ExpansionRx train and test data, has no ensemble uncertainty, and predicts scaled clearance only. It must not be compared directly with raw µL/min/mg values without explicit scaling parameters.",
+    }
+
+MODEL_SPECS["HLM intrinsic clearance"]["independent_validation"] = {
+    "dataset": "Biogen prospective public ADME, canonical training overlap excluded", "n": 3078,
+    "MAE": 0.6259, "RMSE": 0.7616, "R2": -0.4911, "Spearman": 0.3700,
+}
+MODEL_SPECS["RLM intrinsic clearance"]["independent_validation"] = {
+    "dataset": "Biogen prospective public ADME, canonical training overlap excluded", "n": 3045,
+    "MAE": 0.6263, "RMSE": 0.7716, "R2": -0.0577, "Spearman": 0.4248,
+}
+MODEL_SPECS["MLM intrinsic clearance"]["independent_validation"] = {
+    "status": "No compatible independent MLM endpoint in the selected Biogen prospective set"
+}
+
+# Operational research summaries derived from the released model's training-label
+# quartiles. They are deliberately not presented as universal biological cutoffs.
+MICROSOMAL_THRESHOLDS = {
+    "HLM intrinsic clearance": {"stable_max": 0.903090, "unstable_min": 1.741998},
+    "RLM intrinsic clearance": {"stable_max": 1.301030, "unstable_min": 2.171360},
+    "MLM intrinsic clearance": {"stable_max": 1.930057, "unstable_min": 2.818209},
+}
+for _endpoint, _limits in MICROSOMAL_THRESHOLDS.items():
+    MODEL_SPECS[_endpoint]["assessment_thresholds"] = {
+        "stable": f"≤ {_limits['stable_max']} log10(mL/min/kg)",
+        "moderate": f"> {_limits['stable_max']} and < {_limits['unstable_min']} log10(mL/min/kg)",
+        "unstable": f"≥ {_limits['unstable_min']} log10(mL/min/kg)",
+        "basis": "25th and 75th percentiles of the species-specific labels used by the released checkpoint; an operational project summary, not a universal assay standard.",
+    }
+
+
+def metabolic_stability_assessment(endpoint: str, value: float) -> dict | None:
+    limits = MICROSOMAL_THRESHOLDS.get(endpoint)
+    if not limits:
+        return None
+    if value <= limits["stable_max"]:
+        category = "STABLE"
+    elif value >= limits["unstable_min"]:
+        category = "UNSTABLE"
+    else:
+        category = "MODERATE"
+    return {
+        "category": category,
+        "metabolic_liability_flag": "METABOLIC STABILITY CONCERN" if category == "UNSTABLE" else None,
+        "thresholds": MODEL_SPECS[endpoint]["assessment_thresholds"],
+        "evidence_endpoint": endpoint,
+        "evidence_value": value,
+        "evidence_unit": MODEL_SPECS[endpoint]["unit"],
+    }
 
 _MODEL_LOCK = threading.Lock()
 _MODELS: dict[str, object] = {}
@@ -53,19 +139,26 @@ def registry_seed(endpoint: str) -> dict:
     return {
         "endpoint_name": endpoint,
         "model_name": spec["display_name"],
-        "model_version": MODEL_VERSION,
+        "model_version": spec["model_version"],
         "implementation_status": "READY",
-        "supported_species": ["in vitro Caco-2"] if endpoint == "Permeability" else [],
-        "supported_matrix": ["Caco-2"] if endpoint == "Permeability" else ["aqueous"],
+        "supported_species": [spec["species"]] if spec.get("species") else (["in vitro Caco-2"] if endpoint == "Permeability" else []),
+        "supported_matrix": [spec["matrix"]] if spec.get("matrix") else (["Caco-2"] if endpoint == "Permeability" else (["human plasma"] if endpoint == "Plasma protein binding" else ["aqueous"])),
         "output_unit": spec["unit"],
-        "provenance_json": {key: value for key, value in spec.items() if key not in {"model_key", "display_name", "unit"}},
+        "provenance_json": {key: value for key, value in spec.items() if key not in {"model_key", "display_name", "unit", "task_index"}},
         "is_active": True,
     }
 
 
 def model_files_available(endpoint: str) -> tuple[bool, str]:
-    key = MODEL_SPECS[endpoint]["model_key"]
-    missing = [name for name in ("model_v2_1.pt", "training.csv", "ad_index.npz") if not (MODEL_ROOT / key / name).is_file()]
+    if endpoint not in MODEL_SPECS:
+        return False, "No endpoint- and species-specific model installed; cross-species reuse is prohibited."
+    spec = MODEL_SPECS[endpoint]
+    if spec["model_family"] == "openadmet_clearance":
+        names = ("model.pth", "X_train.csv", "y_train.csv", f"ad_index_{spec['index_key']}.npz")
+        missing = [name for name in names if not (OPENADMET_ROOT / name).is_file()]
+    else:
+        key = spec["model_key"]
+        missing = [name for name in ("model_v2_1.pt", "training.csv", "ad_index.npz") if not (MODEL_ROOT / key / name).is_file()]
     if missing:
         return False, "Packaged model asset missing: " + ", ".join(missing)
     try:
@@ -87,9 +180,11 @@ def _descriptors(mol) -> dict[str, float]:
     }
 
 
-@lru_cache(maxsize=2)
-def _training_index(model_key: str):
-    with np.load(MODEL_ROOT / model_key / "ad_index.npz") as index:
+@lru_cache(maxsize=8)
+def _training_index(endpoint: str):
+    spec = MODEL_SPECS[endpoint]
+    path = (OPENADMET_ROOT / f"ad_index_{spec['index_key']}.npz") if spec["model_family"] == "openadmet_clearance" else (MODEL_ROOT / spec["model_key"] / "ad_index.npz")
+    with np.load(path) as index:
         fingerprints = index["fingerprints"]
         bit_counts = index["bit_counts"]
         descriptor_min = index["descriptor_min"]
@@ -104,7 +199,7 @@ def applicability_domain(smiles: str, endpoint: str) -> dict:
     if mol is None:
         raise ValueError("Invalid SMILES")
     spec = MODEL_SPECS[endpoint]
-    training_fps, training_bit_counts, ranges = _training_index(spec["model_key"])
+    training_fps, training_bit_counts, ranges = _training_index(endpoint)
     fingerprint = _FP_GENERATOR.GetFingerprint(mol)
     query = np.zeros(2048, dtype=np.uint8)
     DataStructs.ConvertToNumpyArray(fingerprint, query)
@@ -136,9 +231,23 @@ def _load_model(endpoint: str):
     from chemprop import models
     from lightning import pytorch as pl
 
-    key = MODEL_SPECS[endpoint]["model_key"]
+    spec = MODEL_SPECS[endpoint]
+    key = spec["model_key"]
     if key not in _MODELS:
-        _MODELS[key] = models.MPNN.load_from_file(MODEL_ROOT / key / "model_v2_1.pt", map_location="cpu")
+        if spec["model_family"] == "openadmet_clearance":
+            import torch
+            from chemprop import nn
+            model = models.MPNN(
+                nn.BondMessagePassing(d_h=2048, depth=3, dropout=0.25), nn.MeanAggregation(),
+                nn.RegressionFFN(n_tasks=3, input_dim=2048, hidden_dim=512, n_layers=3, dropout=0.25,
+                                 output_transform=nn.UnscaleTransform([0, 0, 0], [1, 1, 1])),
+                batch_norm=False, metrics=[nn.metrics.MSE(), nn.metrics.MAE(), nn.metrics.RMSE()],
+            )
+            state = torch.load(OPENADMET_ROOT / "model.pth", map_location="cpu", weights_only=True)
+            model.load_state_dict(state, strict=True)
+            _MODELS[key] = model
+        else:
+            _MODELS[key] = models.MPNN.load_from_file(MODEL_ROOT / key / "model_v2_1.pt", map_location="cpu")
         _MODELS[key].eval()
     if _TRAINER is None:
         _TRAINER = pl.Trainer(
@@ -158,8 +267,10 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
     value = predict_batch_values([Chem.MolToSmiles(mol, isomericSmiles=True)], endpoint)[0]
     domain = applicability_domain(smiles, endpoint)
     # A single deterministic checkpoint provides no ensemble uncertainty, so HIGH is never assigned.
-    confidence = "MEDIUM" if domain["classification"] == "IN_DOMAIN" else "LOW"
-    return {
+    # Clearance generalization was weak on the canonical-overlap-excluded Biogen set;
+    # domain membership therefore cannot elevate it above LOW.
+    confidence = "LOW" if endpoint.endswith("intrinsic clearance") else ("MEDIUM" if domain["classification"] == "IN_DOMAIN" else "LOW")
+    result = {
         "status": "COMPLETE",
         "predicted_value": value,
         "unit": MODEL_SPECS[endpoint]["unit"],
@@ -168,10 +279,35 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
         "uncertainty": None,
         "uncertainty_reason": "Single checkpoint; no calibrated ensemble uncertainty is available.",
     }
+    if endpoint == "Plasma protein binding":
+        result["derived_outputs"] = ({
+            "fraction_bound": value / 100.0,
+            "fu_fraction": (100.0 - value) / 100.0,
+            "fu_percent": 100.0 - value,
+            "derivation": "fu = 1 - fraction bound",
+        } if 0.0 <= value <= 100.0 else {
+            "derivation": "Not calculated because the raw model output is outside the physical 0-100% bound range.",
+        })
+        if not 0.0 <= value <= 100.0:
+            result["confidence"] = "LOW"
+    elif endpoint.endswith("intrinsic clearance"):
+        result["derived_outputs"] = {
+            "scaled_clint_mL_min_kg": 10 ** value,
+            "transformation": "10 ** predicted log10(mL/min/kg)",
+        }
+        result["metabolic_stability_assessment"] = metabolic_stability_assessment(endpoint, value)
+    return result
 
 
 def predict_batch_values(smiles: list[str], endpoint: str) -> list[float]:
     """Run one CPU inference batch; used by endpoint inference and reproducible validation."""
+    matrix = predict_batch_matrix(smiles, endpoint)
+    task = MODEL_SPECS[endpoint].get("task_index")
+    return [float(row[task] if task is not None else row[0]) for row in matrix]
+
+
+def predict_batch_matrix(smiles: list[str], endpoint: str) -> list[list[float]]:
+    """Run one CPU inference batch and retain all model tasks."""
     from chemprop import data, featurizers
     import torch
 
@@ -181,7 +317,7 @@ def predict_batch_values(smiles: list[str], endpoint: str) -> list[float]:
     with _MODEL_LOCK, torch.inference_mode():
         model, trainer = _load_model(endpoint)
         batches = trainer.predict(model, loader)
-    return [float(value) for batch in batches for value in batch.reshape(-1)]
+    return [[float(value) for value in row] for batch in batches for row in batch.reshape(-1, batch.shape[-1] if batch.ndim > 1 else 1)]
 
 
 def _normalise_unit(unit: str) -> str:
@@ -208,6 +344,45 @@ def comparable_experimental(endpoint: str, measurement, endpoint_name: str) -> t
         if unit in scales and value > 0:
             return math.log10(value * scales[unit]), f"Converted from {measurement.unit} to log10(mol/L)"
         return None, "Incompatible solubility unit"
+    if endpoint == "Plasma protein binding":
+        identity = f"{endpoint_name} {measurement.species} {measurement.matrix} {measurement.method}".lower()
+        if "rat" in identity or "mouse" in identity or "dog" in identity or "monkey" in identity:
+            return None, "Species-specific PPB is not human PPB"
+        if "ppb" not in identity and "protein binding" not in identity and "plasma binding" not in identity:
+            return None, "Experimental endpoint is not identified as plasma protein binding"
+        if unit in {"%bound", "%bound", "percentbound", "%proteinbound"}:
+            return (value, "Experimental human percent bound") if 0 <= value <= 100 else (None, "Percent bound outside physical 0-100 range")
+        if unit in {"fractionbound", "fraction_bound"}:
+            return (value * 100.0, "Converted fraction bound to percent bound") if 0 <= value <= 1 else (None, "Fraction bound outside physical 0-1 range")
+        if unit in {"fu", "fractionunbound", "fraction_unbound"}:
+            return ((1.0 - value) * 100.0, "Converted fu fraction using percent bound = (1 - fu) * 100") if 0 <= value <= 1 else (None, "fu outside physical 0-1 range")
+        if unit in {"%unbound", "percentunbound", "fu%"}:
+            return (100.0 - value, "Converted percent unbound using percent bound = 100 - percent unbound") if 0 <= value <= 100 else (None, "Percent unbound outside physical 0-100 range")
+        return None, "Incompatible PPB unit; percent bound and fu must be explicit"
+    if endpoint.endswith("intrinsic clearance"):
+        species = MODEL_SPECS[endpoint]["species"].lower()
+        code = endpoint.split()[0].lower()
+        identity = f"{endpoint_name} {measurement.species} {measurement.matrix} {measurement.method}".lower()
+        species_terms = {"human": ("human", "hlm"), "rat": ("rat", "rlm"), "mouse": ("mouse", "mlm")}[species]
+        if not any(term in identity for term in species_terms):
+            return None, f"Experimental clearance is not identified as {code.upper()}"
+        if any(term in identity for other, terms in {"human": ("human", "hlm"), "rat": ("rat", "rlm"), "mouse": ("mouse", "mlm")}.items() if other != species for term in terms):
+            return None, "Microsomal species mismatch"
+        if unit in {"log10(ml/min/kg)", "logclint", "log10ml/min/kg"}:
+            return value, f"Experimental {code.upper()} scaled log intrinsic clearance"
+        if unit in {"ml/min/kg", "mlmin-1kg-1"} and value > 0:
+            return math.log10(value), "Converted scaled mL/min/kg to log10(mL/min/kg)"
+        if unit in {"µl/min/mg", "ul/min/mg", "ml/min/g", "µlmin-1mg-1", "mlmin-1g-1"} and value > 0:
+            provenance = measurement.provenance_json or {}
+            mppgl = provenance.get("microsomal_protein_mg_per_g_liver")
+            liver = provenance.get("liver_weight_g_per_kg")
+            if mppgl is None or liver is None:
+                return None, "Raw microsomal clearance requires explicit MPPGL and liver-weight scaling parameters"
+            scaled = value * float(mppgl) * float(liver) / 1000.0
+            if scaled <= 0:
+                return None, "Invalid microsomal scaling parameters"
+            return math.log10(scaled), f"Scaled raw clearance using Clint * {mppgl} mg/g * {liver} g/kg / 1000"
+        return None, "Incompatible microsomal clearance unit"
     if "pampa" in name or "mdck" in name or "pampa" in matrix_method or "mdck" in matrix_method:
         return None, "PAMPA/MDCK is not comparable to Caco-2"
     if "caco" not in name and "caco" not in matrix_method:
@@ -229,7 +404,11 @@ def comparison_for_prediction(endpoint: str, predicted_value: float, measurement
         experimental_log, note = comparable_experimental(endpoint, measurement, endpoint_names[measurement.endpoint_id])
         if experimental_log is None:
             continue
-        predicted_linear, experimental_linear = 10 ** predicted_value, 10 ** experimental_log
+        if endpoint == "Plasma protein binding":
+            predicted_linear, experimental_linear = predicted_value, experimental_log
+        else:
+            predicted_linear, experimental_linear = 10 ** predicted_value, 10 ** experimental_log
+        relative_error = (abs(predicted_linear - experimental_linear) / abs(experimental_linear) * 100) if experimental_linear != 0 else None
         comparisons.append({
             "measurement_id": measurement.id,
             "experimental_value": measurement.mean_value if measurement.mean_value is not None else measurement.value,
@@ -238,7 +417,7 @@ def comparison_for_prediction(endpoint: str, predicted_value: float, measurement
             "predicted_normalized": round(predicted_value, 6),
             "normalized_unit": MODEL_SPECS[endpoint]["unit"],
             "absolute_error": round(abs(predicted_value - experimental_log), 6),
-            "relative_error_percent_linear_scale": round(abs(predicted_linear - experimental_linear) / abs(experimental_linear) * 100, 3),
+            "relative_error_percent_linear_scale": round(relative_error, 3) if relative_error is not None else None,
             "conversion": note,
         })
     return comparisons

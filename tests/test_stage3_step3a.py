@@ -43,12 +43,12 @@ def _compound(db, smiles="CC(=O)Oc1ccccc1C(=O)O"):
     return project.id, compound["version"]["id"]
 
 
-def test_model_registry_has_only_two_ready_endpoint_specific_models(db):
+def test_model_registry_preserves_stage3a_endpoint_specific_models(db):
     project_id, _ = _compound(db)
     registry = list_admet(project_id, db)["models"]
     ready = {row["endpoint"]: row for row in registry if row["active"]}
-    assert set(ready) == {"Solubility", "Permeability"}
-    assert all(row["model_version"] == MODEL_VERSION for row in ready.values())
+    assert {"Solubility", "Permeability"}.issubset(ready)
+    assert all(ready[name]["model_version"] == MODEL_VERSION for name in ("Solubility", "Permeability"))
     assert ready["Solubility"]["output_unit"] == "log10(mol/L)"
     assert ready["Permeability"]["output_unit"] == "log10(cm/s)"
     assert "direction" in ready["Permeability"]["details"]["limitations"].lower()
@@ -67,7 +67,7 @@ def test_prediction_cache_and_compatible_experimental_comparison(db):
     first = run_admet_predictions(version_id, db)
     assert first["status"] == "COMPLETE"
     assert first["cache_hit"] is False
-    assert len(first["predictions"]) == 2
+    assert {row["endpoint"] for row in first["predictions"]}.issuperset({"Solubility", "Permeability"})
     first_ids = {row["id"] for row in first["predictions"]}
     assert all(row["confidence"] in {"MEDIUM", "LOW"} for row in first["predictions"])
     assert all(row["applicability_domain"] in {"IN_DOMAIN", "BORDERLINE", "OUT_OF_DOMAIN"} for row in first["predictions"])
@@ -75,11 +75,11 @@ def test_prediction_cache_and_compatible_experimental_comparison(db):
     second = run_admet_predictions(version_id, db)
     assert second["status"] == "CACHED" and second["cache_hit"] is True
     assert {row["id"] for row in second["predictions"]} == first_ids
-    assert db.query(ADMETPrediction).count() == 2
+    assert db.query(ADMETPrediction).count() == len(first_ids)
 
     listing = list_admet(project_id, db)
-    assert len(listing["predictions"]) == 2
-    for prediction in listing["predictions"]:
+    assert len(listing["predictions"]) == len(first_ids)
+    for prediction in [row for row in listing["predictions"] if row["endpoint"] in {"Solubility", "Permeability"}]:
         comparison = prediction["experimental_comparisons"][0]
         assert comparison["absolute_error"] >= 0
         assert comparison["relative_error_percent_linear_scale"] >= 0

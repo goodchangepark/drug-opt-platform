@@ -29,11 +29,18 @@ def ensure_admet_schema(engine):
         )
     with engine.begin() as connection:
         registered = set(connection.execute(select(ADMETModelRegistry.endpoint_name)).scalars())
-        for name in ("Solubility", "Permeability", "Microsomal clearance", "Plasma protein binding"):
+        registry_names = list(MODEL_SPECS) + [
+            "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
+            "Monkey liver microsomal intrinsic clearance",
+        ]
+        for name in registry_names:
             if name not in registered:
                 values = registry_seed(name) if name in MODEL_SPECS else {
                     "endpoint_name": name,
-                    "model_name": f"{name} baseline registry entry",
+                    "model_name": f"{name} — no scientifically qualified model installed",
+                    "model_version": "unavailable-stage3b", "implementation_status": "MODEL_UNAVAILABLE",
+                    "is_active": False,
+                    "provenance_json": {"reason": "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."},
                 }
                 connection.execute(
                     ADMETModelRegistry.__table__.insert().values(**values)

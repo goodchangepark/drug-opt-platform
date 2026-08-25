@@ -1,6 +1,6 @@
-# Stage 3A model assets
+# Admetica model assets (Stages 3A/3B)
 
-Only the aqueous-solubility and Caco-2 checkpoints are integrated. The assets came from the
+The aqueous-solubility, Caco-2, and human PPB checkpoints are integrated. The assets came from the
 [Datagrok Admetica repository](https://github.com/datagrok-ai/admetica) at commit
 `d4f70569901c189f39fa37871e2aeabeef3adc83` under its MIT license. Original Chemprop 2.0
 checkpoints were deterministically converted with Chemprop 2.2.4's
@@ -10,9 +10,11 @@ checkpoints were deterministically converted with Chemprop 2.2.4's
 | --- | --- | --- |
 | Caco-2 | `87bedd7ea3b314557f803b6ec3f3e7726dba0cdcd19128fd232b2d10511bc8d1` | `685364e2d7607caa88b37d447e4910ec17aa33964f9947bb12881241fecc335f` |
 | Solubility | `1e41f9e30687954657d3ac19fd579febc1d66452bfa718c9951b87da115dd6f7` | `beffa08a63196e97e9e5d25a99300121a6314f71a23fc79716d6028f4f89ff94` |
+| Human PPB (% bound) | `88d4891f0738ae33689c59026a420102b92aa9db567982f36bdc7b5de3841525` | `b658f378274afa340c6af8473d2b6b4ac3f427e54ce19d37449181a619afa1d5` |
 
 AD-index SHA-256: Caco-2 `96e1001c24bd43c3c47802c2f2f87cbfb225f9feff71f5a0926a8574f4d27478`;
-Solubility `7c62d63d0e345b119f1ea14200feb6d14b35a3f07da58ec58ca10594135a3056`.
+Solubility `7c62d63d0e345b119f1ea14200feb6d14b35a3f07da58ec58ca10594135a3056`;
+Human PPB `cc8c050015ae5567b5ef78ad2bb7299697609722be4ee5bf71bd26c058fb86c4`.
 
 The external Caco-2 reference file has SHA-256
 `2ac729c783a8b9995d99e2794f36bc3bf6f9d693faa3e1194ceb12b842899889`. It contains 34

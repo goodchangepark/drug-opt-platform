@@ -18,7 +18,7 @@ from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPr
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
 from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparison_for_prediction,
-                              model_files_available, predict_endpoint)
+                              metabolic_stability_assessment, model_files_available, predict_endpoint)
 from .database import Base, SessionLocal, engine, get_db
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
@@ -26,7 +26,7 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3a")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3b")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -247,17 +247,41 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
         if not compound or compound.project_id != project_id: continue
         version = next((v for v in compound.versions if v.version_number == compound.current_version), None)
         p = version.properties_json or {}
-        rows.append({
+        comparison_row = {
             "compound": compound.compound_id, "name": compound.name, "row_id": compound.id,
             "MW": p.get("molecular_weight"), "cLogP": p.get("clogp"), "TPSA": p.get("tpsa"), "HBD": p.get("hbd"),
             "HBA": p.get("hba"), "RotB": p.get("rotatable_bonds"), "Fsp3": p.get("fraction_csp3"), "QED": p.get("qed"),
             "svg": version.svg if version else "", "inchikey": version.inchikey if version else "",
-        })
+        }
+        activity = db.scalar(select(ActivityMeasurement).where(ActivityMeasurement.version_id == version.id).order_by(ActivityMeasurement.created_at.desc()))
+        comparison_row["Activity"] = activity.normalized_value_nm if activity else None
+        endpoint_map = {
+            "HLM intrinsic clearance": "HLM", "RLM intrinsic clearance": "RLM",
+            "Plasma protein binding": "PPB", "Solubility": "Solubility", "Permeability": "Caco-2",
+        }
+        experimental = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version.id)).all()
+        endpoint_names = {item.id: item.name for item in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))}
+        for endpoint_name, label in endpoint_map.items():
+            prediction = db.scalar(
+                select(ADMETPrediction).join(ADMETModelRegistry)
+                .where(ADMETPrediction.version_id == version.id, ADMETModelRegistry.endpoint_name == endpoint_name)
+                .order_by(ADMETPrediction.created_at.desc())
+            )
+            if not prediction:
+                comparison_row[label] = None
+                continue
+            matches = comparison_for_prediction(endpoint_name, prediction.predicted_value, experimental, endpoint_names)
+            comparison_row[label] = matches[0]["experimental_normalized"] if matches else prediction.predicted_value
+        rows.append(comparison_row)
     if len(rows) < 2: raise HTTPException(status_code=400, detail="At least two selected compounds must belong to the project")
-    metrics = ["MW", "cLogP", "TPSA", "HBD", "HBA", "RotB", "Fsp3", "QED"]
+    property_metrics = ["MW", "cLogP", "TPSA", "HBD", "HBA", "RotB", "Fsp3", "QED"]
+    metrics = property_metrics + ["Activity", "HLM", "RLM", "PPB", "Solubility", "Caco-2"]
     ranges = {metric: {"min": min(r[metric] for r in rows if r[metric] is not None),
-                       "max": max(r[metric] for r in rows if r[metric] is not None)} for metric in metrics}
-    return {"metrics": metrics, "ranges": ranges, "compounds": rows}
+                       "max": max(r[metric] for r in rows if r[metric] is not None)} for metric in property_metrics}
+    return {"metrics": metrics, "ranges": ranges, "compounds": rows, "metric_units": {
+        "Activity": "nM (latest experimental)", "HLM": "log10(mL/min/kg)", "RLM": "log10(mL/min/kg)",
+        "PPB": "% bound", "Solubility": "log10(mol/L)", "Caco-2": "log10(cm/s)",
+    }}
 
 
 def _assay_out(assay: AssayDefinition):
@@ -284,7 +308,7 @@ def _admet_endpoint_out(endpoint: ADMETEndpoint):
 
 
 def _admet_model_out(model: ADMETModelRegistry):
-    available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (False, "Not implemented in Stage 3A")
+    available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (False, "No endpoint-specific model installed in the current stage")
     return {
         "id": model.id, "endpoint": model.endpoint_name, "model_name": model.model_name,
         "model_version": model.model_version,
@@ -300,13 +324,27 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
     ) if prediction.predicted_value is not None and prediction.model.endpoint_name in MODEL_SPECS else []
     outputs = dict(prediction.outputs_json or {})
     outputs["experimental_comparisons"] = comparisons
+    preferred = None
+    if comparisons:
+        first = comparisons[0]
+        preferred = {
+            "source": "Experimental", "measurement_id": first["measurement_id"],
+            "value": first["experimental_normalized"], "unit": first["normalized_unit"],
+            "prediction_preserved": True,
+        }
+        if prediction.model.endpoint_name.endswith("intrinsic clearance"):
+            outputs["experimental_metabolic_stability_assessment"] = metabolic_stability_assessment(
+                prediction.model.endpoint_name, first["experimental_normalized"],
+            )
+    elif prediction.predicted_value is not None:
+        preferred = {"source": "Predicted", "value": prediction.predicted_value, "unit": prediction.unit}
     return {
         "id": prediction.id, "run_id": prediction.run_id, "version_id": prediction.version_id,
         "endpoint_id": prediction.endpoint_id, "endpoint": prediction.endpoint.name,
         "predicted_value": prediction.predicted_value, "unit": prediction.unit,
         "confidence": prediction.confidence, "applicability_domain": prediction.applicability_domain,
         "uncertainty": prediction.uncertainty, "model": _admet_model_out(prediction.model),
-        "outputs": outputs, "experimental_comparisons": comparisons,
+        "outputs": outputs, "experimental_comparisons": comparisons, "preferred_result": preferred,
         "created_at": prediction.created_at.isoformat(), "type": "Predicted",
     }
 
@@ -337,7 +375,7 @@ def add_admet_measurement(db: Session, project_id: int, payload: dict) -> dict:
         standard_deviation=sd, sample_size=int(payload["n"]) if payload.get("n") else None,
         method=str(payload.get("method") or ""), source=str(payload.get("source") or "User experimental"),
         experiment_date=str(payload.get("date") or ""), notes=str(payload.get("notes") or ""),
-        provenance_json={"data_type": "experimental"},
+        provenance_json={"data_type": "experimental", **(payload.get("provenance") or {})},
     )
     if not row.unit:
         db.rollback(); raise HTTPException(status_code=400, detail="unit is required")
@@ -458,7 +496,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if not version:
         raise HTTPException(status_code=404, detail="CompoundVersion not found")
     active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
-    stage3a_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS]
+    implemented_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS]
     available_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS and model_files_available(model.endpoint_name)[0]]
     cached = {}
     for model in available_models:
@@ -476,7 +514,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
         select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
     )}
-    if stage3a_models and len(available_models) == len(stage3a_models) and len(cached) == len(available_models):
+    if implemented_models and len(available_models) == len(implemented_models) and len(cached) == len(available_models):
         predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
         return {
             "type": "Predicted", "run_id": predictions[0]["run_id"], "status": "CACHED",
@@ -487,7 +525,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
     run = ADMETPredictionRun(
         version_id=row_id, inputs_hash=digest, status="RUNNING",
-        message="Running Stage 3A endpoint-specific predictions.",
+        message="Running endpoint-specific ADMET predictions through Stage 3B.",
     )
     db.add(run); db.flush()
     created, unavailable = [], []
@@ -522,6 +560,10 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             "applicability_domain_details": domain,
             "uncertainty_reason": result["uncertainty_reason"],
         }
+        if result.get("derived_outputs") is not None:
+            output["derived_outputs"] = result["derived_outputs"]
+        if result.get("metabolic_stability_assessment") is not None:
+            output["metabolic_stability_assessment"] = result["metabolic_stability_assessment"]
         prediction = ADMETPrediction(
             run_id=run.id, endpoint_id=endpoint.id, version_id=row_id, model_id=model.id,
             predicted_value=result["predicted_value"], unit=result["unit"],
@@ -534,11 +576,11 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if selected_predictions and unavailable:
         run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
     elif selected_predictions:
-        run.status, run.message = "COMPLETE", "Solubility and Caco-2 predictions completed." + (
+        run.status, run.message = "COMPLETE", "Stage 3A/3B endpoint predictions completed." + (
             f" Reused {len(cached)} cached endpoint." if cached else ""
         )
     else:
-        run.status, run.message = "MODEL_UNAVAILABLE", "; ".join(unavailable) or "No Stage 3A model is available."
+        run.status, run.message = "MODEL_UNAVAILABLE", "; ".join(unavailable) or "No implemented ADMET model is available."
     db.commit()
     db.refresh(run)
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(

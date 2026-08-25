@@ -1,0 +1,53 @@
+{
+  "independent_dataset": "Biogen prospective public ADME set (3,521 compounds; canonical training-overlap excluded)",
+  "dataset_license": "MIT",
+  "clearance": {
+    "HLM": {
+      "n": 3078,
+      "MAE": 0.6259,
+      "RMSE": 0.7616,
+      "R2": -0.4911,
+      "Spearman": 0.37
+    },
+    "RLM": {
+      "n": 3045,
+      "MAE": 0.6263,
+      "RMSE": 0.7716,
+      "R2": -0.0577,
+      "Spearman": 0.4248
+    }
+  },
+  "human_ppb_percent_bound": {
+    "n": 185,
+    "MAE": 14.6194,
+    "RMSE": 21.795,
+    "R2": 0.4389,
+    "Spearman": 0.6105
+  },
+  "reference_compounds": [
+    {
+      "name": "Rifampicin",
+      "smiles": "C[C@H]1/C=C/C=C(\\C(=O)NC2=C(C(=C3C(=C2O)C(=C(C4=C3C(=O)[C@](O4)(O/C=C/[C@@H]([C@H]([C@H]([C@@H]([C@@H]([C@@H]([C@H]1O)C)O)C)OC(=O)C)C)OC)C)C)O)O)/C=N/N5CCN(CC5)C)/C",
+      "experimental_raw_uL_min_mg": 2.84,
+      "experimental_scaled_log10_mL_min_kg": 0.5215,
+      "predicted_scaled_log10_mL_min_kg": 1.9224
+    },
+    {
+      "name": "Isoniazid",
+      "smiles": "NNC(=O)c1ccncc1",
+      "experimental_raw_uL_min_mg": 13.9,
+      "experimental_scaled_log10_mL_min_kg": 1.2112,
+      "predicted_scaled_log10_mL_min_kg": 0.4359
+    },
+    {
+      "name": "Ethionamide",
+      "smiles": "CCC1=NC=CC(=C1)C(=S)N",
+      "experimental_raw_uL_min_mg": 77.1,
+      "experimental_scaled_log10_mL_min_kg": 1.9552,
+      "predicted_scaled_log10_mL_min_kg": 2.2676
+    }
+  ],
+  "reference_directionality_spearman": 0.5,
+  "reference_source": "Lakshminarayana et al., J Med Chem 2020 anti-TB profile; raw HLM \u00b5L/min/mg. Scaling: 45 mg microsomal protein/g liver and 26 g liver/kg.",
+  "limitations": "The Biogen set is independent by canonical-SMILES exclusion, but no publication-level guarantee rules out series or analogue overlap. The three named compounds are a small directionality sanity check, not a performance estimate."
+}
