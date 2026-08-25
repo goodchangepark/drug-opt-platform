@@ -1,0 +1,29 @@
+{
+  "model": "Admetica Chemprop human hERG blocker liability",
+  "model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+  "model_sha256": "c1aae9ca495c5dcb699f386eb0d8a2c0a7bafb78fca7c92f78241bb6790a5b26",
+  "dataset": "OpenADMET ChEMBL 37 human hERG IC50 aggregate",
+  "artifact": "chembl37_herg_ic50_no_exact_training_overlap.csv",
+  "artifact_sha256": "a8c86a943a0e6f5f3d47d12da99407998feb83f95004705b99c9d65517593292",
+  "label_definition": "positive when median IC50 <= 10000 nM",
+  "overlap_policy": {
+    "starting_n": 7977,
+    "exact_canonical_smiles_removed": 7249,
+    "evaluated_n": 728,
+    "remaining_positive": 489,
+    "remaining_negative": 239,
+    "limitation": "Exact-structure exclusion does not prove source, chemical-series, or assay-lineage independence."
+  },
+  "decision_threshold": 0.5,
+  "metrics": {
+    "AUROC": 0.6668976906,
+    "AUPRC": 0.7854091863,
+    "balanced_accuracy": 0.5442154170,
+    "sensitivity": 0.9754601227,
+    "specificity": 0.1129707113,
+    "MCC": 0.1844230442,
+    "confusion_matrix": {"tn": 27, "fp": 212, "fn": 12, "tp": 477}
+  },
+  "interpretation": "Low specificity and balanced accuracy do not support confidence elevation; all hERG outputs remain LOW confidence.",
+  "generated_at": "2026-08-26T00:00:00+09:00"
+}

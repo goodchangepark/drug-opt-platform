@@ -36,7 +36,7 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3e")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3f")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -46,6 +46,9 @@ def startup():
         Base.metadata.create_all(bind=engine)
         ensure_admet_schema(engine)
         ensure_metabolism_schema(engine)
+        # Initialize PyTorch/Chemprop once before concurrent request workers can
+        # observe a partially imported native extension on ARM64.
+        model_files_available("Solubility")
     import backend.activity_models
 
 
@@ -56,7 +59,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 3, "step": "3E", "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 3, "step": "3F", "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -355,6 +358,16 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
             )
     elif prediction.predicted_value is not None:
         preferred = {"source": "Predicted", "value": prediction.predicted_value, "unit": prediction.unit}
+    spec = MODEL_SPECS.get(prediction.model.endpoint_name, {})
+    provenance = {
+        "record_type": "Predicted", "model_name": prediction.model.model_name,
+        "model_version": prediction.model.model_version, "endpoint": prediction.model.endpoint_name,
+        "unit": prediction.unit, "species": spec.get("species", "Not specified"),
+        "dataset": spec.get("training_dataset"), "license": spec.get("license"),
+        "validation": spec.get("validation"), "applicability_domain": prediction.applicability_domain,
+        "confidence": prediction.confidence, "timestamp": prediction.created_at.isoformat(),
+        "compound_version_id": prediction.version_id,
+    }
     return {
         "id": prediction.id, "run_id": prediction.run_id, "version_id": prediction.version_id,
         "endpoint_id": prediction.endpoint_id, "endpoint": prediction.endpoint.name,
@@ -362,7 +375,61 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
         "confidence": prediction.confidence, "applicability_domain": prediction.applicability_domain,
         "uncertainty": prediction.uncertainty, "model": _admet_model_out(prediction.model),
         "outputs": outputs, "experimental_comparisons": comparisons, "preferred_result": preferred,
-        "created_at": prediction.created_at.isoformat(), "type": "Predicted",
+        "created_at": prediction.created_at.isoformat(), "type": "Predicted", "provenance": provenance,
+    }
+
+
+def _integrated_admet_profile(version_id: int, predictions: list[dict], models: list[dict]) -> dict:
+    """Deterministic, evidence-preserving Stage 3 overview; never computes a composite score."""
+    latest = {}
+    for row in predictions:
+        if row["version_id"] == version_id and row["endpoint"] not in latest:
+            latest[row["endpoint"]] = row
+    sections = {
+        "Absorption": [name for name in ("Solubility", "Permeability") if name in latest],
+        "Distribution": [name for name in ("Plasma protein binding",) if name in latest],
+        "Metabolism": [name for name in latest if name.endswith("intrinsic clearance") or name.startswith("CYP")],
+        "Transporters": [name for name in latest if MODEL_SPECS.get(name, {}).get("transporter")],
+        "Safety": [name for name in ("hERG liability", "Ames mutagenicity", "DILI clinical liability") if name in latest],
+    }
+    strengths, concerns = [], []
+    for name, row in latest.items():
+        output = row.get("outputs") or {}
+        spec = MODEL_SPECS.get(name, {})
+        if spec.get("safety_endpoint"):
+            comparison = (row.get("experimental_comparisons") or [None])[0]
+            if comparison:
+                positive = comparison["experimental_normalized"] == 1.0
+                source = "Experimental"
+                label = spec["positive_label"] if positive else spec["negative_label"]
+            else:
+                positive = output.get("classification") == spec.get("positive_label")
+                source = "Predicted"
+                label = output.get("classification", "UNKNOWN")
+            item = f"{source} {name}: {label} — {row['confidence']} confidence"
+            (concerns if positive else strengths).append(item)
+        flag = (output.get("liability_summary") or {}).get("flag")
+        if flag and flag not in " ".join(concerns):
+            concerns.append(f"{flag} — {row['confidence']} confidence")
+        assessment = output.get("experimental_metabolic_stability_assessment") or output.get("metabolic_stability_assessment") or {}
+        if assessment.get("metabolic_liability_flag"):
+            source = "Experimental" if output.get("experimental_metabolic_stability_assessment") else "Predicted"
+            concerns.append(f"{source} {name}: {assessment['metabolic_liability_flag']} — {row['confidence']} confidence")
+    unknown = [
+        f"{model['endpoint']}: MODEL_UNAVAILABLE — {model['unavailable_reason']}"
+        for model in models if not model["active"]
+    ]
+    required = {"record_type", "model_name", "model_version", "endpoint", "unit", "species", "dataset", "license", "validation", "applicability_domain", "confidence", "timestamp", "compound_version_id"}
+    missing = []
+    for row in latest.values():
+        absent = sorted(key for key in required if row.get("provenance", {}).get(key) in (None, ""))
+        if absent:
+            missing.append({"prediction_id": row["id"], "missing": absent})
+    return {
+        "compound_version_id": version_id, "sections": sections,
+        "summary": {"strengths": strengths, "concerns": concerns, "unknown": unknown},
+        "experimental_precedence": True, "overall_score": None,
+        "provenance_audit": {"status": "PASS" if not missing else "FAIL", "checked": len(latest), "missing": missing},
     }
 
 
@@ -429,13 +496,16 @@ def list_admet(project_id: int, db: Session = Depends(get_db)):
         .order_by(ADMETPredictionRun.started_at.desc())
         .limit(20)
     ).all() if version_ids else []
+    model_rows = [_admet_model_out(model) for model in models]
+    prediction_rows = [_admet_prediction_out(
+        prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
+    ) for prediction in predictions]
     return {
         "endpoints": [_admet_endpoint_out(e) for e in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))],
         "measurements": [measurement_out(row) for row in rows],
-        "models": [_admet_model_out(model) for model in models],
-        "predictions": [_admet_prediction_out(
-            prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
-        ) for prediction in predictions],
+        "models": model_rows,
+        "predictions": prediction_rows,
+        "integrated_profiles": {str(version_id): _integrated_admet_profile(version_id, prediction_rows, model_rows) for version_id in version_ids},
         "prediction_runs": [{"id": r.id, "version_id": r.version_id, "status": r.status,
                              "message": r.message, "started_at": r.started_at.isoformat()} for r in runs],
         "csv_columns": ["compound_id", "version_number"] + [
@@ -542,7 +612,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
     run = ADMETPredictionRun(
         version_id=row_id, inputs_hash=digest, status="RUNNING",
-        message="Running endpoint-specific ADMET predictions through Stage 3E.",
+        message="Running endpoint-specific ADMET predictions through Stage 3F.",
     )
     db.add(run); db.flush()
     created, unavailable = [], []
@@ -568,6 +638,8 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         db.add(endpoint); db.flush()
         domain = result["applicability_domain"]
         output = {
+            "record_type": "Predicted", "compound_version_id": row_id,
+            "prediction_timestamp": datetime.now(timezone.utc).isoformat(),
             "model_source": MODEL_SPECS[model.endpoint_name]["source"],
             "endpoint_definition": MODEL_SPECS[model.endpoint_name]["endpoint_definition"],
             "training_dataset": MODEL_SPECS[model.endpoint_name]["training_dataset"],
@@ -580,7 +652,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         for key in ("assay_definition", "training_n", "independent_validation"):
             if MODEL_SPECS[model.endpoint_name].get(key) is not None:
                 output[key] = MODEL_SPECS[model.endpoint_name][key]
-        for key in ("probability", "classification", "isoform", "transporter", "species", "role", "decision_threshold", "liability_summary"):
+        for key in ("probability", "classification", "isoform", "transporter", "safety_endpoint", "species", "role", "decision_threshold", "liability_summary", "ensemble_probabilities"):
             if result.get(key) is not None:
                 output[key] = result[key]
         if result.get("derived_outputs") is not None:
@@ -594,12 +666,11 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             uncertainty=result["uncertainty"], outputs_json=output,
         )
         db.add(prediction); created.append(prediction); selected_predictions[model.id] = prediction
-    from datetime import datetime, timezone
     run.completed_at = datetime.now(timezone.utc)
     if selected_predictions and unavailable:
         run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
     elif selected_predictions:
-        run.status, run.message = "COMPLETE", "Stage 3A-3E endpoint predictions completed." + (
+        run.status, run.message = "COMPLETE", "Stage 3A-3F endpoint predictions completed." + (
             f" Reused {len(cached)} cached endpoint." if cached else ""
         )
     else:

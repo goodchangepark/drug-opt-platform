@@ -6,5 +6,6 @@ pydantic==2.11.3
 pytest==8.3.5
 httpx==0.28.1
 pytest-anyio==0.0.0
+selenium==4.47.0
 torch==2.8.0
 chemprop==2.2.4

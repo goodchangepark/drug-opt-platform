@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "base_url": "https://drug.cheyshys.com",
+  "project": "Stage 3 Acceptance — Public References",
+  "browser": "Chromium headless on ARM64 via Selenium 4.47.0",
+  "checks": [
+    "Project → Compound",
+    "Properties",
+    "Activity workbench",
+    "ADMET experimental entry",
+    "Absorption: Solubility and Caco-2",
+    "Distribution: PPB and fu",
+    "Metabolism: HLM/RLM/MLM and CYP",
+    "Metabolic soft spots and predicted metabolites",
+    "Transporters and MODEL_UNAVAILABLE details",
+    "Safety: hERG, Ames, DILI",
+    "Predicted versus Experimental",
+    "Details, provenance, license, and independent validation",
+    "Compound comparison",
+    "Provenance audit PASS",
+    "No overall score or ranking"
+  ],
+  "public_compounds": ["Dofetilide", "Atenolol"],
+  "completed_at": "2026-08-26T00:35:00+09:00"
+}

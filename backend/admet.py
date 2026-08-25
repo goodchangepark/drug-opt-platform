@@ -56,6 +56,29 @@ TRANSPORTER_UNAVAILABLE = {
     },
 }
 
+SAFETY_UNAVAILABLE = {
+    "Mitochondrial toxicity": {
+        "safety_endpoint": "Mitochondrial toxicity", "species": "Human",
+        "reason": "No public checkpoint with a sufficiently specific assay definition, qualified validation, and clear local redistribution terms was identified in Stage 3F.",
+    },
+    "General cytotoxicity": {
+        "safety_endpoint": "General cytotoxicity", "species": "Not standardized",
+        "reason": "Cell-line, exposure-time, and assay heterogeneity prevents qualification as one deployable endpoint; no generic cytotoxicity prediction is emitted.",
+    },
+    "Skin sensitization": {
+        "safety_endpoint": "Skin sensitization", "species": "Not standardized",
+        "reason": "No validated public checkpoint with sufficiently clear assay and license provenance was qualified for local deployment.",
+    },
+    "BBB penetration": {
+        "safety_endpoint": "BBB penetration", "species": "Human",
+        "reason": "BBB is a distribution endpoint rather than a toxicity endpoint, and no model was added merely to increase endpoint count.",
+    },
+    "CNS liability": {
+        "safety_endpoint": "CNS liability", "species": "Human",
+        "reason": "CNS liability is not a single assay-defined endpoint; no composite or unsupported prediction is emitted.",
+    },
+}
+
 
 def ensure_admet_schema(engine):
     from sqlalchemy import inspect
@@ -77,25 +100,30 @@ def ensure_admet_schema(engine):
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
             "Monkey liver microsomal intrinsic clearance",
             "CYP1A2 substrate", "CYP2C19 substrate",
-        ] + list(TRANSPORTER_UNAVAILABLE)
+        ] + list(TRANSPORTER_UNAVAILABLE) + list(SAFETY_UNAVAILABLE)
         for name in registry_names:
             if name not in registered:
                 values = registry_seed(name) if name in MODEL_SPECS else {
                     "endpoint_name": name,
                     "model_name": f"{name} — no scientifically qualified model installed",
                     "model_version": (
-                        "unavailable-stage3e" if name in TRANSPORTER_UNAVAILABLE else
+                        "unavailable-stage3f" if name in SAFETY_UNAVAILABLE else
+                        ("unavailable-stage3e" if name in TRANSPORTER_UNAVAILABLE else
                         ("unavailable-stage3c" if name.startswith("CYP") else "unavailable-stage3b")
-                    ), "implementation_status": "MODEL_UNAVAILABLE",
+                        )), "implementation_status": "MODEL_UNAVAILABLE",
                     "is_active": False,
                     "provenance_json": (
-                        {**TRANSPORTER_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False}
+                        {**SAFETY_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False,
+                         "model_source": "Stage 3F public-model qualification audit",
+                         "license": "No qualified model/checkpoint license"}
+                        if name in SAFETY_UNAVAILABLE else
+                        ({**TRANSPORTER_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False}
                         if name in TRANSPORTER_UNAVAILABLE else
                         {"reason": (
                             "A released upstream checkpoint exists, but CYP1A2/CYP2C19 substrate endpoints lack publisher-reported validation and sufficiently clear dataset/assay provenance; disabled rather than emitting an unsupported prediction."
                             if name in {"CYP1A2 substrate", "CYP2C19 substrate"} else
                             "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."
-                        )}
+                        )})
                     ),
                 }
                 connection.execute(

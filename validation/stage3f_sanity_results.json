@@ -1,0 +1,15 @@
+{
+  "scope": "Known-compound directionality sanity only; not independent validation",
+  "decision_threshold": 0.5,
+  "results": [
+    {"compound": "Dofetilide", "endpoint": "hERG liability", "expected_class": 1, "probability": 0.9997292161, "predicted_class": 1, "direction_match": true, "domain": "IN_DOMAIN", "nearest_similarity": 1.0, "independent_status": "TRAINING_OVERLAP_POSSIBLE"},
+    {"compound": "Atenolol", "endpoint": "hERG liability", "expected_class": 0, "probability": 0.0036401539, "predicted_class": 0, "direction_match": true, "domain": "IN_DOMAIN", "nearest_similarity": 0.6444, "independent_status": "TRAINING_OVERLAP_NOT_FULLY_EXCLUDED"},
+    {"compound": "Nitrofurantoin", "endpoint": "Ames mutagenicity", "expected_class": 1, "probability": 0.9925907016, "predicted_class": 1, "direction_match": true, "domain": "IN_DOMAIN", "nearest_similarity": 1.0, "independent_status": "EXACT_TRAINING_OVERLAP"},
+    {"compound": "Caffeine", "endpoint": "Ames mutagenicity", "expected_class": 0, "probability": 0.1105725668, "predicted_class": 0, "direction_match": true, "domain": "IN_DOMAIN", "nearest_similarity": 1.0, "independent_status": "EXACT_TRAINING_OVERLAP"},
+    {"compound": "Troglitazone", "endpoint": "DILI clinical liability", "expected_class": 1, "probability": 0.8333979964, "predicted_class": 1, "direction_match": true, "domain": "IN_DOMAIN", "nearest_similarity": 1.0, "independent_status": "EXACT_TRAINING_OVERLAP"},
+    {"compound": "Buspirone", "endpoint": "DILI clinical liability", "expected_class": 0, "probability": 0.0033650024, "predicted_class": 0, "direction_match": true, "domain": "BORDERLINE", "nearest_similarity": 0.3333, "independent_status": "TRAINING_OVERLAP_NOT_FULLY_EXCLUDED"}
+  ],
+  "direction_matches": 6,
+  "total": 6,
+  "generated_at": "2026-08-26T00:00:00+09:00"
+}

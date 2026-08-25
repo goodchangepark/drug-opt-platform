@@ -1,4 +1,4 @@
-"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A-3E)."""
+"""Endpoint-specific ADMET inference and scientific guardrails (Stages 3A-3F)."""
 
 from __future__ import annotations
 
@@ -15,9 +15,12 @@ from rdkit.Chem import Crippen, Descriptors, Lipinski, rdFingerprintGenerator
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_ROOT = ROOT / "models" / "admetica"
 OPENADMET_ROOT = ROOT / "models" / "openadmet" / "microsomal_clearance"
+ADMET_AI_ROOT = ROOT / "models" / "admet_ai"
 MODEL_VERSION = "admetica-d4f7056-chemprop-v2.1"
 CYP_MODEL_VERSION = "admetica-d4f7056-cyp-chemprop-v2.1"
 TRANSPORTER_MODEL_VERSION = "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+SAFETY_HERG_MODEL_VERSION = "admetica-d4f7056-herg-chemprop-v2.1"
+ADMET_AI_SAFETY_MODEL_VERSION = "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
 
 MODEL_SPECS = {
     "Solubility": {
@@ -226,6 +229,129 @@ MODEL_SPECS["P-gp inhibitor"] = {
     ),
 }
 
+MODEL_SPECS["hERG liability"] = {
+    "model_key": "safety/herg",
+    "model_family": "admetica",
+    "prediction_type": "binary_classification",
+    "model_version": SAFETY_HERG_MODEL_VERSION,
+    "display_name": "Admetica Chemprop human hERG blocker liability",
+    "safety_endpoint": "hERG",
+    "species": "Human",
+    "positive_label": "BLOCKER",
+    "negative_label": "NON_BLOCKER",
+    "decision_threshold": 0.5,
+    "endpoint_definition": (
+        "Binary human hERG/KCNH2 blocker-liability classification. The aggregated source does "
+        "not retain a uniform assay mode, so this is neither a pure binding endpoint nor a pure "
+        "functional patch-clamp endpoint and is not an IC50 prediction."
+    ),
+    "assay_definition": (
+        "Wang et al. literature aggregation of heterogeneous hERG blocker evidence. Binding and "
+        "functional assay provenance is not retained per packaged row; class labels must therefore "
+        "be interpreted as screening liability rather than one standardized assay."
+    ),
+    "unit": "probability",
+    "training_dataset": (
+        "Wang et al. hERG blocker compilation as curated by Admetica (22,249 reported records; "
+        "22,248 valid structures packaged; 19,130 positive and 3,118 negative)"
+    ),
+    "training_n": 22249,
+    "validation": {
+        "specificity": 0.811, "sensitivity": 0.897, "accuracy": 0.885,
+        "balanced_accuracy": 0.854, "scope": "Admetica publisher-reported validation",
+        "probability_calibration": "Not reported",
+    },
+    "independent_validation": {
+        "status": "COMPLETE_WITH_LIMITATIONS",
+        "dataset": "OpenADMET ChEMBL 37 human hERG IC50 aggregate; exact training overlap excluded",
+        "n": 728,
+        "both_classes": True,
+        "positive_definition": "median IC50 <= 10,000 nM",
+        "AUROC": 0.6668976906,
+        "AUPRC": 0.7854091863,
+        "balanced_accuracy": 0.5442154170,
+        "sensitivity": 0.9754601227,
+        "specificity": 0.1129707113,
+        "MCC": 0.1844230442,
+        "threshold": 0.5,
+        "overlap_policy": "7,249 exact canonical-SMILES overlaps removed from 7,977 ChEMBL aggregates",
+        "limitations": "Exact-structure exclusion does not prove source, series, or assay-lineage independence.",
+    },
+    "source": "https://github.com/datagrok-ai/admetica",
+    "license": (
+        "MIT for the Admetica repository/checkpoint; upstream dataset licensing is source-specific"
+    ),
+    "limitations": (
+        "Heterogeneous blocker labels, severe class imbalance, no reported calibration, and no "
+        "assay-mode field. The overlap-filtered ChEMBL check had very low specificity (0.113), so "
+        "confidence is capped at LOW. It does not distinguish binding from functional current "
+        "inhibition and must not be converted to IC50 or used as a clinical QT-risk determination."
+    ),
+}
+
+for _endpoint, _task, _species, _positive, _negative, _count, _auprc, _auroc in (
+    ("Ames mutagenicity", 0, "Salmonella typhimurium", "MUTAGENIC", "NON_MUTAGENIC", 7255, 0.8957980387, 0.8815869914),
+    ("DILI clinical liability", 13, "Human", "DILI_CONCERN", "NO_DILI_CONCERN", 475, 0.8777147000, 0.8814562005),
+):
+    _key = "ames" if _endpoint.startswith("Ames") else "dili"
+    MODEL_SPECS[_endpoint] = {
+        "model_key": "classification",
+        "index_key": _key,
+        "model_family": "admet_ai_ensemble",
+        "prediction_type": "binary_classification",
+        "task_index": _task,
+        "model_version": ADMET_AI_SAFETY_MODEL_VERSION,
+        "display_name": f"ADMET-AI v2 Chemprop ensemble {_endpoint}",
+        "safety_endpoint": "Ames" if _key == "ames" else "DILI",
+        "species": _species,
+        "positive_label": _positive,
+        "negative_label": _negative,
+        "decision_threshold": 0.5,
+        "endpoint_definition": (
+            "Binary Ames mutagenicity: bacterial reverse-mutation positive versus negative across "
+            "an aggregate of four public studies."
+            if _key == "ames" else
+            "Binary human clinical drug-induced liver injury association from the FDA National "
+            "Center for Toxicological Research compilation; not a mechanistic hepatotoxicity assay."
+        ),
+        "assay_definition": (
+            "Aggregated Salmonella bacterial reverse-mutation labels; strain, metabolic activation, "
+            "dose, and protocol are not harmonized in the molecular input."
+            if _key == "ames" else
+            "Clinical drug-level DILI annotation compiled by FDA/NCTR; it is distinct from in-vitro "
+            "cytotoxicity, mitochondrial toxicity, and a quantitative liver injury measurement."
+        ),
+        "unit": "probability",
+        "training_dataset": (
+            f"TDC AMES/Xu et al. aggregate ({_count:,} valid training labels)"
+            if _key == "ames" else
+            f"TDC DILI/Xu et al. FDA-NCTR compilation ({_count:,} drugs)"
+        ),
+        "training_n": _count,
+        "validation": {
+            "AUROC": _auroc, "AUPRC": _auprc,
+            "scope": "ADMET-AI v2 release-reported five-fold held-out evaluation",
+            "probability_calibration": "Not reported",
+        },
+        "independent_validation": {
+            "status": "NOT_AVAILABLE",
+            "reason": "No rigorously independent public structure/label set with non-overlapping source lineage was qualified in Stage 3F.",
+        },
+        "source": "https://github.com/swansonk14/admet_ai",
+        "license": (
+            "MIT for ADMET-AI code/checkpoints; the TDC endpoint page lists the upstream dataset "
+            "license as not specified while also linking CC BY 4.0, so redistribution/commercial "
+            "dataset use requires separate review"
+        ),
+        "limitations": (
+            "Five-model ensemble disagreement is available, but calibration and independent "
+            "validation are not. Source assays/annotations are heterogeneous; confidence is capped "
+            "at LOW and the output is classification only. For Ames, the transparent AD source "
+            "index has 7,278 raw public rows while the v2 release reports 7,255 valid labels; exact "
+            "fold membership is unavailable, so this AD must be treated as an approximation."
+        ),
+    }
+
 for _species, _task, _count in (("HLM", 0, 5086), ("RLM", 1, 670), ("MLM", 2, 5086)):
     MODEL_SPECS[f"{_species} intrinsic clearance"] = {
         "model_key": "microsomal_clearance",
@@ -293,6 +419,9 @@ def metabolic_stability_assessment(endpoint: str, value: float) -> dict | None:
     }
 
 _MODEL_LOCK = threading.Lock()
+_RUNTIME_LOCK = threading.Lock()
+_RUNTIME_ERROR: str | None = None
+_RUNTIME_CHECKED = False
 _MODELS: dict[str, object] = {}
 _TRAINER = None
 _FP_GENERATOR = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
@@ -301,7 +430,13 @@ _DESCRIPTOR_NAMES = ("MW", "cLogP", "TPSA", "HBD", "HBA", "RotB")
 
 def registry_seed(endpoint: str) -> dict:
     spec = MODEL_SPECS[endpoint]
-    if spec.get("transporter"):
+    if spec.get("safety_endpoint") == "hERG":
+        supported_matrix = ["heterogeneous human hERG assays"]
+    elif spec.get("safety_endpoint") == "Ames":
+        supported_matrix = ["bacterial reverse mutation"]
+    elif spec.get("safety_endpoint") == "DILI":
+        supported_matrix = ["clinical annotation"]
+    elif spec.get("transporter"):
         supported_matrix = ["human transporter functional assay"]
     elif spec.get("role"):
         supported_matrix = ["human recombinant CYP enzyme"]
@@ -327,22 +462,35 @@ def registry_seed(endpoint: str) -> dict:
 
 
 def model_files_available(endpoint: str) -> tuple[bool, str]:
+    global _RUNTIME_CHECKED, _RUNTIME_ERROR
     if endpoint not in MODEL_SPECS:
         return False, "No endpoint- and species-specific model installed; cross-species reuse is prohibited."
     spec = MODEL_SPECS[endpoint]
     if spec["model_family"] == "openadmet_clearance":
         names = ("model.pth", "X_train.csv", "y_train.csv", f"ad_index_{spec['index_key']}.npz")
         missing = [name for name in names if not (OPENADMET_ROOT / name).is_file()]
+    elif spec["model_family"] == "admet_ai_ensemble":
+        model_paths = [ADMET_AI_ROOT / "classification" / f"model_{index}.pt" for index in range(5)]
+        training_root = ADMET_AI_ROOT / "training" / spec["index_key"]
+        paths = model_paths + [training_root / "training.csv", training_root / "ad_index.npz"]
+        missing = [str(path.relative_to(ADMET_AI_ROOT)) for path in paths if not path.is_file()]
     else:
         key = spec["model_key"]
         missing = [name for name in ("model_v2_1.pt", "training.csv", "ad_index.npz") if not (MODEL_ROOT / key / name).is_file()]
     if missing:
         return False, "Packaged model asset missing: " + ", ".join(missing)
-    try:
-        import chemprop  # noqa: F401
-        import torch  # noqa: F401
-    except ImportError as exc:
-        return False, f"Runtime dependency unavailable: {exc.name}"
+    # FastAPI sync endpoints may call this concurrently on a fresh process. PyTorch's
+    # extension import is not safe to observe half-initialized from another worker thread.
+    with _RUNTIME_LOCK:
+        if not _RUNTIME_CHECKED:
+            try:
+                import torch  # noqa: F401
+                import chemprop  # noqa: F401
+            except ImportError as exc:
+                _RUNTIME_ERROR = f"{exc.__class__.__name__}: {exc}"
+            _RUNTIME_CHECKED = True
+    if _RUNTIME_ERROR:
+        return False, f"Runtime dependency unavailable: {_RUNTIME_ERROR}"
     return True, ""
 
 
@@ -360,7 +508,12 @@ def _descriptors(mol) -> dict[str, float]:
 @lru_cache(maxsize=32)
 def _training_index(endpoint: str):
     spec = MODEL_SPECS[endpoint]
-    path = (OPENADMET_ROOT / f"ad_index_{spec['index_key']}.npz") if spec["model_family"] == "openadmet_clearance" else (MODEL_ROOT / spec["model_key"] / "ad_index.npz")
+    if spec["model_family"] == "openadmet_clearance":
+        path = OPENADMET_ROOT / f"ad_index_{spec['index_key']}.npz"
+    elif spec["model_family"] == "admet_ai_ensemble":
+        path = ADMET_AI_ROOT / "training" / spec["index_key"] / "ad_index.npz"
+    else:
+        path = MODEL_ROOT / spec["model_key"] / "ad_index.npz"
     with np.load(path) as index:
         fingerprints = index["fingerprints"]
         bit_counts = index["bit_counts"]
@@ -423,9 +576,17 @@ def _load_model(endpoint: str):
             state = torch.load(OPENADMET_ROOT / "model.pth", map_location="cpu", weights_only=True)
             model.load_state_dict(state, strict=True)
             _MODELS[key] = model
+        elif spec["model_family"] == "admet_ai_ensemble":
+            from chemprop.models import load_model
+            _MODELS[key] = [
+                load_model(ADMET_AI_ROOT / "classification" / f"model_{index}.pt", multicomponent=False)
+                for index in range(5)
+            ]
+            for member in _MODELS[key]:
+                member.eval()
         else:
             _MODELS[key] = models.MPNN.load_from_file(MODEL_ROOT / key / "model_v2_1.pt", map_location="cpu")
-        _MODELS[key].eval()
+            _MODELS[key].eval()
     if _TRAINER is None:
         _TRAINER = pl.Trainer(
             logger=False, enable_checkpointing=False, enable_model_summary=False,
@@ -441,7 +602,15 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         raise ValueError("Invalid SMILES")
-    value = predict_batch_values([Chem.MolToSmiles(mol, isomericSmiles=True)], endpoint)[0]
+    canonical = Chem.MolToSmiles(mol, isomericSmiles=True)
+    ensemble_values = None
+    if MODEL_SPECS[endpoint]["model_family"] == "admet_ai_ensemble":
+        member_matrices = predict_batch_member_matrices([canonical], endpoint)
+        task = MODEL_SPECS[endpoint]["task_index"]
+        ensemble_values = [float(matrix[0][task]) for matrix in member_matrices]
+        value = float(np.mean(ensemble_values))
+    else:
+        value = predict_batch_values([canonical], endpoint)[0]
     domain = applicability_domain(smiles, endpoint)
     # A single deterministic checkpoint provides no ensemble uncertainty, so HIGH is never assigned.
     # Clearance generalization was weak on the canonical-overlap-excluded Biogen set;
@@ -450,13 +619,14 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
         # Confidence is deliberately independent of the predicted probability.
         # It combines publisher performance, independent evidence availability,
         # and the compound's applicability domain.
-        balanced = float(MODEL_SPECS[endpoint]["validation"]["balanced_accuracy"])
+        validation = MODEL_SPECS[endpoint]["validation"]
+        publisher_score = float(validation.get("balanced_accuracy", validation.get("AUROC", 0.0)))
         independent = MODEL_SPECS[endpoint].get("independent_validation", {})
         independently_supported = (
             independent.get("n", 0) >= 30 and independent.get("both_classes", False)
             and float(independent.get("balanced_accuracy", 0.0)) >= 0.70
         )
-        if domain["classification"] == "IN_DOMAIN" and balanced >= 0.80 and independently_supported:
+        if domain["classification"] == "IN_DOMAIN" and publisher_score >= 0.80 and independently_supported:
             confidence = "MEDIUM"
         else:
             confidence = "LOW"
@@ -468,8 +638,12 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
         "unit": MODEL_SPECS[endpoint]["unit"],
         "confidence": confidence,
         "applicability_domain": domain,
-        "uncertainty": None,
-        "uncertainty_reason": "Single checkpoint; no calibrated ensemble uncertainty is available.",
+        "uncertainty": round(float(np.std(ensemble_values)), 6) if ensemble_values is not None else None,
+        "uncertainty_reason": (
+            "Standard deviation across five ADMET-AI v2 checkpoints; useful as model disagreement but not calibrated uncertainty."
+            if ensemble_values is not None else
+            "Single checkpoint; no calibrated ensemble uncertainty is available."
+        ),
     }
     if endpoint == "Plasma protein binding":
         result["derived_outputs"] = ({
@@ -491,24 +665,39 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
     elif MODEL_SPECS[endpoint].get("prediction_type") == "binary_classification":
         spec = MODEL_SPECS[endpoint]
         positive = value >= spec["decision_threshold"]
-        positive_label = spec["role"]
+        positive_label = spec.get("positive_label", spec.get("role"))
+        negative_label = spec.get("negative_label", f"NON_{positive_label}")
         target = spec.get("isoform") or spec.get("transporter")
         result.update({
             "probability": value,
-            "classification": positive_label if positive else f"NON_{positive_label}",
-            "role": spec["role"],
+            "classification": positive_label if positive else negative_label,
             "decision_threshold": spec["decision_threshold"],
             "liability_summary": ({
                 "flag": f"Potential {target} inhibition concern",
                 "rule": f"inhibitor probability >= {spec['decision_threshold']:.2f}",
                 "basis": "The model's fixed binary decision threshold; this is a screening flag, not an IC50 claim.",
-            } if spec["role"] == "INHIBITOR" and positive else None),
+            } if spec.get("role") == "INHIBITOR" and positive else None),
         })
+        if spec.get("role"):
+            result["role"] = spec["role"]
         if spec.get("isoform"):
             result["isoform"] = spec["isoform"]
         if spec.get("transporter"):
             result["transporter"] = spec["transporter"]
             result["species"] = spec["species"]
+        if spec.get("safety_endpoint"):
+            result["safety_endpoint"] = spec["safety_endpoint"]
+            result["species"] = spec["species"]
+            result["ensemble_probabilities"] = ensemble_values
+            result["liability_summary"] = ({
+                "flag": {
+                    "hERG": "Potential hERG blocker liability",
+                    "Ames": "Potential Ames mutagenicity concern",
+                    "DILI": "Potential clinical DILI association concern",
+                }[spec["safety_endpoint"]],
+                "rule": f"positive-class probability >= {spec['decision_threshold']:.2f}",
+                "basis": "Fixed binary screening threshold; not a quantitative toxicity or clinical causality claim.",
+            } if positive else None)
     return result
 
 
@@ -521,6 +710,12 @@ def predict_batch_values(smiles: list[str], endpoint: str) -> list[float]:
 
 def predict_batch_matrix(smiles: list[str], endpoint: str) -> list[list[float]]:
     """Run one CPU inference batch and retain all model tasks."""
+    members = predict_batch_member_matrices(smiles, endpoint)
+    return np.mean(np.asarray(members, dtype=float), axis=0).tolist()
+
+
+def predict_batch_member_matrices(smiles: list[str], endpoint: str) -> list[list[list[float]]]:
+    """Return one prediction matrix per checkpoint for ensemble-aware validation."""
     from chemprop import data, featurizers
     import torch
 
@@ -529,8 +724,16 @@ def predict_batch_matrix(smiles: list[str], endpoint: str) -> list[list[float]]:
     loader = data.build_dataloader(dataset, shuffle=False, num_workers=0, drop_last=False)
     with _MODEL_LOCK, torch.inference_mode():
         model, trainer = _load_model(endpoint)
-        batches = trainer.predict(model, loader)
-    return [[float(value) for value in row] for batch in batches for row in batch.reshape(-1, batch.shape[-1] if batch.ndim > 1 else 1)]
+        models = model if isinstance(model, list) else [model]
+        member_batches = [trainer.predict(member, loader) for member in models]
+    matrices = []
+    for batches in member_batches:
+        matrices.append([
+            [float(value) for value in row]
+            for batch in batches
+            for row in batch.reshape(-1, batch.shape[-1] if batch.ndim > 1 else 1)
+        ])
+    return matrices
 
 
 def _normalise_unit(unit: str) -> str:
@@ -542,7 +745,21 @@ def _classification_target_terms(spec: dict) -> tuple[str, ...]:
         return ("p-gp", "pgp", "p-glycoprotein", "abcb1")
     if spec.get("transporter"):
         return (spec["transporter"].lower(),)
+    if spec.get("safety_endpoint") == "hERG":
+        return ("herg", "kcnh2")
+    if spec.get("safety_endpoint") == "Ames":
+        return ("ames", "mutagen")
+    if spec.get("safety_endpoint") == "DILI":
+        return ("dili", "drug induced liver injury", "drug-induced liver injury")
     return (spec["isoform"].lower(),)
+
+
+def _classification_role_terms(spec: dict) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    if spec.get("role") == "INHIBITOR":
+        return ("inhibitor", "inhibition"), ("substrate",)
+    if spec.get("role") == "SUBSTRATE":
+        return ("substrate",), ("inhibitor", "inhibition")
+    return (), ()
 
 
 def comparable_experimental(endpoint: str, measurement, endpoint_name: str) -> tuple[float | None, str]:
@@ -558,14 +775,13 @@ def comparable_experimental(endpoint: str, measurement, endpoint_name: str) -> t
         spec = MODEL_SPECS[endpoint]
         identity = f"{endpoint_name} {measurement.species} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
         target_terms = _classification_target_terms(spec)
-        role_terms = ("inhibitor", "inhibition") if spec["role"] == "INHIBITOR" else ("substrate",)
-        opposite_terms = ("substrate",) if spec["role"] == "INHIBITOR" else ("inhibitor", "inhibition")
-        family = "transporter" if spec.get("transporter") else "CYP"
-        if not any(term in identity for term in target_terms) or not any(term in identity for term in role_terms):
+        role_terms, opposite_terms = _classification_role_terms(spec)
+        family = "safety" if spec.get("safety_endpoint") else ("transporter" if spec.get("transporter") else "CYP")
+        if not any(term in identity for term in target_terms) or (role_terms and not any(term in identity for term in role_terms)):
             return None, f"Different {family} target or role"
         if any(term in identity for term in opposite_terms):
             return None, f"{family} inhibitor and substrate evidence cannot be interchanged"
-        if any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
+        if spec.get("species") == "Human" and any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
             return None, f"Non-human {family} evidence is not comparable to the human model"
         if unit in {"class", "binary", "classification", "0/1"} and value in {0.0, 1.0}:
             return value, "Experimental binary classification"
@@ -682,15 +898,16 @@ def classification_experimental_evidence(endpoint: str, predicted_probability: f
         return []
     result = []
     target_terms = _classification_target_terms(spec)
-    role_terms = ("inhibitor", "inhibition") if spec["role"] == "INHIBITOR" else ("substrate",)
-    opposite_terms = ("substrate",) if spec["role"] == "INHIBITOR" else ("inhibitor", "inhibition")
+    role_terms, opposite_terms = _classification_role_terms(spec)
     predicted_class = 1 if predicted_probability >= spec["decision_threshold"] else 0
     for measurement in measurements:
         endpoint_name = endpoint_names.get(measurement.endpoint_id, "")
         identity = f"{endpoint_name} {measurement.species} {measurement.matrix} {measurement.method} {measurement.notes}".lower()
-        if not any(term in identity for term in target_terms) or not any(term in identity for term in role_terms):
+        if not any(term in identity for term in target_terms) or (role_terms and not any(term in identity for term in role_terms)):
             continue
-        if any(term in identity for term in opposite_terms) or any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
+        if any(term in identity for term in opposite_terms):
+            continue
+        if spec.get("species") == "Human" and any(term in identity for term in ("rat", "mouse", "dog", "monkey")):
             continue
         value = measurement.mean_value if measurement.mean_value is not None else measurement.value
         if value is None:
