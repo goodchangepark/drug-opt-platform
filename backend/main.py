@@ -1,3 +1,4 @@
+import hashlib
 import json
 
 import numpy as np
@@ -13,9 +14,11 @@ from sqlalchemy.orm import Session
 
 from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
 from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, MatchedMolecularPair, QSARModel
-from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPredictionRun,
+from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
+from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparison_for_prediction,
+                              model_files_available, predict_endpoint)
 from .database import Base, SessionLocal, engine, get_db
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
@@ -23,7 +26,7 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.2.0-stage2")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.3.0-stage3a")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -280,6 +283,34 @@ def _admet_endpoint_out(endpoint: ADMETEndpoint):
             "direction": endpoint.direction}
 
 
+def _admet_model_out(model: ADMETModelRegistry):
+    available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (False, "Not implemented in Stage 3A")
+    return {
+        "id": model.id, "endpoint": model.endpoint_name, "model_name": model.model_name,
+        "model_version": model.model_version,
+        "status": model.implementation_status if available else "MODEL_UNAVAILABLE",
+        "active": bool(model.is_active and available), "output_unit": model.output_unit,
+        "details": model.provenance_json or {}, "unavailable_reason": unavailable_reason,
+    }
+
+
+def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_names):
+    comparisons = comparison_for_prediction(
+        prediction.model.endpoint_name, prediction.predicted_value, measurements, endpoint_names,
+    ) if prediction.predicted_value is not None and prediction.model.endpoint_name in MODEL_SPECS else []
+    outputs = dict(prediction.outputs_json or {})
+    outputs["experimental_comparisons"] = comparisons
+    return {
+        "id": prediction.id, "run_id": prediction.run_id, "version_id": prediction.version_id,
+        "endpoint_id": prediction.endpoint_id, "endpoint": prediction.endpoint.name,
+        "predicted_value": prediction.predicted_value, "unit": prediction.unit,
+        "confidence": prediction.confidence, "applicability_domain": prediction.applicability_domain,
+        "uncertainty": prediction.uncertainty, "model": _admet_model_out(prediction.model),
+        "outputs": outputs, "experimental_comparisons": comparisons,
+        "created_at": prediction.created_at.isoformat(), "type": "Predicted",
+    }
+
+
 def get_or_create_admet_endpoint(db: Session, project_id: int, name: str):
     name = str(name).strip()
     if not name:
@@ -326,6 +357,17 @@ def list_admet(project_id: int, db: Session = Depends(get_db)):
     ).where(ADMETEndpoint.project_id == project_id).order_by(ADMETMeasurement.created_at.desc())).all()
     models = db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name)).all()
     version_ids = list(versions)
+    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id)
+    )}
+    predictions = db.scalars(
+        select(ADMETPrediction)
+        .where(ADMETPrediction.version_id.in_(version_ids))
+        .order_by(ADMETPrediction.created_at.desc())
+    ).all() if version_ids else []
+    measurements_by_version = {
+        version_id: [row for row in rows if row.version_id == version_id] for version_id in version_ids
+    }
     runs = db.scalars(
         select(ADMETPredictionRun)
         .where(ADMETPredictionRun.version_id.in_(version_ids))
@@ -335,9 +377,10 @@ def list_admet(project_id: int, db: Session = Depends(get_db)):
     return {
         "endpoints": [_admet_endpoint_out(e) for e in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))],
         "measurements": [measurement_out(row) for row in rows],
-        "models": [{"id": m.id, "endpoint": m.endpoint_name, "model_name": m.model_name,
-                    "model_version": m.model_version, "status": m.implementation_status,
-                    "active": m.is_active} for m in models],
+        "models": [_admet_model_out(model) for model in models],
+        "predictions": [_admet_prediction_out(
+            prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
+        ) for prediction in predictions],
         "prediction_runs": [{"id": r.id, "version_id": r.version_id, "status": r.status,
                              "message": r.message, "started_at": r.started_at.isoformat()} for r in runs],
         "csv_columns": ["compound_id", "version_number"] + [
@@ -415,11 +458,99 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if not version:
         raise HTTPException(status_code=404, detail="CompoundVersion not found")
     active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
-    run = ADMETPredictionRun(version_id=row_id, inputs_hash=inputs_hash([row_id]), status="NOT_INSTALLED")
-    db.add(run); db.commit(); db.refresh(run)
+    stage3a_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS]
+    available_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS and model_files_available(model.endpoint_name)[0]]
+    cached = {}
+    for model in available_models:
+        prediction = db.scalar(
+            select(ADMETPrediction).join(ADMETModelRegistry)
+            .where(ADMETPrediction.version_id == row_id,
+                   ADMETModelRegistry.id == model.id,
+                   ADMETModelRegistry.model_version == model.model_version)
+            .order_by(ADMETPrediction.created_at.desc())
+        )
+        if prediction:
+            cached[model.id] = prediction
+    compound = db.get(Compound, version.compound_row_id)
+    measurements = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == row_id)).all()
+    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
+    )}
+    if stage3a_models and len(available_models) == len(stage3a_models) and len(cached) == len(available_models):
+        predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
+        return {
+            "type": "Predicted", "run_id": predictions[0]["run_id"], "status": "CACHED",
+            "message": "Cached predictions reused for this CompoundVersion and model version.",
+            "models_available": len(available_models), "cache_hit": True, "predictions": predictions,
+        }
+
+    digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
+    run = ADMETPredictionRun(
+        version_id=row_id, inputs_hash=digest, status="RUNNING",
+        message="Running Stage 3A endpoint-specific predictions.",
+    )
+    db.add(run); db.flush()
+    created, unavailable = [], []
+    selected_predictions = dict(cached)
+    for model in active_models:
+        if model.id in cached:
+            continue
+        if model.endpoint_name not in MODEL_SPECS:
+            continue
+        available, reason = model_files_available(model.endpoint_name)
+        if not available:
+            unavailable.append(f"{model.endpoint_name}: {reason}")
+            continue
+        try:
+            result = predict_endpoint(version.canonical_smiles, model.endpoint_name)
+        except Exception as exc:
+            unavailable.append(f"{model.endpoint_name}: inference failed ({exc})")
+            continue
+        if result.get("status") != "COMPLETE":
+            unavailable.append(f"{model.endpoint_name}: {result.get('reason', 'model unavailable')}")
+            continue
+        endpoint = get_or_create_admet_endpoint(db, compound.project_id, model.endpoint_name)
+        db.add(endpoint); db.flush()
+        domain = result["applicability_domain"]
+        output = {
+            "model_source": MODEL_SPECS[model.endpoint_name]["source"],
+            "endpoint_definition": MODEL_SPECS[model.endpoint_name]["endpoint_definition"],
+            "training_dataset": MODEL_SPECS[model.endpoint_name]["training_dataset"],
+            "validation": MODEL_SPECS[model.endpoint_name]["validation"],
+            "license": MODEL_SPECS[model.endpoint_name]["license"],
+            "limitations": MODEL_SPECS[model.endpoint_name]["limitations"],
+            "applicability_domain_details": domain,
+            "uncertainty_reason": result["uncertainty_reason"],
+        }
+        prediction = ADMETPrediction(
+            run_id=run.id, endpoint_id=endpoint.id, version_id=row_id, model_id=model.id,
+            predicted_value=result["predicted_value"], unit=result["unit"],
+            confidence=result["confidence"], applicability_domain=domain["classification"],
+            uncertainty=result["uncertainty"], outputs_json=output,
+        )
+        db.add(prediction); created.append(prediction); selected_predictions[model.id] = prediction
+    from datetime import datetime, timezone
+    run.completed_at = datetime.now(timezone.utc)
+    if selected_predictions and unavailable:
+        run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
+    elif selected_predictions:
+        run.status, run.message = "COMPLETE", "Solubility and Caco-2 predictions completed." + (
+            f" Reused {len(cached)} cached endpoint." if cached else ""
+        )
+    else:
+        run.status, run.message = "MODEL_UNAVAILABLE", "; ".join(unavailable) or "No Stage 3A model is available."
+    db.commit()
+    db.refresh(run)
+    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
+    )}
+    predictions = [_admet_prediction_out(
+        selected_predictions[model.id], measurements, endpoint_names,
+    ) for model in available_models if model.id in selected_predictions]
     return {
         "type": "Predicted", "run_id": run.id, "status": run.status, "message": run.message,
-        "models_available": len(active_models), "predictions": [],
+        "models_available": len(available_models), "cache_hit": False, "predictions": predictions,
+        "unavailable": unavailable,
     }
 
 

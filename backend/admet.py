@@ -10,6 +10,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
 from .models import CompoundVersion, utcnow
+from .admet_predictor import MODEL_SPECS, registry_seed
 
 
 def ensure_admet_schema(engine):
@@ -30,11 +31,19 @@ def ensure_admet_schema(engine):
         registered = set(connection.execute(select(ADMETModelRegistry.endpoint_name)).scalars())
         for name in ("Solubility", "Permeability", "Microsomal clearance", "Plasma protein binding"):
             if name not in registered:
+                values = registry_seed(name) if name in MODEL_SPECS else {
+                    "endpoint_name": name,
+                    "model_name": f"{name} baseline registry entry",
+                }
                 connection.execute(
-                    ADMETModelRegistry.__table__.insert().values(
-                        endpoint_name=name,
-                        model_name=f"{name} baseline registry entry",
-                    )
+                    ADMETModelRegistry.__table__.insert().values(**values)
+                )
+            elif name in MODEL_SPECS:
+                values = registry_seed(name)
+                connection.execute(
+                    ADMETModelRegistry.__table__.update()
+                    .where(ADMETModelRegistry.endpoint_name == name)
+                    .values(**{key: value for key, value in values.items() if key != "endpoint_name"})
                 )
 
 

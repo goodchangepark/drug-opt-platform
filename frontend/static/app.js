@@ -130,6 +130,44 @@ function App(){
   ]);
  }
 
+ function predictionDetails(prediction){
+  const details=prediction.model?.details||{},output=prediction.outputs||{},domain=output.applicability_domain_details||{};
+  const validation=details.validation||output.validation||{};
+  return e('details',{},[
+   e('summary',{key:'summary'},'Details'),
+   e('div',{key:'body',className:'small',style:{minWidth:'320px'}},[
+    e('div',{key:'model'},e('strong',{},'Model: '),prediction.model.model_name+' · '+prediction.model.model_version),
+    e('div',{key:'source'},[e('strong',{},'Source: '),e('a',{href:details.source||output.model_source,target:'_blank',rel:'noreferrer'},details.source||output.model_source)]),
+    e('div',{key:'definition'},[e('strong',{},'Endpoint: '),details.endpoint_definition||output.endpoint_definition]),
+    e('div',{key:'training'},[e('strong',{},'Training: '),details.training_dataset||output.training_dataset]),
+    e('div',{key:'validation'},[e('strong',{},'Validation: '),Object.entries(validation).map(([key,value])=>key+' '+value).join(' · ')]),
+    e('div',{key:'license'},[e('strong',{},'License: '),details.license||output.license]),
+    e('div',{key:'ad'},[e('strong',{},'AD evidence: '),'nearest similarity '+(domain.nearest_training_similarity??'—')+' · chemical-space distance '+(domain.chemical_space_distance??'—')+(domain.descriptors_outside_range?.length?' · outside '+domain.descriptors_outside_range.join(', '):' · descriptors within training range')]),
+    e('div',{key:'limits'},[e('strong',{},'Limitations: '),details.limitations||output.limitations])
+   ])
+  ]);
+ }
+
+ function admetPredictionTable(rows){
+  if(!rows.length)return Empty({children:'No Solubility or Caco-2 predictions yet.'});
+  return e('table',{},[
+   e('thead',{key:'head'},e('tr',{},['Compound','Endpoint','Experimental','Predicted','Confidence','Domain',''].map(label=>e('th',{key:label},label)))),
+   e('tbody',{key:'body'},rows.map(prediction=>{
+    const comparison=prediction.experimental_comparisons?.[0];
+    const experimental=comparison?(comparison.experimental_value+' '+comparison.experimental_unit):'No compatible value';
+    const error=comparison?' · |error| '+comparison.absolute_error+' '+comparison.normalized_unit:'';
+    return e('tr',{key:prediction.id},[
+     e('td',{key:'compound',className:'mono'},versionLabel(prediction.version_id)),
+     e('td',{key:'endpoint'},prediction.endpoint==='Permeability'?'Caco-2':prediction.endpoint),
+     e('td',{key:'experimental'},experimental),
+     e('td',{key:'predicted',className:'mono'},Number(prediction.predicted_value).toFixed(3)+' '+prediction.unit+error),
+     e('td',{key:'confidence'},prediction.confidence),e('td',{key:'domain'},prediction.applicability_domain),
+     e('td',{key:'details'},predictionDetails(prediction))
+    ]);
+   }))
+  ]);
+ }
+
  function admetFormPanel(fixedVersionId=null){
   const targetVersionId=fixedVersionId||admetVersionId;
   const setValue=(key,value)=>setAdmetForm(current=>({...current,[key]:value}));
@@ -183,7 +221,14 @@ function App(){
      ])
     ])
    ]),
-   e('div',{className:'card',key:'predicted'},[e('h3',{},'Predicted ADMET'),e('p',{},'No ADMET AI/QSAR prediction model is installed in Step 2. Registry entries and prediction runs are auditable placeholders only.'),(admet?.models||[]).length?e('table',{},[e('thead',{key:'head'},e('tr',{},['Endpoint','Model','Version','Status','Active'].map(label=>e('th',{key:label},label)))),e('tbody',{key:'body'},admet.models.map(model=>e('tr',{key:model.id},[e('td',{key:'endpoint'},model.endpoint),e('td',{key:'model'},model.model_name),e('td',{key:'version'},model.model_version),e('td',{key:'status'},Badge({ok:model.active,text:model.status})),e('td',{key:'active'},String(model.active))]))) ]):Empty({children:'No ADMET model registry entries.'}),e('div',{className:'row',style:{marginTop:'12px'}},[e('button',{key:'run',className:'secondary',disabled:admetBusy||!admetVersionId,onClick:()=>runPrediction(Number(admetVersionId))},'Record placeholder run'),e('span',{key:'label',className:'small'},admetVersionId?versionLabel(admetVersionId):'Select a compound version above')])])
+   e('div',{className:'card',key:'predicted'},[
+    e('div',{className:'row toolbar',key:'title'},[e('h3',{},'Solubility & Caco-2 predictions'),e('button',{disabled:admetBusy||!admetVersionId,onClick:()=>runPrediction(Number(admetVersionId))},admetBusy?'Predicting…':'Run prediction')]),
+    e('p',{key:'scope',className:'small'},'Solubility is aggregate aqueous LogS (mol/L), not pH-specific or intrinsic solubility. Caco-2 is LogPapp (cm/s); assay direction is not retained in the training data. PAMPA and MDCK are not substituted.'),
+    admetPredictionTable(admet?.predictions||[]),
+    e('h4',{key:'registry-title',style:{marginTop:'22px'}},'Model registry'),
+    (admet?.models||[]).length?e('table',{key:'registry'},[e('thead',{key:'head'},e('tr',{},['Endpoint','Model','Version','Unit','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{key:'body'},admet.models.map(model=>e('tr',{key:model.id},[e('td',{key:'endpoint'},model.endpoint==='Permeability'?'Caco-2':model.endpoint),e('td',{key:'model'},model.model_name),e('td',{key:'version'},model.model_version),e('td',{key:'unit'},model.output_unit||'—'),e('td',{key:'status'},Badge({ok:model.active,text:model.status}))]))) ]):Empty({children:'No ADMET model registry entries.'}),
+    e('div',{key:'selected',className:'small',style:{marginTop:'10px'}},admetVersionId?'Selected: '+versionLabel(admetVersionId):'Select a compound version above')
+   ])
   ]);
  }
 
@@ -191,6 +236,7 @@ function App(){
   if(!detail)return null;
   const detailMeasurements=(admet?.measurements||[]).filter(row=>row.version_id===detail.version.id);
   const detailRuns=(admet?.prediction_runs||[]).filter(run=>run.version_id===detail.version.id);
+  const detailPredictions=(admet?.predictions||[]).filter(row=>row.version_id===detail.version.id);
   return e('div',{className:'card'},[
    e('div',{className:'row toolbar',key:'header'},[e('h3',{},detail.compound_id+' · v'+detail.current_version),e('div',{className:'row'},[
     ...['overview','admet'].map(tab=>e('button',{key:tab,className:detailTab===tab?'':'secondary',onClick:()=>setDetailTab(tab)},tab.toUpperCase())),
@@ -208,14 +254,16 @@ function App(){
     e('p',{className:'small',key:'scope'},'ADMET records below are attached to '+detail.compound_id+' v'+detail.current_version+' (compound version #'+detail.version.id+').'),
     e('h4',{key:'add-title'},'Add experimental measurement'),admetFormPanel(detail.version.id),
     e('h4',{key:'experimental-title',style:{marginTop:'22px'}},'Experimental measurements'),e('div',{key:'experimental-table'},admetMeasurementTable(detailMeasurements)),
-    e('div',{className:'row toolbar',key:'prediction-title',style:{marginTop:'22px'}},[e('h4',{},'Prediction audit'),e('button',{className:'secondary',disabled:admetBusy,onClick:()=>runPrediction(detail.version.id)},'Record placeholder run')]),
+    e('div',{className:'row toolbar',key:'prediction-title',style:{marginTop:'22px'}},[e('h4',{},'Solubility & Caco-2 predictions'),e('button',{disabled:admetBusy,onClick:()=>runPrediction(detail.version.id)},admetBusy?'Predicting…':'Run prediction')]),
+    e('div',{key:'prediction-table'},admetPredictionTable(detailPredictions)),
+    e('h4',{key:'audit-title',style:{marginTop:'22px'}},'Prediction audit'),
     detailRuns.length?e('table',{key:'runs'},[e('thead',{key:'head'},e('tr',{},['Run','Status','Message','Started'].map(label=>e('th',{key:label},label)))),e('tbody',{key:'body'},detailRuns.map(run=>e('tr',{key:run.id},[e('td',{},'#'+run.id),e('td',{},run.status),e('td',{},run.message),e('td',{},new Date(run.started_at).toLocaleString())]))) ]):Empty({children:'No ADMET prediction runs for this compound version.'})
    ])
   ]);
  }
 
  return e('div',{className:'shell'},[
-  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3 · ADMET data foundation'),
+  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 3A · Solubility & Caco-2'),
    e('h3',{style:{marginTop:'24px'}},'Projects'),e('ul',{className:'projects'},projects.map(item=>e('li',{key:item.id},e('button',{className:'project-link '+(item.id===projectId?'active':''),onClick:()=>setProjectId(item.id)},item.name,e('div',{className:'tag'},(item.target||'No target')+' · '+item.compound_count+' compounds'))))),
    e('div',{style:{marginTop:'28px'}},[
     ...['name','target','indication','mechanism_modality'].map(key=>e('div',{key,style:{marginBottom:'8px'}},e(Field,{label:key.replace(/_/g,' '),value:form[key],onChange:value=>setForm({...form,[key]:value})}))),
