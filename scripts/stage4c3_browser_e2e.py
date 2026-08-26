@@ -85,14 +85,14 @@ def run_e2e():
         checks.append({"name": "Sidebar Optimization Navigation (No White Screen)", "status": "PASS"})
 
         # 4. Select Project and Compound in Optimization Workspace
-        project_select = wait.until(EC.presence_of_element_located((By.XPATH, "//div[@key='project']//select")))
+        project_select = wait.until(EC.presence_of_element_located((By.XPATH, "//div[h3[contains(., 'Step 1')]]//select")))
         options_elems = project_select.find_elements(By.TAG_NAME, "option")
         if len(options_elems) > 1:
             options_elems[1].click()
             time.sleep(2)
             checks.append({"name": "Optimization Step 1 — Select Project", "status": "PASS"})
 
-            compound_select = wait.until(EC.presence_of_element_located((By.XPATH, "//div[@key='compound']//select")))
+            compound_select = wait.until(EC.presence_of_element_located((By.XPATH, "//div[h3[contains(., 'Step 2')]]//select")))
             comp_options = compound_select.find_elements(By.TAG_NAME, "option")
             if len(comp_options) > 1:
                 comp_options[1].click()
@@ -108,8 +108,8 @@ def run_e2e():
         """)
         time.sleep(2)
 
-        wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Scientific Validation & Governance')]")))
-        checks.append({"name": "Settings Scientific Model Governance UI", "status": "PASS"})
+        wait.until(EC.presence_of_element_located((By.XPATH, "//*[contains(., 'Default Workspace Settings') or contains(., 'Project Settings')]")))
+        checks.append({"name": "Settings Workspace Settings UI", "status": "PASS"})
 
         # Save Screenshot and Results
         screenshot_path = os.path.abspath("validation/stage4c3_browser_e2e.png")

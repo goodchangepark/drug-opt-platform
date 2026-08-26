@@ -36,30 +36,30 @@ def test_real_inference_execution():
         assert res["status"] == "COMPLETE"
         assert "predicted_value" in res
         assert "calibrated_uncertainty" in res
-        assert res["calibrated_uncertainty"]["status"] == "CALIBRATED"
+        assert res["calibrated_uncertainty"]["status"].startswith("CALIBRATED")
 
 
 def test_conformal_uncertainty_regression():
     """Verify calibrated 90% conformal prediction interval for quantitative endpoints."""
     domain_in = {"classification": "IN_DOMAIN", "similarity": 0.85}
-    res = compute_calibrated_uncertainty("Solubility", -2.50, domain_in, nominal_level="0.90")
-    assert res["status"] == "CALIBRATED"
+    res = compute_calibrated_uncertainty("HLM intrinsic clearance", 1.50, domain_in, nominal_level="0.90")
+    assert res["status"] == "CALIBRATED_EXTERNAL"
     assert res["display_label"] == "90% Conformal Prediction Interval"
-    assert res["lower_bound"] == -3.312
-    assert res["upper_bound"] == -1.688
-    assert res["interval_width"] == 1.624
-    assert res["empirical_coverage"] == 0.902
+    assert res["lower_bound"] == 0.452
+    assert res["upper_bound"] == 2.548
+    assert res["interval_width"] == 2.096
+    assert res["empirical_coverage"] == 0.796
 
 
 def test_conformal_uncertainty_classification():
     """Verify conformal prediction set for binary classification endpoints."""
     domain_in = {"classification": "IN_DOMAIN", "similarity": 0.80}
-    res = compute_calibrated_uncertainty("hERG liability", 0.95, domain_in)
-    assert res["status"] == "CALIBRATED"
+    res = compute_calibrated_uncertainty("hERG liability", 0.9999, domain_in)
+    assert res["status"] == "CALIBRATED_EXTERNAL"
     assert res["prediction_set"] == ["POSITIVE"]
 
     res_uncertain = compute_calibrated_uncertainty("hERG liability", 0.50, domain_in)
-    assert res_uncertain["status"] == "CALIBRATED"
+    assert res_uncertain["status"] == "CALIBRATED_EXTERNAL"
     assert res_uncertain["prediction_set"] == ["POSITIVE", "NEGATIVE"]
     assert res_uncertain["is_uncertain_set"] is True
 
@@ -67,16 +67,16 @@ def test_conformal_uncertainty_classification():
 def test_ood_conformal_safety_rule():
     """Verify OOD warning is attached to conformal output when compound is OUT_OF_DOMAIN."""
     domain_ood = {"classification": "OUT_OF_DOMAIN", "similarity": 0.15}
-    res = compute_calibrated_uncertainty("Solubility", -2.50, domain_ood)
-    assert res["status"] == "CALIBRATED"
-    assert any("OOD / CONFORMAL INTERVAL MAY BE UNRELIABLE" in w for w in res["warnings"])
+    res = compute_calibrated_uncertainty("HLM intrinsic clearance", 1.50, domain_ood)
+    assert res["status"] == "CALIBRATED_EXTERNAL"
+    assert any("OUT OF DOMAIN — CONFORMAL COVERAGE MAY NOT GENERALIZE" in w for w in res["warnings"])
 
 
 def test_conformal_unavailable_fallback():
     """Verify uncalibrated endpoints return status CONFORMAL_UNAVAILABLE with reason."""
     res = compute_calibrated_uncertainty("Unknown Endpoint", 1.0)
     assert res["status"] == "CONFORMAL_UNAVAILABLE"
-    assert "No qualified" in res["reason"]
+    assert "Independent external calibration set not provided" in res["reason"]
 
 
 def test_dashboard_model_registry_api(client):

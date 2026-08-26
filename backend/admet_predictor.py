@@ -421,9 +421,6 @@ def metabolic_stability_assessment(endpoint: str, value: float) -> dict | None:
     }
 
 _MODEL_LOCK = threading.Lock()
-_RUNTIME_LOCK = threading.Lock()
-_RUNTIME_ERROR: str | None = None
-_RUNTIME_CHECKED = False
 _MODELS: dict[str, object] = {}
 _TRAINER = None
 _FP_GENERATOR = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)

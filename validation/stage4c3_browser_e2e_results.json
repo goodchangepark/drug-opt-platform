@@ -1,0 +1,33 @@
+{
+  "stage": "4C-3",
+  "run_id": "20260827-072853",
+  "base_url": "http://127.0.0.1:8766",
+  "checks": [
+    {
+      "name": "Dashboard Page Render",
+      "status": "PASS"
+    },
+    {
+      "name": "Dashboard Model Registry API (15 Models READY)",
+      "status": "PASS"
+    },
+    {
+      "name": "Sidebar Optimization Navigation (No White Screen)",
+      "status": "PASS"
+    },
+    {
+      "name": "Optimization Step 1 \u2014 Select Project",
+      "status": "PASS"
+    },
+    {
+      "name": "Optimization Step 2 \u2014 Select Compound Profile",
+      "status": "PASS"
+    },
+    {
+      "name": "Settings Workspace Settings UI",
+      "status": "PASS"
+    }
+  ],
+  "screenshot": "/home/xavier/chem/drug-opt-platform/validation/stage4c3_browser_e2e.png",
+  "status": "PASS"
+}

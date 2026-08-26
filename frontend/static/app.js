@@ -2077,13 +2077,13 @@ function App(){
 
   const compounds=project?.id===selectedProjectId?currentVersions:[];
   const selectedCompound=compounds.find(row=>row.row_id===selectedCompoundId);
-  const version=detail?.row_id===selectedCompound?.row_id?detail.version:null;
+  const version=(detail && selectedCompound && detail.row_id===selectedCompound.row_id)?detail.version:null;
   const predictions=version?(admet?.predictions||[]).filter(row=>row.version_id===version.id):[];
   return e('div',{className:'optimization-workspace'},[
    e('section',{className:'card',key:'selector'},[e('div',{className:'eyebrow'},'DETERMINISTIC MEDICINAL CHEMISTRY'),e('h1',{},'Optimization Workspace'),e('p',{className:'small'},'Select a project and a CompoundVersion, review its evidence, then reuse the existing Stage 4A strategy and Stage 4B analog engines. No LLM and no PK are used.'),
     e('div',{className:'optimization-workspace-steps'},[
      e('div',{className:'optimization-workspace-step',key:'project'},[e('h3',{},'Step 1 — Select Project'),e('select',{value:optimizationWorkspace.project_id,onChange:event=>{setOptimizationWorkspace({project_id:event.target.value,compound_id:''});setDetail(null)}},[e('option',{value:''},'Select project'),...projectChoices.map(row=>e('option',{key:row.id,value:row.id},row.name+' · '+(row.target||'Target not set')))])]),
-     e('div',{className:'optimization-workspace-step',key:'compound'},[e('h3',{},'Step 2 — Select Compound'),e('select',{value:optimizationWorkspace.compound_id,disabled:!selectedProject,onChange:event=>setOptimizationWorkspace(current=>({...current,compound_id:event.target.value}))},[e('option',{value:''},selectedProject?'Select compound':'Select a project first'),...compounds.map(row=>e('option',{key:row.row_id,value:row.row_id,disabled:!row.version},row.name+' · '+row.compound_id+(row.version?' · v'+row.current_version:' · Draft')))])])
+     e('div',{className:'optimization-workspace-step',key:'compound'},[e('h3',{},'Step 2 — Select Compound'),e('select',{value:optimizationWorkspace.compound_id,disabled:!selectedProject,onChange:event=>setOptimizationWorkspace(current=>({...current,compound_id:event.target.value}))},[e('option',{value:''},selectedProject?(compounds.length?'Select compound':'No compounds registered'):'Select a project first'),...compounds.map(row=>e('option',{key:row.row_id,value:row.row_id,disabled:!row.version},row.name+' · '+row.compound_id+(row.version?' · v'+row.current_version:' · Draft')))])])
     ])
    ]),
    selectedCompound&&version&&e('section',{className:'card',key:'profile'},[e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'COMPOUND PROFILE'),e('h2',{},selectedCompound.name)]),StatusBadge({type:selectedCompound.status})]),e('div',{className:'grid'},[
@@ -2095,8 +2095,9 @@ function App(){
    ])]),
    selectedCompound&&!version&&e('div',{className:'card empty-state',key:'draft'},[StatusBadge({type:'DRAFT'}),e('p',{},'Add a validated structure before optimization.')]),
    version&&optimizationConfig&&optimizationPanel(version.id),
-   selectedProject&&!selectedCompound&&e('section',{className:'card empty-state',key:'choose'},[e('h3',{},'Choose a parent compound'),e('p',{},'The selected project has '+compounds.length+' compound record(s). Drafts without structure cannot be optimized.')]),
-   !selectedProject&&e('section',{className:'card empty-state',key:'no-project'},[e('h3',{},'No project selected'),e('p',{},'Select a project from the dropdown above to open its optimization workspace.')])
+   selectedProject&&compounds.length===0&&e('section',{className:'card empty-state',key:'zero-compounds'},[e('h3',{},'No compounds are registered in this project.'),e('p',{},'Add a compound to this project before creating an optimization run.')]),
+   selectedProject&&compounds.length>0&&!selectedCompound&&e('section',{className:'card empty-state',key:'choose'},[e('h3',{},'Choose a parent compound'),e('p',{},'The selected project has '+compounds.length+' compound record(s). Drafts without structure cannot be optimized.')]),
+   !selectedProject&&e('section',{className:'card empty-state',key:'no-project'},[e('h3',{},'Select a project to begin optimization.'),e('p',{},'Select a project from the dropdown above to open its optimization workspace.')])
   ]);
  }
 

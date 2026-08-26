@@ -20,194 +20,82 @@ import numpy as np
 
 from backend.standardizer import standardize_molecule
 
-# Pre-computed calibrated nonconformity quantiles for qualified endpoints
-# Nonconformity score s_i = |y_i - \hat{y}_i| on independent calibration sets
+# Pre-computed empirical nonconformity quantiles from Stage 4C-3A Conformal Scientific Audit
+# (Saved to validation/stage4c3a_conformal_audit.json)
 CONFORMAL_CALIBRATION_REGISTRY = {
-    "Solubility": {
-        "status": "CALIBRATED",
-        "method": "Inductive Conformal Prediction (ICP)",
-        "calibration_n": 1000,
-        "endpoint_type": "REGRESSION",
-        "unit": "log10(mol/L)",
-        "quantiles": {
-            "0.80": 0.584,
-            "0.90": 0.812,
-            "0.95": 1.045,
-        },
-        "empirical_coverage": {
-            "0.80": 0.806,
-            "0.90": 0.902,
-            "0.95": 0.948,
-        },
-        "mean_interval_width_90": 1.624,
-        "median_interval_width_90": 1.624,
-    },
     "Permeability": {
-        "status": "CALIBRATED",
+        "status": "CALIBRATED_EXTERNAL",
         "method": "Inductive Conformal Prediction (ICP)",
-        "calibration_n": 200,
+        "calibration_n": 17,
         "endpoint_type": "REGRESSION",
-        "unit": "log10(cm/s)",
+        "unit": "LogPapp",
         "quantiles": {
-            "0.80": 0.312,
-            "0.90": 0.458,
-            "0.95": 0.592,
+            "0.80": 10.299,
+            "0.90": 11.147,
+            "0.95": 11.290,
         },
         "empirical_coverage": {
-            "0.80": 0.810,
-            "0.90": 0.895,
-            "0.95": 0.951,
+            "0.80": 0.529,
+            "0.90": 0.765,
+            "0.95": 0.824,
         },
-        "mean_interval_width_90": 0.916,
-        "median_interval_width_90": 0.916,
-    },
-    "Plasma protein binding": {
-        "status": "CALIBRATED",
-        "method": "Inductive Conformal Prediction (ICP)",
-        "calibration_n": 350,
-        "endpoint_type": "REGRESSION",
-        "unit": "% bound",
-        "quantiles": {
-            "0.80": 6.85,
-            "0.90": 10.42,
-            "0.95": 14.15,
-        },
-        "empirical_coverage": {
-            "0.80": 0.802,
-            "0.90": 0.905,
-            "0.95": 0.949,
-        },
-        "mean_interval_width_90": 20.84,
-        "median_interval_width_90": 20.84,
+        "mean_interval_width_90": 22.294,
+        "median_interval_width_90": 22.294,
     },
     "HLM intrinsic clearance": {
-        "status": "CALIBRATED",
+        "status": "CALIBRATED_EXTERNAL",
         "method": "Inductive Conformal Prediction (ICP)",
-        "calibration_n": 400,
+        "calibration_n": 250,
         "endpoint_type": "REGRESSION",
-        "unit": "mL/min/kg",
+        "unit": "log10(mL/min/kg)",
         "quantiles": {
-            "0.80": 8.45,
-            "0.90": 14.20,
-            "0.95": 19.80,
+            "0.80": 0.890,
+            "0.90": 1.048,
+            "0.95": 1.207,
         },
         "empirical_coverage": {
-            "0.80": 0.798,
-            "0.90": 0.901,
-            "0.95": 0.952,
+            "0.80": 0.732,
+            "0.90": 0.796,
+            "0.95": 0.860,
         },
-        "mean_interval_width_90": 28.40,
-        "median_interval_width_90": 28.40,
-    },
-    "RLM intrinsic clearance": {
-        "status": "CALIBRATED",
-        "method": "Inductive Conformal Prediction (ICP)",
-        "calibration_n": 400,
-        "endpoint_type": "REGRESSION",
-        "unit": "mL/min/kg",
-        "quantiles": {
-            "0.80": 12.10,
-            "0.90": 19.50,
-            "0.95": 26.30,
-        },
-        "empirical_coverage": {
-            "0.80": 0.804,
-            "0.90": 0.898,
-            "0.95": 0.946,
-        },
-        "mean_interval_width_90": 39.00,
-        "median_interval_width_90": 39.00,
-    },
-    "MLM intrinsic clearance": {
-        "status": "CALIBRATED",
-        "method": "Inductive Conformal Prediction (ICP)",
-        "calibration_n": 300,
-        "endpoint_type": "REGRESSION",
-        "unit": "mL/min/kg",
-        "quantiles": {
-            "0.80": 14.80,
-            "0.90": 23.40,
-            "0.95": 31.50,
-        },
-        "empirical_coverage": {
-            "0.80": 0.792,
-            "0.90": 0.894,
-            "0.95": 0.945,
-        },
-        "mean_interval_width_90": 46.80,
-        "median_interval_width_90": 46.80,
+        "mean_interval_width_90": 2.096,
+        "median_interval_width_90": 2.096,
     },
     "hERG liability": {
-        "status": "CALIBRATED",
+        "status": "CALIBRATED_EXTERNAL",
         "method": "Conformal Classification Prediction Sets",
         "calibration_n": 250,
         "endpoint_type": "CLASSIFICATION",
         "unit": "probability",
-        "threshold_0.90": 0.35,
-        "empirical_coverage": {"0.90": 0.908},
-    },
-    "Ames mutagenicity": {
-        "status": "CALIBRATED",
-        "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 500,
-        "endpoint_type": "CLASSIFICATION",
-        "unit": "probability",
-        "threshold_0.90": 0.30,
-        "empirical_coverage": {"0.90": 0.912},
-    },
-    "DILI clinical liability": {
-        "status": "CALIBRATED",
-        "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 300,
-        "endpoint_type": "CLASSIFICATION",
-        "unit": "probability",
-        "threshold_0.90": 0.32,
-        "empirical_coverage": {"0.90": 0.904},
-    },
-    "CYP1A2 inhibitor": {
-        "status": "CALIBRATED",
-        "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 500,
-        "endpoint_type": "CLASSIFICATION",
-        "unit": "probability",
-        "threshold_0.90": 0.35,
-        "empirical_coverage": {"0.90": 0.902},
+        "threshold_0.90": 0.999,
+        "empirical_coverage": {"0.90": 0.832},
     },
     "CYP2C9 inhibitor": {
-        "status": "CALIBRATED",
+        "status": "CALIBRATED_INTERNAL",
         "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 500,
+        "calibration_n": 232,
         "endpoint_type": "CLASSIFICATION",
         "unit": "probability",
-        "threshold_0.90": 0.35,
-        "empirical_coverage": {"0.90": 0.898},
-    },
-    "CYP2C19 inhibitor": {
-        "status": "CALIBRATED",
-        "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 500,
-        "endpoint_type": "CLASSIFICATION",
-        "unit": "probability",
-        "threshold_0.90": 0.35,
-        "empirical_coverage": {"0.90": 0.905},
+        "threshold_0.90": 0.932,
+        "empirical_coverage": {"0.90": 0.797},
     },
     "CYP2D6 inhibitor": {
-        "status": "CALIBRATED",
+        "status": "CALIBRATED_INTERNAL",
         "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 500,
+        "calibration_n": 250,
         "endpoint_type": "CLASSIFICATION",
         "unit": "probability",
-        "threshold_0.90": 0.35,
-        "empirical_coverage": {"0.90": 0.901},
+        "threshold_0.90": 0.977,
+        "empirical_coverage": {"0.90": 0.904},
     },
     "CYP3A4 inhibitor": {
-        "status": "CALIBRATED",
+        "status": "CALIBRATED_EXTERNAL",
         "method": "Conformal Classification Prediction Sets",
-        "calibration_n": 500,
+        "calibration_n": 250,
         "endpoint_type": "CLASSIFICATION",
         "unit": "probability",
-        "threshold_0.90": 0.35,
-        "empirical_coverage": {"0.90": 0.906},
+        "threshold_0.90": 0.958,
+        "empirical_coverage": {"0.90": 0.880},
     },
 }
 
@@ -221,12 +109,16 @@ def compute_calibrated_uncertainty(
     """Compute calibrated conformal prediction interval or classification prediction set.
 
     Preserves similarity AD status. If AD = OUT_OF_DOMAIN, adds explicit warning:
-    'OOD / CONFORMAL INTERVAL MAY BE UNRELIABLE'.
+    'OUT OF DOMAIN — CONFORMAL COVERAGE MAY NOT GENERALIZE'.
     """
     if endpoint not in CONFORMAL_CALIBRATION_REGISTRY:
         return {
-            "status": "CONFORMAL_UNAVAILABLE",
-            "reason": f"No qualified, non-overlapping calibration dataset available for endpoint '{endpoint}'.",
+            "status": "CALIBRATED_WITH_TRAINING_OVERLAP_UNKNOWN" if endpoint in {
+                "Solubility", "Plasma protein binding", "CYP1A2 inhibitor", "CYP2C19 inhibitor",
+                "CYP2C9 substrate", "CYP2D6 substrate", "CYP3A4 substrate", "P-gp inhibitor",
+                "Ames mutagenicity", "DILI clinical liability"
+            } else "CONFORMAL_UNAVAILABLE",
+            "reason": f"Independent external calibration set not provided on disk for endpoint '{endpoint}'.",
             "interval": None,
             "prediction_set": None,
         }
@@ -236,7 +128,7 @@ def compute_calibrated_uncertainty(
     warnings = []
 
     if ad_status == "OUT_OF_DOMAIN":
-        warnings.append("OOD / CONFORMAL INTERVAL MAY BE UNRELIABLE: Structure is out of chemical-space applicability domain.")
+        warnings.append("OUT OF DOMAIN — CONFORMAL COVERAGE MAY NOT GENERALIZE: Structure is out of chemical-space applicability domain.")
 
     if cal_spec["endpoint_type"] == "REGRESSION":
         if predicted_value is None or math.isnan(predicted_value):
@@ -257,7 +149,7 @@ def compute_calibrated_uncertainty(
         display_label = f"{pct_label}% Conformal Prediction Interval"
 
         return {
-            "status": "CALIBRATED",
+            "status": cal_spec["status"],
             "display_label": display_label,
             "nominal_coverage": float(nominal_level),
             "empirical_coverage": cal_spec["empirical_coverage"].get(nominal_level, 0.90),
@@ -274,19 +166,18 @@ def compute_calibrated_uncertainty(
         threshold = cal_spec.get("threshold_0.90", 0.30)
 
         # Determine conformal prediction set
+        pred_set = []
         if prob >= (1.0 - threshold):
-            pred_set = ["POSITIVE"]
-        elif prob <= threshold:
-            pred_set = ["NEGATIVE"]
-        else:
-            pred_set = ["POSITIVE", "NEGATIVE"]
+            pred_set.append("POSITIVE")
+        if (1.0 - prob) >= (1.0 - threshold):
+            pred_set.append("NEGATIVE")
 
         is_uncertain_set = len(pred_set) > 1
         if is_uncertain_set:
             warnings.append("HIGH_CONFORMAL_UNCERTAINTY: Conformal prediction set contains both classes {POSITIVE, NEGATIVE}.")
 
         return {
-            "status": "CALIBRATED",
+            "status": cal_spec["status"],
             "display_label": "90% Conformal Prediction Set",
             "nominal_coverage": 0.90,
             "empirical_coverage": cal_spec["empirical_coverage"].get("0.90", 0.90),
