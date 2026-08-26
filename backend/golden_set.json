@@ -1,0 +1,797 @@
+{
+  "dataset_name": "CHEM_GOLDEN_REFERENCE_SET_V1",
+  "total_items": 52,
+  "standardizer_name": "CHEM_STANDARDIZER_V1",
+  "standardizer_version": "1.0",
+  "rdkit_version": "2025.03.1",
+  "items": [
+    {
+      "id": "G01",
+      "name": "Aspirin (Neutral)",
+      "category": "Neutral",
+      "input_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "isomeric_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "inchikey": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
+      "num_heavy_atoms": 13,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G02",
+      "name": "Ibuprofen (Simple Acid)",
+      "category": "Acid",
+      "input_smiles": "CC(C)Cc1ccc(cc1)C(C)C(=O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
+      "isomeric_smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
+      "inchikey": "HEFNNWSXXWATRW-UHFFFAOYSA-N",
+      "num_heavy_atoms": 15,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G03",
+      "name": "Amphetamine (Simple Base)",
+      "category": "Base",
+      "input_smiles": "CC(Cc1ccccc1)N",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(N)Cc1ccccc1",
+      "isomeric_smiles": "CC(N)Cc1ccccc1",
+      "inchikey": "KWTSXDURSIMDCE-UHFFFAOYSA-N",
+      "num_heavy_atoms": 10,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G04",
+      "name": "Glycine (Zwitterion)",
+      "category": "Zwitterion",
+      "input_smiles": "[NH3+]CC(=O)[O-]",
+      "status": "SUCCESS",
+      "canonical_smiles": "NCC(=O)O",
+      "isomeric_smiles": "NCC(=O)O",
+      "inchikey": "DHMQDGOQFOQNFH-UHFFFAOYSA-N",
+      "num_heavy_atoms": 5,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G05",
+      "name": "Metformin Hydrochloride (Salt)",
+      "category": "Salt",
+      "input_smiles": "CC(C)N=C(N)N.Cl",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(C)N=C(N)N",
+      "isomeric_smiles": "CC(C)N=C(N)N",
+      "inchikey": "UZEKTDVGUQCDBI-UHFFFAOYSA-N",
+      "num_heavy_atoms": 7,
+      "salt_extracted": true,
+      "warnings": [
+        "SALT_REMOVED: Extracted main organic parent. Removed counterion/solvent: Cl",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G06",
+      "name": "Naproxen Sodium (Sodium Salt)",
+      "category": "Salt",
+      "input_smiles": "CC(c1ccc2cc(oc2c1)OC)C(=O)[O-].[Na+]",
+      "status": "SUCCESS",
+      "canonical_smiles": "COc1cc2ccc(C(C)C(=O)O)cc2o1",
+      "isomeric_smiles": "COc1cc2ccc(C(C)C(=O)O)cc2o1",
+      "inchikey": "QLLAJLWJZYTEJB-UHFFFAOYSA-N",
+      "num_heavy_atoms": 16,
+      "salt_extracted": true,
+      "warnings": [
+        "SALT_REMOVED: Extracted main organic parent. Removed counterion/solvent: [Na+]",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G07",
+      "name": "Zolpidem Tartrate (Organic Salt)",
+      "category": "Salt",
+      "input_smiles": "Cc1ccc2n1c(cc2C(=O)N(C)C)c3ccc(C)cc3.OC(C(=O)O)C(O)C(=O)O",
+      "status": "PARSING_FAILED",
+      "canonical_smiles": null,
+      "isomeric_smiles": null,
+      "inchikey": null,
+      "num_heavy_atoms": null,
+      "salt_extracted": false,
+      "warnings": [
+        "RDKit MolFromSmiles failed to parse structure."
+      ]
+    },
+    {
+      "id": "G08",
+      "name": "Amoxicillin Trihydrate (Hydrate)",
+      "category": "Hydrate",
+      "input_smiles": "CC1(C(N2C(S1)C(C2=O)NC(=O)C(c3ccc(cc3)O)N)C(=O)O)C.O.O.O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC1(C)SC2C(NC(=O)C(N)c3ccc(O)cc3)C(=O)N2C1C(=O)O",
+      "isomeric_smiles": "CC1(C)SC2C(NC(=O)C(N)c3ccc(O)cc3)C(=O)N2C1C(=O)O",
+      "inchikey": "LSQZJLSUYDQPKJ-UHFFFAOYSA-N",
+      "num_heavy_atoms": 25,
+      "salt_extracted": true,
+      "warnings": [
+        "SALT_REMOVED: Extracted main organic parent. Removed counterion/solvent: O, O, O",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G09",
+      "name": "2-Pyridone (Tautomer A)",
+      "category": "Tautomer",
+      "input_smiles": "O=c1cccc[nH]1",
+      "status": "SUCCESS",
+      "canonical_smiles": "O=c1cccc[nH]1",
+      "isomeric_smiles": "O=c1cccc[nH]1",
+      "inchikey": "UBQKCCHYAOITMY-UHFFFAOYSA-N",
+      "num_heavy_atoms": 7,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G10",
+      "name": "2-Hydroxypyridine (Tautomer B)",
+      "category": "Tautomer",
+      "input_smiles": "Oc1ccccn1",
+      "status": "SUCCESS",
+      "canonical_smiles": "O=c1cccc[nH]1",
+      "isomeric_smiles": "O=c1cccc[nH]1",
+      "inchikey": "UBQKCCHYAOITMY-UHFFFAOYSA-N",
+      "num_heavy_atoms": 7,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G11",
+      "name": "(R)-Thalidomide",
+      "category": "Stereoisomer",
+      "input_smiles": "O=C1CCC(N2C(=O)c3ccccc3C2=O)C(=O)N1",
+      "status": "SUCCESS",
+      "canonical_smiles": "O=C1CCC(N2C(=O)c3ccccc3C2=O)C(=O)N1",
+      "isomeric_smiles": "O=C1CCC(N2C(=O)c3ccccc3C2=O)C(=O)N1",
+      "inchikey": "UEJJHQNACJXSKW-UHFFFAOYSA-N",
+      "num_heavy_atoms": 19,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G12",
+      "name": "(S)-Thalidomide",
+      "category": "Stereoisomer",
+      "input_smiles": "O=C1CCC(N2C(=O)c3ccccc3C2=O)C(=O)N1",
+      "status": "SUCCESS",
+      "canonical_smiles": "O=C1CCC(N2C(=O)c3ccccc3C2=O)C(=O)N1",
+      "isomeric_smiles": "O=C1CCC(N2C(=O)c3ccccc3C2=O)C(=O)N1",
+      "inchikey": "UEJJHQNACJXSKW-UHFFFAOYSA-N",
+      "num_heavy_atoms": 19,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G13",
+      "name": "E-Stilbene",
+      "category": "Alkene E/Z",
+      "input_smiles": "C(=C/c1ccccc1)\\c2ccccc2",
+      "status": "SUCCESS",
+      "canonical_smiles": "C(=Cc1ccccc1)c1ccccc1",
+      "isomeric_smiles": "C(=C/c1ccccc1)\\c1ccccc1",
+      "inchikey": "PJANXHGTPQOBST-VAWYXSNFSA-N",
+      "num_heavy_atoms": 14,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G14",
+      "name": "Z-Stilbene",
+      "category": "Alkene E/Z",
+      "input_smiles": "C(=C\\c1ccccc1)/c2ccccc2",
+      "status": "SUCCESS",
+      "canonical_smiles": "C(=Cc1ccccc1)c1ccccc1",
+      "isomeric_smiles": "C(=C/c1ccccc1)\\c1ccccc1",
+      "inchikey": "PJANXHGTPQOBST-VAWYXSNFSA-N",
+      "num_heavy_atoms": 14,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G15",
+      "name": "Deuterated Water (Isotope)",
+      "category": "Isotope",
+      "input_smiles": "[2H]O[2H]",
+      "status": "SUCCESS",
+      "canonical_smiles": "[H]O[H]",
+      "isomeric_smiles": "[2H]O[2H]",
+      "inchikey": "XLYOFNOQVPJJNP-ZSJDYOACSA-N",
+      "num_heavy_atoms": 1,
+      "salt_extracted": false,
+      "warnings": [
+        "ISOTOPIC_LABEL_PRESERVED: Structure contains isotopic labels (e.g. 2H, 13C).",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G16",
+      "name": "Carbon-13 Glucose (Isotope)",
+      "category": "Isotope",
+      "input_smiles": "C([13C]1[C@H]([C@@H]([C@H](C(O1)O)O)O)O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "OC[C]1OC(O)C(O)C(O)C1O",
+      "isomeric_smiles": "OC[13C]1OC(O)[C@H](O)[C@@H](O)[C@@H]1O",
+      "inchikey": "PGKMCKWRNCPNNI-KTGXPAJYSA-N",
+      "num_heavy_atoms": 12,
+      "salt_extracted": false,
+      "warnings": [
+        "ISOTOPIC_LABEL_PRESERVED: Structure contains isotopic labels (e.g. 2H, 13C).",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G17",
+      "name": "Imidazole",
+      "category": "Heterocycle",
+      "input_smiles": "c1c[nH]cn1",
+      "status": "SUCCESS",
+      "canonical_smiles": "c1c[nH]cn1",
+      "isomeric_smiles": "c1c[nH]cn1",
+      "inchikey": "RAXXELZNTBOGNW-UHFFFAOYSA-N",
+      "num_heavy_atoms": 5,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G18",
+      "name": "Sildenafil",
+      "category": "Heterocycle",
+      "input_smiles": "CCCC1=NN(C)C2=C1N=C(C)NC2=O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CCCc1nn(C)c2c(=O)[nH]c(C)nc12",
+      "isomeric_smiles": "CCCc1nn(C)c2c(=O)[nH]c(C)nc12",
+      "inchikey": "UHNSLPQFIBCBDW-UHFFFAOYSA-N",
+      "num_heavy_atoms": 15,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G19",
+      "name": "Acetylcholine (Quaternary Ammonium)",
+      "category": "Quaternary Ammonium",
+      "input_smiles": "CC(=O)OCC[N+](C)(C)C",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(=O)OCC[N+](C)(C)C",
+      "isomeric_smiles": "CC(=O)OCC[N+](C)(C)C",
+      "inchikey": "OIPILFWXSMYKGL-UHFFFAOYSA-N",
+      "num_heavy_atoms": 10,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G20",
+      "name": "Paraquat (Pyridinium Salt)",
+      "category": "Charged Salt",
+      "input_smiles": "C[n+]1ccc(cc1)c2cc[n+](C)cc2.[Cl-].[Cl-]",
+      "status": "SUCCESS",
+      "canonical_smiles": "C[n+]1ccc(-c2cc[n+](C)cc2)cc1",
+      "isomeric_smiles": "C[n+]1ccc(-c2cc[n+](C)cc2)cc1",
+      "inchikey": "INFDPOAKFNIJBF-UHFFFAOYSA-N",
+      "num_heavy_atoms": 14,
+      "salt_extracted": true,
+      "warnings": [
+        "SALT_REMOVED: Extracted main organic parent. Removed counterion/solvent: [Cl-], [Cl-]",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G21",
+      "name": "Sulfamethoxazole (Primary Sulfonamide)",
+      "category": "Sulfonamide",
+      "input_smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+      "status": "SUCCESS",
+      "canonical_smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+      "isomeric_smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+      "inchikey": "JLKIGFTWXXRPMT-UHFFFAOYSA-N",
+      "num_heavy_atoms": 17,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G22",
+      "name": "Glibenclamide (Secondary Sulfonamide)",
+      "category": "Sulfonamide",
+      "input_smiles": "COc1ccc(CC(=O)NCCc2ccc(S(=O)(=O)NC(=O)NC3CCCCC3)cc2)cc1Cl",
+      "status": "SUCCESS",
+      "canonical_smiles": "COc1ccc(CC(=O)NCCc2ccc(S(=O)(=O)NC(=O)NC3CCCCC3)cc2)cc1Cl",
+      "isomeric_smiles": "COc1ccc(CC(=O)NCCc2ccc(S(=O)(=O)NC(=O)NC3CCCCC3)cc2)cc1Cl",
+      "inchikey": "CWHUCKXPHOFAPX-UHFFFAOYSA-N",
+      "num_heavy_atoms": 34,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G23",
+      "name": "Fostamatinib (Phosphate)",
+      "category": "Phosphate",
+      "input_smiles": "COc1cc2c(cc1OP(=O)(O)O)c(n2)Nc3ccc(F)c(Cl)c3",
+      "status": "SUCCESS",
+      "canonical_smiles": "COc1cc2c(cc1OP(=O)(O)O)C(=Nc1ccc(F)c(Cl)c1)N2",
+      "isomeric_smiles": "COc1cc2c(cc1OP(=O)(O)O)C(=Nc1ccc(F)c(Cl)c1)N2",
+      "inchikey": "NGYNHLOPUOBLOP-UHFFFAOYSA-N",
+      "num_heavy_atoms": 24,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G24",
+      "name": "Tenofovir (Phosphonate)",
+      "category": "Phosphonate",
+      "input_smiles": "CC(CN1C=NC2=C(N)N=CN=C21)OCP(=O)(O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(Cn1cnc2c(N)ncnc21)OCP(=O)(O)O",
+      "isomeric_smiles": "CC(Cn1cnc2c(N)ncnc21)OCP(=O)(O)O",
+      "inchikey": "SGOIRFVFHAKUTI-UHFFFAOYSA-N",
+      "num_heavy_atoms": 19,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G25",
+      "name": "Bortezomib (Boronate)",
+      "category": "Boron",
+      "input_smiles": "B(C(CC(C)C)NC(=O)C(CC1=CC=CC=C1)NC(=O)C2=NC=CN=C2)(O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(C)CC(NC(=O)C(Cc1ccccc1)NC(=O)c1cnccn1)B(O)O",
+      "isomeric_smiles": "CC(C)CC(NC(=O)C(Cc1ccccc1)NC(=O)c1cnccn1)B(O)O",
+      "inchikey": "GXJABQQUPOEUTA-UHFFFAOYSA-N",
+      "num_heavy_atoms": 28,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G26",
+      "name": "Cisplatin (Metal Complex)",
+      "category": "Metal",
+      "input_smiles": "Cl[Pt](Cl)(N)N",
+      "status": "SUCCESS",
+      "canonical_smiles": "[Cl-].[Cl-].[NH2-].[NH2-].[Pt+4]",
+      "isomeric_smiles": "[Cl-].[Cl-].[NH2-].[NH2-].[Pt+4]",
+      "inchikey": "DQLATGHUWYMOKM-UHFFFAOYSA-L",
+      "num_heavy_atoms": 5,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G27",
+      "name": "Aspirin + Paracetamol (50:50 Mixture)",
+      "category": "Multicomponent",
+      "input_smiles": "CC(=O)Oc1ccccc1C(=O)O.CC(=O)Nc1ccc(O)cc1",
+      "status": "MULTICOMPONENT_REVIEW_REQUIRED",
+      "canonical_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "isomeric_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "inchikey": "BSYNRYMUTXBXSQ-UHFFFAOYSA-N",
+      "num_heavy_atoms": 13,
+      "salt_extracted": false,
+      "warnings": [
+        "MULTICOMPONENT_REVIEW_REQUIRED: Input contains multiple organic fragments (CC(=O)Nc1ccc(O)cc1, CC(=O)Oc1ccccc1C(=O)O). No arbitrary parent selection executed.",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G28",
+      "name": "Ibrutinib (Acrylamide Warhead)",
+      "category": "Warhead",
+      "input_smiles": "C=CC(=O)N1CCC(CC1)N2C3=NC=NC(=C3C(=N2)C4=CC=C(C=C4)OC5=CC=CC=C5)N",
+      "status": "SUCCESS",
+      "canonical_smiles": "C=CC(=O)N1CCC(n2nc(-c3ccc(Oc4ccccc4)cc3)c3c(N)ncnc32)CC1",
+      "isomeric_smiles": "C=CC(=O)N1CCC(n2nc(-c3ccc(Oc4ccccc4)cc3)c3c(N)ncnc32)CC1",
+      "inchikey": "KALPRSFUZYGTNU-UHFFFAOYSA-N",
+      "num_heavy_atoms": 33,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G29",
+      "name": "Carfilzomib (Epoxide Warhead)",
+      "category": "Warhead",
+      "input_smiles": "CC(C)CC(C(=O)NC(CC1=CC=CC=C1)C(=O)NC(CC(C)C)C(=O)C2(CO2)C)NC(=O)C(Cc3ccccc3)NC(=O)CN4CCOCC4",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(C)CC(NC(=O)C(Cc1ccccc1)NC(=O)CN1CCOCC1)C(=O)NC(Cc1ccccc1)C(=O)NC(CC(C)C)C(=O)C1(C)CO1",
+      "isomeric_smiles": "CC(C)CC(NC(=O)C(Cc1ccccc1)NC(=O)CN1CCOCC1)C(=O)NC(Cc1ccccc1)C(=O)NC(CC(C)C)C(=O)C1(C)CO1",
+      "inchikey": "HPZNTFFWXKJZOI-UHFFFAOYSA-N",
+      "num_heavy_atoms": 51,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G30",
+      "name": "Leu-Enkephalin (Peptide)",
+      "category": "Peptide",
+      "input_smiles": "CC(C)CC(C(=O)O)NC(=O)C(CC1=CC=CC=C1)NC(=O)CNC(=O)CNC(=O)C(CC2=CC=C(C=C2)O)N",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(C)CC(NC(=O)C(Cc1ccccc1)NC(=O)CNC(=O)CNC(=O)C(N)Cc1ccc(O)cc1)C(=O)O",
+      "isomeric_smiles": "CC(C)CC(NC(=O)C(Cc1ccccc1)NC(=O)CNC(=O)CNC(=O)C(N)Cc1ccc(O)cc1)C(=O)O",
+      "inchikey": "URLZCHNOLZSCCA-UHFFFAOYSA-N",
+      "num_heavy_atoms": 40,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G31",
+      "name": "Cyclosporine A (Macrocycle)",
+      "category": "Macrocycle",
+      "input_smiles": "CCC1C(=O)N(CC(=O)N(C(C(=O)NC(C(=O)N(C(C(=O)NC(C(=O)NC(C(=O)N(C(C(=O)N(C(C(=O)N(C(C(=O)N1)C(C(C)CC=CC)O)C)C(C)C)C)CC(C)C)C)C(C)C)C)CC(C)C)C)C)C)C)C",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC=CCC(C)C(O)C1C(=O)NC(CC)C(=O)N(C)CC(=O)N(C)C(C)C(=O)NC(C)C(=O)N(C)C(CC(C)C)C(=O)NC(C)C(=O)NC(C(C)C)C(=O)N(C)C(CC(C)C)C(=O)N(C)C(C(C)C)C(=O)N1C",
+      "isomeric_smiles": "CC=CCC(C)C(O)C1C(=O)NC(CC)C(=O)N(C)CC(=O)N(C)C(C)C(=O)NC(C)C(=O)N(C)C(CC(C)C)C(=O)NC(C)C(=O)NC(C(C)C)C(=O)N(C)C(CC(C)C)C(=O)N(C)C(C(C)C)C(=O)N1C",
+      "inchikey": "XWQNLCLBWZBUCY-UHFFFAOYSA-N",
+      "num_heavy_atoms": 73,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G32",
+      "name": "Atorvastatin (Fluorinated Aromatic)",
+      "category": "Fluorinated",
+      "input_smiles": "CC(C)c1c(c(c(n1CCC(CC(CC(=O)O)O)O)c2ccc(cc2)F)c3ccccc3)C(=O)Nc4ccccc4",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(C)c1c(C(=O)Nc2ccccc2)c(-c2ccccc2)c(-c2ccc(F)cc2)n1CCC(O)CC(O)CC(=O)O",
+      "isomeric_smiles": "CC(C)c1c(C(=O)Nc2ccccc2)c(-c2ccccc2)c(-c2ccc(F)cc2)n1CCC(O)CC(O)CC(=O)O",
+      "inchikey": "XUKUURHRXDUEBC-UHFFFAOYSA-N",
+      "num_heavy_atoms": 41,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G33",
+      "name": "Fluoxetine (Trifluoromethyl)",
+      "category": "Fluorinated",
+      "input_smiles": "CNCCC(c1ccccc1)Oc2ccc(cc2)C(F)(F)F",
+      "status": "SUCCESS",
+      "canonical_smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
+      "isomeric_smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
+      "inchikey": "RTHCYVBBDHJXIQ-UHFFFAOYSA-N",
+      "num_heavy_atoms": 22,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G34",
+      "name": "Amiodarone (Poly-Iodinated)",
+      "category": "Halogenated",
+      "input_smiles": "CCCCc1oc2ccccc2c1C(=O)c3cc(I)c(OCCN(CC)CC)c(I)c3",
+      "status": "SUCCESS",
+      "canonical_smiles": "CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN(CC)CC)c(I)c1",
+      "isomeric_smiles": "CCCCc1oc2ccccc2c1C(=O)c1cc(I)c(OCCN(CC)CC)c(I)c1",
+      "inchikey": "IYIKLHRQXLHMJQ-UHFFFAOYSA-N",
+      "num_heavy_atoms": 31,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G35",
+      "name": "Omeprazole (Sulfoxide)",
+      "category": "Sulfoxide",
+      "input_smiles": "COc1ccc2[nH]c(nc2c1)S(=O)Cc3ncc(C)c(OC)c3C",
+      "status": "SUCCESS",
+      "canonical_smiles": "COc1ccc2[nH]c([S+]([O-])Cc3ncc(C)c(OC)c3C)nc2c1",
+      "isomeric_smiles": "COc1ccc2[nH]c([S+]([O-])Cc3ncc(C)c(OC)c3C)nc2c1",
+      "inchikey": "SUBDBMMJDZJVOS-UHFFFAOYSA-N",
+      "num_heavy_atoms": 24,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G36",
+      "name": "Dapsone (Sulfone)",
+      "category": "Sulfone",
+      "input_smiles": "Nc1ccc(cc1)S(=O)(=O)c2ccc(N)cc2",
+      "status": "SUCCESS",
+      "canonical_smiles": "Nc1ccc(S(=O)(=O)c2ccc(N)cc2)cc1",
+      "isomeric_smiles": "Nc1ccc(S(=O)(=O)c2ccc(N)cc2)cc1",
+      "inchikey": "MQJKPEGWNLWLTK-UHFFFAOYSA-N",
+      "num_heavy_atoms": 17,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G37",
+      "name": "Propylthiouracil (Thione)",
+      "category": "Thione",
+      "input_smiles": "CCCC1=CC(=O)NC(=S)N1",
+      "status": "SUCCESS",
+      "canonical_smiles": "CCCc1cc(=O)[nH]c(=S)[nH]1",
+      "isomeric_smiles": "CCCc1cc(=O)[nH]c(=S)[nH]1",
+      "inchikey": "KNAHARQHSZJURB-UHFFFAOYSA-N",
+      "num_heavy_atoms": 11,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G38",
+      "name": "Pralidoxime (Oxime)",
+      "category": "Oxime",
+      "input_smiles": "C[n+]1ccccc1C=NO.[Cl-]",
+      "status": "SUCCESS",
+      "canonical_smiles": "C[n+]1ccccc1C=NO",
+      "isomeric_smiles": "C[n+]1ccccc1C=NO",
+      "inchikey": "JBKPUQTUERUYQE-UHFFFAOYSA-O",
+      "num_heavy_atoms": 10,
+      "salt_extracted": true,
+      "warnings": [
+        "SALT_REMOVED: Extracted main organic parent. Removed counterion/solvent: [Cl-]",
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G39",
+      "name": "Chlordiazepoxide N-Oxide",
+      "category": "N-Oxide",
+      "input_smiles": "CNC1=NC2=C(C=C(C=C2)Cl)C(=[N+](C1)O)C3=CC=CC=C3",
+      "status": "SUCCESS",
+      "canonical_smiles": "CN=C1C=[N+](O)C(c2ccccc2)c2cc(Cl)ccc2N1",
+      "isomeric_smiles": "CN=C1C=[N+](O)C(c2ccccc2)c2cc(Cl)ccc2N1",
+      "inchikey": "SIVJIQWQYUUJKQ-UHFFFAOYSA-N",
+      "num_heavy_atoms": 21,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G40",
+      "name": "Guanfacine (Guanidine)",
+      "category": "Guanidine",
+      "input_smiles": "NC(=N)NC(=O)Cc1c(Cl)cccc1Cl",
+      "status": "SUCCESS",
+      "canonical_smiles": "N=C(N)NC(=O)Cc1c(Cl)cccc1Cl",
+      "isomeric_smiles": "N=C(N)NC(=O)Cc1c(Cl)cccc1Cl",
+      "inchikey": "INJOMKTZOLKMBF-UHFFFAOYSA-N",
+      "num_heavy_atoms": 15,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G41",
+      "name": "Pentamidine (Amidine)",
+      "category": "Amidine",
+      "input_smiles": "NC(=N)c1ccc(OCCCCCOc2ccc(cc2)C(=N)N)cc1",
+      "status": "SUCCESS",
+      "canonical_smiles": "N=C(N)c1ccc(OCCCCCOc2ccc(C(=N)N)cc2)cc1",
+      "isomeric_smiles": "N=C(N)c1ccc(OCCCCCOc2ccc(C(=N)N)cc2)cc1",
+      "inchikey": "XDRYMKDFEDOLFX-UHFFFAOYSA-N",
+      "num_heavy_atoms": 25,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G42",
+      "name": "Valsartan Tetrazole",
+      "category": "Tetrazole",
+      "input_smiles": "CCCCC(=O)N(Cc1ccc(cc1)c2ccccc2c3nnn[nh]3)C(C(C)C)C(=O)O",
+      "status": "PARSING_FAILED",
+      "canonical_smiles": null,
+      "isomeric_smiles": null,
+      "inchikey": null,
+      "num_heavy_atoms": null,
+      "salt_extracted": false,
+      "warnings": [
+        "RDKit MolFromSmiles failed to parse structure."
+      ]
+    },
+    {
+      "id": "G43",
+      "name": "Ziprasidone (Isothiazole)",
+      "category": "Isothiazole",
+      "input_smiles": "c1ccc2c(c1)c(no2)N3CCN(CC3)CCc4ccc5c(c4)NC(=O)C5",
+      "status": "SUCCESS",
+      "canonical_smiles": "Oc1cc2ccc(CCN3CCN(c4noc5ccccc45)CC3)cc2[nH]1",
+      "isomeric_smiles": "Oc1cc2ccc(CCN3CCN(c4noc5ccccc45)CC3)cc2[nH]1",
+      "inchikey": "MOTUPNHFSBYFHN-UHFFFAOYSA-N",
+      "num_heavy_atoms": 27,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G44",
+      "name": "Risperidone (Benzisoxazole)",
+      "category": "Benzisoxazole",
+      "input_smiles": "CC1=C(C(=O)N2CCC(CC2)C3=NOC4=C3C=CC(=C4)F)AT1=O",
+      "status": "PARSING_FAILED",
+      "canonical_smiles": null,
+      "isomeric_smiles": null,
+      "inchikey": null,
+      "num_heavy_atoms": null,
+      "salt_extracted": false,
+      "warnings": [
+        "RDKit MolFromSmiles failed to parse structure."
+      ]
+    },
+    {
+      "id": "G45",
+      "name": "Caffeine (Purine)",
+      "category": "Purine",
+      "input_smiles": "Cn1cnc2n(C)c(=O)n(C)c(=O)c12",
+      "status": "SUCCESS",
+      "canonical_smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+      "isomeric_smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+      "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
+      "num_heavy_atoms": 14,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G46",
+      "name": "Fluorouracil (Pyrimidine)",
+      "category": "Pyrimidine",
+      "input_smiles": "O=c1[nH]cc(F)c(=O)[nH]1",
+      "status": "SUCCESS",
+      "canonical_smiles": "O=c1[nH]cc(F)c(=O)[nH]1",
+      "isomeric_smiles": "O=c1[nH]cc(F)c(=O)[nH]1",
+      "inchikey": "GHASVSINZRGABV-UHFFFAOYSA-N",
+      "num_heavy_atoms": 9,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G47",
+      "name": "Dexamethasone (Steroid)",
+      "category": "Steroid",
+      "input_smiles": "CC1CC2C3CCC4CC(=O)C=CC4(C3(C(CC2(C1(C(=O)CO)O)C)O)F)C",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC1CC2C3CCC4CC(=O)C=CC4(C)C3(F)C(O)CC2(C)C1(O)C(=O)CO",
+      "isomeric_smiles": "CC1CC2C3CCC4CC(=O)C=CC4(C)C3(F)C(O)CC2(C)C1(O)C(=O)CO",
+      "inchikey": "OVEMZEHFRQWSFP-UHFFFAOYSA-N",
+      "num_heavy_atoms": 28,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G48",
+      "name": "Empagliflozin (Sugar Derivative)",
+      "category": "Sugar",
+      "input_smiles": "Cc1ccc(cc1C(=O)O)C2C(C(C(C(O2)CO)O)O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "Cc1ccc(C2OC(CO)C(O)C(O)C2O)cc1C(=O)O",
+      "isomeric_smiles": "Cc1ccc(C2OC(CO)C(O)C(O)C2O)cc1C(=O)O",
+      "inchikey": "IQMHJVDYLGDZID-UHFFFAOYSA-N",
+      "num_heavy_atoms": 21,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G49",
+      "name": "Enalapril (Ester Prodrug)",
+      "category": "Prodrug",
+      "input_smiles": "CCOC(=O)C(CCc1ccccc1)NC(C)C(=O)N2CCCC2C(=O)O",
+      "status": "SUCCESS",
+      "canonical_smiles": "CCOC(=O)C(CCc1ccccc1)NC(C)C(=O)N1CCCC1C(=O)O",
+      "isomeric_smiles": "CCOC(=O)C(CCc1ccccc1)NC(C)C(=O)N1CCCC1C(=O)O",
+      "inchikey": "GBXSMTUPTTWBMN-UHFFFAOYSA-N",
+      "num_heavy_atoms": 27,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G50",
+      "name": "Octreotide (Unnatural Cyclic Peptide)",
+      "category": "Peptide",
+      "input_smiles": "CC(C(C(=O)NC(CO)C(=O)O)NC(=O)C(CC1=c2ccccc2[nH]c1)NC(=O)C(Cc3ccccc3)NC(=O)C(CSSCC4NC(=O)C(Cc5ccccc5)NC(=O)C(NC(=O)C4N)C(C)O)O)O",
+      "status": "PARSING_FAILED",
+      "canonical_smiles": null,
+      "isomeric_smiles": null,
+      "inchikey": null,
+      "num_heavy_atoms": null,
+      "salt_extracted": false,
+      "warnings": [
+        "RDKit MolFromSmiles failed to parse structure."
+      ]
+    },
+    {
+      "id": "G51",
+      "name": "Acetaminophen (Paracetamol)",
+      "category": "Neutral",
+      "input_smiles": "CC(=O)Nc1ccc(O)cc1",
+      "status": "SUCCESS",
+      "canonical_smiles": "CC(=O)Nc1ccc(O)cc1",
+      "isomeric_smiles": "CC(=O)Nc1ccc(O)cc1",
+      "inchikey": "RZVAJINKPMORJF-UHFFFAOYSA-N",
+      "num_heavy_atoms": 11,
+      "salt_extracted": false,
+      "warnings": [
+        "CANONICAL_TAUTOMER_REPRESENTATION: Canonical tautomer generated for 2D registration reproducibility, not thermodynamic equilibrium prediction."
+      ]
+    },
+    {
+      "id": "G52",
+      "name": "Invalid SMILES String",
+      "category": "Invalid",
+      "input_smiles": "INVALID_SMILES_STRING_123",
+      "status": "PARSING_FAILED",
+      "canonical_smiles": null,
+      "isomeric_smiles": null,
+      "inchikey": null,
+      "num_heavy_atoms": null,
+      "salt_extracted": false,
+      "warnings": [
+        "RDKit MolFromSmiles failed to parse structure."
+      ]
+    }
+  ]
+}

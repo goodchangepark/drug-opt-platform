@@ -1472,6 +1472,110 @@ function App(){
   ]);
  }
 
+ function ScientificValidationSection(){
+  const [configs, setConfigs] = React.useState(null);
+  const [gate, setGate] = React.useState(null);
+  const [registry, setRegistry] = React.useState([]);
+  const [lightning, setLightning] = React.useState(null);
+  const [readiness, setReadiness] = React.useState(null);
+  const [testSmiles, setTestSmiles] = React.useState('CC(=O)Oc1ccccc1C(=O)O.Cl');
+  const [stdResult, setStdResult] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+
+  React.useEffect(()=>{
+   api.get('/standardization/configurations').then(setConfigs).catch(console.error);
+   api.get('/evaluation/golden-gate').then(setGate).catch(console.error);
+   api.get('/evaluation/registry').then(res=>setRegistry(res.registry||[])).catch(console.error);
+   api.get('/evaluation/lightning-audit').then(setLightning).catch(console.error);
+   api.get('/evaluation/rdkit-readiness').then(setReadiness).catch(console.error);
+  }, []);
+
+  const handleTestStandardize = async()=>{
+   setLoading(true);
+   try{
+    const res = await api.post('/standardization/standardize', {smiles: testSmiles});
+    setStdResult(res);
+   }catch(err){
+    console.error(err);
+   }finally{
+    setLoading(false);
+   }
+  };
+
+  return e('div',{className:'card', key:'sci-validation', style:{marginTop:'20px'}},[
+   e('div',{className:'eyebrow'},'STAGE 4C SCIENTIFIC HARDENING'),
+   e('h2',{},'Scientific Validation & Structure Standardization'),
+   e('p',{},'Canonical structure pipeline CHEM_STANDARDIZER_V1, 52-molecule golden gate, evaluation registry, and RDKit readiness controls.'),
+
+   gate && e('div',{className:'card', key:'gate-card', style:{background:'rgba(23,105,170,0.08)', marginBottom:'16px'}},[
+    e('div',{className:'row toolbar'},[
+     e('div',{},[
+      e('h3',{},'Golden Structure Set Gate (52 Reference Molecules)'),
+      e('span',{className:'status-badge status-ready', style:{marginLeft:'10px'}},gate.gate_passed ? '100% PASS' : 'FAIL')
+     ]),
+     e('span',{className:'mono'},'RDKit '+gate.current_rdkit_version)
+    ]),
+    e('div',{className:'grid'},[
+     e('div',{className:'col-3'},[e('span',{},'Total Items: '),e('strong',{},gate.total_items)]),
+     e('div',{className:'col-3'},[e('span',{},'Passed: '),e('strong',{},gate.passed_count)]),
+     e('div',{className:'col-3'},[e('span',{},'Failed / Diffs: '),e('strong',{},gate.failed_count)]),
+     e('div',{className:'col-3'},[e('span',{},'Standardizer: '),e('strong',{},'CHEM_STANDARDIZER_V1')])
+    ])
+   ]),
+
+   e('div',{className:'card', key:'live-std', style:{marginBottom:'16px'}},[
+    e('h4',{},'Interactive Structure Standardizer (CHEM_STANDARDIZER_V1)'),
+    e('div',{className:'row toolbar'},[
+     Field({label:'Input SMILES', value:testSmiles, onChange:setTestSmiles, placeholder:'Enter SMILES to standardize'}),
+     e('button',{onClick:handleTestStandardize, disabled:loading},loading?'Processing...':'Standardize')
+    ]),
+    stdResult && e('div',{className:'mono small', style:{marginTop:'8px', background:'rgba(0,0,0,0.2)', padding:'8px', borderRadius:'4px'}},[
+     e('div',{},[e('strong',{},'Status: '),stdResult.status]),
+     e('div',{},[e('strong',{},'Canonical SMILES: '),stdResult.canonical_smiles]),
+     e('div',{},[e('strong',{},'Isomeric SMILES: '),stdResult.isomeric_smiles]),
+     e('div',{},[e('strong',{},'InChIKey: '),stdResult.inchikey]),
+     (stdResult.warnings||[]).map((w, idx)=>e('div',{key:idx, className:'alert', style:{marginTop:'2px'}},w))
+    ])
+   ]),
+
+   e('div',{className:'card', key:'registry-card', style:{marginBottom:'16px'}},[
+    e('h4',{},'Endpoint Evaluation Registry & Metric Contracts'),
+    e('div',{className:'table-scroll'},e('table',{},[
+     e('thead',{},e('tr',{},['Endpoint','Assay','Type','Split','Internal N','MAE/BAcc','R2/AUROC','MMP Dir Acc'].map(h=>e('th',{key:h},h)))),
+     e('tbody',{},registry.map((reg, idx)=>e('tr',{key:idx},[
+      e('td',{},[e('strong',{},reg.endpoint),e('div',{className:'small'},reg.species+' · '+reg.unit)]),
+      e('td',{},reg.assay),
+      e('td',{},reg.type),
+      e('td',{className:'mono'},reg.split_type),
+      e('td',{},reg.internal_metrics?.N||'-'),
+      e('td',{},reg.type==='REGRESSION'?reg.internal_metrics?.MAE:reg.internal_metrics?.balanced_accuracy),
+      e('td',{},reg.type==='REGRESSION'?reg.internal_metrics?.R2:reg.internal_metrics?.auroc),
+      e('td',{},reg.internal_metrics?.mmp_directional_accuracy?reg.internal_metrics.mmp_directional_accuracy+'%':'-')
+     ])))
+    ]))
+   ]),
+
+   e('div',{className:'grid', key:'audits-grid'},[
+    e('div',{className:'col-6'},e('div',{className:'card'},[
+     e('h4',{},'PyTorch Lightning Security Audit'),
+     lightning && e('div',{},[
+      e('div',{},[e('strong',{},'Status: '),e('span',{className:'status-badge status-ready'},lightning.status)]),
+      e('div',{className:'small', style:{marginTop:'4px'}},'Installed Version: '+lightning.installed_version+' (Vulnerable 2.6.2/2.6.3 absent)'),
+      e('div',{className:'small', style:{marginTop:'4px'}},lightning.recommendation)
+     ])
+    ])),
+    e('div',{className:'col-6'},e('div',{className:'card'},[
+     e('h4',{},'RDKit Upgrade Readiness'),
+     readiness && e('div',{},[
+      e('div',{},[e('strong',{},'Readiness: '),e('span',{className:'status-badge status-ready'},readiness.readiness_status)]),
+      e('div',{className:'small', style:{marginTop:'4px'}},'Current Version: '+readiness.current_rdkit_version),
+      e('div',{className:'small alert', style:{marginTop:'4px'}},readiness.policy)
+     ])
+    ]))
+   ])
+  ]);
+ }
+
  function pkProfile(versionId){
   const studies=pkData?.studies||[];
   const bioavailability=pkData?.bioavailability||[];
@@ -2027,6 +2131,7 @@ function App(){
    (home||globalView==='settings')&&e('section',{className:'card',key:'defaults'},[e('h2',{},'Default Workspace Settings'),e('div',{className:'dashboard-settings'},[
     e('div',{className:'dashboard-setting',key:'type'},[e('span',{},'Default molecule type'),e('strong',{},'Small Molecule')]),e('div',{className:'dashboard-setting',key:'entry'},[e('span',{},'Structure entry'),e('strong',{},'Ketcher or SMILES')]),e('div',{className:'dashboard-setting',key:'calc'},[e('span',{},'Calculation policy'),e('strong',{},'Save first · Calculate on demand')]),e('div',{className:'dashboard-setting',key:'isolation'},[e('span',{},'Data isolation'),e('strong',{},'Project + CompoundVersion')])
    ])]),
+   (home||globalView==='settings')&&e(ScientificValidationSection,{key:'sci-val-section'}),
    (home||globalView==='projects')&&e('section',{className:'card',key:'projects'},[
     e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'RESEARCH PORTFOLIO'),e('h2',{},'Projects'),e('p',{className:'small'},'Project cards summarize recorded evidence without synthetic progress percentages.')]),e('div',{className:'row'},[projectSelection.length>0&&e('span',{className:'small'},projectSelection.length+' selected'),e('button',{className:'danger',disabled:projectSelection.length===0,onClick:()=>openDeleteDialog(summaries.filter(item=>projectSelection.includes(item.id)))},'Delete Selected'),projectId&&e('button',{className:'secondary',onClick:()=>openProject(projectId)},'Continue Current Project')])]),
     summaries.length?e('div',{className:'dashboard-project-grid'},summaries.map(item=>e('article',{className:'dashboard-project',key:item.id,tabIndex:0,onClick:()=>openProject(item.id),onKeyDown:event=>{if(event.key==='Enter'||event.key===' ')openProject(item.id)}},[

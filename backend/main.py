@@ -54,6 +54,10 @@ from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_
 from .ivive import (IVIVEInputSet, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
                     ensure_ivive_schema, register_ivive_routes)
 from .simulation import PKSimulationRun, ensure_simulation_schema, register_simulation_routes
+from .standardizer import GLOBAL_DESCRIPTOR_CONFIG, GLOBAL_FINGERPRINT_CONFIG, RDKIT_VERSION, STANDARDIZER_NAME, STANDARDIZER_VERSION, standardize_molecule
+from .golden_set import run_golden_gate_test
+from .evaluation import (EVALUATION_REGISTRY, evaluate_mmp_directional_accuracy,
+                         get_rdkit_upgrade_readiness_report, perform_lightning_security_audit)
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
@@ -2370,7 +2374,47 @@ def index():
     response.headers["Cache-Control"] = "no-store, must-revalidate"
     return response
 
+def register_hardening_routes(app):
+    @app.post("/api/standardization/standardize")
+    def standardize_smiles_endpoint(payload: dict):
+        smiles = str(payload.get("smiles") or "")
+        return standardize_molecule(smiles)
+
+    @app.get("/api/standardization/configurations")
+    def standardization_configs_endpoint():
+        return {
+            "standardizer_name": STANDARDIZER_NAME,
+            "standardizer_version": STANDARDIZER_VERSION,
+            "rdkit_version": RDKIT_VERSION,
+            "fingerprints": GLOBAL_FINGERPRINT_CONFIG,
+            "descriptors": GLOBAL_DESCRIPTOR_CONFIG,
+        }
+
+    @app.get("/api/evaluation/registry")
+    def evaluation_registry_endpoint():
+        return {"registry": EVALUATION_REGISTRY}
+
+    @app.get("/api/evaluation/golden-gate")
+    def golden_gate_endpoint():
+        return run_golden_gate_test()
+
+    @app.get("/api/evaluation/lightning-audit")
+    def lightning_audit_endpoint():
+        return perform_lightning_security_audit()
+
+    @app.get("/api/evaluation/rdkit-readiness")
+    def rdkit_readiness_endpoint():
+        return get_rdkit_upgrade_readiness_report()
+
+    @app.post("/api/evaluation/mmp-directional")
+    def mmp_directional_endpoint(payload: dict):
+        pairs = payload.get("pairs") or []
+        min_delta = float(payload.get("min_delta_fold") or 1.5)
+        return evaluate_mmp_directional_accuracy(pairs, min_delta_fold=min_delta)
+
+
 register_pk_routes(app)
 register_ivive_routes(app)
 register_simulation_routes(app)
+register_hardening_routes(app)
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
