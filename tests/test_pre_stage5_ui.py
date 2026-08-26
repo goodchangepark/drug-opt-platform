@@ -258,9 +258,24 @@ def test_main_dashboard_contract_and_responsive_layout():
     assert "function MainDashboard()" in source
     assert "function ProjectWorkspace()" in source
     assert "projectTab==='dashboard'?MainDashboard():ProjectWorkspace()" in source
-    assert ".module-grid" in styles and ".dashboard-project-grid" in styles and ".scientific-nav" in styles
+    assert ".module-grid" in styles and ".dashboard-project-grid" in styles and ".global-nav" in styles
     assert ".sidebar.open .sidebar-body" in styles and ".project-overview-grid" in styles
     assert "@media(max-width:900px)" in styles and "@media(max-width:620px)" in styles
+
+
+def test_global_sidebar_contains_only_six_top_level_workflow_items():
+    source = (ROOT / "frontend/static/app.js").read_text()
+    sidebar = source[source.index("const sidebarItems="):source.index("const sidebar=e('aside'")]
+    for label in ("Dashboard", "New Project", "Projects", "Optimization", "Settings", "Help"):
+        assert f"['{label}'" in sidebar
+    for scientific_item in (
+        "Structure", "Properties", "Activity / SAR", "Absorption", "Distribution", "Metabolism",
+        "CYP", "Transporters", "Toxicology", "PK / DMPK",
+    ):
+        assert f"['{scientific_item}'" not in sidebar
+    assert "sidebarGroups" not in source
+    assert "aria-label':'Primary navigation'" in source
+    assert "Where scientific functions live" in source
 
 
 def test_project_delete_ui_requires_typed_confirmation_and_manual_bulk_selection():

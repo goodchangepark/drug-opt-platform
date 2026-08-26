@@ -56,6 +56,7 @@ function StatusBadge({type}){
 function App(){
  const [projects,setProjects]=useState([]),[projectId,setProjectId]=useState(null),[project,setProject]=useState(null);
  const [dashboard,setDashboard]=useState(null),[sidebarOpen,setSidebarOpen]=useState(false);
+ const [globalView,setGlobalView]=useState('dashboard');
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false);
@@ -996,13 +997,11 @@ function App(){
   ]);
  }
 
- const goDashboard=()=>{setProjectTab('dashboard');setDetail(null);setAddCompoundOpen(false);setComparison(null);setSelectedCandidate(null);setSidebarOpen(false);loadDashboard().catch(error=>setMessage(String(error)))};
+ const openGlobalView=view=>{setGlobalView(view);setProjectTab('dashboard');setDetail(null);setAddCompoundOpen(false);setComparison(null);setSelectedCandidate(null);setSidebarOpen(false);loadDashboard().catch(error=>setMessage(String(error)))};
+ const goDashboard=()=>openGlobalView('dashboard');
  const openProject=itemId=>{setProjectId(itemId);setProjectTab('compounds');setDetail(null);setAddCompoundOpen(false);setComparison(null);setSidebarOpen(false)};
- const navigateScientific=(projectTarget='compounds',detailTarget='')=>{
-  if(!projectId){goDashboard();setMessage('Create or select a project to use this module.');return}
-  setProjectTab(projectTarget);setSidebarOpen(false);
-  if(detail&&detailTarget)setDetailTab(detailTarget);else if(projectTarget!=='compounds')setDetail(null);
- };
+ const openOptimizationOverview=()=>{if(projectId){setProjectTab('optimization');setDetail(null);setSidebarOpen(false)}else{openGlobalView('projects');setMessage('Select a project before opening Optimization.')}};
+ const openSettings=()=>{if(projectId){setProjectTab('settings');setDetail(null);setSidebarOpen(false)}else openGlobalView('settings')};
  const selectedProjectSummary=(dashboard?.projects||[]).find(row=>row.id===projectId);
  const openDeleteDialog=(items,event)=>{
   event?.stopPropagation();
@@ -1023,7 +1022,7 @@ function App(){
    const deletedIds=result.deleted_project_ids||confirmations.map(item=>item.id),currentDeleted=deletedIds.includes(projectId);
    const [rows,summary]=await Promise.all([api.get('/projects'),api.get('/dashboard')]);
    setProjects(rows);setDashboard(summary);setProjectSelection([]);setDeleteProjects([]);setDeleteConfirmations({});
-   setProjectTab('dashboard');setDetail(null);setWorkspace(null);setAdmet(null);setMetabolism(null);setComparison(null);setSelected([]);setSelectedCandidate(null);
+   setGlobalView('dashboard');setProjectTab('dashboard');setDetail(null);setWorkspace(null);setAdmet(null);setMetabolism(null);setComparison(null);setSelected([]);setSelectedCandidate(null);
    if(currentDeleted){setProjectId(null);setProject(null)}
    setMessage((result.deleted_project_names||deleteProjects.map(item=>item.name)).join(', ')+' deleted');
   }catch(error){setMessage('Project deletion failed: '+error.message)}finally{setDeleteBusy(false)}
@@ -1063,8 +1062,10 @@ function App(){
    {title:'PK / DMPK',status:'PLANNED',description:'Stage 5 capabilities are intentionally not active.',items:[['Experimental PK','PLANNED'],['NCA','PLANNED'],['IVIVE','PLANNED'],['PK Simulation','PLANNED']]}
   ];
   const summaries=dashboard?.projects||projects;
+  const home=globalView==='dashboard';
   return e(React.Fragment,{},[
-   e('section',{className:'card dashboard-hero',key:'intro'},[
+   globalView!=='dashboard'&&e('section',{className:'card global-view-header',key:'global-head'},[e('div',{className:'eyebrow'},'WORKSPACE'),e('h1',{},({"new-project":'New Project',projects:'Projects',settings:'Settings',help:'Help'})[globalView]||'Workspace')]),
+   home&&e('section',{className:'card dashboard-hero',key:'intro'},[
     e('div',{className:'eyebrow'},'PLATFORM OVERVIEW'),e('h1',{},'Drug Optimization Platform'),
     e('p',{},'Structure, activity, ADMET and medicinal chemistry optimization data are integrated at the compound-version level to support hit-to-lead and lead optimization decisions.'),
     e('ul',{className:'dashboard-capabilities'},['Structure-based compound management','Experimental data integration','Predictive ADMET','SAR / optimization workflow','Full prediction provenance'].map(item=>e('li',{key:item},item))),
@@ -1074,7 +1075,7 @@ function App(){
      e('div',{className:'dashboard-stat',key:'scope'},[e('span',{},'Default data scope'),e('strong',{className:'dashboard-stat-text'},'CompoundVersion'),e('small',{},'Project-isolated')])
     ])
    ]),
-   e('section',{className:'dashboard-section',key:'modules'},[
+   home&&e('section',{className:'dashboard-section',key:'modules'},[
     e('div',{className:'section-heading'},[e('div',{},[e('div',{className:'eyebrow'},'SCIENTIFIC WORKSPACE'),e('h2',{},'Available Scientific Modules')]),e('p',{className:'small'},'Status reflects the current local engine and model registry.')]),
     e('div',{className:'module-grid'},modules.map(module=>e('article',{className:'module-card',key:module.title},[
      e('div',{className:'module-card-head'},[e('h3',{},module.title),StatusBadge({type:module.status})]),e('p',{className:'small'},module.description),
@@ -1082,16 +1083,16 @@ function App(){
      module.unavailable?.length>0&&e('div',{className:'module-unavailable'},['Unavailable: ',module.unavailable.join(' · ')])
     ])))
    ]),
-   e('div',{className:'dashboard-split',key:'start'},[
+   (home||globalView==='new-project')&&e('div',{className:'dashboard-split',key:'start'},[
     e('section',{className:'card dashboard-create',key:'create'},[e('div',{className:'eyebrow'},'NEW WORKSPACE'),e('h2',{},'Create New Project'),e('div',{className:'create-project-grid'},[
      e(Field,{label:'Project Name *',value:form.name,onChange:value=>setForm({...form,name:value}),placeholder:'EGFR Exon20ins'}),e(Field,{label:'Target *',value:form.target,onChange:value=>setForm({...form,target:value}),placeholder:'EGFR'}),e('div',{},[e('label',{},'Molecule Type'),e('select',{value:form.molecule_type,onChange:event=>setForm({...form,molecule_type:event.target.value})},['Small Molecule','Peptide'].map(value=>e('option',{key:value,value},value)))])
     ]),e('button',{disabled:!form.name.trim()||!form.target.trim(),onClick:createProject},'Create Project'),e('p',{className:'small dashboard-note'},'Description and additional metadata can be added later in Project Settings.')]),
     e('section',{className:'card quick-start',key:'quick'},[e('div',{className:'eyebrow'},'QUICK START'),e('h2',{},'Typical Workflow'),e('ol',{},['Create Project','Add Compound','Draw Structure','Calculate Properties','Add Experimental Data','Run Predictions','Compare / Optimize'].map(item=>e('li',{key:item},item))),e('p',{className:'small'},'Save and calculation remain separate. Prediction and experimental evidence are never merged.')])
    ]),
-   e('section',{className:'card',key:'defaults'},[e('h2',{},'Default Workspace Settings'),e('div',{className:'dashboard-settings'},[
+   (home||globalView==='settings')&&e('section',{className:'card',key:'defaults'},[e('h2',{},'Default Workspace Settings'),e('div',{className:'dashboard-settings'},[
     e('div',{className:'dashboard-setting',key:'type'},[e('span',{},'Default molecule type'),e('strong',{},'Small Molecule')]),e('div',{className:'dashboard-setting',key:'entry'},[e('span',{},'Structure entry'),e('strong',{},'Ketcher or SMILES')]),e('div',{className:'dashboard-setting',key:'calc'},[e('span',{},'Calculation policy'),e('strong',{},'Save first · Calculate on demand')]),e('div',{className:'dashboard-setting',key:'isolation'},[e('span',{},'Data isolation'),e('strong',{},'Project + CompoundVersion')])
    ])]),
-   e('section',{className:'card',key:'projects'},[
+   (home||globalView==='projects')&&e('section',{className:'card',key:'projects'},[
     e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'RESEARCH PORTFOLIO'),e('h2',{},'Projects'),e('p',{className:'small'},'Project cards summarize recorded evidence without synthetic progress percentages.')]),e('div',{className:'row'},[projectSelection.length>0&&e('span',{className:'small'},projectSelection.length+' selected'),e('button',{className:'danger',disabled:projectSelection.length===0,onClick:()=>openDeleteDialog(summaries.filter(item=>projectSelection.includes(item.id)))},'Delete Selected'),projectId&&e('button',{className:'secondary',onClick:()=>openProject(projectId)},'Continue Current Project')])]),
     summaries.length?e('div',{className:'dashboard-project-grid'},summaries.map(item=>e('article',{className:'dashboard-project',key:item.id,tabIndex:0,onClick:()=>openProject(item.id),onKeyDown:event=>{if(event.key==='Enter'||event.key===' ')openProject(item.id)}},[
      e('div',{className:'dashboard-project-actions'},[e('label',{className:'project-select',onClick:event=>event.stopPropagation()},[e('input',{type:'checkbox',checked:projectSelection.includes(item.id),onChange:event=>setProjectSelection(current=>event.target.checked?[...current,item.id]:current.filter(id=>id!==item.id))}),e('span',{},'Select')]),e('button',{className:'danger project-delete-button',onClick:event=>openDeleteDialog([item],event)},'Delete…')]),
@@ -1099,6 +1100,13 @@ function App(){
      e('dl',{},[e('div',{key:'target'},[e('dt',{},'Target'),e('dd',{},item.target||'Not set')]),e('div',{key:'experimental'},[e('dt',{},'Experimental records'),e('dd',{},String((item.experimental_activity_count||0)+(item.experimental_admet_count||0)))]),e('div',{key:'optimization'},[e('dt',{},'Optimization runs'),e('dd',{},String(item.optimization_run_count||0))])]),
      e('p',{className:'project-status-summary'},item.status_summary||((item.compound_count||0)+' compounds · experimental and prediction data not started')),e('span',{className:'project-open-link'},'Open Project →')
     ]))):e('div',{className:'empty-state'},[e('h3',{},'No projects yet'),e('p',{},'Use Create New Project above to begin a compound-version-isolated workspace.')])
+   ]),
+   globalView==='help'&&e('section',{className:'card help-view',key:'help'},[
+    e('h2',{},'Platform Workflow'),e('p',{},'Create a project, add compounds, calculate properties, add experimental evidence, run available predictions, then compare or optimize compounds.'),
+    e('ol',{},['Create or open a Project','Add a Compound by drawing a structure or entering SMILES','Calculate Properties when ready','Add Experimental Data and run available predictions','Compare compounds or open an Optimization run'].map(item=>e('li',{key:item},item))),
+    e('h3',{},'Where scientific functions live'),e('p',{},'Structure, Properties, Activity, ADMET, Metabolism, CYP, Transporters, Safety, and Optimization tools are available inside Project and Compound Detail pages. The global sidebar only changes top-level workspace views.'),
+    e('h3',{},'Evidence and support'),e('p',{},'Experimental, Calculated, Predicted, Rule-based, Model unavailable, and Planned states remain distinct. PK / DMPK is planned and is not active in the current stage.'),
+    e('div',{className:'row'},[e('button',{onClick:()=>openGlobalView('new-project')},'Create a Project'),e('button',{className:'secondary',onClick:()=>openGlobalView('projects')},'View Projects')])
    ])
   ]);
  }
@@ -1119,25 +1127,16 @@ function App(){
    project&&projectTab==='compounds'&&detail&&compoundDetail(),
    project&&projectTab==='assays'&&e('div',{className:'card',key:'assays'},[e('h2',{},'Assays and Activity'),e('p',{},'Define assays, enter experimental activity, train project QSAR, and inspect SAR in the existing workbench.'),e('a',{className:'button',href:'/static/stage2-workbench.html?project='+projectId},'Open Activity Workbench')]),
    project&&projectTab==='compare'&&e(React.Fragment,{key:'compare'},ComparePanel()),
-   project&&projectTab==='optimization'&&e('div',{className:'card',key:'optimization'},[e('h2',{},'Optimization Runs'),e('p',{},'Optimization is CompoundVersion-specific. Open a compound and select Optimization to analyze or generate proposals.'),e('button',{className:'secondary',onClick:()=>setProjectTab('compounds')},'Choose a Compound')]),
+   project&&projectTab==='optimization'&&e('div',{className:'card',key:'optimization'},[e('div',{className:'eyebrow'},'PROJECT OPTIMIZATION'),e('h2',{},project.name+' Optimization Workspace'),e('p',{},'Optimization runs are CompoundVersion-specific. This project currently has '+(selectedProjectSummary?.optimization_run_count||0)+' recorded optimization run(s).'),currentVersions.length?e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},[e('th',{},'Compound'),e('th',{},'Version'),e('th',{},'Status'),e('th',{},'')])),e('tbody',{},currentVersions.map(compound=>e('tr',{key:compound.row_id},[e('td',{},compound.name),e('td',{className:'mono'},compound.version?'v'+compound.current_version:'Draft'),e('td',{},StatusBadge({type:compound.status})),e('td',{},e('button',{className:'secondary',disabled:!compound.version,onClick:async()=>{await openDetail(compound.row_id);setProjectTab('compounds');setDetailTab('optimization')}},'Open Optimization'))])))])):e('div',{className:'empty-state'},[e('p',{},'Add a compound before creating an optimization run.'),e('button',{onClick:()=>setProjectTab('compounds')},'Go to Compounds')])]),
    project&&projectTab==='settings'&&e(React.Fragment,{key:'settings'},SettingsPanel())
   ]);
  }
 
- const sidebarGroups=[
-  ['WORKSPACE',[['Dashboard',()=>goDashboard()]]],
-  ['CHEMISTRY',[['Structure',()=>navigateScientific('compounds','overview')],['Properties',()=>navigateScientific('compounds','properties')]]],
-  ['BIOLOGY',[['Activity / SAR',()=>navigateScientific('assays')]]],
-  ['ADMET',[['Absorption',()=>navigateScientific('compounds','admet')],['Distribution',()=>navigateScientific('compounds','admet')],['Metabolism',()=>navigateScientific('compounds','metabolism')],['CYP',()=>navigateScientific('compounds','admet')],['Transporters',()=>navigateScientific('compounds','admet')]]],
-  ['SAFETY',[['Toxicology',()=>navigateScientific('compounds','admet')]]],
-  ['OPTIMIZATION',[['Optimization',()=>navigateScientific(detail?'compounds':'optimization','optimization')]]]
- ];
+ const sidebarItems=[['Dashboard',()=>goDashboard(),'dashboard'],['New Project',()=>openGlobalView('new-project'),'new-project'],['Projects',()=>openGlobalView('projects'),'projects'],['Optimization',openOptimizationOverview,'optimization'],['Settings',openSettings,'settings'],['Help',()=>openGlobalView('help'),'help']];
  const sidebar=e('aside',{className:'sidebar'+(sidebarOpen?' open':''),key:'sidebar'},[
-  e('div',{className:'sidebar-head',key:'head'},[e('div',{},[e('button',{className:'brand-button',onClick:goDashboard},'Drug Optimization Platform'),e('div',{className:'tag'},'CompoundVersion research workspace')]),e('button',{className:'menu-toggle',onClick:()=>setSidebarOpen(value=>!value),'aria-expanded':sidebarOpen,'aria-label':'Toggle scientific navigation'},sidebarOpen?'Close':'Menu')]),
+  e('div',{className:'sidebar-head',key:'head'},[e('div',{},[e('button',{className:'brand-button',onClick:goDashboard},'Drug Optimization Platform'),e('div',{className:'tag'},'Research workspace')]),e('button',{className:'menu-toggle',onClick:()=>setSidebarOpen(value=>!value),'aria-expanded':sidebarOpen,'aria-label':'Toggle primary navigation'},sidebarOpen?'Close':'Menu')]),
   e('div',{className:'sidebar-body',key:'body'},[
-   e('nav',{className:'scientific-nav',key:'nav','aria-label':'Scientific navigation'},sidebarGroups.map(([group,items])=>e('section',{className:'nav-group',key:group},[e('h3',{},group),...items.map(([label,action])=>e('button',{key:label,className:label==='Dashboard'&&projectTab==='dashboard'?'active':'',onClick:action},label))]))),
-   e('section',{className:'nav-group development-nav',key:'development'},[e('h3',{},'DEVELOPMENT'),e('button',{disabled:true},['PK / DMPK ',StatusBadge({type:'PLANNED'})])]),
-   e('section',{className:'current-project',key:'current'},[e('h3',{},'CURRENT PROJECT'),projects.length?e(React.Fragment,{},[e('select',{value:projectId||'',onChange:event=>{setProjectId(Number(event.target.value));setSidebarOpen(false)}},projects.map(item=>e('option',{key:item.id,value:item.id},item.name))),e('div',{className:'current-project-meta'},[(project?.target||projects.find(item=>item.id===projectId)?.target||'Target not set'),' · ',(project?.molecule_type||projects.find(item=>item.id===projectId)?.molecule_type||'Small Molecule')]),e('button',{className:'secondary',onClick:()=>openProject(projectId)},'Open Current Project')]):e('p',{className:'tag'},'Create a project from the dashboard.')])
+   e('nav',{className:'global-nav',key:'nav','aria-label':'Primary navigation'},sidebarItems.map(([label,action,view])=>e('button',{key:label,className:(projectTab==='dashboard'&&globalView===view)||(projectTab===view)?'active':'',onClick:action},label)))
   ])
  ]);
  return e('div',{className:'shell'},[sidebar,e('main',{className:'content',key:'content'},[
