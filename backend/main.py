@@ -6,6 +6,7 @@ import numpy as np
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from rdkit import Chem
@@ -1831,6 +1832,8 @@ def add_user_candidate(proposal_id: int, payload: dict, db: Session = Depends(ge
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    with open("frontend/static/index.html") as handle: return handle.read()
+    response = HTMLResponse(Path("frontend/static/index.html").read_text())
+    response.headers["Cache-Control"] = "no-store, must-revalidate"
+    return response
 
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
