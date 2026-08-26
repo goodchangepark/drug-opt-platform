@@ -30,6 +30,8 @@ from .admet import (ADMETAssayDefinition, ADMETConsensusPrediction, ADMETEndpoin
                     measurement_out, parse_csv, validate_measurement)
 from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimental, comparison_for_prediction, cyp_experimental_evidence,
                               metabolic_stability_assessment, model_files_available, predict_endpoint)
+from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
+                        DataProvenance)
 from .database import Base, SessionLocal, engine, get_db
 from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
                                   ENGINE_NAME as METABOLISM_ENGINE,
@@ -760,6 +762,10 @@ def _admet_model_out(model: ADMETModelRegistry):
     available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (
         False, (model.provenance_json or {}).get("reason", "No endpoint-specific model installed in the current stage"),
     )
+    cal_info = CONFORMAL_CALIBRATION_REGISTRY.get(model.endpoint_name, {})
+    cal_provenance = cal_info.get("data_provenance", DataProvenance.UNAVAILABLE if not available else DataProvenance.TRAINING_OVERLAP_UNKNOWN)
+    cal_quality = cal_info.get("calibration_quality", CalibrationQuality.UNAVAILABLE)
+
     return {
         "id": model.id, "endpoint": model.endpoint_name, "model_name": model.model_name,
         "model_version": model.model_version,
@@ -770,6 +776,9 @@ def _admet_model_out(model: ADMETModelRegistry):
         "priority": model.model_priority, "ensemble_eligible": bool(model.ensemble_eligible),
         "species": model.species, "output_type": model.output_type,
         "details": model.provenance_json or {}, "unavailable_reason": unavailable_reason,
+        "calibration_provenance": cal_provenance,
+        "calibration_quality": cal_quality,
+        "conformal_governance": cal_info,
     }
 
 
@@ -1342,6 +1351,8 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             output["derived_outputs"] = result["derived_outputs"]
         if result.get("metabolic_stability_assessment") is not None:
             output["metabolic_stability_assessment"] = result["metabolic_stability_assessment"]
+        if result.get("calibrated_uncertainty") is not None:
+            output["calibrated_uncertainty"] = result["calibrated_uncertainty"]
         prediction = ADMETPrediction(
             run_id=run.id, endpoint_id=endpoint.id, version_id=row_id, model_id=model.id,
             predicted_value=result["predicted_value"], unit=result["unit"],

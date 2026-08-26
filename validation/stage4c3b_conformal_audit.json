@@ -1,0 +1,556 @@
+{
+  "HLM intrinsic clearance": {
+    "endpoint": "HLM intrinsic clearance",
+    "data_provenance": "EXTERNAL",
+    "calibration_quality": "UNDERCOVERED",
+    "dataset_name": "Biogen Public ADME Prospective Benchmark",
+    "local_path": "models/openadmet/validation/biogen_public_3521.csv",
+    "calibration_n": 250,
+    "evaluation_n": 250,
+    "smiles_overlap_with_training": 0,
+    "nominal_coverage": 0.9,
+    "empirical_coverage": 0.796,
+    "expected_sampling_uncertainty_se": 0.019,
+    "confidence_interval_95": [
+      0.7407,
+      0.8442
+    ],
+    "deviation": -0.104,
+    "z_score": -5.481,
+    "p_value": 1e-06,
+    "quantiles": {
+      "0.80": 0.89,
+      "0.90": 1.048,
+      "0.95": 1.207
+    },
+    "empirical_coverage_levels": {
+      "0.80": 0.732,
+      "0.90": 0.796,
+      "0.95": 0.86
+    },
+    "interval_utility": {
+      "mean_interval_width_90": 2.096,
+      "median_interval_width_90": 2.096,
+      "dynamic_range": 2.664,
+      "relative_interval_width": 0.787,
+      "ratio_to_mae": 3.2,
+      "utility_status": "INFORMATIVE"
+    },
+    "conditional_coverage_by_ad": {
+      "IN_DOMAIN": {
+        "n": 20,
+        "covered_n": 17,
+        "empirical_coverage": 0.85,
+        "quality": "VALIDATED",
+        "sampling_uncertainty_se": 0.0671,
+        "confidence_interval_95": [
+          0.6211,
+          0.9679
+        ]
+      },
+      "BORDERLINE": {
+        "n": 186,
+        "covered_n": 147,
+        "empirical_coverage": 0.7903,
+        "quality": "UNDERCOVERED",
+        "sampling_uncertainty_se": 0.022,
+        "confidence_interval_95": [
+          0.7247,
+          0.8464
+        ]
+      },
+      "OUT_OF_DOMAIN": {
+        "n": 44,
+        "covered_n": 35,
+        "empirical_coverage": 0.7955,
+        "quality": "UNDERCOVERED",
+        "sampling_uncertainty_se": 0.0452,
+        "confidence_interval_95": [
+          0.647,
+          0.902
+        ]
+      }
+    },
+    "mae": 0.654,
+    "rmse": 0.805,
+    "conformal_governance_message": "Empirical coverage (79.6%) is significantly below nominal 90.0% (p=0.0000, z=-5.48)."
+  },
+  "Permeability": {
+    "endpoint": "Permeability",
+    "data_provenance": "EXTERNAL",
+    "calibration_quality": "INSUFFICIENT_N",
+    "dataset_name": "Admetica External Caco-2 Benchmark (34 compounds)",
+    "local_path": "models/admetica/validation/caco2_external_34.csv",
+    "calibration_n": 17,
+    "evaluation_n": 17,
+    "smiles_overlap_with_training": 0,
+    "nominal_coverage": 0.9,
+    "empirical_coverage": 0.7647,
+    "expected_sampling_uncertainty_se": 0.0728,
+    "confidence_interval_95": [
+      0.501,
+      0.9319
+    ],
+    "deviation": -0.1353,
+    "z_score": -1.859,
+    "p_value": 0.082641,
+    "quantiles": {
+      "0.80": 10.299,
+      "0.90": 11.147,
+      "0.95": 11.29
+    },
+    "empirical_coverage_levels": {
+      "0.80": 0.529,
+      "0.90": 0.765,
+      "0.95": 0.824
+    },
+    "interval_utility": {
+      "mean_interval_width_90": 22.294,
+      "median_interval_width_90": 22.294,
+      "dynamic_range": 2.11,
+      "relative_interval_width": 10.566,
+      "ratio_to_mae": 2.14,
+      "utility_status": "UNINFORMATIVE_INTERVAL"
+    },
+    "conditional_coverage_by_ad": {
+      "IN_DOMAIN": {
+        "n": 7,
+        "covered_n": 7,
+        "empirical_coverage": 1.0,
+        "quality": "INSUFFICIENT_N",
+        "message": "Stratum N=7 < 15"
+      },
+      "BORDERLINE": {
+        "n": 9,
+        "covered_n": 6,
+        "empirical_coverage": 0.6667,
+        "quality": "INSUFFICIENT_N",
+        "message": "Stratum N=9 < 15"
+      },
+      "OUT_OF_DOMAIN": {
+        "n": 1,
+        "covered_n": 0,
+        "empirical_coverage": 0.0,
+        "quality": "INSUFFICIENT_N",
+        "message": "Stratum N=1 < 15"
+      }
+    },
+    "mae": 10.401,
+    "rmse": 10.466,
+    "conformal_governance_message": "Evaluation sample size N=17 < 30; cannot statistically validate coverage."
+  },
+  "hERG liability": {
+    "endpoint": "hERG liability",
+    "data_provenance": "EXTERNAL",
+    "calibration_quality": "UNDERCOVERED",
+    "dataset_name": "ChEMBL37 Non-overlapping hERG IC50 Benchmark",
+    "local_path": "models/admetica/validation/safety/chembl37_herg_ic50_no_exact_training_overlap.csv",
+    "calibration_n": 250,
+    "evaluation_n": 250,
+    "smiles_overlap_with_training": 0,
+    "nominal_coverage": 0.9,
+    "empirical_coverage": 0.832,
+    "expected_sampling_uncertainty_se": 0.019,
+    "confidence_interval_95": [
+      0.7798,
+      0.8762
+    ],
+    "deviation": -0.068,
+    "z_score": -3.584,
+    "p_value": 0.000961,
+    "quantile_90": 0.999,
+    "threshold_0.90": 0.999,
+    "threshold_low": 0.0008,
+    "threshold_high": 0.9992,
+    "set_efficiency": {
+      "singleton_rate": 0.468,
+      "ambiguous_rate": 0.532,
+      "empty_rate": 0.0,
+      "efficiency_status": "HIGH_AMBIGUITY"
+    },
+    "conditional_coverage_by_ad": {
+      "IN_DOMAIN": {
+        "n": 208,
+        "covered_n": 167,
+        "empirical_coverage": 0.8029,
+        "quality": "UNDERCOVERED",
+        "sampling_uncertainty_se": 0.0208,
+        "confidence_interval_95": [
+          0.7422,
+          0.8547
+        ]
+      },
+      "BORDERLINE": {
+        "n": 42,
+        "covered_n": 41,
+        "empirical_coverage": 0.9762,
+        "quality": "VALIDATED",
+        "sampling_uncertainty_se": 0.0463,
+        "confidence_interval_95": [
+          0.8743,
+          0.9994
+        ]
+      },
+      "OUT_OF_DOMAIN": {
+        "n": 0,
+        "empirical_coverage": null,
+        "quality": "NO_DATA"
+      }
+    },
+    "conformal_governance_message": "Empirical coverage (83.2%) is significantly below nominal 90.0% (p=0.0006, z=-3.58)."
+  },
+  "CYP2C9 inhibitor": {
+    "endpoint": "CYP2C9 inhibitor",
+    "data_provenance": "INTERNAL",
+    "calibration_quality": "UNDERCOVERED",
+    "dataset_name": "ChEMBL30 CYP2C9 inhibitor Benchmark",
+    "local_path": "models/admetica/validation/cyp/chembl30_2c9_inhibitor.csv",
+    "calibration_n": 232,
+    "evaluation_n": 232,
+    "smiles_overlap_with_training": 1,
+    "nominal_coverage": 0.9,
+    "empirical_coverage": 0.7974,
+    "expected_sampling_uncertainty_se": 0.0197,
+    "confidence_interval_95": [
+      0.7399,
+      0.8472
+    ],
+    "deviation": -0.1026,
+    "z_score": -5.208,
+    "p_value": 3e-06,
+    "quantile_90": 0.932,
+    "threshold_0.90": 0.932,
+    "threshold_low": 0.0683,
+    "threshold_high": 0.9317,
+    "set_efficiency": {
+      "singleton_rate": 0.487,
+      "ambiguous_rate": 0.513,
+      "empty_rate": 0.0,
+      "efficiency_status": "HIGH_AMBIGUITY"
+    },
+    "conditional_coverage_by_ad": {
+      "IN_DOMAIN": {
+        "n": 69,
+        "covered_n": 55,
+        "empirical_coverage": 0.7971,
+        "quality": "UNDERCOVERED",
+        "sampling_uncertainty_se": 0.0361,
+        "confidence_interval_95": [
+          0.6831,
+          0.8844
+        ]
+      },
+      "BORDERLINE": {
+        "n": 157,
+        "covered_n": 128,
+        "empirical_coverage": 0.8153,
+        "quality": "UNDERCOVERED",
+        "sampling_uncertainty_se": 0.0239,
+        "confidence_interval_95": [
+          0.7456,
+          0.8727
+        ]
+      },
+      "OUT_OF_DOMAIN": {
+        "n": 6,
+        "covered_n": 2,
+        "empirical_coverage": 0.3333,
+        "quality": "INSUFFICIENT_N",
+        "message": "Stratum N=6 < 15"
+      }
+    },
+    "conformal_governance_message": "Empirical coverage (79.7%) is significantly below nominal 90.0% (p=0.0000, z=-5.21)."
+  },
+  "CYP2D6 inhibitor": {
+    "endpoint": "CYP2D6 inhibitor",
+    "data_provenance": "INTERNAL",
+    "calibration_quality": "VALIDATED",
+    "dataset_name": "ChEMBL30 CYP2D6 inhibitor Benchmark",
+    "local_path": "models/admetica/validation/cyp/chembl30_2d6_inhibitor.csv",
+    "calibration_n": 250,
+    "evaluation_n": 250,
+    "smiles_overlap_with_training": 4,
+    "nominal_coverage": 0.9,
+    "empirical_coverage": 0.904,
+    "expected_sampling_uncertainty_se": 0.019,
+    "confidence_interval_95": [
+      0.8605,
+      0.9375
+    ],
+    "deviation": 0.004,
+    "z_score": 0.211,
+    "p_value": 0.916179,
+    "quantile_90": 0.977,
+    "threshold_0.90": 0.977,
+    "threshold_low": 0.0233,
+    "threshold_high": 0.9767,
+    "set_efficiency": {
+      "singleton_rate": 0.404,
+      "ambiguous_rate": 0.596,
+      "empty_rate": 0.0,
+      "efficiency_status": "HIGH_AMBIGUITY"
+    },
+    "conditional_coverage_by_ad": {
+      "IN_DOMAIN": {
+        "n": 95,
+        "covered_n": 87,
+        "empirical_coverage": 0.9158,
+        "quality": "VALIDATED",
+        "sampling_uncertainty_se": 0.0308,
+        "confidence_interval_95": [
+          0.8408,
+          0.9629
+        ]
+      },
+      "BORDERLINE": {
+        "n": 152,
+        "covered_n": 136,
+        "empirical_coverage": 0.8947,
+        "quality": "VALIDATED",
+        "sampling_uncertainty_se": 0.0243,
+        "confidence_interval_95": [
+          0.8347,
+          0.9386
+        ]
+      },
+      "OUT_OF_DOMAIN": {
+        "n": 3,
+        "covered_n": 3,
+        "empirical_coverage": 1.0,
+        "quality": "INSUFFICIENT_N",
+        "message": "Stratum N=3 < 15"
+      }
+    },
+    "conformal_governance_message": "Empirical coverage (90.4%) statistically validated within 95% CI [86.1%, 93.8%]."
+  },
+  "CYP3A4 inhibitor": {
+    "endpoint": "CYP3A4 inhibitor",
+    "data_provenance": "EXTERNAL",
+    "calibration_quality": "VALIDATED",
+    "dataset_name": "ChEMBL30 CYP3A4 inhibitor Benchmark",
+    "local_path": "models/admetica/validation/cyp/chembl30_3a4_inhibitor.csv",
+    "calibration_n": 250,
+    "evaluation_n": 250,
+    "smiles_overlap_with_training": 0,
+    "nominal_coverage": 0.9,
+    "empirical_coverage": 0.88,
+    "expected_sampling_uncertainty_se": 0.019,
+    "confidence_interval_95": [
+      0.8331,
+      0.9176
+    ],
+    "deviation": -0.02,
+    "z_score": -1.054,
+    "p_value": 0.291112,
+    "quantile_90": 0.958,
+    "threshold_0.90": 0.958,
+    "threshold_low": 0.0415,
+    "threshold_high": 0.9585,
+    "set_efficiency": {
+      "singleton_rate": 0.356,
+      "ambiguous_rate": 0.644,
+      "empty_rate": 0.0,
+      "efficiency_status": "HIGH_AMBIGUITY"
+    },
+    "conditional_coverage_by_ad": {
+      "IN_DOMAIN": {
+        "n": 40,
+        "covered_n": 33,
+        "empirical_coverage": 0.825,
+        "quality": "VALIDATED",
+        "sampling_uncertainty_se": 0.0474,
+        "confidence_interval_95": [
+          0.6722,
+          0.9266
+        ]
+      },
+      "BORDERLINE": {
+        "n": 196,
+        "covered_n": 175,
+        "empirical_coverage": 0.8929,
+        "quality": "VALIDATED",
+        "sampling_uncertainty_se": 0.0214,
+        "confidence_interval_95": [
+          0.8409,
+          0.9324
+        ]
+      },
+      "OUT_OF_DOMAIN": {
+        "n": 14,
+        "covered_n": 12,
+        "empirical_coverage": 0.8571,
+        "quality": "INSUFFICIENT_N",
+        "message": "Stratum N=14 < 15"
+      }
+    },
+    "conformal_governance_message": "Empirical coverage (88.0%) statistically validated within 95% CI [83.3%, 91.8%]."
+  },
+  "Solubility": {
+    "endpoint": "Solubility",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/solubility/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'Solubility'."
+  },
+  "Plasma protein binding": {
+    "endpoint": "Plasma protein binding",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/ppbr/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'Plasma protein binding'."
+  },
+  "RLM intrinsic clearance": {
+    "endpoint": "RLM intrinsic clearance",
+    "data_provenance": "UNAVAILABLE",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/openadmet/microsomal_clearance/X_train.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'RLM intrinsic clearance'."
+  },
+  "MLM intrinsic clearance": {
+    "endpoint": "MLM intrinsic clearance",
+    "data_provenance": "UNAVAILABLE",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/openadmet/microsomal_clearance/X_train.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'MLM intrinsic clearance'."
+  },
+  "CYP1A2 inhibitor": {
+    "endpoint": "CYP1A2 inhibitor",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/cyp/cyp1a2-inhibitor/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'CYP1A2 inhibitor'."
+  },
+  "CYP2C19 inhibitor": {
+    "endpoint": "CYP2C19 inhibitor",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/cyp/cyp2c19-inhibitor/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'CYP2C19 inhibitor'."
+  },
+  "CYP2C9 substrate": {
+    "endpoint": "CYP2C9 substrate",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/cyp/cyp2c9-substrate/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'CYP2C9 substrate'."
+  },
+  "CYP2D6 substrate": {
+    "endpoint": "CYP2D6 substrate",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/cyp/cyp2d6-substrate/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'CYP2D6 substrate'."
+  },
+  "CYP3A4 substrate": {
+    "endpoint": "CYP3A4 substrate",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/cyp/cyp3a4-substrate/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'CYP3A4 substrate'."
+  },
+  "P-gp inhibitor": {
+    "endpoint": "P-gp inhibitor",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admetica/transporter/pgp-inhibitor/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'P-gp inhibitor'."
+  },
+  "Ames mutagenicity": {
+    "endpoint": "Ames mutagenicity",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admet_ai/training/ames/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'Ames mutagenicity'."
+  },
+  "DILI clinical liability": {
+    "endpoint": "DILI clinical liability",
+    "data_provenance": "TRAINING_OVERLAP_UNKNOWN",
+    "calibration_quality": "UNAVAILABLE",
+    "dataset_name": "Training data available only; no independent calibration set",
+    "source": "Local model training set",
+    "local_path": "models/admet_ai/training/dili/training.csv",
+    "calibration_n": 0,
+    "evaluation_n": 0,
+    "smiles_overlap_with_training": "UNKNOWN",
+    "nominal_coverage": 0.9,
+    "empirical_coverage": null,
+    "conformal_governance_message": "Independent external calibration set not provided on disk for 'DILI clinical liability'."
+  }
+}

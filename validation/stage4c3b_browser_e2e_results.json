@@ -1,0 +1,25 @@
+{
+  "stage": "4C-3B",
+  "run_id": "20260827-080941",
+  "base_url": "http://127.0.0.1:8767",
+  "checks": [
+    {
+      "name": "Dashboard Page Render",
+      "status": "PASS"
+    },
+    {
+      "name": "Model Registry Decoupled Governance (Provenance + Quality)",
+      "status": "PASS"
+    },
+    {
+      "name": "Settings Model Registry Decoupled Columns",
+      "status": "PASS"
+    },
+    {
+      "name": "Optimization Workspace Navigation",
+      "status": "PASS"
+    }
+  ],
+  "screenshot": "/home/xavier/chem/drug-opt-platform/validation/stage4c3b_browser_e2e.png",
+  "status": "PASS"
+}

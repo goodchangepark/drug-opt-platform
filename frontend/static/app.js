@@ -433,6 +433,11 @@ function App(){
   const details=prediction.model?.details||{},output=prediction.outputs||{},domain=output.applicability_domain_details||{};
   const validation=details.validation||output.validation||{};
   const derived=output.derived_outputs||{},assessment=output.experimental_metabolic_stability_assessment||output.metabolic_stability_assessment;
+  const conformal=output.calibrated_uncertainty||details.conformal_governance||{};
+  const prov=conformal.data_provenance||details.calibration_provenance;
+  const qual=conformal.calibration_quality||details.calibration_quality;
+  const provLabel=prov==='EXTERNAL'?'External validation set':(prov==='INTERNAL'?'Internal validation set (training overlap)':(prov==='TRAINING_OVERLAP_UNKNOWN'?'Training overlap unknown':'Unavailable'));
+  const qualLabel=qual==='VALIDATED'?'VALIDATED':(qual==='UNDERCOVERED'?'UNDERCOVERED':(qual==='INSUFFICIENT_N'?'INSUFFICIENT N (<30)':(qual||'UNAVAILABLE')));
   return e('details',{},[
    e('summary',{key:'summary'},'Details'),
    e('div',{key:'body',className:'small',style:{minWidth:'320px'}},[
@@ -443,6 +448,15 @@ function App(){
     e('div',{key:'training'},[e('strong',{},'Training: '),details.training_dataset||output.training_dataset]),
     e('div',{key:'validation'},[e('strong',{},'Validation: '),Object.entries(validation).map(([key,value])=>key+' '+value).join(' · ')]),
     details.independent_validation&&e('div',{key:'independent'},[e('strong',{},'Independent validation: '),Object.entries(details.independent_validation).map(([key,value])=>key+' '+value).join(' · ')]),
+    prov&&e('div',{key:'conformal-gov'},[
+     e('strong',{},'Calibration Governance: '),
+     e('span',{},'Data: '+provLabel+' · Conformal: '),
+     e('span',{className:qual==='VALIDATED'?'pass':(qual==='UNDERCOVERED'?'fail':'warn')},qualLabel),
+     conformal.empirical_coverage!=null&&e('span',{},' ('+(conformal.nominal_coverage?conformal.nominal_coverage*100:90)+'% nominal / '+(conformal.empirical_coverage*100).toFixed(1)+'% observed · Eval N='+(conformal.evaluation_n??'—')+(conformal.expected_sampling_uncertainty_se?(' · SE=±'+(conformal.expected_sampling_uncertainty_se*100).toFixed(1)+'%'):'')+')'),
+     conformal.interval_width!=null&&e('span',{},' · Interval width: '+conformal.interval_width+' '+conformal.unit+(conformal.interval_utility?.utility_status==='UNINFORMATIVE_INTERVAL'?' [UNINFORMATIVE]':'')),
+     conformal.prediction_set&&e('span',{},' · Conformal set: {'+conformal.prediction_set.join(', ')+'}')
+    ]),
+    (conformal.warnings||[]).length>0&&e('div',{key:'conformal-warns'},conformal.warnings.map(w=>e('div',{key:w,className:'fail small'},w))),
     e('div',{key:'license'},[e('strong',{},'License: '),details.license||output.license]),
     e('div',{key:'ad'},[e('strong',{},'AD evidence: '),'nearest similarity '+(domain.nearest_training_similarity??'—')+' · chemical-space distance '+(domain.chemical_space_distance??'—')+(domain.descriptors_outside_range?.length?' · outside '+domain.descriptors_outside_range.join(', '):' · descriptors within training range')]),
     Object.keys(derived).length>0&&e('div',{key:'derived'},[e('strong',{},'Derived output: '),Object.entries(derived).map(([key,value])=>key+' '+(typeof value==='number'?Number(value).toPrecision(5):value)).join(' · ')]),
@@ -1900,9 +1914,12 @@ function App(){
      e('details',{style:{marginTop:'12px'}},[
       e('summary',{},'Available model registry entries'),
       e('table',{},[
-       e('thead',{},e('tr',{},['Endpoint','Model','Version','Output','Species'].map(label=>e('th',{key:label},label)))),
+       e('thead',{},e('tr',{},['Endpoint','Model','Version','Data Provenance','Conformal Quality','Output','Species'].map(label=>e('th',{key:label},label)))),
        e('tbody',{},(admet?.models||[]).filter(model=>model.active).map(model=>e('tr',{key:model.id},[
-        e('td',{},model.endpoint),e('td',{},model.model_name),e('td',{},model.model_version),e('td',{},model.output_unit),e('td',{},model.species||'Not specified')
+        e('td',{},model.endpoint),e('td',{},model.model_name),e('td',{},model.model_version),
+        e('td',{},model.calibration_provenance==='EXTERNAL'?'External validation set':(model.calibration_provenance==='INTERNAL'?'Internal set':(model.calibration_provenance==='TRAINING_OVERLAP_UNKNOWN'?'Overlap unknown':'Unavailable'))),
+        e('td',{},e('span',{className:model.calibration_quality==='VALIDATED'?'pass':(model.calibration_quality==='UNDERCOVERED'?'fail':'warn')},model.calibration_quality||'UNAVAILABLE')),
+        e('td',{},model.output_unit),e('td',{},model.species||'Not specified')
        ])))
       ])
      ])
@@ -1995,12 +2012,25 @@ function App(){
    e('div',{className:'card',key:'models'},[
     e('h2',{},'Prediction Models'),e('p',{className:'small'},'Multiple registered models may share an endpoint. Project performance influences consensus only from N ≥ 10; N ≥ 30 enables a stronger blend.'),
     (admet?.models||[]).length?e('div',{className:'table-scroll'},e('table',{},[
-     e('thead',{},e('tr',{},['Endpoint','Model','Version','Status','Training N','Validation','Project Experimental N','Project MAE / Accuracy','Consensus Weight','Project Selection'].map(label=>e('th',{key:label},label)))),
-     e('tbody',{},admet.models.map(model=>{
-      const performance=projectPerformance.get(model.id),validation=model.validation||model.details?.validation||{},metric=performance?.metrics?.mae??performance?.metrics?.accuracy;
-      const best=admet?.best_project_models?.[model.endpoint]?.model_id===model.id;
-      return e('tr',{key:model.id},[e('td',{},model.endpoint),e('td',{},model.model_name),e('td',{className:'mono'},model.model_version),e('td',{},StatusBadge({type:model.active?'READY':'MODEL_UNAVAILABLE'})),e('td',{className:'mono'},model.details?.training_n??'—'),e('td',{className:'small'},Object.entries(validation).slice(0,2).map(([key,value])=>key+' '+value).join(' · ')||'Not reported'),e('td',{className:'mono'},performance?.n??0),e('td',{className:'mono'},metric==null?'Insufficient experimental data':Number(metric).toFixed(3)),e('td',{className:'mono'},performance?.n>=10?Number(performance.performance_factor).toFixed(3):'Published validation'),e('td',{},best?e('span',{className:'pass'},'Best performing model for this project'):'Insufficient experimental data')]);
-     }))
+      e('thead',{},e('tr',{},['Endpoint','Model','Version','Status','Calibration Data','Conformal Quality','Training N','Validation','Project Experimental N','Project MAE / Accuracy','Consensus Weight','Project Selection'].map(label=>e('th',{key:label},label)))),
+      e('tbody',{},admet.models.map(model=>{
+       const performance=projectPerformance.get(model.id),validation=model.validation||model.details?.validation||{},metric=performance?.metrics?.mae??performance?.metrics?.accuracy;
+       const best=admet?.best_project_models?.[model.endpoint]?.model_id===model.id;
+       const prov=model.calibration_provenance||'UNAVAILABLE';
+       const qual=model.calibration_quality||'UNAVAILABLE';
+       return e('tr',{key:model.id},[
+        e('td',{},model.endpoint),e('td',{},model.model_name),e('td',{className:'mono'},model.model_version),
+        e('td',{},StatusBadge({type:model.active?'READY':'MODEL_UNAVAILABLE'})),
+        e('td',{},e('span',{className:prov==='EXTERNAL'?'pass':(prov==='INTERNAL'?'warn':'small')},prov==='EXTERNAL'?'External set':(prov==='INTERNAL'?'Internal set':(prov==='TRAINING_OVERLAP_UNKNOWN'?'Overlap unknown':'Unavailable')))),
+        e('td',{},e('span',{className:qual==='VALIDATED'?'pass':(qual==='UNDERCOVERED'?'fail':'warn')},qual)),
+        e('td',{className:'mono'},model.details?.training_n??'—'),
+        e('td',{className:'small'},Object.entries(validation).slice(0,2).map(([key,value])=>key+' '+value).join(' · ')||'Not reported'),
+        e('td',{className:'mono'},performance?.n??0),
+        e('td',{className:'mono'},metric==null?'Insufficient experimental data':Number(metric).toFixed(3)),
+        e('td',{className:'mono'},performance?.n>=10?Number(performance.performance_factor).toFixed(3):'Published validation'),
+        e('td',{},best?e('span',{className:'pass'},'Best performing model for this project'):'Insufficient experimental data')
+       ]);
+      }))
     ])):Empty({children:'Select a project to inspect its model registry.'})
    ]),
    e('div',{className:'card',key:'csv'},[e('h2',{},'Experimental ADMET CSV'),e('p',{className:'small'},'Advanced project-wide import/export. Compound Detail remains CompoundVersion-isolated.'),e('a',{className:'button secondary',href:'/api/projects/'+projectId+'/admet/export.csv'},'Export CSV'),e('textarea',{rows:7,value:admetCsv,placeholder,onChange:event=>{setAdmetCsv(event.target.value);setAdmetCsvPreview(null)}}),e('div',{className:'row',style:{marginTop:'10px'}},[e('button',{className:'secondary',disabled:admetBusy||!admetCsv.trim(),onClick:previewAdmet},'Preview CSV'),e('button',{disabled:admetBusy||!admetCsvPreview||admetCsvPreview.errors.length>0||!admetCsvPreview.valid_count,onClick:importAdmet},'Import Valid Rows')]),admetCsvPreview&&e('p',{className:admetCsvPreview.errors.length?'fail':'pass'},admetCsvPreview.valid_count+' valid · '+admetCsvPreview.errors.length+' errors')]),
