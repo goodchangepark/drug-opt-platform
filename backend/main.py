@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import numpy as np
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -35,13 +35,21 @@ from .optimization_engine import (ENGINE_NAME as OPTIMIZATION_ENGINE,
                                   ENGINE_VERSION as OPTIMIZATION_VERSION,
                                   EVIDENCE_HIERARCHY, OBJECTIVES,
                                   TRANSFORMATION_LIBRARY, analyze_run)
+from .proposal import (CandidateRejectionReason, OptimizationCandidate,
+                       OptimizationProposalRun, ensure_proposal_schema)
+from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
+                              ENGINE_VERSION as PROPOSAL_VERSION,
+                              EXECUTABLE_TRANSFORMATIONS,
+                              STRATEGY_ONLY_TRANSFORMATIONS,
+                              execute_proposal_run, process_user_candidate,
+                              rank_candidates)
 from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.4.0-stage4a")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.4.0-stage4b")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -52,6 +60,7 @@ def startup():
         ensure_admet_schema(engine)
         ensure_metabolism_schema(engine)
         ensure_optimization_schema(engine)
+        ensure_proposal_schema(engine)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -65,7 +74,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": 4, "step": "4A", "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": 4, "step": "4B", "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -1375,6 +1384,231 @@ def update_optimization_overrides(run_id: int, payload: dict, db: Session = Depe
     analyze_run(db, run)
     db.commit(); db.refresh(run)
     return _optimization_out(run)
+
+
+def _candidate_comparison(candidate: OptimizationCandidate, optimization_run: OptimizationRun, parent: CompoundVersion):
+    rows = []
+    parent_properties = parent.properties_json or {}
+    candidate_properties = (candidate.stage1_json or {}).get("properties", {})
+    for endpoint, key, unit in (
+        ("MW", "molecular_weight", "Da"), ("cLogP", "clogp", ""),
+        ("TPSA", "tpsa", "Å²"), ("Fsp3", "fraction_csp3", ""),
+    ):
+        parent_value, candidate_value = parent_properties.get(key), candidate_properties.get(key)
+        rows.append({"endpoint": endpoint, "parent": {"value": parent_value, "unit": unit, "type": "Calculated"}, "candidate": {"value": candidate_value, "unit": unit, "type": "Calculated"}, "change": (round(candidate_value-parent_value, 5) if isinstance(parent_value, (int, float)) and isinstance(candidate_value, (int, float)) else None)})
+    parent_activity = (optimization_run.evidence_json or {}).get("activity", {})
+    parent_activity = parent_activity.get("experimental") or parent_activity.get("predicted")
+    if parent_activity or candidate.activity_json:
+        parent_value = parent_activity.get("mean_nm") if parent_activity and parent_activity.get("type") == "Experimental" else (parent_activity or {}).get("value_nm")
+        candidate_value = (candidate.activity_json or {}).get("value_nm")
+        rows.insert(0, {"endpoint": "Activity", "parent": {"value": parent_value, "unit": "nM", "type": (parent_activity or {}).get("type", "Unknown"), "confidence": (parent_activity or {}).get("confidence")}, "candidate": {"value": candidate_value, "unit": "nM", "type": (candidate.activity_json or {}).get("record_type", "Unavailable"), "confidence": (candidate.activity_json or {}).get("confidence"), "domain": (candidate.activity_json or {}).get("applicability_domain")}, "change": (round(candidate_value-parent_value, 5) if isinstance(parent_value, (int, float)) and isinstance(candidate_value, (int, float)) else None)})
+    parent_admet = (optimization_run.evidence_json or {}).get("admet", {})
+    for endpoint in ("Solubility", "Permeability", "Plasma protein binding", "HLM intrinsic clearance", "RLM intrinsic clearance", "CYP3A4 inhibitor", "P-gp inhibitor", "hERG liability", "Ames mutagenicity", "DILI clinical liability"):
+        parent_row = (parent_admet.get(endpoint) or {}).get("preferred")
+        candidate_row = (candidate.admet_json or {}).get(endpoint)
+        if not parent_row and not candidate_row:
+            continue
+        parent_value = (parent_row or {}).get("classification", (parent_row or {}).get("value"))
+        candidate_value = (candidate_row or {}).get("classification", (candidate_row or {}).get("predicted_value", (candidate_row or {}).get("value")))
+        numerical_change = round(float(candidate_value)-float(parent_value), 5) if isinstance(parent_value, (int, float)) and isinstance(candidate_value, (int, float)) else None
+        rows.append({
+            "endpoint": endpoint, "parent": {"value": parent_value, "unit": (parent_row or {}).get("unit", ""), "type": (parent_row or {}).get("type", "Unknown"), "confidence": (parent_row or {}).get("confidence")},
+            "candidate": {"value": candidate_value, "unit": (candidate_row or {}).get("unit", ""), "type": (candidate_row or {}).get("record_type", "MODEL_UNAVAILABLE" if (candidate_row or {}).get("status") == "MODEL_UNAVAILABLE" else "Predicted"), "confidence": (candidate_row or {}).get("confidence"), "domain": (candidate_row or {}).get("applicability_domain")},
+            "change": numerical_change,
+        })
+    return rows
+
+
+def _candidate_out(candidate: OptimizationCandidate, optimization_run: OptimizationRun | None = None, parent: CompoundVersion | None = None):
+    ranking = sorted(candidate.rankings, key=lambda row: row.created_at, reverse=True)[0] if candidate.rankings else None
+    result = {
+        "id": candidate.id, "proposal_run_id": candidate.proposal_run_id,
+        "candidate_number": candidate.candidate_number, "parent_version_id": candidate.parent_version_id,
+        "existing_version_id": candidate.existing_version_id, "canonical_smiles": candidate.canonical_smiles,
+        "isomeric_smiles": candidate.isomeric_smiles, "inchikey": candidate.inchikey,
+        "generation_source": candidate.generation_source, "generation_priority": candidate.generation_priority,
+        "generation_timestamp": candidate.generation_timestamp.isoformat(), "hypothesis": candidate.hypothesis,
+        "why_generated": candidate.why_generated, "expected_benefit": candidate.expected_benefit,
+        "status": candidate.status, "rejection_stage": candidate.rejection_stage,
+        "transformations": [{
+            "id": row.transformation_id, "name": row.name, "sequence": row.sequence_number,
+            "reaction_smarts": row.reaction_smarts, "version": row.transformation_version,
+            "source": row.source, "source_atoms": row.source_atom_indices_json,
+            "changed_parent_atoms": row.changed_parent_atoms_json,
+            "execution_status": row.execution_status, "provenance": row.provenance_json,
+        } for row in sorted(candidate.transformations, key=lambda row: row.sequence_number)],
+        "stage1": candidate.stage1_json or {}, "property_delta": candidate.property_delta_json or {},
+        "activity": candidate.activity_json or {}, "admet": candidate.admet_json or {},
+        "soft_spots": candidate.soft_spot_json or {}, "soft_spot_changes": candidate.soft_spot_change_json or {},
+        "synthetic_feasibility": candidate.synthetic_feasibility_json or {},
+        "parent_similarity": candidate.parent_similarity, "mcs_coverage": candidate.mcs_coverage,
+        "changed_parent_atoms": candidate.changed_parent_atoms_json or [], "changed_candidate_atoms": candidate.changed_candidate_atoms_json or [],
+        "structure_svg": candidate.structure_svg, "parent_difference_svg": candidate.parent_difference_svg,
+        "candidate_difference_svg": candidate.candidate_difference_svg,
+        "confidence": candidate.confidence, "applicability_domain": candidate.applicability_domain,
+        "objective_vector": candidate.objective_vector_json or {}, "ranking_score": candidate.ranking_score,
+        "pareto_front": candidate.pareto_front, "information_value": candidate.information_value,
+        "main_risk": candidate.main_risk, "selected_top10": candidate.selected_top10,
+        "user_added": candidate.user_added, "user_decision": candidate.user_decision,
+        "user_decision_reason": candidate.user_decision_reason,
+        "rejection_reasons": [{"code": row.code, "detail": row.detail, "stage": row.stage, "hard_constraint": row.hard_constraint, "evidence_type": row.evidence_type} for row in candidate.rejection_reasons],
+        "ranking": {"rank": ranking.rank, "score": ranking.score, "pareto_front": ranking.pareto_front, "formula": ranking.score_breakdown_json, "diversity": ranking.diversity_json} if ranking else None,
+        "prediction_snapshots": [{"stage": row.stage, "endpoint": row.endpoint, "type": row.record_type, "unit": row.unit, "model": row.model_name, "model_version": row.model_version, "confidence": row.confidence, "domain": row.applicability_domain} for row in candidate.predictions],
+    }
+    if optimization_run is not None and parent is not None:
+        result["parent_comparison"] = _candidate_comparison(candidate, optimization_run, parent)
+    return result
+
+
+def _proposal_out(run: OptimizationProposalRun, include_candidates=True):
+    result = {
+        "id": run.id, "project_id": run.project_id, "optimization_run_id": run.optimization_run_id,
+        "parent_version_id": run.parent_version_id, "status": run.status, "stage_message": run.stage_message,
+        "transformation_library_version": run.transformation_library_version,
+        "model_versions": run.model_versions_json or {}, "endpoint_weights": run.endpoint_weights_json or {},
+        "hard_constraints": run.hard_constraints_json or {}, "settings": run.settings_json or {},
+        "random_seed": run.random_seed, "raw_candidate_count": run.raw_candidate_count,
+        "accepted_count": run.accepted_count, "rejected_count": run.rejected_count,
+        "top_count": run.top_count, "summary": run.summary_json or {},
+        "created_at": run.created_at.isoformat(), "started_at": run.started_at.isoformat() if run.started_at else None,
+        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+    }
+    if include_candidates:
+        session = Session.object_session(run)
+        optimization = session.get(OptimizationRun, run.optimization_run_id)
+        parent = session.get(CompoundVersion, run.parent_version_id)
+        result["candidates"] = [_candidate_out(row, optimization, parent) for row in sorted(run.candidates, key=lambda row: row.candidate_number)]
+    return result
+
+
+@app.get("/api/proposals/config")
+def proposal_config():
+    return {
+        "engine": PROPOSAL_ENGINE, "engine_version": PROPOSAL_VERSION,
+        "executable_transformations": EXECUTABLE_TRANSFORMATIONS,
+        "strategy_only_transformations": STRATEGY_ONLY_TRANSFORMATIONS,
+        "job_states": ["PENDING", "GENERATING", "FILTERING", "PREDICTING", "RANKING", "COMPLETED", "FAILED"],
+        "policy": {"llm": False, "pk": False, "random_generation": False, "max_changes": 2, "single_change_first": True, "experimental_precedence": True},
+    }
+
+
+@app.get("/api/optimization/runs/{run_id}/proposals")
+def list_proposals(run_id: int, db: Session = Depends(get_db)):
+    if not db.get(OptimizationRun, run_id):
+        raise HTTPException(status_code=404, detail="OptimizationRun not found")
+    rows = db.scalars(select(OptimizationProposalRun).where(OptimizationProposalRun.optimization_run_id == run_id).order_by(OptimizationProposalRun.created_at.desc())).all()
+    return {"proposal_runs": [_proposal_out(row, include_candidates=False) for row in rows], "config": proposal_config()}
+
+
+@app.post("/api/optimization/runs/{run_id}/proposals", status_code=202)
+def create_proposal(run_id: int, payload: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    optimization = db.get(OptimizationRun, run_id)
+    if not optimization or optimization.status != "COMPLETE":
+        raise HTTPException(status_code=404, detail="Completed OptimizationRun not found")
+    settings = {"max_raw_candidates": 120, "allow_double_transforms": True, **dict(payload.get("settings") or {})}
+    try:
+        settings["max_raw_candidates"] = int(settings["max_raw_candidates"])
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="max_raw_candidates must be an integer")
+    if not 1 <= settings["max_raw_candidates"] <= 200:
+        raise HTTPException(status_code=400, detail="max_raw_candidates must be between 1 and 200")
+    hard_constraints = dict(payload.get("hard_constraints") or {})
+    proposal = OptimizationProposalRun(
+        project_id=optimization.project_id, optimization_run_id=optimization.id,
+        parent_version_id=optimization.parent_version_id, status="PENDING", stage_message="Queued",
+        transformation_library_version=PROPOSAL_VERSION,
+        endpoint_weights_json=dict(optimization.endpoint_weights_json or {}),
+        hard_constraints_json=hard_constraints, settings_json=settings, random_seed=42,
+    )
+    db.add(proposal); db.commit(); db.refresh(proposal)
+    background_tasks.add_task(execute_proposal_run, proposal.id)
+    return _proposal_out(proposal, include_candidates=False)
+
+
+@app.post("/api/proposals/{proposal_id}/execute")
+def retry_proposal(proposal_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    proposal = db.get(OptimizationProposalRun, proposal_id)
+    if not proposal:
+        raise HTTPException(status_code=404, detail="ProposalRun not found")
+    if proposal.status in {"GENERATING", "FILTERING", "PREDICTING", "RANKING"}:
+        raise HTTPException(status_code=409, detail="ProposalRun is already active")
+    if proposal.candidates:
+        raise HTTPException(status_code=409, detail="A populated run is immutable; create a new ProposalRun for reproducibility")
+    proposal.status, proposal.stage_message = "PENDING", "Queued for retry"; db.commit()
+    background_tasks.add_task(execute_proposal_run, proposal.id)
+    return _proposal_out(proposal, include_candidates=False)
+
+
+@app.get("/api/proposals/{proposal_id}")
+def get_proposal(proposal_id: int, view: str = "all", db: Session = Depends(get_db)):
+    proposal = db.get(OptimizationProposalRun, proposal_id)
+    if not proposal:
+        raise HTTPException(status_code=404, detail="ProposalRun not found")
+    result = _proposal_out(proposal, include_candidates=True)
+    filters = {
+        "accepted": lambda row: row["status"] in {"ACCEPTED", "TOP_10"},
+        "rejected": lambda row: row["status"] in {"REJECTED", "FAILED"},
+        "pareto": lambda row: row["pareto_front"] == 1,
+        "top10": lambda row: row["selected_top10"],
+        "all": lambda row: True,
+    }
+    if view not in filters:
+        raise HTTPException(status_code=400, detail="view must be all, accepted, rejected, pareto, or top10")
+    result["candidates"] = [row for row in result["candidates"] if filters[view](row)]
+    result["view"] = view
+    return result
+
+
+@app.get("/api/proposal-candidates/{candidate_id}")
+def get_proposal_candidate(candidate_id: int, db: Session = Depends(get_db)):
+    candidate = db.get(OptimizationCandidate, candidate_id)
+    if not candidate:
+        raise HTTPException(status_code=404, detail="Candidate not found")
+    optimization = db.get(OptimizationRun, candidate.optimization_run_id)
+    parent = db.get(CompoundVersion, candidate.parent_version_id)
+    return _candidate_out(candidate, optimization, parent)
+
+
+@app.patch("/api/proposal-candidates/{candidate_id}/decision")
+def candidate_decision(candidate_id: int, payload: dict, db: Session = Depends(get_db)):
+    candidate = db.get(OptimizationCandidate, candidate_id)
+    decision = str(payload.get("decision") or "").upper()
+    reason = str(payload.get("reason") or "").strip()
+    if not candidate or decision not in {"PROMOTED", "REJECTED", "CLEAR"}:
+        raise HTTPException(status_code=400, detail="Candidate and decision PROMOTED/REJECTED/CLEAR are required")
+    if decision == "REJECTED" and not reason:
+        raise HTTPException(status_code=400, detail="A manual rejection reason is required")
+    candidate.user_decision = "" if decision == "CLEAR" else decision
+    candidate.user_decision_reason = "" if decision == "CLEAR" else reason
+    if decision == "REJECTED":
+        candidate.status = "REJECTED"
+        db.add(CandidateRejectionReason(candidate=candidate, code="USER_REJECTED", detail=reason, stage="MANUAL_REVIEW", hard_constraint=False, evidence_type="User judgment"))
+    elif candidate.status == "REJECTED" and any(row.code == "USER_REJECTED" and not row.hard_constraint for row in candidate.rejection_reasons):
+        candidate.status = "REJECTED" if any(row.hard_constraint for row in candidate.rejection_reasons) else "RESCORED"
+    proposal = db.get(OptimizationProposalRun, candidate.proposal_run_id)
+    optimization = db.get(OptimizationRun, candidate.optimization_run_id)
+    rank_candidates(db, proposal, optimization)
+    proposal.accepted_count = len([row for row in proposal.candidates if row.status in {"ACCEPTED", "TOP_10"}])
+    proposal.rejected_count = len([row for row in proposal.candidates if row.status in {"REJECTED", "FAILED"}])
+    proposal.top_count = len([row for row in proposal.candidates if row.selected_top10])
+    db.commit(); db.refresh(candidate)
+    return _candidate_out(candidate, optimization, db.get(CompoundVersion, candidate.parent_version_id))
+
+
+@app.post("/api/proposals/{proposal_id}/candidates", status_code=201)
+def add_user_candidate(proposal_id: int, payload: dict, db: Session = Depends(get_db)):
+    proposal = db.get(OptimizationProposalRun, proposal_id)
+    if not proposal or proposal.status != "COMPLETED":
+        raise HTTPException(status_code=404, detail="Completed ProposalRun not found")
+    smiles = str(payload.get("smiles") or "").strip()
+    if not smiles:
+        raise HTTPException(status_code=400, detail="SMILES is required")
+    optimization = db.get(OptimizationRun, proposal.optimization_run_id)
+    try:
+        candidate = process_user_candidate(db, proposal, optimization, smiles, str(payload.get("reason") or "User-added analog"))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    return _candidate_out(candidate, optimization, db.get(CompoundVersion, candidate.parent_version_id))
 
 
 @app.get("/", response_class=HTMLResponse)

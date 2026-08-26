@@ -1,0 +1,46 @@
+{
+  "engine_version": "4B.1.0",
+  "scope": "Public medicinal-chemistry directionality checks; not prospective or independent model-performance validation.",
+  "passed": 4,
+  "total": 4,
+  "results": [
+    {
+      "id": "LIDOCAINE_N_DEALKYLATION",
+      "raw_count": 4,
+      "accepted_count": 3,
+      "rejected_count": 1,
+      "expected_transformation": "MET_STERIC_SHIELD",
+      "selected_top10": true,
+      "best_rank": 2,
+      "notable_gate": "The alternative MET_N_DEALK_BLOCK alpha-fluoro product was rejected as a new Brenk N-C-halo structural alert."
+    },
+    {
+      "id": "VENLAFAXINE_O_DEALKYLATION",
+      "raw_count": 9,
+      "accepted_count": 5,
+      "rejected_count": 4,
+      "expected_transformation": "MET_O_DEALK_BLOCK",
+      "selected_top10": true,
+      "best_rank": 4
+    },
+    {
+      "id": "TERFENADINE_HERG_DIRECTION",
+      "raw_count": 12,
+      "accepted_count": 6,
+      "rejected_count": 6,
+      "expected_transformation": "LIPO_PHENYL_HETEROARYL",
+      "selected_top10": true,
+      "best_rank": 2,
+      "notable_gate": "A separate local LIPO_C_TO_HETERO product was rejected after creating a structural alert."
+    },
+    {
+      "id": "PHENYL_PYRIDYL_PROJECT_MMP",
+      "raw_count": 1,
+      "accepted_count": 1,
+      "rejected_count": 0,
+      "expected_transformation": "MMP_PROJECT_OBSERVED",
+      "selected_top10": true,
+      "best_rank": 1
+    }
+  ]
+}

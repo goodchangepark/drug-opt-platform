@@ -1,0 +1,50 @@
+{
+  "scope": "Public medicinal-chemistry directionality checks for pipeline acceptance; not prospective or independent model-performance validation.",
+  "examples": [
+    {
+      "id": "LIDOCAINE_N_DEALKYLATION",
+      "parent": "Lidocaine",
+      "smiles": "CCN(CC)C(=O)c1c(C)cccc1C",
+      "public_context": "Lidocaine has well-characterized oxidative metabolism; the acceptance question is whether a scoped steric-shielding hypothesis survives the chemical and alert gates.",
+      "objectives": ["Improve metabolic stability"],
+      "experimental_fixture": "Public-direction HLM unstable annotation",
+      "expected_transformation": "MET_STERIC_SHIELD",
+      "reference": "https://pubchem.ncbi.nlm.nih.gov/compound/Lidocaine",
+      "claim_limit": "Does not claim that the generated shielding analog is known, synthetically preferred, or experimentally more stable; an alternative N-alpha-fluoro hypothesis is generated but rejected by the N-C-halo structural-alert gate."
+    },
+    {
+      "id": "VENLAFAXINE_O_DEALKYLATION",
+      "parent": "Venlafaxine",
+      "smiles": "COc1ccc(C(CN(C)C)C(O)c2ccccc2)cc1",
+      "public_context": "O-desmethylvenlafaxine is a characterized human metabolite; the acceptance question is whether an O-dealkylation-blocking hypothesis enters the pool.",
+      "objectives": ["Improve metabolic stability"],
+      "experimental_fixture": "Public-direction HLM unstable annotation",
+      "expected_transformation": "MET_O_DEALK_BLOCK",
+      "reference": "https://pubchem.ncbi.nlm.nih.gov/compound/Venlafaxine",
+      "claim_limit": "Does not claim that O-alpha fluorination is a validated clinical analog or prevents every metabolic route."
+    },
+    {
+      "id": "TERFENADINE_HERG_DIRECTION",
+      "parent": "Terfenadine",
+      "smiles": "CC(C)(C)c1ccc(cc1)C(O)CCCN1CCC(CC1)C(O)(c2ccccc2)c3ccccc3",
+      "public_context": "A canonical lipophilic/basic hERG-risk example; the acceptance question is whether an executable phenyl-to-heteroaryl lipophilicity-reduction hypothesis survives the gates.",
+      "objectives": ["Reduce hERG liability"],
+      "experimental_fixture": null,
+      "expected_transformation": "LIPO_PHENYL_HETEROARYL",
+      "reference": "https://doi.org/10.1016/j.bmcl.2006.12.061",
+      "claim_limit": "The generated analog is not fexofenadine and no clinical QT-risk conclusion is made; a separate local C-to-N hypothesis is rejected when it creates a structural alert."
+    },
+    {
+      "id": "PHENYL_PYRIDYL_PROJECT_MMP",
+      "parent": "Ethoxybenzene project-MMP fixture",
+      "smiles": "CCOc1ccccc1",
+      "known_analog_smiles": "CCOc1ccncc1",
+      "public_context": "Phenyl/pyridyl replacement is a common bioisosteric MMP class; equal fixture activity represents project-observed potency preservation.",
+      "objectives": ["Improve potency", "Balanced optimization"],
+      "experimental_fixture": "Matched 20 nM project activity values",
+      "expected_transformation": "MMP_PROJECT_OBSERVED",
+      "reference": "https://doi.org/10.1093/nar/gks1059",
+      "claim_limit": "The equal activities are an acceptance fixture, not literature measurements or independent performance evidence."
+    }
+  ]
+}

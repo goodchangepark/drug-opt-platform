@@ -49,6 +49,8 @@ function App(){
  const [metabolism,setMetabolism]=useState(null),[metabolismBusy,setMetabolismBusy]=useState(false),[metabolicTop,setMetabolicTop]=useState(3),[selectedSpotId,setSelectedSpotId]=useState(null);
  const [metaboliteForm,setMetaboliteForm]=useState({...EMPTY_METABOLITE_FORM});
  const [optimizationConfig,setOptimizationConfig]=useState(null),[optimizationRuns,setOptimizationRuns]=useState([]),[optimizationRun,setOptimizationRun]=useState(null),[optimizationBusy,setOptimizationBusy]=useState(false),[assays,setAssays]=useState([]);
+ const [proposalRuns,setProposalRuns]=useState([]),[proposalRun,setProposalRun]=useState(null),[proposalView,setProposalView]=useState('top10'),[selectedCandidate,setSelectedCandidate]=useState(null),[proposalBusy,setProposalBusy]=useState(false);
+ const [proposalSettings,setProposalSettings]=useState({max_raw_candidates:120,allow_double_transforms:true}),[userAnalog,setUserAnalog]=useState({smiles:'',reason:''});
  const [optimizationForm,setOptimizationForm]=useState({
   assay_id:'',objectives:['Balanced optimization'],custom_objective:'',
   constraints:{potency_max_nm:'',do_not_worsen_fold:'2',clogp_max:'4',tpsa_min:'40',tpsa_max:'100',mw_max:'550',similarity_min:'0.6',logs_min:'-4',caco2_logpapp_min:'-5.5',herg_do_not_increase:true},endpoint_weights:{}
@@ -83,10 +85,21 @@ function App(){
   const [data,assayData]=await Promise.all([api.get('/projects/'+id+'/optimization?version_id='+versionId),api.get('/projects/'+id+'/assays')]);
   setOptimizationConfig(data.config);setOptimizationRuns(data.runs||[]);setOptimizationRun((data.runs||[])[0]||null);setAssays(assayData.assays||assayData||[]);return data;
  };
+ const loadProposals=async(runId=optimizationRun?.id)=>{
+  if(!runId){setProposalRuns([]);setProposalRun(null);return null}
+  const data=await api.get('/optimization/runs/'+runId+'/proposals');setProposalRuns(data.proposal_runs||[]);
+  const latest=(data.proposal_runs||[])[0];
+  if(latest){const full=await api.get('/proposals/'+latest.id+'?view='+proposalView);setProposalRun(full);if(selectedCandidate)setSelectedCandidate(full.candidates.find(row=>row.id===selectedCandidate.id)||null)}
+  else{setProposalRun(null);setSelectedCandidate(null)}
+  return data;
+ };
+ const refreshProposal=async(id=proposalRun?.id,view=proposalView)=>{
+  if(!id)return null;const data=await api.get('/proposals/'+id+'?view='+view);setProposalRun(data);setProposalView(view);return data;
+ };
 
  useEffect(()=>{loadProjects().catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
-  setProject(null);setDetail(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);
+  setProject(null);setDetail(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);setProposalRuns([]);setProposalRun(null);setSelectedCandidate(null);
   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
  },[projectId]);
  useEffect(()=>{
@@ -95,6 +108,14 @@ function App(){
  useEffect(()=>{
   if(projectId&&detail&&detailTab==='optimization')loadOptimization(detail.version.id).catch(error=>setMessage(String(error)));
  },[projectId,detailTab,detail?.version?.id]);
+ useEffect(()=>{
+  if(detailTab==='optimization'&&optimizationRun?.id)loadProposals(optimizationRun.id).catch(error=>setMessage(String(error)));
+ },[optimizationRun?.id]);
+ useEffect(()=>{
+  if(!proposalRun||!['PENDING','GENERATING','FILTERING','PREDICTING','RANKING'].includes(proposalRun.status))return;
+  const timer=setInterval(()=>refreshProposal(proposalRun.id,proposalView).catch(error=>setMessage(String(error))),1500);
+  return()=>clearInterval(timer);
+ },[proposalRun?.id,proposalRun?.status,proposalView]);
 
  const createProject=async()=>{
   try{
@@ -172,6 +193,22 @@ function App(){
   try{
    const result=await api.patch('/optimization/runs/'+optimizationRun.id+'/overrides',payload);setOptimizationRun(result);setOptimizationRuns(current=>current.map(row=>row.id===result.id?result:row));setMessage('Manual override saved and strategy reranked');
   }catch(error){setMessage(String(error))}finally{setOptimizationBusy(false)}
+ };
+ const generateAnalogs=async()=>{
+  if(!optimizationRun)return;setProposalBusy(true);
+  try{const result=await api.post('/optimization/runs/'+optimizationRun.id+'/proposals',{settings:proposalSettings,hard_constraints:{no_new_structural_alert:true}});setProposalRun({...result,candidates:[]});setProposalRuns(current=>[result,...current]);setSelectedCandidate(null);setMessage('Analog proposal job queued')}
+  catch(error){setMessage(String(error))}finally{setProposalBusy(false)}
+ };
+ const candidateDecision=async(candidate,decision)=>{
+  const reason=decision==='REJECTED'?prompt('Reason for rejecting this candidate'):(decision==='PROMOTED'?'Manual promotion for experimental design':'');
+  if(decision==='REJECTED'&&!reason)return;setProposalBusy(true);
+  try{const updated=await api.patch('/proposal-candidates/'+candidate.id+'/decision',{decision,reason});await refreshProposal(proposalRun.id,proposalView);setSelectedCandidate(updated);setMessage('Candidate decision saved')}
+  catch(error){setMessage(String(error))}finally{setProposalBusy(false)}
+ };
+ const addUserAnalog=async()=>{
+  if(!proposalRun||!userAnalog.smiles)return;setProposalBusy(true);
+  try{const candidate=await api.post('/proposals/'+proposalRun.id+'/candidates',userAnalog);setUserAnalog({smiles:'',reason:''});await refreshProposal(proposalRun.id,proposalView);setSelectedCandidate(candidate);setMessage('User-added analog rescored')}
+  catch(error){setMessage(String(error))}finally{setProposalBusy(false)}
  };
 
  function admetMeasurementTable(rows){
@@ -484,6 +521,92 @@ function App(){
   ]);
  }
 
+ function proposalCandidatePanel(candidate){
+  if(!candidate)return Empty({children:'Select a candidate to inspect its full rescoring snapshot.'});
+  const formatCell=cell=>{
+   if(!cell)return '—';const value=cell.value==null?'—':(typeof cell.value==='number'?Number(cell.value).toPrecision(5):String(cell.value));
+   return value+(cell.unit?' '+cell.unit:'')+' · '+(cell.type||'Unknown')+(cell.confidence?' · '+cell.confidence:'')+(cell.domain?' · '+(typeof cell.domain==='object'?(cell.domain.classification||'UNKNOWN'):cell.domain):'');
+  };
+  const propertyDelta=candidate.property_delta||{},activity=candidate.activity||{},soft=candidate.soft_spot_changes||{};
+  const safety=(candidate.parent_comparison||[]).filter(row=>['hERG liability','Ames mutagenicity','DILI clinical liability','CYP3A4 inhibitor','P-gp inhibitor'].includes(row.endpoint));
+  return e('div',{className:'card candidate-detail'},[
+   e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('h3',{},'Candidate '+candidate.candidate_number+' · '+(candidate.ranking?'Rank '+candidate.ranking.rank:candidate.status)),e('div',{className:'mono small'},candidate.canonical_smiles)]),e('div',{className:'manual-actions'},[
+    e('button',{key:'promote',className:'secondary',disabled:proposalBusy,onClick:()=>candidateDecision(candidate,'PROMOTED')},'Promote'),
+    e('button',{key:'reject',className:'danger',disabled:proposalBusy,onClick:()=>candidateDecision(candidate,'REJECTED')},'Reject')
+   ])]),
+   e('div',{className:'grid',key:'structures'},[
+    e('div',{className:'col-6 structure difference-structure',key:'parent'},[e('h4',{},'Parent difference'),Svg({src:candidate.parent_difference_svg})]),
+    e('div',{className:'col-6 structure difference-structure',key:'candidate'},[e('h4',{},'Candidate difference'),Svg({src:candidate.candidate_difference_svg||candidate.structure_svg})])
+   ]),
+   e('div',{className:'grid candidate-facts',key:'facts'},[
+    e('div',{className:'col-3'},[e('strong',{},'Parent similarity'),e('div',{className:'mono'},Number(candidate.parent_similarity).toFixed(3))]),
+    e('div',{className:'col-3'},[e('strong',{},'MCS coverage'),e('div',{className:'mono'},Number(candidate.mcs_coverage).toFixed(3))]),
+    e('div',{className:'col-3'},[e('strong',{},'Confidence / domain'),e('div',{},candidate.confidence+' · '+candidate.applicability_domain)]),
+    e('div',{className:'col-3'},[e('strong',{},'Information Value'),e('div',{},candidate.information_value)]),
+    e('div',{className:'col-3'},[e('strong',{},'Ranking score'),e('div',{className:'mono'},candidate.ranking_score==null?'—':Number(candidate.ranking_score).toFixed(3))]),
+    e('div',{className:'col-3'},[e('strong',{},'Pareto front'),e('div',{},candidate.pareto_front||'—')]),
+    e('div',{className:'col-6'},[e('strong',{},'Synthetic complexity'),e('div',{},candidate.synthetic_feasibility?.classification||'—'),e('div',{className:'small'},'SA surrogate '+(candidate.synthetic_feasibility?.sa_score??'—')+' · not synthesis success probability')])
+   ]),
+   e('h4',{key:'why'},'Why generated / expected benefit'),
+   e('p',{key:'why-text'},candidate.why_generated+' · '+candidate.expected_benefit),
+   e('div',{key:'transforms'},candidate.transformations.map(row=>e('details',{key:row.sequence+'-'+row.id},[e('summary',{key:'summary'},'Transformation '+row.sequence+': '+row.name+' · '+row.execution_status),e('div',{key:'body',className:'small'},[e('div',{className:'mono'},row.reaction_smarts||'User-defined structure'),e('div',{},'Source atoms: '+row.source_atoms.join(', ')+' · version '+row.version),e('div',{},'Source: '+row.source)])]))),
+   e('h4',{key:'activity-title'},'Activity prediction'),
+   e('p',{key:'activity',className:'small'},activity.status==='COMPLETE'?(Number(activity.value_nm).toPrecision(5)+' nM · '+activity.record_type+' · '+activity.confidence+' · '+activity.applicability_domain+' · nearest '+(activity.nearest_neighbors||[]).slice(0,3).map(row=>row.compound_id+' '+row.similarity).join(', ')):('MODEL_UNAVAILABLE — '+(activity.reason||'No selected assay model'))),
+   e('h4',{key:'properties-title'},'Stage 1 property changes'),
+   e('div',{key:'properties',className:'small'},Object.entries(propertyDelta).map(([key,value])=>e('span',{key,className:value<0?'delta-down':'delta-up'},key+' '+(value>=0?'+':'')+Number(value).toFixed(3)+' '))),
+   e('h4',{key:'soft-title'},'Soft spot changes'),
+   e('p',{key:'soft',className:'small'},'Parent primary: '+(soft.parent_primary?.transformation||'Unknown')+' · Candidate primary: '+(soft.candidate_primary?.transformation||'None')+' · parent site absent from candidate Top 3: '+(soft.parent_primary_absent_from_candidate_top3?'YES':'NO')+' · new primary liability: '+(soft.new_primary_liability?'YES':'NO')),
+   e('h4',{key:'safety-title'},'Safety flags'),
+   safety.length?e('ul',{key:'safety'},safety.map(row=>e('li',{key:row.endpoint},row.endpoint+': '+formatCell(row.candidate)))):Empty({children:'No safety endpoint result available.'}),
+   e('h4',{key:'comparison-title'},'Parent vs Candidate'),
+   e('table',{key:'comparison'},[
+    e('thead',{key:'head'},e('tr',{},['Endpoint','Parent','Candidate','Change'].map(label=>e('th',{key:label},label)))),
+    e('tbody',{key:'body'},(candidate.parent_comparison||[]).map(row=>e('tr',{key:row.endpoint},[e('td',{key:'endpoint'},row.endpoint),e('td',{key:'parent'},formatCell(row.parent)),e('td',{key:'candidate'},formatCell(row.candidate)),e('td',{key:'change',className:'mono'},row.change==null?'qualitative / uncertain':(row.change>=0?'+':'')+row.change)])))
+   ]),
+   e('div',{className:'alert',key:'risk'},[e('strong',{},'Main risk: '),candidate.main_risk]),
+   candidate.rejection_reasons?.length>0&&e('div',{key:'rejects'},[e('h4',{},'Rejection reason'),...candidate.rejection_reasons.map((row,index)=>e('div',{key:index,className:'fail'},row.code+' · '+row.detail+' · '+row.stage))]),
+   e('details',{key:'formula'},[e('summary',{key:'summary'},'Ranking formula and prediction provenance'),e('div',{key:'body',className:'small'},[
+    e('pre',{key:'formula',className:'small'},JSON.stringify(candidate.ranking?.formula||candidate.objective_vector,null,2)),
+    ...(candidate.prediction_snapshots||[]).map((row,index)=>e('div',{key:index},row.stage+' · '+row.endpoint+' · '+row.type+' · '+row.model+' '+row.model_version+' · '+row.confidence+' · '+row.domain))
+   ])])
+  ]);
+ }
+
+ function proposalPanel(){
+  if(!optimizationRun)return null;
+  const active=proposalRun&&['PENDING','GENERATING','FILTERING','PREDICTING','RANKING'].includes(proposalRun.status);
+  const views=[['all','Show all generated'],['accepted','Show accepted'],['rejected','Show rejected'],['pareto','Show Pareto front'],['top10','Show Top 10']];
+  const candidates=proposalRun?.candidates||[];
+  return e('div',{className:'proposal-section'},[
+   e('div',{className:'card',key:'generate'},[
+    e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('h3',{},'Analog Generation, Rescoring & Ranking'),e('p',{className:'small'},'Deterministic curated transformations only · single change first · maximum two changes · no LLM · no PK')]),e('button',{disabled:proposalBusy||active,onClick:generateAnalogs},proposalBusy?'Starting…':'Generate analogs')]),
+    e('div',{className:'grid',key:'settings'},[
+     e('div',{className:'col-3'},Field({label:'Maximum raw candidates (1–200)',type:'number',value:proposalSettings.max_raw_candidates,onChange:value=>setProposalSettings(current=>({...current,max_raw_candidates:Number(value)}))})),
+     e('div',{className:'col-4'},e('label',{className:'check-option'},[e('input',{type:'checkbox',checked:proposalSettings.allow_double_transforms,onChange:event=>setProposalSettings(current=>({...current,allow_double_transforms:event.target.checked}))}),e('span',{},'Allow limited two-transformation hypotheses')]))
+    ]),
+    e('p',{key:'staged',className:'small'},'Staged execution: generation → RDKit chemical validation → Stage 1/similarity/hard gates → project activity → available ADMET/soft spots → Pareto/ranking. A failed candidate does not stop the run.'),
+    proposalRun&&e('div',{key:'status',className:'job-status '+proposalRun.status.toLowerCase()},[e('strong',{},proposalRun.status),e('span',{},' · '+proposalRun.stage_message),e('div',{className:'small'},'Raw '+proposalRun.raw_candidate_count+' · accepted '+proposalRun.accepted_count+' · rejected '+proposalRun.rejected_count+' · selected '+proposalRun.top_count)])
+   ]),
+   proposalRun?.status==='COMPLETED'&&e(React.Fragment,{key:'results'},[
+    e('div',{className:'card',key:'filters'},[
+     e('div',{className:'row toolbar',key:'view'},[e('h3',{},'Candidate Filtering'),e('div',{className:'row'},views.map(([value,label])=>e('button',{key:value,className:proposalView===value?'':'secondary',onClick:()=>refreshProposal(proposalRun.id,value)},label)))]),
+     candidates.length?e('table',{key:'table'},[
+      e('thead',{key:'head'},e('tr',{},['Rank','Candidate','Status','Similarity','Transformation hypothesis','Score','Pareto','Confidence','Information','Main risk',''].map(label=>e('th',{key:label},label)))),
+      e('tbody',{key:'body'},candidates.map(candidate=>e('tr',{key:candidate.id,className:selectedCandidate?.id===candidate.id?'selected-row':''},[
+       e('td',{key:'rank'},candidate.ranking?.rank||'—'),e('td',{key:'candidate',className:'mono'},'#'+candidate.candidate_number),e('td',{key:'status'},candidate.status),e('td',{key:'similarity',className:'mono'},Number(candidate.parent_similarity||0).toFixed(3)),e('td',{key:'transform'},candidate.hypothesis),e('td',{key:'score',className:'mono'},candidate.ranking_score==null?'—':Number(candidate.ranking_score).toFixed(2)),e('td',{key:'pareto'},candidate.pareto_front||'—'),e('td',{key:'confidence'},candidate.confidence),e('td',{key:'info'},candidate.information_value),e('td',{key:'risk',className:'small'},candidate.main_risk||(candidate.rejection_reasons||[]).map(row=>row.code).join(', ')),e('td',{key:'open'},e('button',{className:'secondary',onClick:()=>setSelectedCandidate(candidate)},'Details'))
+      ])))
+     ]):Empty({children:'No candidates in this filter. A small chemically meaningful pool is allowed; no filler structures are generated.'})
+    ]),
+    proposalCandidatePanel(selectedCandidate),
+    e('div',{className:'card',key:'manual'},[
+     e('h3',{key:'title'},'User-added Analog'),e('p',{key:'help',className:'small'},'Paste ChemDraw/Ketcher SMILES. The structure receives the same Stage 1 → Activity → ADMET → ranking workflow and remains labeled user-added.'),
+     e('div',{className:'grid',key:'form'},[e('div',{className:'col-8'},Field({label:'SMILES',value:userAnalog.smiles,onChange:value=>setUserAnalog(current=>({...current,smiles:value}))})),e('div',{className:'col-4'},Field({label:'Reason / hypothesis',value:userAnalog.reason,onChange:value=>setUserAnalog(current=>({...current,reason:value}))}))]),
+     e('button',{key:'add',style:{marginTop:'10px'},disabled:proposalBusy||!userAnalog.smiles,onClick:addUserAnalog},proposalBusy?'Rescoring…':'Add and rescore analog')
+    ])
+   ])
+  ]);
+ }
+
  function optimizationPanel(versionId){
   const config=optimizationConfig||{objectives:[],evidence_hierarchy:[]},run=optimizationRun;
   const setConstraint=(key,value)=>setOptimizationForm(current=>({...current,constraints:{...current.constraints,[key]:value}}));
@@ -565,7 +688,8 @@ function App(){
        e('td',{key:'details'},e('details',{},[e('summary',{key:'summary'},'Details'),e('div',{key:'body',className:'small strategy-details'},[e('div',{key:'id'},'ID / version: '+row.id+' / '+row.version),e('div',{key:'smarts',className:'mono'},'Reaction SMARTS: '+row.reaction_smarts),e('div',{key:'motif'},'Applicable motif: '+row.applicable_motif+' · source atoms '+row.source_atom_indices.join(', ')),e('div',{key:'risk'},'Possible risk: '+row.possible_risk),e('div',{key:'source'},'Source/reference: '+row.source),e('div',{key:'status'},row.application_status)])]))
       ])))
      ]):Empty({children:'No applicable transformation strategy was ranked. No fake recommendation is generated.'})
-    ])
+    ]),
+    e('div',{key:'proposal'},proposalPanel())
    ])
   ]);
  }
@@ -622,7 +746,7 @@ function App(){
  }
 
  return e('div',{className:'shell'},[
-  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 4A · Hit Optimization Strategy'),
+  e('aside',{className:'sidebar',key:'sidebar'},[e('h1',{},'AI Drug Optimization Platform'),e('div',{className:'tag'},'Stage 4B · Analog Proposal & Ranking'),
    e('h3',{style:{marginTop:'24px'}},'Projects'),e('ul',{className:'projects'},projects.map(item=>e('li',{key:item.id},e('button',{className:'project-link '+(item.id===projectId?'active':''),onClick:()=>setProjectId(item.id)},item.name,e('div',{className:'tag'},(item.target||'No target')+' · '+item.compound_count+' compounds'))))),
    e('div',{style:{marginTop:'28px'}},[
     ...['name','target','indication','mechanism_modality'].map(key=>e('div',{key,style:{marginBottom:'8px'}},e(Field,{label:key.replace(/_/g,' '),value:form[key],onChange:value=>setForm({...form,[key]:value})}))),

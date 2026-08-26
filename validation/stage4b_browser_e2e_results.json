@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "date": "2026-08-26",
+  "base_url": "http://127.0.0.1:8765",
+  "project": "Stage 4B Acceptance — Public References",
+  "proposal_id": 3,
+  "job_states_observed": ["PREDICTING", "COMPLETED"],
+  "counts": {"raw": 4, "accepted": 3, "rejected": 1, "top": 3},
+  "checks": [
+    "Parent selection",
+    "Objective/constraints",
+    "Stage 4A strategy",
+    "Background job",
+    "Chemical filtering",
+    "Stage 1/2/3 rescoring",
+    "Pareto/ranking",
+    "Top 10",
+    "Candidate filters",
+    "Candidate detail",
+    "Parent comparison",
+    "Structure difference",
+    "Manual promote",
+    "Manual reject reason",
+    "User-added analog common workflow"
+  ]
+}
