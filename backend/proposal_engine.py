@@ -340,7 +340,9 @@ def predict_candidate_activity(db, project_id, assay_id, smiles, existing_versio
     dataset = {"rows": [], "fingerprints": [], "descriptors": []}
     compounds = db.scalars(select(Compound).where(Compound.project_id == project_id)).all()
     for compound in compounds:
-        version = next(row for row in compound.versions if row.version_number == compound.current_version)
+        version = next((row for row in compound.versions if row.version_number == compound.current_version), None)
+        if not version:
+            continue
         summary = _activity_summary(db, version.id, assay_id)
         if not summary:
             continue

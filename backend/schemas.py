@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class ProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=200)
     target: str = ""
+    molecule_type: str = "Small Molecule"
     indication: str = ""
     mechanism_modality: str = ""
     description: str = ""
@@ -15,6 +16,7 @@ class ProjectCreate(BaseModel):
 class ProjectUpdate(BaseModel):
     name: Optional[str] = None
     target: Optional[str] = None
+    molecule_type: Optional[str] = None
     indication: Optional[str] = None
     mechanism_modality: Optional[str] = None
     description: Optional[str] = None
@@ -29,10 +31,11 @@ class ProjectOut(ProjectCreate):
 
 
 class CompoundCreate(BaseModel):
-    compound_id: str = Field(min_length=1, max_length=50)
+    compound_id: str = Field(default="", max_length=50)
     name: str = ""
-    smiles: str = Field(alias="smiles", min_length=1)
+    smiles: str = ""
     notes: str = ""
+    calculate: bool = True
 
 
 class CompoundUpdate(BaseModel):
@@ -49,7 +52,8 @@ class CompoundOut(BaseModel):
     compound_id: str
     name: str
     notes: str
+    status: str = "CALCULATED"
     current_version: int
     created_at: datetime
     updated_at: datetime
-    version: dict
+    version: Optional[dict] = None

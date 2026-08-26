@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "date": "2026-08-26",
+  "base_url": "http://127.0.0.1:8766",
+  "project": "Pre-Stage 5 UI Acceptance 20260826-042223",
+  "project_id": 8,
+  "compound_version_id": 15,
+  "checks": [
+    "Simplified project creation",
+    "Ketcher drawing and SMILES synchronization",
+    "Save without calculation",
+    "Later calculation",
+    "SMILES workflow and Save & Calculate",
+    "Endpoint-selector experimental entry and Experimental/Prediction separation",
+    "CompoundVersion UI isolation",
+    "Checkbox-based Compare Selected"
+  ],
+  "experimental_records": 4,
+  "data_policy": "Public ethanol and ethylamine UI fixtures; no proprietary compound data"
+}

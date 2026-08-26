@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, select
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, select, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -81,7 +81,6 @@ SAFETY_UNAVAILABLE = {
 
 
 def ensure_admet_schema(engine):
-    from sqlalchemy import inspect
     inspector = inspect(engine)
     if "projects" not in inspector.get_table_names():
         return
@@ -95,6 +94,9 @@ def ensure_admet_schema(engine):
             ],
         )
     with engine.begin() as connection:
+        measurement_columns = {row["name"] for row in inspect(engine).get_columns("admet_measurements")}
+        if "qualitative_value" not in measurement_columns:
+            connection.execute(text("ALTER TABLE admet_measurements ADD COLUMN qualitative_value VARCHAR(120) NOT NULL DEFAULT ''"))
         registered = set(connection.execute(select(ADMETModelRegistry.endpoint_name)).scalars())
         registry_names = list(MODEL_SPECS) + [
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
@@ -139,7 +141,7 @@ def ensure_admet_schema(engine):
 
 
 ADMET_CSV_COLUMNS = [
-    "compound_id", "version_number", "endpoint", "species", "matrix", "value", "unit",
+    "compound_id", "version_number", "endpoint", "species", "matrix", "value", "qualitative_value", "unit",
     "qualifier", "replicate", "mean", "sd", "n", "method", "source", "date", "notes",
 ]
 
@@ -184,6 +186,7 @@ class ADMETMeasurement(Base):
     species: Mapped[str] = mapped_column(String(100), default="")
     matrix: Mapped[str] = mapped_column(String(120), default="")
     value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    qualitative_value: Mapped[str] = mapped_column(String(120), default="")
     unit: Mapped[str] = mapped_column(String(40))
     qualifier: Mapped[str] = mapped_column(String(5), default="=")
     replicate: Mapped[str] = mapped_column(String(60), default="R1")
@@ -253,7 +256,8 @@ class ADMETPredictionRun(Base):
 def measurement_out(row: ADMETMeasurement):
     return {
         "id": row.id, "version_id": row.version_id, "endpoint_id": row.endpoint_id,
-        "species": row.species, "matrix": row.matrix, "value": row.value, "unit": row.unit,
+        "species": row.species, "matrix": row.matrix, "value": row.value,
+        "qualitative_value": row.qualitative_value, "unit": row.unit,
         "qualifier": row.qualifier, "replicate": row.replicate, "mean": row.mean_value,
         "sd": row.standard_deviation, "n": row.sample_size, "method": row.method,
         "source": row.source, "date": row.experiment_date, "notes": row.notes,
@@ -273,8 +277,8 @@ def validate_measurement(payload: dict):
         sample_size = int(payload.get("n")) if payload.get("n") not in (None, "") else None
     except (TypeError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=f"Numeric field invalid: {exc}")
-    if value is None and mean is None:
-        raise HTTPException(status_code=400, detail="Either value or mean is required")
+    if value is None and mean is None and not str(payload.get("qualitative_value") or "").strip():
+        raise HTTPException(status_code=400, detail="A numeric value, mean, or qualitative value is required")
     if sd is not None and sd < 0:
         raise HTTPException(status_code=400, detail="SD cannot be negative")
     if sample_size is not None and sample_size < 1:
@@ -301,7 +305,8 @@ def csv_export(rows, labels_by_version=None) -> PlainTextResponse:
         label, number = labels_by_version.get(row.version_id, ("", ""))
         writer.writerow({
             "compound_id": label, "version_number": number, "endpoint": row.endpoint.name,
-            "species": row.species, "matrix": row.matrix, "value": row.value, "unit": row.unit,
+            "species": row.species, "matrix": row.matrix, "value": row.value,
+            "qualitative_value": row.qualitative_value, "unit": row.unit,
             "qualifier": row.qualifier, "replicate": row.replicate, "mean": row.mean_value,
             "sd": row.standard_deviation, "n": row.sample_size, "method": row.method,
             "source": row.source, "date": row.experiment_date, "notes": row.notes.replace("\n", " "),

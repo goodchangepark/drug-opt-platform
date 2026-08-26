@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from rdkit import Chem
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -43,7 +43,9 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
                               STRATEGY_ONLY_TRANSFORMATIONS,
                               execute_proposal_run, process_user_candidate,
                               rank_candidates)
-from .models import Compound, CompoundVersion, PredictionRun, Project, PropertyCalculation, StructuralAlert, utcnow
+from .models import (Compound, CompoundVersion, PredictionRun, Project,
+                     PropertyCalculation, StructuralAlert, ensure_ui_schema,
+                     utcnow)
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
@@ -57,6 +59,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 def startup():
     if not app.dependency_overrides:
         Base.metadata.create_all(bind=engine)
+        ensure_ui_schema(engine)
         ensure_admet_schema(engine)
         ensure_metabolism_schema(engine)
         ensure_optimization_schema(engine)
@@ -97,7 +100,10 @@ def list_projects(db: Session = Depends(get_db)):
 
 @app.post("/api/projects", status_code=201)
 def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
-    project = Project(**payload.model_dump())
+    values = payload.model_dump()
+    if values["molecule_type"] not in {"Small Molecule", "Peptide"}:
+        raise HTTPException(status_code=400, detail="Molecule Type must be Small Molecule or Peptide")
+    project = Project(**values)
     db.add(project)
     try:
         db.commit()
@@ -115,7 +121,28 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Project not found")
     compounds = db.scalars(select(Compound).where(Compound.project_id == project_id).order_by(Compound.compound_id)).all()
     data = _project_out(db, project).model_dump()
-    data["compounds"] = [compound_out(compound) for compound in compounds]
+    rows = []
+    endpoint_names = {row.id: row.name for row in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))}
+    for compound in compounds:
+        output = compound_out(compound)
+        version = next((row for row in compound.versions if row.version_number == compound.current_version), None)
+        output["key_activity"] = None
+        output["key_admet"] = None
+        if version:
+            activity = db.scalar(select(ActivityMeasurement).where(ActivityMeasurement.version_id == version.id).order_by(ActivityMeasurement.created_at.desc()))
+            if activity:
+                output["key_activity"] = f"{activity.raw_value:g} {activity.original_unit} · EXP"
+            measurement = db.scalar(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version.id).order_by(ADMETMeasurement.created_at.desc()))
+            if measurement:
+                value = measurement.qualitative_value or (measurement.mean_value if measurement.mean_value is not None else measurement.value)
+                rendered = "Not measured" if value is None else f"{value} {measurement.unit}".strip()
+                output["key_admet"] = f"{endpoint_names.get(measurement.endpoint_id, 'ADMET')}: {rendered} · EXP"
+            else:
+                prediction = db.scalar(select(ADMETPrediction).where(ADMETPrediction.version_id == version.id).order_by(ADMETPrediction.created_at.desc()))
+                if prediction and prediction.predicted_value is not None:
+                    output["key_admet"] = f"{prediction.model.endpoint_name}: {prediction.predicted_value:g} {prediction.unit} · PRED"
+        rows.append(output)
+    data["compounds"] = rows
     return data
 
 
@@ -124,7 +151,10 @@ def update_project(project_id: int, payload: ProjectUpdate, db: Session = Depend
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    for key, value in payload.model_dump(exclude_unset=True).items():
+    values = payload.model_dump(exclude_unset=True)
+    if values.get("molecule_type") not in {None, "Small Molecule", "Peptide"}:
+        raise HTTPException(status_code=400, detail="Molecule Type must be Small Molecule or Peptide")
+    for key, value in values.items():
         setattr(project, key, value)
     project.updated_at = utcnow()
     try:
@@ -142,12 +172,14 @@ def delete_project(project_id: int, db: Session = Depends(get_db)):
 
 
 def compound_out(compound: Compound):
-    current = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1])
+    current = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1] if compound.versions else None)
     return {
         "row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id,
         "name": compound.name, "notes": compound.notes, "current_version": compound.current_version,
+        "status": compound.status,
         "created_at": compound.created_at.isoformat(), "updated_at": compound.updated_at.isoformat(),
-        "version": serialize_version(current), "versions": [{"version_number": v.version_number, "canonical_smiles": v.canonical_smiles, "change_note": v.change_note} for v in compound.versions],
+        "version": serialize_version(current) if current else None,
+        "versions": [{"version_number": v.version_number, "canonical_smiles": v.canonical_smiles, "change_note": v.change_note, "calculated": bool(v.properties_json)} for v in compound.versions],
     }
 
 
@@ -160,31 +192,18 @@ def serialize_version(version: CompoundVersion):
         "assessment": version.assessment_json or {}, "svg": version.svg,
         "highlighted_svg": version.highlighted_svg, "provenance": (version.calculation_json or {}).get("provenance", {}),
         "alerts": version.alerts_json or [],
+        "calculated": bool(version.properties_json),
     }
 
 
-def persist_analysis(db: Session, compound: Compound, smiles: str, change_note: str) -> CompoundVersion:
-    analysis = analyze_smiles(smiles)
-    duplicate = db.scalar(
-        select(CompoundVersion).join(Compound, Compound.id == CompoundVersion.compound_row_id)
-        .where(Compound.project_id == compound.project_id, CompoundVersion.inchikey == analysis["identity"]["inchikey"])
-    )
-    if duplicate and duplicate.compound_row_id != compound.id:
-        raise HTTPException(status_code=409, detail={
-            "error": "Duplicate structure in this project",
-            "existing_compound_id": duplicate.compound.compound_id,
-            "inchikey": duplicate.inchikey,
-        })
-    number = 1 if not compound.versions else max(version.version_number for version in compound.versions) + 1
-    version = CompoundVersion(
-        compound_row_id=compound.id, version_number=number, original_smiles=smiles.strip(), change_note=change_note,
-        canonical_smiles=analysis["identity"]["canonical_smiles"], isomeric_smiles=analysis["identity"]["isomeric_smiles"],
-        inchi=analysis["identity"]["inchi"], inchikey=analysis["identity"]["inchikey"],
-        properties_json=analysis["properties"], alerts_json=analysis["alerts"], assessment_json=analysis["assessment"],
-        calculation_json={"provenance": analysis["provenance"], "rules": analysis["rules"]},
-        svg=analysis["svg"], highlighted_svg=analysis["highlighted_svg"],
-    )
-    db.add(version); db.flush()
+def _store_calculation(db: Session, compound: Compound, version: CompoundVersion, analysis: dict) -> None:
+    db.execute(delete(PropertyCalculation).where(PropertyCalculation.version_id == version.id))
+    db.execute(delete(StructuralAlert).where(StructuralAlert.version_id == version.id))
+    version.properties_json = analysis["properties"]
+    version.alerts_json = analysis["alerts"]
+    version.assessment_json = analysis["assessment"]
+    version.calculation_json = {"provenance": analysis["provenance"], "rules": analysis["rules"]}
+    version.highlighted_svg = analysis["highlighted_svg"]
     for endpoint, value in analysis["properties"].items():
         if value is None or isinstance(value, (dict, list)): continue
         method = "RDKit descriptor"
@@ -203,25 +222,89 @@ def persist_analysis(db: Session, compound: Compound, smiles: str, change_note: 
                          model_version=ENGINE_VERSION, inputs_hash=analysis["inputs_hash"],
                          outputs_json=json.loads(json.dumps({"properties": analysis["properties"], "rules": analysis["rules"]})),
                          provenance_json=analysis["provenance"], confidence="High"))
-    compound.current_version = number; db.commit(); db.refresh(version)
+    compound.status = "CALCULATED"
+
+
+def persist_structure(db: Session, compound: Compound, smiles: str, change_note: str, calculate: bool) -> CompoundVersion:
+    analysis = analyze_smiles(smiles)
+    duplicate = db.scalar(
+        select(CompoundVersion).join(Compound, Compound.id == CompoundVersion.compound_row_id)
+        .where(Compound.project_id == compound.project_id, CompoundVersion.inchikey == analysis["identity"]["inchikey"])
+    )
+    if duplicate and duplicate.compound_row_id != compound.id:
+        raise HTTPException(status_code=409, detail={
+            "error": "Duplicate structure in this project",
+            "existing_compound_id": duplicate.compound.compound_id,
+            "inchikey": duplicate.inchikey,
+        })
+    number = 1 if not compound.versions else max(version.version_number for version in compound.versions) + 1
+    version = CompoundVersion(
+        compound_row_id=compound.id, version_number=number, original_smiles=smiles.strip(), change_note=change_note,
+        canonical_smiles=analysis["identity"]["canonical_smiles"], isomeric_smiles=analysis["identity"]["isomeric_smiles"],
+        inchi=analysis["identity"]["inchi"], inchikey=analysis["identity"]["inchikey"],
+        properties_json=None, alerts_json=None, assessment_json=None, calculation_json=None,
+        svg=analysis["svg"], highlighted_svg=analysis["svg"],
+    )
+    db.add(version); db.flush()
+    compound.current_version = number
+    compound.status = "STRUCTURE_READY"
+    if calculate:
+        _store_calculation(db, compound, version, analysis)
+    db.commit(); db.refresh(version)
     return version
+
+
+def persist_analysis(db: Session, compound: Compound, smiles: str, change_note: str) -> CompoundVersion:
+    """Backward-compatible create-new-version path used by Stages 1–4B."""
+    return persist_structure(db, compound, smiles, change_note, calculate=True)
 
 
 @app.post("/api/projects/{project_id}/compounds", status_code=201)
 def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depends(get_db)):
     project = db.get(Project, project_id)
     if not project: raise HTTPException(status_code=404, detail="Project not found")
-    existing_label = db.scalar(select(Compound).where(Compound.project_id == project_id, Compound.compound_id == payload.compound_id))
+    name = payload.name.strip() or payload.compound_id.strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Compound Name is required")
+    base_id = payload.compound_id.strip() or "".join(character if character.isalnum() or character in "-_" else "-" for character in name.upper()).strip("-")[:50] or "COMPOUND"
+    compound_id = base_id
+    suffix = 2
+    while not payload.compound_id and db.scalar(select(Compound.id).where(Compound.project_id == project_id, Compound.compound_id == compound_id)):
+        compound_id = f"{base_id[:45]}-{suffix}"; suffix += 1
+    existing_label = db.scalar(select(Compound).where(Compound.project_id == project_id, Compound.compound_id == compound_id))
     if existing_label: raise HTTPException(status_code=409, detail="Compound ID already exists in project")
-    compound = Compound(project_id=project_id, compound_id=payload.compound_id, name=payload.name, notes=payload.notes)
+    compound = Compound(project_id=project_id, compound_id=compound_id, name=name, notes=payload.notes, status="DRAFT")
     db.add(compound); db.flush()
+    if not payload.smiles.strip():
+        db.commit(); db.refresh(compound); return compound_out(compound)
+    if project.molecule_type != "Small Molecule":
+        db.rollback(); raise HTTPException(status_code=400, detail="This model currently supports small molecules only. Save a peptide as a draft without structure calculations.")
     try:
-        version = persist_analysis(db, compound, payload.smiles, "Initial structure")
+        persist_structure(db, compound, payload.smiles, "Initial structure", calculate=payload.calculate)
     except HTTPException:
         db.rollback(); raise
     except ChemistryError as exc:
         db.rollback(); raise HTTPException(status_code=400, detail=str(exc))
     db.refresh(compound); return compound_out(compound)
+
+
+@app.post("/api/compounds/{row_id}/calculate")
+def calculate_compound_properties(row_id: int, db: Session = Depends(get_db)):
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    if compound.project.molecule_type != "Small Molecule":
+        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
+    version = next((row for row in compound.versions if row.version_number == compound.current_version), None)
+    if not version:
+        raise HTTPException(status_code=400, detail="Draw or enter a valid structure before calculating properties")
+    try:
+        analysis = analyze_smiles(version.original_smiles)
+        _store_calculation(db, compound, version, analysis)
+        db.commit(); db.refresh(compound)
+    except ChemistryError as exc:
+        db.rollback(); raise HTTPException(status_code=400, detail=str(exc))
+    return compound_out(compound)
 
 
 @app.get("/api/compounds/{row_id}")
@@ -245,10 +328,15 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
 def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
     if not compound: raise HTTPException(status_code=404, detail="Compound not found")
-    if payload.name is not None: compound.name = payload.name
+    if payload.name is not None:
+        if not payload.name.strip():
+            raise HTTPException(status_code=400, detail="Compound Name is required")
+        compound.name = payload.name.strip()
     if payload.notes is not None: compound.notes = payload.notes
     compound.updated_at = utcnow()
     if payload.smiles:
+        if compound.project.molecule_type != "Small Molecule":
+            raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
         try:
             persist_analysis(db, compound, payload.smiles, payload.change_note)
         except HTTPException: db.rollback(); raise
@@ -266,7 +354,7 @@ def delete_compound(row_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/api/projects/{project_id}/compare")
-def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db)):
+def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db), assay_id: int | None = None):
     try: wanted = {int(value) for value in ids.split(",") if value.strip()}
     except ValueError: raise HTTPException(status_code=400, detail="ids must be comma-separated integers")
     if len(wanted) < 2: raise HTTPException(status_code=400, detail="Select at least two compounds")
@@ -275,41 +363,63 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
         compound = db.get(Compound, row_id)
         if not compound or compound.project_id != project_id: continue
         version = next((v for v in compound.versions if v.version_number == compound.current_version), None)
+        if not version:
+            continue
         p = version.properties_json or {}
         comparison_row = {
             "compound": compound.compound_id, "name": compound.name, "row_id": compound.id,
             "MW": p.get("molecular_weight"), "cLogP": p.get("clogp"), "TPSA": p.get("tpsa"), "HBD": p.get("hbd"),
             "HBA": p.get("hba"), "RotB": p.get("rotatable_bonds"), "Fsp3": p.get("fraction_csp3"), "QED": p.get("qed"),
             "svg": version.svg if version else "", "inchikey": version.inchikey if version else "",
+            "sources": {},
         }
-        activity = db.scalar(select(ActivityMeasurement).where(ActivityMeasurement.version_id == version.id).order_by(ActivityMeasurement.created_at.desc()))
+        for key in ("MW", "cLogP", "TPSA", "HBD", "HBA", "RotB", "Fsp3", "QED"):
+            comparison_row["sources"][key] = "Calculated" if comparison_row[key] is not None else "Not calculated"
+        activity_query = select(ActivityMeasurement).where(ActivityMeasurement.version_id == version.id)
+        if assay_id is not None:
+            assay = db.get(AssayDefinition, assay_id)
+            if not assay or assay.project_id != project_id:
+                raise HTTPException(status_code=404, detail="Comparison assay is not in this project")
+            activity_query = activity_query.where(ActivityMeasurement.assay_id == assay_id)
+        activity = db.scalar(activity_query.order_by(ActivityMeasurement.created_at.desc()))
         comparison_row["Activity"] = activity.normalized_value_nm if activity else None
+        comparison_row["sources"]["Activity"] = "Experimental" if activity else "Not measured"
         endpoint_map = {
             "HLM intrinsic clearance": "HLM", "RLM intrinsic clearance": "RLM",
             "Plasma protein binding": "PPB", "Solubility": "Solubility", "Permeability": "Caco-2",
+            "hERG liability": "hERG", "Ames mutagenicity": "Ames", "DILI clinical liability": "DILI",
         }
         experimental = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version.id)).all()
         endpoint_names = {item.id: item.name for item in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))}
         for endpoint_name, label in endpoint_map.items():
+            endpoint_experimental = [row for row in experimental if endpoint_names.get(row.endpoint_id) == endpoint_name]
             prediction = db.scalar(
                 select(ADMETPrediction).join(ADMETModelRegistry)
                 .where(ADMETPrediction.version_id == version.id, ADMETModelRegistry.endpoint_name == endpoint_name)
                 .order_by(ADMETPrediction.created_at.desc())
             )
             if not prediction:
-                comparison_row[label] = None
+                first = endpoint_experimental[0] if endpoint_experimental else None
+                comparison_row[label] = (
+                    first.qualitative_value or (first.mean_value if first.mean_value is not None else first.value)
+                ) if first else None
+                comparison_row["sources"][label] = "Experimental" if first else "Not measured"
                 continue
             matches = comparison_for_prediction(endpoint_name, prediction.predicted_value, experimental, endpoint_names)
             comparison_row[label] = matches[0]["experimental_normalized"] if matches else prediction.predicted_value
+            comparison_row["sources"][label] = "Experimental" if matches else "Predicted"
         rows.append(comparison_row)
     if len(rows) < 2: raise HTTPException(status_code=400, detail="At least two selected compounds must belong to the project")
     property_metrics = ["MW", "cLogP", "TPSA", "HBD", "HBA", "RotB", "Fsp3", "QED"]
-    metrics = property_metrics + ["Activity", "HLM", "RLM", "PPB", "Solubility", "Caco-2"]
-    ranges = {metric: {"min": min(r[metric] for r in rows if r[metric] is not None),
-                       "max": max(r[metric] for r in rows if r[metric] is not None)} for metric in property_metrics}
+    metrics = property_metrics + ["Activity", "HLM", "RLM", "PPB", "Solubility", "Caco-2", "hERG", "Ames", "DILI"]
+    ranges = {}
+    for metric in property_metrics:
+        values = [row[metric] for row in rows if row[metric] is not None]
+        ranges[metric] = {"min": min(values), "max": max(values)} if values else {"min": None, "max": None}
     return {"metrics": metrics, "ranges": ranges, "compounds": rows, "metric_units": {
         "Activity": "nM (latest experimental)", "HLM": "log10(mL/min/kg)", "RLM": "log10(mL/min/kg)",
         "PPB": "% bound", "Solubility": "log10(mol/L)", "Caco-2": "log10(cm/s)",
+        "hERG": "classification/probability", "Ames": "classification/probability", "DILI": "classification/probability",
     }}
 
 
@@ -420,7 +530,7 @@ def _integrated_admet_profile(version_id: int, predictions: list[dict], models: 
             else:
                 positive = output.get("classification") == spec.get("positive_label")
                 source = "Predicted"
-                label = output.get("classification", "UNKNOWN")
+                label = output.get("classification", "Not predicted")
             item = f"{source} {name}: {label} — {row['confidence']} confidence"
             (concerns if positive else strengths).append(item)
         flag = (output.get("liability_summary") or {}).get("flag")
@@ -469,7 +579,8 @@ def add_admet_measurement(db: Session, project_id: int, payload: dict) -> dict:
     row = ADMETMeasurement(
         version_id=version.id, endpoint_id=endpoint.id,
         species=str(payload.get("species") or ""), matrix=str(payload.get("matrix") or ""),
-        value=value, unit=str(payload.get("unit", "")).strip(), qualifier=payload.get("qualifier") or "=",
+        value=value, qualitative_value=str(payload.get("qualitative_value") or "").strip(),
+        unit=str(payload.get("unit", "")).strip(), qualifier=payload.get("qualifier") or "=",
         replicate=str(payload.get("replicate") or "R1"), mean_value=mean_value,
         standard_deviation=sd, sample_size=int(payload["n"]) if payload.get("n") else None,
         method=str(payload.get("method") or ""), source=str(payload.get("source") or "User experimental"),
@@ -482,20 +593,16 @@ def add_admet_measurement(db: Session, project_id: int, payload: dict) -> dict:
     return measurement_out(row)
 
 
-@app.get("/api/projects/{project_id}/admet")
-def list_admet(project_id: int, db: Session = Depends(get_db)):
-    project = db.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    versions = {version.id: (compound.compound_id, version.version_number)
-                for compound in project.compounds for version in compound.versions}
-    rows = db.scalars(select(ADMETMeasurement).join(
-        ADMETEndpoint, ADMETEndpoint.id == ADMETMeasurement.endpoint_id
-    ).where(ADMETEndpoint.project_id == project_id).order_by(ADMETMeasurement.created_at.desc())).all()
-    models = db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name)).all()
+def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str, int]]) -> dict:
+    """Serialize only the explicitly supplied CompoundVersion IDs."""
     version_ids = list(versions)
+    rows = db.scalars(
+        select(ADMETMeasurement).where(ADMETMeasurement.version_id.in_(version_ids))
+        .order_by(ADMETMeasurement.created_at.desc())
+    ).all() if version_ids else []
+    models = db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name)).all()
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
-        select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id)
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id)
     )}
     predictions = db.scalars(
         select(ADMETPrediction)
@@ -516,7 +623,8 @@ def list_admet(project_id: int, db: Session = Depends(get_db)):
         prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
     ) for prediction in predictions]
     return {
-        "endpoints": [_admet_endpoint_out(e) for e in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))],
+        "scope": {"project_id": project.id, "version_ids": version_ids},
+        "endpoints": [_admet_endpoint_out(e) for e in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id))],
         "measurements": [measurement_out(row) for row in rows],
         "models": model_rows,
         "predictions": prediction_rows,
@@ -524,11 +632,31 @@ def list_admet(project_id: int, db: Session = Depends(get_db)):
         "prediction_runs": [{"id": r.id, "version_id": r.version_id, "status": r.status,
                              "message": r.message, "started_at": r.started_at.isoformat()} for r in runs],
         "csv_columns": ["compound_id", "version_number"] + [
-            column for column in ("endpoint", "species", "matrix", "value", "unit", "qualifier", "replicate",
+            column for column in ("endpoint", "species", "matrix", "value", "qualitative_value", "unit", "qualifier", "replicate",
                                   "mean", "sd", "n", "method", "source", "date", "notes")
         ],
         "labels_by_version": {str(key): value for key, value in versions.items()},
     }
+
+
+@app.get("/api/projects/{project_id}/admet")
+def list_admet(project_id: int, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    versions = {version.id: (compound.compound_id, version.version_number)
+                for compound in project.compounds for version in compound.versions}
+    return _admet_payload(db, project, versions)
+
+
+@app.get("/api/compound-versions/{version_id}/admet")
+def get_compound_version_admet(version_id: int, db: Session = Depends(get_db)):
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    project = db.get(Project, compound.project_id)
+    return _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)})
 
 
 @app.post("/api/projects/{project_id}/admet/measurements", status_code=201)
@@ -597,6 +725,9 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     version = db.get(CompoundVersion, row_id)
     if not version:
         raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if compound.project.molecule_type != "Small Molecule":
+        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
     active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
     implemented_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS]
     available_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS and model_files_available(model.endpoint_name)[0]]
@@ -843,6 +974,8 @@ def run_metabolism_predictions(version_id: int, db: Session = Depends(get_db)):
     compound = db.get(Compound, version.compound_row_id)
     if not compound:
         raise HTTPException(status_code=404, detail="Compound not found")
+    if compound.project.molecule_type != "Small Molecule":
+        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
     context = _metabolism_evidence_context(db, version, compound.project_id)
     digest = hashlib.sha256(json.dumps({
         "version_id": version.id, "smiles": version.canonical_smiles,
@@ -918,12 +1051,7 @@ def run_metabolism_predictions(version_id: int, db: Session = Depends(get_db)):
     return {"status": run.status, "cache_hit": False, "message": run.message, "run": _metabolic_run_out(run)}
 
 
-@app.get("/api/projects/{project_id}/metabolism")
-def list_metabolism(project_id: int, db: Session = Depends(get_db)):
-    project = db.get(Project, project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    version_ids = [version.id for compound in project.compounds for version in compound.versions]
+def _metabolism_payload(db: Session, version_ids: list[int]) -> dict:
     runs = db.scalars(
         select(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id.in_(version_ids))
         .order_by(MetabolicPredictionRun.started_at.desc())
@@ -936,6 +1064,7 @@ def list_metabolism(project_id: int, db: Session = Depends(get_db)):
         .order_by(ExperimentalMetabolite.created_at.desc())
     ).all() if version_ids else []
     return {
+        "scope": {"version_ids": version_ids},
         "runs": [_metabolic_run_out(run) for run in latest_by_version.values()],
         "experimental_metabolites": [_experimental_metabolite_out(row) for row in experimental],
         "tool": {
@@ -944,6 +1073,74 @@ def list_metabolism(project_id: int, db: Session = Depends(get_db)):
             "publisher_validation": PUBLISHER_VALIDATION,
         },
         "settings": {"default_top_spots": 3, "available_top_spots": [3, 5, 10, "ALL"]},
+    }
+
+
+@app.get("/api/projects/{project_id}/metabolism")
+def list_metabolism(project_id: int, db: Session = Depends(get_db)):
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    version_ids = [version.id for compound in project.compounds for version in compound.versions]
+    return _metabolism_payload(db, version_ids)
+
+
+@app.get("/api/compound-versions/{version_id}/metabolism")
+def get_compound_version_metabolism(version_id: int, db: Session = Depends(get_db)):
+    if not db.get(CompoundVersion, version_id):
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    return _metabolism_payload(db, [version_id])
+
+
+@app.get("/api/compound-versions/{version_id}/workspace")
+def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db)):
+    """Strict CompoundVersion workspace; no sibling or cross-project records."""
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    project = db.get(Project, compound.project_id)
+    measurements = db.scalars(
+        select(ActivityMeasurement).where(ActivityMeasurement.version_id == version_id)
+        .order_by(ActivityMeasurement.created_at.desc())
+    ).all()
+    activity_predictions = db.scalars(
+        select(ActivityPrediction).where(ActivityPrediction.version_id == version_id)
+        .order_by(ActivityPrediction.created_at.desc())
+    ).all()
+    audit_runs = db.scalars(
+        select(PredictionRun).where(PredictionRun.version_id == version_id)
+        .order_by(PredictionRun.created_at.desc())
+    ).all()
+    activity = {
+        "measurements": [{
+            "id": row.id, "version_id": row.version_id, "assay_id": row.assay_id,
+            "assay": row.assay.name, "measurement_type": row.assay.measurement_type,
+            "value": row.raw_value, "unit": row.original_unit,
+            "normalized_value_nm": row.normalized_value_nm, "qualifier": row.qualifier,
+            "source": row.source, "created_at": row.created_at.isoformat(), "type": "Experimental",
+        } for row in measurements],
+        "predictions": [{
+            "id": row.id, "version_id": row.version_id, "assay_id": row.assay_id,
+            "assay": row.assay.name, "predicted_value_nm": row.predicted_value_nm,
+            "confidence": row.confidence, "applicability_domain": row.applicability_domain,
+            "nearest_neighbors": row.nearest_neighbors or [], "created_at": row.created_at.isoformat(),
+            "type": "Predicted",
+        } for row in activity_predictions],
+    }
+    return {
+        "scope": {"project_id": project.id, "compound_id": compound.id, "version_id": version.id},
+        "project": {"id": project.id, "name": project.name, "molecule_type": project.molecule_type},
+        "compound": compound_out(compound), "version": serialize_version(version),
+        "activity": activity,
+        "admet": _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)}),
+        "metabolism": _metabolism_payload(db, [version.id]),
+        "prediction_audit": [{
+            "prediction_id": row.id, "version_id": row.version_id,
+            "created_at": row.created_at.isoformat(), "stage": row.stage,
+            "model_name": row.model_name, "model_version": row.model_version,
+            "confidence": row.confidence, "provenance": row.provenance_json,
+        } for row in audit_runs],
     }
 
 
@@ -1036,6 +1233,9 @@ def add_measurement(assay_id: int, payload: dict, db: Session = Depends(get_db))
     if not assay or not assay.active: raise HTTPException(status_code=404, detail="Active assay not found")
     version = db.get(CompoundVersion, payload.get("version_id"))
     if not version: raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if not compound or compound.project_id != assay.project_id:
+        raise HTTPException(status_code=404, detail="CompoundVersion is not in the assay project")
     try:
         normalized, provenance = normalize_concentration(float(payload["value"]), str(payload.get("unit", assay.unit)))
         transformed = pactivity(normalized)
@@ -1065,6 +1265,8 @@ def import_preview(payload: dict, db: Session = Depends(get_db)):
             value=float(row.get("value")); unit=row.get("unit") or (assay.unit if assay else "nM")
             normalized,_=normalize_concentration(value,unit); pactivity(normalized)
             if not compound: raise ValueError("compound not found")
+            if not next((version for version in compound.versions if version.version_number == compound.current_version), None):
+                raise ValueError("compound has no structure version")
             if not assay: raise ValueError("active assay not found")
             valid.append({"line":line,"compound_id":compound.compound_id,"assay":assay.name,"value":value,"unit":unit})
         except Exception as exc:
@@ -1080,7 +1282,9 @@ def import_activities(payload: dict, db: Session = Depends(get_db)):
     for item in preview["valid"]:
         compound=db.scalar(select(Compound).where(Compound.project_id==payload["project_id"],Compound.compound_id==item["compound_id"]))
         assay=db.scalar(select(AssayDefinition).where(AssayDefinition.project_id==payload["project_id"],AssayDefinition.name==item["assay"],AssayDefinition.active==True))
-        version=next(v for v in compound.versions if v.version_number==compound.current_version)
+        version=next((v for v in compound.versions if v.version_number==compound.current_version),None)
+        if not version:
+            continue
         add_measurement(assay.id,{"version_id":version.id,"value":item["value"],"unit":item["unit"]},db);count+=1
     return {"imported":count,"errors":preview["errors"]}
 
@@ -1093,6 +1297,8 @@ def sar_table(project_id: int, assay_id: int, db: Session = Depends(get_db)):
     dataset=[]
     for compound in compounds:
         version=next((v for v in compound.versions if v.version_number==compound.current_version),None)
+        if not version:
+            continue
         exp=_experimental_summary(db,version.id,assay.id)
         mol,fp,desc,scaffold=fingerprint_and_descriptors(version.canonical_smiles)
         prediction=db.scalar(select(ActivityPrediction).where(ActivityPrediction.version_id==version.id,ActivityPrediction.assay_id==assay.id).order_by(ActivityPrediction.created_at.desc()))
@@ -1115,6 +1321,8 @@ def train_assay_model(assay_id: int, db: Session = Depends(get_db)):
     rows=[];features=[];targets=[];scaffolds=[];descriptor_rows=[];fingerprints=[]
     for compound in compounds:
         current=next((v for v in compound.versions if v.version_number==compound.current_version),None)
+        if not current:
+            continue
         summary=_experimental_summary(db,current.id,assay_id)
         if not summary: continue
         _,fp,desc,scaffold=fingerprint_and_descriptors(current.canonical_smiles)
@@ -1139,12 +1347,16 @@ def train_assay_model(assay_id: int, db: Session = Depends(get_db)):
 def predict_activity(assay_id: int, row_id: int, db: Session = Depends(get_db)):
     assay=db.get(AssayDefinition,assay_id);compound=db.get(Compound,row_id)
     if not assay or not assay.active or not compound or compound.project_id!=assay.project_id: raise HTTPException(status_code=404,detail="Active assay/compound pair not found")
-    current=next(v for v in compound.versions if v.version_number==compound.current_version)
+    current=next((v for v in compound.versions if v.version_number==compound.current_version),None)
+    if not current:
+        raise HTTPException(status_code=409,detail="Add a valid structure before running an activity prediction")
     existing=_experimental_summary(db,current.id,assay_id)
     _,target_fp,target_desc,_=fingerprint_and_descriptors(current.canonical_smiles)
     dataset={"rows":[],"fingerprints":[],"descriptors":[]}
     for other in db.scalars(select(Compound).where(Compound.project_id==assay.project_id)).all():
-        version=next(v for v in other.versions if v.version_number==other.current_version)
+        version=next((v for v in other.versions if v.version_number==other.current_version),None)
+        if not version:
+            continue
         summary=_experimental_summary(db,version.id,assay_id)
         if not summary: continue
         _,fp,desc,_=fingerprint_and_descriptors(version.canonical_smiles)
@@ -1187,7 +1399,9 @@ def activity_cliffs(project_id: int, assay_id: int, similarity_threshold: float 
     if not assay or assay.project_id!=project_id:raise HTTPException(status_code=404,detail="Assay not found")
     compounds=db.scalars(select(Compound).where(Compound.project_id==project_id)).all();items=[]
     for c in compounds:
-      v=next(v for v in c.versions if v.version_number==c.current_version);e=_experimental_summary(db,v.id,assay_id)
+      v=next((v for v in c.versions if v.version_number==c.current_version),None)
+      if not v: continue
+      e=_experimental_summary(db,v.id,assay_id)
       if e: _,fp,_,_=fingerprint_and_descriptors(v.canonical_smiles);items.append((c,v,e,fp))
     for i,(a,av,ae,af) in enumerate(items):
       for b,bv,be,bf in items[i+1:]:
@@ -1212,7 +1426,9 @@ def matched_pairs(project_id: int, assay_id: int, min_similarity: float = .6, ma
     if not assay or assay.project_id!=project_id: raise HTTPException(status_code=404,detail="Assay not found")
     compounds=db.scalars(select(Compound).where(Compound.project_id==project_id)).all(); items=[]
     for c in compounds:
-        v=next((v for v in c.versions if v.version_number==c.current_version),None); summary=_experimental_summary(db,v.id,assay_id)
+        v=next((v for v in c.versions if v.version_number==c.current_version),None)
+        if not v: continue
+        summary=_experimental_summary(db,v.id,assay_id)
         if not summary: continue
         _,fp,_,_=fingerprint_and_descriptors(v.canonical_smiles); items.append({"c":c,"v":v,"summary":summary,"fp":fp})
     pairs=[]
@@ -1338,6 +1554,8 @@ def create_optimization_run(project_id: int, payload: dict, db: Session = Depend
     version = db.get(CompoundVersion, payload.get("parent_version_id"))
     if not project or not version:
         raise HTTPException(status_code=404, detail="Project or parent CompoundVersion not found")
+    if project.molecule_type != "Small Molecule":
+        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
     compound = db.get(Compound, version.compound_row_id)
     if not compound or compound.project_id != project_id:
         raise HTTPException(status_code=404, detail="Parent CompoundVersion is not in this project")
@@ -1401,7 +1619,7 @@ def _candidate_comparison(candidate: OptimizationCandidate, optimization_run: Op
     if parent_activity or candidate.activity_json:
         parent_value = parent_activity.get("mean_nm") if parent_activity and parent_activity.get("type") == "Experimental" else (parent_activity or {}).get("value_nm")
         candidate_value = (candidate.activity_json or {}).get("value_nm")
-        rows.insert(0, {"endpoint": "Activity", "parent": {"value": parent_value, "unit": "nM", "type": (parent_activity or {}).get("type", "Unknown"), "confidence": (parent_activity or {}).get("confidence")}, "candidate": {"value": candidate_value, "unit": "nM", "type": (candidate.activity_json or {}).get("record_type", "Unavailable"), "confidence": (candidate.activity_json or {}).get("confidence"), "domain": (candidate.activity_json or {}).get("applicability_domain")}, "change": (round(candidate_value-parent_value, 5) if isinstance(parent_value, (int, float)) and isinstance(candidate_value, (int, float)) else None)})
+        rows.insert(0, {"endpoint": "Activity", "parent": {"value": parent_value, "unit": "nM", "type": (parent_activity or {}).get("type", "Not measured"), "confidence": (parent_activity or {}).get("confidence")}, "candidate": {"value": candidate_value, "unit": "nM", "type": (candidate.activity_json or {}).get("record_type", "Unavailable"), "confidence": (candidate.activity_json or {}).get("confidence"), "domain": (candidate.activity_json or {}).get("applicability_domain")}, "change": (round(candidate_value-parent_value, 5) if isinstance(parent_value, (int, float)) and isinstance(candidate_value, (int, float)) else None)})
     parent_admet = (optimization_run.evidence_json or {}).get("admet", {})
     for endpoint in ("Solubility", "Permeability", "Plasma protein binding", "HLM intrinsic clearance", "RLM intrinsic clearance", "CYP3A4 inhibitor", "P-gp inhibitor", "hERG liability", "Ames mutagenicity", "DILI clinical liability"):
         parent_row = (parent_admet.get(endpoint) or {}).get("preferred")
@@ -1412,7 +1630,7 @@ def _candidate_comparison(candidate: OptimizationCandidate, optimization_run: Op
         candidate_value = (candidate_row or {}).get("classification", (candidate_row or {}).get("predicted_value", (candidate_row or {}).get("value")))
         numerical_change = round(float(candidate_value)-float(parent_value), 5) if isinstance(parent_value, (int, float)) and isinstance(candidate_value, (int, float)) else None
         rows.append({
-            "endpoint": endpoint, "parent": {"value": parent_value, "unit": (parent_row or {}).get("unit", ""), "type": (parent_row or {}).get("type", "Unknown"), "confidence": (parent_row or {}).get("confidence")},
+            "endpoint": endpoint, "parent": {"value": parent_value, "unit": (parent_row or {}).get("unit", ""), "type": (parent_row or {}).get("type", "Not measured"), "confidence": (parent_row or {}).get("confidence")},
             "candidate": {"value": candidate_value, "unit": (candidate_row or {}).get("unit", ""), "type": (candidate_row or {}).get("record_type", "MODEL_UNAVAILABLE" if (candidate_row or {}).get("status") == "MODEL_UNAVAILABLE" else "Predicted"), "confidence": (candidate_row or {}).get("confidence"), "domain": (candidate_row or {}).get("applicability_domain")},
             "change": numerical_change,
         })

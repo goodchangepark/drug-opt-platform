@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -15,6 +15,7 @@ class Project(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(200), unique=True, index=True)
     target: Mapped[str] = mapped_column(String(300), default="")
+    molecule_type: Mapped[str] = mapped_column(String(40), default="Small Molecule")
     indication: Mapped[str] = mapped_column(String(300), default="")
     mechanism_modality: Mapped[str] = mapped_column(String(300), default="")
     description: Mapped[str] = mapped_column(Text, default="")
@@ -31,6 +32,7 @@ class Compound(Base):
     compound_id: Mapped[str] = mapped_column(String(50), index=True)
     name: Mapped[str] = mapped_column(String(200), default="")
     notes: Mapped[str] = mapped_column(Text, default="")
+    status: Mapped[str] = mapped_column(String(40), default="CALCULATED", index=True)
     current_version: Mapped[int] = mapped_column(Integer, default=1)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
@@ -113,3 +115,20 @@ class PredictionRun(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     version: Mapped[CompoundVersion] = relationship(back_populates="prediction_runs")
+
+
+def ensure_ui_schema(engine):
+    """Idempotent, non-destructive migration for the pre-Stage 5 UI workflow."""
+    inspector = inspect(engine)
+    tables = set(inspector.get_table_names())
+    if "projects" not in tables or "compounds" not in tables:
+        return
+    project_columns = {row["name"] for row in inspector.get_columns("projects")}
+    compound_columns = {row["name"] for row in inspector.get_columns("compounds")}
+    with engine.begin() as connection:
+        if "molecule_type" not in project_columns:
+            connection.execute(text("ALTER TABLE projects ADD COLUMN molecule_type VARCHAR(40) NOT NULL DEFAULT 'Small Molecule'"))
+        if "status" not in compound_columns:
+            connection.execute(text("ALTER TABLE compounds ADD COLUMN status VARCHAR(40) NOT NULL DEFAULT 'CALCULATED'"))
+        connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
+        connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))
