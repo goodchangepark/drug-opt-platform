@@ -1,0 +1,15 @@
+{
+  "stage": "5A-2B",
+  "run_id": "20260826-172540",
+  "base_url": "http://127.0.0.1:8766",
+  "checks": [
+    "Seeded IV/PO PK studies, ADMET measurements, and IVIVE run.",
+    "Verified PK Foundation API endpoint returns route-aware parameter sets.",
+    "Compound Detail > PK rendered PK Parameter Foundation & Route Assembly section.",
+    "Cleaned up temporary E2E project."
+  ],
+  "screenshot": "/home/xavier/chem/drug-opt-platform/validation/stage5a2b_browser_e2e.png",
+  "temporary_project_deleted": true,
+  "status": "PASS",
+  "timestamp": "2026-08-26T17:25:49.130210+00:00"
+}

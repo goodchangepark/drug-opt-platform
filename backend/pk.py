@@ -66,6 +66,11 @@ class PKStudy(Base):
     observations = relationship("PKObservation", back_populates="study", cascade="all, delete-orphan")
     nca_results = relationship("PKNCAResult", back_populates="study", cascade="all, delete-orphan")
 
+    @property
+    def latest_nca(self):
+        latest = [n for n in (self.nca_results or []) if getattr(n, "is_latest", True)]
+        return latest[0] if latest else (self.nca_results[-1] if self.nca_results else None)
+
 
 class PKObservation(Base):
     __tablename__ = "pk_observations"

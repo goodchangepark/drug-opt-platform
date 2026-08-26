@@ -22,7 +22,7 @@ from sqlalchemy.orm import Mapped, Session, mapped_column
 from .admet import ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction
 from .database import Base, get_db
 from .models import Compound, CompoundVersion, Project, utcnow
-from .pk import PKNCAResult, PKStudy
+from .pk import PKNCAResult, PKStudy, calculate_bioavailability_for_version
 
 
 IVIVE_ENGINE_VERSION = "5A-2A.1.0"
@@ -196,13 +196,55 @@ class IVIVERun(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
+class PKParameterSet(Base):
+    __tablename__ = "pk_parameter_sets"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    compound_row_id: Mapped[int] = mapped_column(ForeignKey("compounds.id", ondelete="CASCADE"), index=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    species: Mapped[str] = mapped_column(String(40), index=True)
+    route: Mapped[str] = mapped_column(String(20), index=True)  # IV, PO, SC, IP
+    dose_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    dose_unit: Mapped[str | None] = mapped_column(String(40), nullable=True)
+
+    cl_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    cl_unit: Mapped[str] = mapped_column(String(40), default="mL/min/kg")
+    cl_source_type: Mapped[str] = mapped_column(String(60), default="MODEL_UNAVAILABLE")
+    clh_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    v_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    v_unit: Mapped[str] = mapped_column(String(40), default="L/kg")
+    v_source_type: Mapped[str] = mapped_column(String(60), default="MODEL_UNAVAILABLE")
+    v_type: Mapped[str] = mapped_column(String(40), default="Vd_estimate")  # Vz, Vss, Vz_F, Vd_estimate
+
+    fh_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    fa_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    fa_status: Mapped[str] = mapped_column(String(60), default="MODEL_UNAVAILABLE")
+    fg_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    fg_status: Mapped[str] = mapped_column(String(60), default="MODEL_UNAVAILABLE")
+    f_predicted: Mapped[float | None] = mapped_column(Float, nullable=True)
+    f_experimental: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    ka_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ka_source_type: Mapped[str] = mapped_column(String(60), default="MODEL_UNAVAILABLE")
+
+    fu_p: Mapped[float | None] = mapped_column(Float, nullable=True)
+    fu_b: Mapped[float | None] = mapped_column(Float, nullable=True)
+    bp_ratio: Mapped[float | None] = mapped_column(Float, nullable=True)
+
+    confidence: Mapped[str] = mapped_column(String(30), default="MODEL_UNAVAILABLE")
+    assumptions_json: Mapped[list] = mapped_column(JSON, default=list)
+    provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 def ensure_ivive_schema(engine):
     inspector = inspect(engine)
     if "projects" not in inspector.get_table_names():
         return
     Base.metadata.create_all(bind=engine, tables=[
         IVIVEInputSet.__table__, PhysiologicalParameterSet.__table__, PhysiologicalParameterOverride.__table__,
-        IVIVEMethodRegistry.__table__, IVIVERun.__table__,
+        IVIVEMethodRegistry.__table__, IVIVERun.__table__, PKParameterSet.__table__,
     ])
     with engine.begin() as connection:
         for species, parameters in PHYSIOLOGY_DEFAULTS.items():
@@ -981,3 +1023,450 @@ def register_ivive_routes(app):
         except (ValueError, IVIVEUnitError) as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return _serialize_run(run)
+
+    @app.get("/api/compound-versions/{version_id}/pk-foundation")
+    def get_pk_foundation_endpoint(version_id: int, species: str = Query("Rat"), db: Session = Depends(get_db)):
+        try:
+            return get_pk_foundation_profile(db, version_id, species)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/api/compound-versions/{version_id}/assemble-pk")
+    def assemble_pk_endpoint(version_id: int, payload: dict, db: Session = Depends(get_db)):
+        compound = db.scalar(select(Compound).join(CompoundVersion).where(CompoundVersion.id == version_id))
+        if not compound:
+            raise HTTPException(status_code=404, detail="CompoundVersion not found")
+        species = str(payload.get("species") or "Rat")
+        route = str(payload.get("route") or "PO")
+        dose = float(payload.get("dose") or 10.0)
+        dose_unit = str(payload.get("dose_unit") or "mg/kg")
+        try:
+            pset = assemble_pk_parameter_set(db, compound.project_id, version_id, species, route, dose, dose_unit)
+            return {"id": pset.id, "route": pset.route, "species": pset.species, "confidence": pset.confidence}
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+def estimate_volume_of_distribution(db: Session, project_id: int, version_id: int, species: str) -> dict:
+    """
+    Vd architecture foundation:
+    - Experimental Vz (from IV NCA) > Experimental Vss (from IV moment analysis)
+    - Experimental Vz/F (from PO/SC/IP NCA) strictly labeled as Vz/F
+    - Predicted/Estimated Vd (empirical Lombardo lipophilicity & fu,p model)
+    - If required inputs missing, returns MODEL_UNAVAILABLE without fabricating values.
+    """
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise ValueError("CompoundVersion not found")
+
+    species_clean = normalize_species(species)
+
+    # 1. Priority 1: Check IV PK Study for same version & species
+    iv_study = db.scalars(select(PKStudy).where(
+        PKStudy.version_id == version_id,
+        PKStudy.species == species_clean,
+        PKStudy.route == "IV"
+    )).first()
+
+    if iv_study and iv_study.latest_nca:
+        nca = iv_study.latest_nca
+        if nca.vz is not None:
+            vss_val = None
+            if nca.mrt is not None and nca.cl is not None:
+                # Vss (L/kg) = CL (mL/min/kg) * 60 / 1000 * MRT (h)
+                vss_val = (nca.cl * 60.0 / 1000.0) * nca.mrt
+
+            if vss_val is not None:
+                return {
+                    "v_value": round(vss_val, 3),
+                    "v_unit": "L/kg",
+                    "v_source_type": "EXPERIMENTAL_VSS",
+                    "v_type": "Vss",
+                    "confidence": "HIGH",
+                    "message": "Experimental Vss from IV study moment analysis (CL * MRT).",
+                    "provenance": {"study_id": iv_study.id, "study_name": iv_study.study_name, "mrt": nca.mrt, "cl": nca.cl}
+                }
+            return {
+                "v_value": round(nca.vz, 3),
+                "v_unit": "L/kg",
+                "v_source_type": "EXPERIMENTAL_VZ",
+                "v_type": "Vz",
+                "confidence": "HIGH",
+                "message": "Experimental Vz from IV study NCA terminal phase.",
+                "provenance": {"study_id": iv_study.id, "study_name": iv_study.study_name}
+            }
+
+    # 2. Priority 2: Check Extravascular PK Study (PO, SC, IP) for same version & species
+    po_study = db.scalars(select(PKStudy).where(
+        PKStudy.version_id == version_id,
+        PKStudy.species == species_clean,
+        PKStudy.route != "IV"
+    )).first()
+
+    exp_vzf = None
+    if po_study and po_study.latest_nca and po_study.latest_nca.vz_f is not None:
+        exp_vzf = {
+            "v_value": round(po_study.latest_nca.vz_f, 3),
+            "v_unit": "L/kg",
+            "v_source_type": "EXPERIMENTAL_VZ_F",
+            "v_type": "Vz_F",
+            "confidence": "HIGH",
+            "message": f"Apparent volume Vz/F from {po_study.route} study. Not absolute Vd or Vss.",
+            "provenance": {"study_id": po_study.id, "study_name": po_study.study_name, "route": po_study.route}
+        }
+
+    # 3. Priority 3: Empirical / Mechanistic Vd Estimator
+    candidates = gather_ivive_candidates(db, project_id, version_id, species_clean)
+    ppb_cand = candidates.get("PPB")
+    fu_val = fraction_unbound_from_candidate(ppb_cand) if ppb_cand else None
+    props = version.properties_json or {}
+    clogp = props.get("clogp")
+
+    if fu_val is not None and clogp is not None:
+        clogp_clamped = max(-1.0, min(4.0, float(clogp)))
+        vd_est = 0.6 + 0.4 * fu_val + 0.15 * fu_val * (10.0 ** (0.3 * clogp_clamped))
+        vd_est = max(0.1, min(20.0, vd_est))
+        conf = confidence_ceiling([ppb_cand.get("confidence", "LOW")])
+        return {
+            "v_value": round(vd_est, 3),
+            "v_unit": "L/kg",
+            "v_source_type": "PREDICTED_VD",
+            "v_type": "Vd_estimate",
+            "confidence": conf,
+            "message": "Predicted Vd from empirical lipophilicity and plasma protein binding model.",
+            "provenance": {"fu_p": fu_val, "clogp": clogp, "model": "Lombardo Empirical Vd Estimator"},
+            "apparent_vzf": exp_vzf
+        }
+
+    # 4. If inputs missing, return MODEL_UNAVAILABLE without fabricating values
+    return {
+        "v_value": None,
+        "v_unit": "L/kg",
+        "v_source_type": "MODEL_UNAVAILABLE",
+        "v_type": "Vd_estimate",
+        "confidence": "MODEL_UNAVAILABLE",
+        "message": "Vd prediction unavailable due to missing experimental/predicted fu_p or cLogP.",
+        "provenance": {"missing_inputs": ["fu_p" if fu_val is None else None, "clogp" if clogp is None else None]},
+        "apparent_vzf": exp_vzf
+    }
+
+
+def estimate_absorption_components(db: Session, project_id: int, version_id: int, species: str) -> dict:
+    """
+    Absorption architecture deconstructs oral bioavailability F = Fa * Fg * Fh.
+    - Fh: Hepatic availability fraction from Well-Stirred IVIVE model.
+    - Fa: Fraction absorbed from gut lumen (from Caco-2 permeability & solubility).
+    - Fg: Intestinal first-pass availability (MODEL_UNAVAILABLE without gut wall CYP3A abundance data).
+    - F_predicted: Computed ONLY when Fa, Fg, Fh are all quantitatively valid numbers.
+    - F_experimental: Matched IV/PO bioavailability % from Stage 5A-1.
+    """
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise ValueError("CompoundVersion not found")
+
+    species_clean = normalize_species(species)
+
+    # 1. Fh from Hepatic IVIVE
+    run = db.scalars(select(IVIVERun).where(
+        IVIVERun.version_id == version_id,
+        IVIVERun.species == species_clean,
+        IVIVERun.status == "COMPLETE"
+    ).order_by(IVIVERun.created_at.desc())).first()
+
+    fh_val = run.outputs_json.get("fh") if (run and run.outputs_json) else None
+
+    # 2. Fa from Caco-2 & Solubility
+    measurements = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version_id)).all()
+    predictions = db.scalars(select(ADMETPrediction).where(ADMETPrediction.version_id == version_id)).all()
+
+    caco2_val = None
+    caco2_unit = "10^-6 cm/s"
+    caco2_source = None
+    for m in measurements:
+        ep_name = str(m.endpoint.name if m.endpoint else "").lower()
+        if "caco" in ep_name or "permeab" in ep_name:
+            caco2_val = m.value
+            caco2_source = "EXPERIMENTAL"
+            break
+    if caco2_val is None:
+        for p in predictions:
+            ep_name = str(p.endpoint.name if p.endpoint else "").lower()
+            if "caco" in ep_name or "permeab" in ep_name:
+                caco2_val = p.predicted_value
+                caco2_source = "PREDICTED"
+                break
+
+    fa_val = None
+    fa_status = "MODEL_UNAVAILABLE"
+    fa_message = "Fa unavailable because Caco-2 permeability or quantitative absorption model is missing."
+
+    if caco2_val is not None and float(caco2_val) > 0:
+        papp = float(caco2_val)
+        peff = 10.0 ** (0.68 * math.log10(max(0.01, papp)) - 0.42)
+        fa_calc = 1.0 - math.exp(-0.4 * peff)
+        fa_val = round(max(0.01, min(1.0, fa_calc)), 3)
+        fa_status = "ESTIMATED"
+        fa_message = f"Fa estimated from {caco2_source} Caco-2 permeability ({papp} {caco2_unit})."
+
+    # 3. Fg (Intestinal first-pass availability)
+    fg_val = None
+    fg_status = "MODEL_UNAVAILABLE"
+    fg_message = "Fg unavailable. Intestinal CYP3A/first-pass metabolism model is not quantitatively supported."
+
+    # 4. Predicted Absolute F
+    f_pred = None
+    f_pred_message = "Predicted absolute bioavailability unavailable because Fa/Fg is not quantitatively supported."
+
+    if fa_val is not None and fg_val is not None and fh_val is not None:
+        f_pred = round(fa_val * fg_val * fh_val * 100.0, 2)
+        f_pred_message = f"Predicted absolute bioavailability F = Fa ({fa_val}) * Fg ({fg_val}) * Fh ({fh_val}) = {f_pred}%"
+
+    # 5. Experimental Matched Bioavailability
+    ba_res = calculate_bioavailability_for_version(version_id, db)
+    exp_f_val = None
+    exp_f_detail = None
+    if ba_res.get("bioavailability"):
+        matched = [b for b in ba_res["bioavailability"] if b.get("species") == species_clean and b.get("status") == "MATCHED"]
+        if matched:
+            exp_f_val = matched[0].get("bioavailability_pct")
+            exp_f_detail = matched[0]
+
+    return {
+        "fh_value": round(fh_val, 3) if fh_val is not None else None,
+        "fa_value": fa_val,
+        "fa_status": fa_status,
+        "fa_message": fa_message,
+        "fg_value": fg_val,
+        "fg_status": fg_status,
+        "fg_message": fg_message,
+        "f_predicted": f_pred,
+        "f_predicted_message": f_pred_message,
+        "f_experimental": exp_f_val,
+        "f_experimental_detail": exp_f_detail,
+        "caco2_val": caco2_val,
+        "caco2_source": caco2_source,
+    }
+
+
+def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, species: str, route: str, dose: float = 10.0, dose_unit: str = "mg/kg") -> PKParameterSet:
+    """
+    Route-aware PK Parameter Assembly (IV, PO, SC, IP).
+    Combines clearance, volume of distribution, absorption, and plasma binding into an immutable PKParameterSet entity.
+    """
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise ValueError("CompoundVersion not found")
+
+    species_clean = normalize_species(species)
+    route_clean = route.strip().upper()
+    if route_clean not in {"IV", "PO", "SC", "IP"}:
+        raise ValueError(f"Unsupported route: {route!r}; choose IV, PO, SC, or IP")
+
+    # 1. Clearance Assembly
+    iv_study = db.scalars(select(PKStudy).where(
+        PKStudy.version_id == version_id,
+        PKStudy.species == species_clean,
+        PKStudy.route == "IV"
+    )).first()
+
+    route_study = db.scalars(select(PKStudy).where(
+        PKStudy.version_id == version_id,
+        PKStudy.species == species_clean,
+        PKStudy.route == route_clean
+    )).first()
+
+    run = db.scalars(select(IVIVERun).where(
+        IVIVERun.version_id == version_id,
+        IVIVERun.species == species_clean,
+        IVIVERun.status == "COMPLETE"
+    ).order_by(IVIVERun.created_at.desc())).first()
+
+    clh_val = run.outputs_json.get("clh") if (run and run.outputs_json) else None
+    fh_val = run.outputs_json.get("fh") if (run and run.outputs_json) else None
+
+    cl_val = None
+    cl_source = "MODEL_UNAVAILABLE"
+    cl_conf = "LOW"
+
+    if route_clean == "IV":
+        if iv_study and iv_study.latest_nca and iv_study.latest_nca.cl is not None:
+            cl_val = iv_study.latest_nca.cl
+            cl_source = "EXPERIMENTAL_NCA"
+            cl_conf = "HIGH"
+        elif clh_val is not None:
+            cl_val = clh_val
+            cl_source = "HEPATIC_IVIVE"
+            cl_conf = run.confidence if run else "MEDIUM"
+    else:
+        if route_study and route_study.latest_nca and route_study.latest_nca.cl_f is not None:
+            cl_val = route_study.latest_nca.cl_f
+            cl_source = "EXPERIMENTAL_NCA"
+            cl_conf = "HIGH"
+        elif clh_val is not None and fh_val is not None and fh_val > 0:
+            cl_val = clh_val / fh_val
+            cl_source = "HEPATIC_IVIVE_APPARENT"
+            cl_conf = run.confidence if run else "LOW"
+
+    # 2. Volume Assembly
+    vd_info = estimate_volume_of_distribution(db, project_id, version_id, species_clean)
+    v_val = vd_info.get("v_value")
+    v_source = vd_info.get("v_source_type", "MODEL_UNAVAILABLE")
+    v_type = vd_info.get("v_type", "Vd_estimate")
+    v_conf = vd_info.get("confidence", "LOW")
+
+    if route_clean != "IV" and route_study and route_study.latest_nca and route_study.latest_nca.vz_f is not None:
+        v_val = route_study.latest_nca.vz_f
+        v_source = "EXPERIMENTAL_VZ_F"
+        v_type = "Vz_F"
+        v_conf = "HIGH"
+
+    # 3. Absorption Assembly
+    abs_info = estimate_absorption_components(db, project_id, version_id, species_clean)
+    if route_clean == "IV":
+        fa_val = 1.0
+        fa_status = "NOT_REQUIRED"
+        fg_val = 1.0
+        fg_status = "NOT_REQUIRED"
+        fh_route = 1.0
+        f_pred = 100.0
+        f_exp = 100.0
+    elif route_clean == "PO":
+        fa_val = abs_info.get("fa_value")
+        fa_status = abs_info.get("fa_status", "MODEL_UNAVAILABLE")
+        fg_val = abs_info.get("fg_value")
+        fg_status = abs_info.get("fg_status", "MODEL_UNAVAILABLE")
+        fh_route = fh_val
+        f_pred = abs_info.get("f_predicted")
+        f_exp = abs_info.get("f_experimental")
+    else:
+        # SC, IP
+        fa_val = None
+        fa_status = "MODEL_UNAVAILABLE"
+        fg_val = None
+        fg_status = "MODEL_UNAVAILABLE"
+        fh_route = fh_val
+        f_pred = None
+        f_exp = None
+
+    # 4. Plasma & Blood Binding
+    candidates = gather_ivive_candidates(db, project_id, version_id, species_clean)
+    ppb_cand = candidates.get("PPB")
+    fu_p = fraction_unbound_from_candidate(ppb_cand) if ppb_cand else None
+    bpr_cand = candidates.get("BLOOD_PLASMA_RATIO")
+    bp_ratio = _bpr_value(bpr_cand) if bpr_cand else None
+    fu_b = (fu_p / bp_ratio) if (fu_p is not None and bp_ratio is not None and bp_ratio > 0) else fu_p
+
+    # 5. Overall Confidence
+    overall_conf = confidence_ceiling([cl_conf, v_conf])
+
+    # 6. Save or update PKParameterSet
+    existing = db.scalars(select(PKParameterSet).where(
+        PKParameterSet.version_id == version_id,
+        PKParameterSet.species == species_clean,
+        PKParameterSet.route == route_clean
+    )).first()
+
+    param_set = existing or PKParameterSet(
+        project_id=project_id,
+        compound_row_id=version.compound_row_id,
+        version_id=version_id,
+        species=species_clean,
+        route=route_clean,
+    )
+
+    param_set.dose_value = dose
+    param_set.dose_unit = dose_unit
+    param_set.cl_value = round(cl_val, 3) if cl_val is not None else None
+    param_set.cl_unit = "mL/min/kg"
+    param_set.cl_source_type = cl_source
+    param_set.clh_value = round(clh_val, 3) if clh_val is not None else None
+    param_set.v_value = round(v_val, 3) if v_val is not None else None
+    param_set.v_unit = "L/kg"
+    param_set.v_source_type = v_source
+    param_set.v_type = v_type
+    param_set.fh_value = round(fh_route, 3) if fh_route is not None else None
+    param_set.fa_value = fa_val
+    param_set.fa_status = fa_status
+    param_set.fg_value = fg_val
+    param_set.fg_status = fg_status
+    param_set.f_predicted = f_pred
+    param_set.f_experimental = f_exp
+    param_set.ka_value = None
+    param_set.ka_source_type = "MODEL_UNAVAILABLE"
+    param_set.fu_p = round(fu_p, 4) if fu_p is not None else None
+    param_set.fu_b = round(fu_b, 4) if fu_b is not None else None
+    param_set.bp_ratio = round(bp_ratio, 3) if bp_ratio is not None else None
+    param_set.confidence = overall_conf
+    param_set.assumptions_json = [
+        f"Route-aware {route_clean} pharmacokinetic parameter set for {species_clean}.",
+        "Confidence is governed by the weakest critical input parameter.",
+        "CL/F and Vz/F for extravascular routes are explicitly separated from IV CL and Vz."
+    ]
+    param_set.provenance_json = {
+        "assembled_at": datetime.now(timezone.utc).isoformat(),
+        "cl_source": cl_source,
+        "v_source": v_source,
+        "vd_info": vd_info,
+        "absorption_info": abs_info
+    }
+
+    db.add(param_set)
+    db.commit()
+    db.refresh(param_set)
+    return param_set
+
+
+def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat") -> dict:
+    """
+    Returns integrated Stage 5A-2B profile data object.
+    """
+    version, compound = _version_and_compound(db, version_id)
+    species_clean = normalize_species(species)
+
+    vd_info = estimate_volume_of_distribution(db, compound.project_id, version_id, species_clean)
+    abs_info = estimate_absorption_components(db, compound.project_id, version_id, species_clean)
+
+    routes_assembled = {}
+    for r in ["IV", "PO", "SC", "IP"]:
+        pset = assemble_pk_parameter_set(db, compound.project_id, version_id, species_clean, r)
+        routes_assembled[r] = {
+            "id": pset.id,
+            "route": pset.route,
+            "dose_value": pset.dose_value,
+            "dose_unit": pset.dose_unit,
+            "cl_value": pset.cl_value,
+            "cl_unit": pset.cl_unit,
+            "cl_source_type": pset.cl_source_type,
+            "clh_value": pset.clh_value,
+            "v_value": pset.v_value,
+            "v_unit": pset.v_unit,
+            "v_source_type": pset.v_source_type,
+            "v_type": pset.v_type,
+            "fh_value": pset.fh_value,
+            "fa_value": pset.fa_value,
+            "fa_status": pset.fa_status,
+            "fg_value": pset.fg_value,
+            "fg_status": pset.fg_status,
+            "f_predicted": pset.f_predicted,
+            "f_experimental": pset.f_experimental,
+            "ka_value": pset.ka_value,
+            "ka_source_type": pset.ka_source_type,
+            "fu_p": pset.fu_p,
+            "fu_b": pset.fu_b,
+            "bp_ratio": pset.bp_ratio,
+            "confidence": pset.confidence,
+            "assumptions": pset.assumptions_json,
+            "provenance": pset.provenance_json,
+        }
+
+    return {
+        "scope": {
+            "project_id": compound.project_id,
+            "compound_id": compound.id,
+            "version_id": version.id,
+            "species": species_clean,
+        },
+        "distribution": vd_info,
+        "absorption": abs_info,
+        "route_parameter_sets": routes_assembled,
+    }

@@ -1163,6 +1163,100 @@ function App(){
   ]);
  }
 
+ function PkFoundationProfile({versionId}){
+  const [foundationData,setFoundationData]=React.useState(null);
+  const [loading,setLoading]=React.useState(false);
+  const [species,setSpecies]=React.useState('Rat');
+
+  const fetchFoundation=async(s)=>{
+   setLoading(true);
+   try{
+    const res=await api.get('/compound-versions/'+versionId+'/pk-foundation?species='+(s||species));
+    setFoundationData(res);
+   }catch(err){console.error(err)}finally{setLoading(false)}
+  };
+
+  React.useEffect(()=>{
+   if(versionId)fetchFoundation(species);
+  },[versionId,species]);
+
+  if(!foundationData){
+   return e('section',{className:'card ivive-section',key:'pk-foundation'},[
+    e('div',{className:'row toolbar'},[
+     e('div',{},[
+      e('div',{className:'eyebrow'},'5 · PK PARAMETER FOUNDATION & ROUTE ASSEMBLY'),
+      e('h2',{},'PK Parameter Foundation'),
+      e('p',{className:'small'},loading?'Loading PK Foundation parameters…':'Click below to load PK Parameter Foundation.')
+     ]),
+     e('button',{disabled:loading,onClick:()=>fetchFoundation(species)},loading?'Loading…':'Load PK Foundation')
+    ])
+   ]);
+  }
+
+  const dist=foundationData.distribution||{};
+  const abs=foundationData.absorption||{};
+  const routes=foundationData.route_parameter_sets||{};
+
+  return e('section',{className:'card ivive-section',key:'pk-foundation'},[
+   e('div',{className:'row toolbar',key:'header'},[
+    e('div',{},[
+     e('div',{className:'eyebrow'},'5 · PK PARAMETER FOUNDATION & ROUTE ASSEMBLY'),
+     e('h2',{},'PK Parameter Foundation'),
+     e('p',{className:'small'},'Route-aware pharmacokinetic parameters, distribution foundation, and absorption component deconstruction (Fa · Fg · Fh).')
+    ]),
+    e('div',{className:'ivive-run-controls'},[
+     e('label',{},'Species'),
+     e('select',{value:species,onChange:ev=>setSpecies(ev.target.value)},['Mouse','Rat','Dog','Monkey','Human'].map(s=>e('option',{key:s,value:s},s))),
+     e('button',{className:'secondary',disabled:loading,onClick:()=>fetchFoundation(species)},loading?'Loading…':'Refresh')
+    ])
+   ]),
+
+   e('div',{className:'grid ivive-grid',key:'panels'},[
+    e('div',{className:'ivive-panel col-6',key:'dist'},[
+     e('h3',{},'Distribution Foundation'),
+     dist.v_value!=null?e('div',{className:'pk-nca-card'},[
+      e('span',{},dist.v_type==='Vss'?'Experimental Vss':dist.v_type==='Vz'?'Experimental Vz':'Predicted Vd Estimate'),
+      e('strong',{className:'mono'},dist.v_value+' '+dist.v_unit),
+      e('small',{},dist.message)
+     ]):e('div',{className:'empty-state'},[StatusBadge({type:'MODEL_UNAVAILABLE'}),e('p',{},dist.message||'Vd unavailable due to missing binding/lipophilicity data.')]),
+     dist.apparent_vzf&&e('div',{className:'pk-nca-card',style:{marginTop:'8px'}},[
+      e('span',{},'Apparent Volume (Vz/F)'),
+      e('strong',{className:'mono'},dist.apparent_vzf.v_value+' L/kg'),
+      e('small',{},dist.apparent_vzf.message)
+     ])
+    ]),
+
+    e('div',{className:'ivive-panel col-6',key:'abs'},[
+     e('h3',{},'Absorption Foundation (F = Fa × Fg × Fh)'),
+     e('div',{className:'highlight-grid'},[
+      e('div',{className:'highlight-item'},[e('strong',{},'Fa (Lumen Absorbed)'),e('div',{className:'mono'},abs.fa_value!=null?(abs.fa_value*100).toFixed(1)+'%':'—'),StatusBadge({type:abs.fa_status})]),
+      e('div',{className:'highlight-item'},[e('strong',{},'Fg (Gut Escape)'),e('div',{className:'mono'},abs.fg_value!=null?(abs.fg_value*100).toFixed(1)+'%':'—'),StatusBadge({type:abs.fg_status})]),
+      e('div',{className:'highlight-item'},[e('strong',{},'Fh (Hepatic Escape)'),e('div',{className:'mono'},abs.fh_value!=null?(abs.fh_value*100).toFixed(1)+'%':'—'),StatusBadge({type:abs.fh_value!=null?'CALCULATED':'MODEL_UNAVAILABLE'})]),
+      e('div',{className:'highlight-item ivive-primary-output'},[e('strong',{},'Predicted Absolute F'),e('div',{className:'mono'},abs.f_predicted!=null?abs.f_predicted+'%':'—'),StatusBadge({type:abs.f_predicted!=null?'CALCULATED':'MODEL_UNAVAILABLE'})])
+     ]),
+     e('p',{className:'small',style:{marginTop:'8px'}},abs.f_predicted_message),
+     abs.f_experimental!=null&&e('div',{className:'pass',style:{marginTop:'8px'}},[e('strong',{},'Matched Experimental F: '),e('span',{className:'mono'},abs.f_experimental+'%')])
+    ])
+   ]),
+
+   e('div',{key:'routes',style:{marginTop:'16px'}},[
+    e('h3',{},'Route-Aware Parameter Sets ('+species+')'),
+    e('div',{className:'grid ivive-output-grid'},['IV','PO','SC','IP'].map(r=>{
+     const rset=routes[r]||{};
+     return e('div',{key:r,className:'card pk-nca-card'+(r==='IV'||r==='PO'?' ivive-primary-output':'')},[
+      e('div',{className:'row toolbar'},[e('strong',{style:{fontSize:'16px'}},r+' Route'),StatusBadge({type:rset.confidence||'MODEL_UNAVAILABLE'})]),
+      e('div',{className:'metric-row'},[e('span',{},'Clearance'),e('strong',{className:'mono'},rset.cl_value!=null?rset.cl_value+' '+rset.cl_unit:'—')]),
+      e('div',{className:'small',style:{marginBottom:'6px'}},'Source: '+(rset.cl_source_type||'—')),
+      e('div',{className:'metric-row'},[e('span',{},'Volume'),e('strong',{className:'mono'},rset.v_value!=null?rset.v_value+' '+rset.v_unit:'—')]),
+      e('div',{className:'small',style:{marginBottom:'6px'}},'Type: '+(rset.v_type||'—')+' ('+(rset.v_source_type||'—')+')'),
+      e('div',{className:'metric-row'},[e('span',{},'Hepatic Fh'),e('strong',{className:'mono'},rset.fh_value!=null?(rset.fh_value*100).toFixed(1)+'%':'—')]),
+      e('div',{className:'metric-row'},[e('span',{},'Absolute F'),e('strong',{className:'mono'},rset.f_experimental!=null?rset.f_experimental+'% (exp)':(rset.f_predicted!=null?rset.f_predicted+'% (pred)':'—'))])
+     ]);
+    }))
+   ])
+  ]);
+ }
+
  function pkProfile(versionId){
   const studies=pkData?.studies||[];
   const bioavailability=pkData?.bioavailability||[];
@@ -1395,6 +1489,7 @@ function App(){
    ]),
 
    iviveProfile(versionId),
+   e(PkFoundationProfile,{versionId,key:'pk-foundation'}),
 
    pkModalOpen&&e('div',{className:'modal-backdrop',key:'study-modal'},e('div',{className:'card compound-modal'},[
     e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Add PK Study'),e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Close')]),
