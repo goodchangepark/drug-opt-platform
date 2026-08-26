@@ -2,11 +2,13 @@
   "status": "PASS",
   "date": "2026-08-26",
   "base_url": "http://127.0.0.1:8766",
-  "project": "Pre-Stage 5 UI Acceptance 20260826-042223",
-  "project_id": 8,
-  "compound_version_id": 15,
+  "project": "Pre-Stage 5 UI Acceptance 20260826-084206",
+  "project_id": 13,
+  "compound_version_id": 22,
   "checks": [
-    "Simplified project creation",
+    "Main Dashboard summary",
+    "Responsive mobile dashboard",
+    "Simplified project creation and project navigation",
     "Ketcher drawing and SMILES synchronization",
     "Save without calculation",
     "Later calculation",
@@ -16,5 +18,10 @@
     "Checkbox-based Compare Selected"
   ],
   "experimental_records": 4,
+  "pre_stage5_tests": 11,
+  "full_regression_tests": 138,
+  "production_url": "https://drug.cheyshys.com",
+  "production_health": "PASS",
+  "deployed_asset": "app.js?v=main-dashboard-2",
   "data_policy": "Public ethanol and ethylamine UI fixtures; no proprietary compound data"
 }

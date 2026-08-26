@@ -116,6 +116,16 @@ def main():
         driver.get(BASE_URL + "/?pre-stage5-ui-e2e=" + RUN_ID)
         WebDriverWait(driver, 60).until(lambda d: "Create Project" in d.page_source)
         assert browser_api(driver, "GET", "/health")["step"] == "4B"
+        for text in ("MAIN DASHBOARD", "Structure-first drug optimization workspace", "Default Workspace Settings", "Projects", "Compounds"):
+            if text not in driver.page_source:
+                raise AssertionError(f"Main Dashboard is missing {text!r}")
+        driver.set_window_size(390, 844)
+        WebDriverWait(driver, 10).until(lambda d: d.execute_script("return window.innerWidth") <= 500)
+        columns = driver.execute_script("return getComputedStyle(document.querySelector('.dashboard-project-grid')).gridTemplateColumns")
+        if " " in columns.strip():
+            raise AssertionError(f"Mobile dashboard project grid is not single-column: {columns}")
+        driver.set_window_size(1900, 1800)
+        checks.extend(["Main Dashboard summary", "Responsive mobile dashboard"])
 
         set_labeled_control(driver, "Project Name *", PROJECT_NAME)
         set_labeled_control(driver, "Target *", "EGFR")
@@ -123,7 +133,7 @@ def main():
         set_labeled_control(driver, "Description (optional)", "Public ethanol/ethylamine workflow fixture")
         click_button(driver, "Create Project")
         WebDriverWait(driver, 45).until(lambda d: PROJECT_NAME in d.page_source and "No compounds yet" in d.page_source)
-        checks.append("Simplified project creation")
+        checks.append("Simplified project creation and project navigation")
 
         click_button(driver, "Add Compound", last=True)
         WebDriverWait(driver, 60).until(lambda d: "Draw Chemical Structure" in d.page_source and d.find_element(By.ID, "ketcher-editor"))

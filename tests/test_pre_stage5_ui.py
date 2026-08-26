@@ -215,3 +215,20 @@ def test_ui_contract_has_compound_editor_selector_comparison_and_no_pk_tab():
     assert "'pk'" not in source.lower()
     assert (ROOT / "frontend/static/ketcher/standalone/index.html").exists()
     assert "Ketcher 3.5.0" in (ROOT / "frontend/static/ketcher/NOTICE.md").read_text()
+
+
+def test_main_dashboard_contract_and_responsive_layout():
+    source = (ROOT / "frontend/static/app.js").read_text()
+    styles = (ROOT / "frontend/static/app.css").read_text()
+    for phrase in (
+        "MAIN DASHBOARD", "Structure-first drug optimization workspace", "Default Workspace Settings",
+        "Projects", "Compounds", "Default molecule type", "Save first · Calculate on demand",
+        "Project + CompoundVersion", "Continue Current Project", "Open Project",
+    ):
+        assert phrase in source
+    assert "useState('dashboard')" in source
+    assert "function MainDashboard()" in source
+    assert "function ProjectWorkspace()" in source
+    assert "projectTab==='dashboard'?MainDashboard():ProjectWorkspace()" in source
+    assert ".dashboard-project-grid" in styles and ".dashboard-settings" in styles
+    assert "@media(max-width:900px)" in styles and "@media(max-width:620px)" in styles
