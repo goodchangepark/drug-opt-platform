@@ -50,12 +50,13 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
 from .models import (Compound, CompoundVersion, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
+from .pk import ensure_pk_schema, register_pk_routes
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.4.0-stage4b")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.5.0-stage5a1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -68,6 +69,7 @@ def startup():
         ensure_metabolism_schema(engine)
         ensure_optimization_schema(engine)
         ensure_proposal_schema(engine)
+        ensure_pk_schema(engine)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -2348,4 +2350,5 @@ def index():
     response.headers["Cache-Control"] = "no-store, must-revalidate"
     return response
 
+register_pk_routes(app)
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")

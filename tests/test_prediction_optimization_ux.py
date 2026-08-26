@@ -153,4 +153,5 @@ def test_prediction_admet_metabolism_and_optimization_ui_contract():
         "Step 3 — Select Optimization Goal", "Analyze Optimization Strategy", "Generate analogs",
     ):
         assert text in source
-    assert "const tabs=['overview','properties','activity','admet','metabolism','history']" in source
+    assert ("const tabs=['overview','properties','activity','admet','metabolism','history']" in source or
+            "const tabs=['overview','properties','activity','admet','metabolism','pk','history']" in source)

@@ -41,4 +41,30 @@ h1{margin:0 0 10px;font-size:30px;line-height:1.2}.sidebar{padding:18px 16px}.si
 
 /* Prediction workflow, model consensus, and global optimization workspace */
 .endpoint-prediction-grid{display:grid;grid-template-columns:repeat(2,minmax(280px,1fr));gap:12px}.endpoint-prediction-card{border:1px solid var(--line);border-radius:9px;padding:13px;background:#fbfdff}.endpoint-prediction-card h4{margin:0}.consensus-result{display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center;border:1px solid #bfdbfe;background:#eff6ff;border-radius:8px;padding:10px;margin:9px 0}.consensus-result strong{font-size:16px}.consensus-result .small{grid-column:1 / -1}.individual-model-row{display:grid;grid-template-columns:minmax(150px,1fr) auto auto auto;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0}.individual-model-row strong,.individual-model-row span{display:block}.unavailable-collapse{margin-top:12px;border:1px solid var(--line);border-radius:7px;padding:9px;background:#f8fafc}.evidence-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.metabolite-structure{min-width:190px}.metabolite-structure svg{width:180px;max-height:150px}.prediction-workflow-status .workflow-step{min-width:150px}.prediction-workflow-status small{max-width:210px;text-align:center;color:var(--muted)}.optimization-workspace-steps{display:grid;grid-template-columns:repeat(2,minmax(260px,1fr));gap:14px;margin-top:18px}.optimization-workspace-step{border:1px solid var(--line);border-radius:9px;padding:14px;background:#fbfdff}.optimization-workspace-step h3{font-size:15px}.optimization-workspace>.strategy-banner{margin-top:0}
-@media(max-width:900px){.endpoint-prediction-grid,.evidence-columns,.optimization-workspace-steps{grid-template-columns:1fr}.individual-model-row{grid-template-columns:1fr auto}.individual-model-row details{grid-column:1 / -1}}
+
+
+/* Stage 5A-1 PK Data Management and NCA UI */
+.pk-hero-stats{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px;margin:12px 0 18px}
+.pk-hero-stat{background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:12px}
+.pk-hero-stat span{display:block;color:var(--muted);font-size:11px}
+.pk-hero-stat strong{display:block;font-size:20px;margin-top:4px}
+.pk-study-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.pk-study-item{border:1px solid var(--line);border-radius:9px;padding:14px;background:#fbfdff;cursor:pointer;transition:border-color .15s}
+.pk-study-item:hover,.pk-study-item.selected{border-color:var(--accent);background:#eff6ff}
+.pk-study-item h4{margin:0 0 6px;font-size:15px}
+.pk-plot-card{border:1px solid var(--line);border-radius:10px;padding:16px;background:#fff;margin-bottom:16px}
+.pk-plot-shell{position:relative;width:100%;max-width:800px;margin:12px auto}
+.pk-plot-svg{width:100%;height:320px;background:#fbfdff;border:1px solid var(--line);border-radius:8px}
+.pk-nca-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:11px;margin:14px 0}
+.pk-nca-card{background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:12px}
+.pk-nca-card span{display:block;color:var(--muted);font-size:11px;font-weight:600}
+.pk-nca-card strong{display:block;font-size:19px;margin-top:4px}
+.pk-nca-card small{display:block;color:var(--muted);font-size:10.5px;margin-top:2px}
+.pk-nca-warning{border-left:4px solid #f59e0b;background:#fffbeb;border-radius:6px;padding:10px 14px;color:#92400e;margin:10px 0;font-size:12.5px}
+.pk-terminal-override-box{background:#f8fafc;border:1px solid var(--line);border-radius:9px;padding:14px;margin-top:14px}
+.pk-point-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid var(--line);border-radius:6px;background:#fff;margin:4px;cursor:pointer;font-size:12px}
+.pk-point-chip.selected{background:#dbeafe;border-color:#3b82f6;color:#1e40af;font-weight:700}
+.pk-ba-card{border:1px solid #bfdbfe;background:#eff6ff;border-radius:9px;padding:16px;margin-top:16px}
+.pk-ba-card h4{margin:0 0 8px;color:#1e40af;font-size:16px}
+@media(max-width:900px){.pk-hero-stats,.pk-nca-grid{grid-template-columns:repeat(2,1fr)}}
+

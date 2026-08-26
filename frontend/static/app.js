@@ -78,6 +78,13 @@ function App(){
  const [workspace,setWorkspace]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
  const [compareMetrics,setCompareMetrics]=useState(['MW','cLogP','TPSA','QED','Activity','Solubility','Caco-2','PPB','HLM','RLM','hERG','Ames','DILI']),[compareAssay,setCompareAssay]=useState('');
  const [editorReady,setEditorReady]=useState(false);
+ const [pkData,setPkData]=useState(null),[pkSelectedStudyId,setPkSelectedStudyId]=useState(null),[pkSelectedStudyDetails,setPkSelectedStudyDetails]=useState(null);
+ const [pkPlotType,setPkPlotType]=useState('linear'),[pkModalOpen,setPkModalOpen]=useState(false);
+ const [pkStudyForm,setPkStudyForm]=useState({study_name:'',species:'Rat',strain:'',sex:'Unknown',route:'PO',dose:10,dose_unit:'mg/kg',formulation:'',matrix:'Plasma',dosing_frequency:'Single Dose',fed_fasted:'Fasted',lloq:'',lloq_unit:'ng/mL',study_date:'',source:'',notes:''});
+ const [pkObsForm,setPkObsForm]=useState({subject_group_id:'Group Mean',time_raw:'',time_unit:'h',concentration_raw:'',concentration_unit:'ng/mL',blq_flag:false,replicate:'R1',notes:''});
+ const [pkCsvModalOpen,setPkCsvModalOpen]=useState(false),[pkCsvText,setPkCsvText]=useState(''),[pkCsvMapping,setPkCsvMapping]=useState({}),[pkCsvPreview,setPkCsvPreview]=useState(null);
+ const [pkTerminalOverrideMode,setPkTerminalOverrideMode]=useState(false),[pkSelectedTerminalPoints,setPkSelectedTerminalPoints]=useState([]);
+ const [pkBusy,setPkBusy]=useState(false);
  const editorSmiles=useRef('');
 
  const currentVersions=project?.compounds||[];
@@ -104,6 +111,29 @@ function App(){
  const loadMetabolism=async(id=projectId)=>{
   if(!id)return null;
   const data=await api.get('/projects/'+id+'/metabolism');setMetabolism(data);return data;
+ };
+ const loadPkData=async(versionId=detail?.version?.id)=>{
+  if(!detail||!versionId)return null;
+  const data=await api.get('/compounds/'+detail.row_id+'/pk-studies?version_id='+versionId);
+  setPkData(data);
+  if(data.studies&&data.studies.length>0){
+   const studyId=pkSelectedStudyId&&data.studies.some(s=>s.id===pkSelectedStudyId)?pkSelectedStudyId:data.studies[0].id;
+   setPkSelectedStudyId(studyId);
+   await loadPkStudyDetails(studyId);
+  }else{
+   setPkSelectedStudyId(null);
+   setPkSelectedStudyDetails(null);
+  }
+  return data;
+ };
+ const loadPkStudyDetails=async(studyId)=>{
+  if(!studyId){setPkSelectedStudyDetails(null);return null}
+  const data=await api.get('/pk-studies/'+studyId);
+  setPkSelectedStudyDetails(data);
+  if(data.latest_nca&&data.latest_nca.terminal_points){
+   setPkSelectedTerminalPoints(data.latest_nca.terminal_points);
+  }
+  return data;
  };
  const loadWorkspace=async versionId=>{
   if(!versionId){setWorkspace(null);setAdmet(null);setMetabolism(null);return null}
@@ -145,6 +175,9 @@ function App(){
  useEffect(()=>{
   if(projectId&&detail&&detailTab==='optimization')loadOptimization(detail.version.id).catch(error=>setMessage(String(error)));
  },[projectId,detailTab,detail?.version?.id]);
+ useEffect(()=>{
+  if(detail&&detailTab==='pk'&&detail.version)loadPkData(detail.version.id).catch(error=>setMessage(String(error)));
+ },[detail?.row_id,detailTab,detail?.version?.id]);
  useEffect(()=>{
   if(globalView!=='optimization'||projectTab!=='dashboard')return;
   const requestedProject=Number(optimizationWorkspace.project_id);
@@ -933,11 +966,329 @@ function App(){
   ]);
  }
 
+ function pkConcentrationTimePlot(observations, latestNca, plotType){
+  const obs=(observations||[]).slice().sort((a,b)=>a.time_hours-b.time_hours);
+  if(!obs.length)return e('div',{className:'empty-state'},[StatusBadge({type:'Not measured'}),e('p',{},'No experimental concentration-time points recorded for this study.')]);
+  const quant=obs.filter(o=>!o.blq_flag&&o.concentration_normalized_ng_ml!=null&&o.concentration_normalized_ng_ml>0);
+  const maxTime=Math.max(...obs.map(o=>o.time_hours),1);
+  const maxConc=Math.max(...obs.map(o=>o.concentration_normalized_ng_ml||0),1);
+  const isLog=plotType==='log';
+  const minLog=isLog?-3:0,maxLog=isLog?Math.log10(Math.max(maxConc,1)):maxConc;
+  const padL=60,padR=30,padT=25,padB=45,w=680,h=260;
+  const pw=w-padL-padR,ph=h-padT-padB;
+  const getX=t=>padL+(t/maxTime)*pw;
+  const getY=c=>{
+   if(isLog){
+    const logVal=c>0?Math.log10(c):minLog;
+    const norm=(logVal-minLog)/(maxLog-minLog||1);
+    return padT+ph*(1-Math.max(0,Math.min(1,norm)));
+   }
+   return padT+ph*(1-Math.max(0,Math.min(1,c/maxConc)));
+  };
+  const termSet=new Set(latestNca?.terminal_points||[]);
+  const pointsPath=quant.map((p,i)=>(i===0?'M ':'L ')+getX(p.time_hours)+','+getY(p.concentration_normalized_ng_ml)).join(' ');
+
+  return e('div',{className:'pk-plot-shell'},[
+   e('svg',{className:'pk-plot-svg',viewBox:'0 0 '+w+' '+h,key:'svg'},[
+    [0.25,0.5,0.75,1.0].map(frac=>e('line',{key:'gx-'+frac,x1:padL+pw*frac,y1:padT,x2:padL+pw*frac,y2:padT+ph,stroke:'#e2e8f0',strokeDasharray:'3,3'})),
+    [0.25,0.5,0.75].map(frac=>e('line',{key:'gy-'+frac,x1:padL,y1:padT+ph*frac,x2:padL+pw,y2:padT+ph*frac,stroke:'#e2e8f0',strokeDasharray:'3,3'})),
+    e('line',{key:'xaxis',x1:padL,y1:padT+ph,x2:padL+pw,y2:padT+ph,stroke:'#64748b',strokeWidth:1.5}),
+    e('line',{key:'yaxis',x1:padL,y1:padT,x2:padL,y2:padT+ph,stroke:'#64748b',strokeWidth:1.5}),
+    quant.length>1&&e('path',{key:'line',d:pointsPath,fill:'none',stroke:'#15803d',strokeWidth:2.2}),
+    obs.map(o=>{
+     const cx=getX(o.time_hours),cy=getY(o.blq_flag?0:o.concentration_normalized_ng_ml);
+     const isTerm=termSet.has(o.id);
+     return e('g',{key:o.id},[
+      o.blq_flag?e('rect',{x:cx-4,y:cy-4,width:8,height:8,fill:'#ef4444',stroke:'#b91c1c',strokeWidth:1}):
+      e('circle',{cx,cy,r:isTerm?6:4.5,fill:isTerm?'#3b82f6':'#15803d',stroke:isTerm?'#1e40af':'#14532d',strokeWidth:isTerm?2.5:1.5}),
+      e('text',{x:cx,y:cy-8,textAnchor:'middle',fontSize:9,fill:'#475569'},o.blq_flag?'BLQ':Number(o.concentration_normalized_ng_ml).toFixed(1))
+     ]);
+    }),
+    e('text',{key:'xlabel',x:padL+pw/2,y:h-8,textAnchor:'middle',fontSize:11,fill:'#475569',fontWeight:600},'Time ('+(obs[0]?.time_unit||'h')+')'),
+    e('text',{key:'ylabel',x:15,y:padT+ph/2,textAnchor:'middle',fontSize:11,fill:'#475569',fontWeight:600,transform:'rotate(-90 15 '+(padT+ph/2)+')'},isLog?'Log10 Conc (ng/mL)':'Concentration ('+(obs[0]?.concentration_unit||'ng/mL')+')'),
+    [0,0.5,1.0].map(frac=>e('text',{key:'xtick-'+frac,x:padL+pw*frac,y:padT+ph+15,textAnchor:'middle',fontSize:10,fill:'#64748b'},Number(maxTime*frac).toFixed(1))),
+    [0,0.5,1.0].map(frac=>e('text',{key:'ytick-'+frac,x:padL-6,y:padT+ph*(1-frac)+4,textAnchor:'end',fontSize:10,fill:'#64748b'},isLog?Number(minLog+(maxLog-minLog)*frac).toFixed(1):Number(maxConc*frac).toFixed(1)))
+   ])
+  ]);
+ }
+
+ function pkProfile(versionId){
+  const studies=pkData?.studies||[];
+  const bioavailability=pkData?.bioavailability||[];
+  const selectedStudy=studies.find(s=>s.id===pkSelectedStudyId)||studies[0];
+  const details=pkSelectedStudyDetails;
+
+  const createPkStudyAction=async()=>{
+   if(!pkStudyForm.study_name.trim())return;
+   setPkBusy(true);
+   try{
+    await api.post('/compounds/'+detail.row_id+'/pk-studies',pkStudyForm);
+    setPkModalOpen(false);
+    setPkStudyForm({study_name:'',species:'Rat',strain:'',sex:'Unknown',route:'PO',dose:10,dose_unit:'mg/kg',formulation:'',matrix:'Plasma',dosing_frequency:'Single Dose',fed_fasted:'Fasted',lloq:'',lloq_unit:'ng/mL',study_date:'',source:'',notes:''});
+    await loadPkData(versionId);
+    setMessage('PK Study created successfully');
+   }catch(err){setMessage(String(err))}finally{setPkBusy(false)}
+  };
+
+  const addObservationAction=async()=>{
+   if(!selectedStudy)return;
+   if(pkObsForm.time_raw===''||(pkObsForm.concentration_raw===''&&!pkObsForm.blq_flag))return;
+   setPkBusy(true);
+   try{
+    await api.post('/pk-studies/'+selectedStudy.id+'/observations',[{
+     ...pkObsForm,
+     time_raw:Number(pkObsForm.time_raw),
+     concentration_raw:pkObsForm.blq_flag?null:Number(pkObsForm.concentration_raw)
+    }]);
+    setPkObsForm({subject_group_id:'Group Mean',time_raw:'',time_unit:'h',concentration_raw:'',concentration_unit:'ng/mL',blq_flag:false,replicate:'R1',notes:''});
+    await loadPkStudyDetails(selectedStudy.id);
+    setMessage('Observation added');
+   }catch(err){setMessage(String(err))}finally{setPkBusy(false)}
+  };
+
+  const deleteObservationAction=async(obsId)=>{
+   setPkBusy(true);
+   try{
+    await api.delete('/pk-observations/'+obsId);
+    await loadPkStudyDetails(selectedStudy.id);
+    setMessage('Observation deleted');
+   }catch(err){setMessage(String(err))}finally{setPkBusy(false)}
+  };
+
+  const runNcaAction=async(manualIndices=null)=>{
+   if(!selectedStudy)return;
+   setPkBusy(true);
+   try{
+    await api.post('/pk-studies/'+selectedStudy.id+'/run-nca',{manual_terminal_indices:manualIndices});
+    await Promise.all([loadPkStudyDetails(selectedStudy.id),loadPkData(versionId)]);
+    setMessage('NCA analysis complete');
+   }catch(err){setMessage(String(err))}finally{setPkBusy(false)}
+  };
+
+  const previewCsvAction=async()=>{
+   if(!selectedStudy||!pkCsvText.trim())return;
+   setPkBusy(true);
+   try{
+    const res=await api.post('/pk-studies/'+selectedStudy.id+'/preview-csv',{csv_text:pkCsvText,mapping:pkCsvMapping});
+    setPkCsvPreview(res);
+   }catch(err){setMessage(String(err))}finally{setPkBusy(false)}
+  };
+
+  const importCsvAction=async()=>{
+   if(!selectedStudy||!pkCsvText.trim())return;
+   setPkBusy(true);
+   try{
+    const res=await api.post('/pk-studies/'+selectedStudy.id+'/import-csv',{csv_text:pkCsvText,mapping:pkCsvMapping});
+    setPkCsvModalOpen(false);
+    setPkCsvText('');
+    setPkCsvPreview(null);
+    await loadPkStudyDetails(selectedStudy.id);
+    setMessage('Imported '+res.imported_count+' PK observation(s)');
+   }catch(err){setMessage(String(err))}finally{setPkBusy(false)}
+  };
+
+  const speciesList=[...new Set(studies.map(s=>s.species))].join(', ')||'None';
+  const matchedF=bioavailability.filter(b=>b.status==='MATCHED');
+
+  return e('div',{className:'pk-profile'},[
+   e('div',{className:'card',key:'hero'},[
+    e('div',{className:'row toolbar',key:'head'},[
+     e('div',{},[
+      e('div',{className:'eyebrow'},'EXPERIMENTAL PK & NONCOMPARTMENTAL ANALYSIS (NCA)'),
+      e('h2',{},'PK Studies & Pharmacokinetics'),
+      e('p',{className:'small'},'CompoundVersion-isolated experimental concentration-time measurements, trapezoidal NCA parameter computation, and matched absolute bioavailability.')
+     ]),
+     e('button',{onClick:()=>setPkModalOpen(true)},'Add PK Study')
+    ]),
+    e('div',{className:'pk-hero-stats',key:'stats'},[
+     e('div',{className:'pk-hero-stat',key:'count'},[e('span',{},'PK Studies'),e('strong',{},studies.length)]),
+     e('div',{className:'pk-hero-stat',key:'species'},[e('span',{},'Species Covered'),e('strong',{className:'small'},speciesList)]),
+     e('div',{className:'pk-hero-stat',key:'f-val'},[e('span',{},'Absolute Bioavailability (F)'),e('strong',{className:'mono'},matchedF.length?matchedF.map(b=>b.label+': '+b.bioavailability_pct+'%').join(' · '):'Not calculated')]),
+     e('div',{className:'pk-hero-stat',key:'scope'},[e('span',{},'Scope Isolation'),e('strong',{className:'small'},'CompoundVersion #'+versionId)])
+    ])
+   ]),
+
+   studies.length>0?e('div',{className:'pk-study-list',key:'studies'},studies.map(s=>e('div',{
+    key:s.id,
+    className:'pk-study-item'+(selectedStudy?.id===s.id?' selected':''),
+    onClick:()=>{setPkSelectedStudyId(s.id);loadPkStudyDetails(s.id).catch(err=>setMessage(String(err)))}
+   },[
+    e('div',{className:'row toolbar',key:'h'},[e('h4',{},s.study_name),StatusBadge({type:s.latest_nca?'CALCULATED':'EXPERIMENTAL'})]),
+    e('div',{className:'small mono'},s.species+' · '+s.route+' '+s.dose+' '+s.dose_unit+' · '+s.matrix),
+    e('div',{className:'small'},s.observation_count+' observation points'+(s.latest_nca?' · t1/2 '+(s.latest_nca.terminal_half_life?Number(s.latest_nca.terminal_half_life).toFixed(2)+' h':'—'):''))
+   ]))):e('div',{className:'empty-state'},[StatusBadge({type:'Not measured'}),e('p',{},'No PK studies recorded for this CompoundVersion. Click Add PK Study above.')]),
+
+   selectedStudy&&e('div',{key:'selected-study-view'},[
+    e('section',{className:'card pk-plot-card',key:'section-1'},[
+     e('div',{className:'eyebrow'},'1 · EXPERIMENTAL CONCENTRATION-TIME'),
+     e('div',{className:'row toolbar',key:'tbar'},[
+      e('div',{},[
+       e('h3',{},selectedStudy.study_name+' · Experimental Data'),
+       e('p',{className:'small'},selectedStudy.species+' · '+selectedStudy.route+' '+selectedStudy.dose+' '+selectedStudy.dose_unit+' · Matrix: '+selectedStudy.matrix+(selectedStudy.formulation?' ('+selectedStudy.formulation+')':''))
+      ]),
+      e('div',{className:'row'},[
+       e('div',{className:'manual-actions'},[
+        e('button',{className:pkPlotType==='linear'?'':'secondary',onClick:()=>setPkPlotType('linear')},'Linear Plot'),
+        e('button',{className:pkPlotType==='log'?'':'secondary',onClick:()=>setPkPlotType('log')},'Semi-Log Plot')
+       ]),
+       e('button',{className:'secondary',onClick:()=>setPkCsvModalOpen(true)},'Import CSV'),
+       e('button',{className:'danger',onClick:async()=>{if(confirm('Delete study '+selectedStudy.study_name+'?')){await api.delete('/pk-studies/'+selectedStudy.id);loadPkData(versionId);}}},'Delete Study')
+      ])
+     ]),
+
+     pkConcentrationTimePlot(details?.observations,details?.latest_nca,pkPlotType),
+
+     e('h4',{style:{marginTop:'16px'}},'Concentration-Time Points'),
+     (details?.observations||[]).length?e('table',{key:'obs-table'},[
+      e('thead',{},e('tr',{},['Time (raw)','Time (h)','Concentration (raw)','Concentration (ng/mL)','BLQ','Replicate','Subject/Group','Notes',''].map(l=>e('th',{key:l},l)))),
+      e('tbody',{},details.observations.map(obs=>e('tr',{key:obs.id},[
+       e('td',{className:'mono'},obs.time_raw+' '+obs.time_unit),
+       e('td',{className:'mono'},obs.time_hours),
+       e('td',{className:'mono'},obs.blq_flag?'BLQ':(obs.concentration_raw!=null?obs.concentration_raw+' '+obs.concentration_unit:'—')),
+       e('td',{className:'mono'},obs.blq_flag?'BLQ':(obs.concentration_normalized_ng_ml!=null?Number(obs.concentration_normalized_ng_ml).toFixed(2)+' ng/mL':'—')),
+       e('td',{},obs.blq_flag?StatusBadge({type:'fail',text:'BLQ'}):'No'),
+       e('td',{},obs.replicate),
+       e('td',{},obs.subject_group_id),
+       e('td',{className:'small'},obs.notes||'—'),
+       e('td',{},e('button',{className:'danger',style:{padding:'3px 7px',fontSize:'11px'},onClick:()=>deleteObservationAction(obs.id)},'Delete'))
+      ])))
+     ]):e('div',{className:'empty-state'},[StatusBadge({type:'Not measured'}),e('p',{},'No concentration-time points. Add a point below or import CSV.')]),
+
+     e('div',{className:'grid',style:{marginTop:'14px'},key:'add-obs'},[
+      e('div',{className:'col-2'},Field({label:'Time *',type:'number',value:pkObsForm.time_raw,onChange:v=>setPkObsForm(c=>({...c,time_raw:v}))})),
+      e('div',{className:'col-2'},[e('label',{},'Time Unit'),e('select',{value:pkObsForm.time_unit,onChange:ev=>setPkObsForm(c=>({...c,time_unit:ev.target.value}))},['h','min','sec','day'].map(u=>e('option',{key:u,value:u},u)))]),
+      e('div',{className:'col-2'},Field({label:'Concentration',type:'number',disabled:pkObsForm.blq_flag,value:pkObsForm.concentration_raw,onChange:v=>setPkObsForm(c=>({...c,concentration_raw:v}))})),
+      e('div',{className:'col-2'},[e('label',{},'Conc Unit'),e('select',{value:pkObsForm.concentration_unit,disabled:pkObsForm.blq_flag,onChange:ev=>setPkObsForm(c=>({...c,concentration_unit:ev.target.value}))},['ng/mL','pg/mL','µg/mL','mg/L','nM','µM'].map(u=>e('option',{key:u,value:u},u)))]),
+      e('div',{className:'col-2'},[e('label',{},'BLQ Flag'),e('label',{className:'check-option',style:{marginTop:'6px'}},[e('input',{type:'checkbox',checked:pkObsForm.blq_flag,onChange:ev=>setPkObsForm(c=>({...c,blq_flag:ev.target.checked}))}),e('span',{},'Is BLQ')])]),
+      e('div',{className:'col-2'},[e('label',{},'Action'),e('button',{disabled:pkBusy,onClick:addObservationAction},'Add Point')])
+     ])
+    ]),
+
+    e('section',{className:'card',key:'section-2'},[
+     e('div',{className:'eyebrow'},'2 · CALCULATED NONCOMPARTMENTAL ANALYSIS (NCA)'),
+     e('div',{className:'row toolbar',key:'tbar'},[
+      e('div',{},[
+       e('h3',{},'Calculated NCA Parameters'),
+       e('p',{className:'small'},'Calculated parameters are deterministic noncompartmental outputs from observed experimental points. They are explicitly not AI predictions.')
+      ]),
+      e('button',{disabled:pkBusy||!(details?.observations||[]).length,onClick:()=>runNcaAction()},pkBusy?'Calculating…':'Run / Recalculate NCA')
+     ]),
+
+     details?.latest_nca?e('div',{key:'nca-results'},[
+      e('div',{className:'pk-nca-grid',key:'cards'},[
+       e('div',{className:'pk-nca-card',key:'cmax'},[e('span',{},'Cmax (observed)'),e('strong',{className:'mono'},details.latest_nca.cmax!=null?Number(details.latest_nca.cmax).toFixed(2):'—'),e('small',{},details.latest_nca.cmax_unit)]),
+       e('div',{className:'pk-nca-card',key:'tmax'},[e('span',{},'Tmax (observed)'),e('strong',{className:'mono'},details.latest_nca.tmax!=null?details.latest_nca.tmax:'—'),e('small',{},details.latest_nca.tmax_unit)]),
+       e('div',{className:'pk-nca-card',key:'auclast'},[e('span',{},'AUClast'),e('strong',{className:'mono'},details.latest_nca.auclast!=null?Number(details.latest_nca.auclast).toFixed(1):'—'),e('small',{},details.latest_nca.auclast_unit)]),
+       e('div',{className:'pk-nca-card',key:'aucinf'},[e('span',{},'AUCinf'),e('strong',{className:'mono'},details.latest_nca.aucinf!=null?Number(details.latest_nca.aucinf).toFixed(1):'—'),e('small',{},details.latest_nca.aucinf_unit)]),
+       e('div',{className:'pk-nca-card',key:'t12'},[e('span',{},'Terminal t1/2'),e('strong',{className:'mono'},details.latest_nca.terminal_half_life!=null?Number(details.latest_nca.terminal_half_life).toFixed(2):'—'),e('small',{},'hours')]),
+       selectedStudy.route==='IV'?
+        e('div',{className:'pk-nca-card',key:'cl'},[e('span',{},'Clearance (CL)'),e('strong',{className:'mono'},details.latest_nca.cl!=null?Number(details.latest_nca.cl).toFixed(2):'—'),e('small',{},details.latest_nca.cl_unit)]):
+        e('div',{className:'pk-nca-card',key:'clf'},[e('span',{},'Apparent CL (CL/F)'),e('strong',{className:'mono'},details.latest_nca.cl_f!=null?Number(details.latest_nca.cl_f).toFixed(2):'—'),e('small',{},details.latest_nca.cl_f_unit)]),
+       selectedStudy.route==='IV'?
+        e('div',{className:'pk-nca-card',key:'vz'},[e('span',{},'Volume of Dist (Vz)'),e('strong',{className:'mono'},details.latest_nca.vz!=null?Number(details.latest_nca.vz).toFixed(2):'—'),e('small',{},details.latest_nca.vz_unit)]):
+        e('div',{className:'pk-nca-card',key:'vzf'},[e('span',{},'Apparent Vz (Vz/F)'),e('strong',{className:'mono'},details.latest_nca.vz_f!=null?Number(details.latest_nca.vz_f).toFixed(2):'—'),e('small',{},details.latest_nca.vz_f_unit)]),
+       e('div',{className:'pk-nca-card',key:'extrap'},[e('span',{},'AUC Extrapolated %'),e('strong',{className:'mono'},details.latest_nca.auc_extrapolated_pct!=null?Number(details.latest_nca.auc_extrapolated_pct).toFixed(1)+'%':'—'),e('small',{},details.latest_nca.auc_extrapolated_pct>20?'High extrapolation':'')]),
+       e('div',{className:'pk-nca-card',key:'r2'},[e('span',{},'Terminal R² (adj)'),e('strong',{className:'mono'},details.latest_nca.adjusted_r2!=null?Number(details.latest_nca.adjusted_r2).toFixed(3):'—'),e('small',{},details.latest_nca.terminal_point_count+' terminal points')]),
+       e('div',{className:'pk-nca-card',key:'mrt'},[e('span',{},'MRT'),e('strong',{className:'mono'},details.latest_nca.mrt!=null?Number(details.latest_nca.mrt).toFixed(2):'—'),e('small',{},'hours')])
+      ]),
+
+      (details.latest_nca.warnings||[]).length>0&&e('div',{className:'pk-nca-warning',key:'warn'},[
+       e('strong',{},'NCA Warnings / Reliability Notes:'),
+       e('ul',{style:{margin:'4px 0 0',paddingLeft:'20px'}},details.latest_nca.warnings.map(w=>e('li',{key:w},w)))
+      ]),
+
+      e('div',{className:'pk-terminal-override-box',key:'term-box'},[
+       e('div',{className:'row toolbar'},[
+        e('div',{},[
+         e('strong',{},'Terminal Phase Selection ('+details.latest_nca.selection_mode+')'),
+         e('span',{className:'small'},' λz = '+(details.latest_nca.lambda_z?Number(details.latest_nca.lambda_z).toFixed(4):'—')+' h⁻¹ · Regression points: '+(details.latest_nca.terminal_points||[]).join(', '))
+        ]),
+        e('button',{className:'secondary',onClick:()=>setPkTerminalOverrideMode(!pkTerminalOverrideMode)},pkTerminalOverrideMode?'Cancel Override':'Manual Terminal Override')
+       ]),
+       pkTerminalOverrideMode&&e('div',{style:{marginTop:'10px'}},[
+        e('p',{className:'small'},'Click data points to select/deselect points for terminal log-linear regression:'),
+        e('div',{},(details?.observations||[]).map(o=>e('span',{
+         key:o.id,
+         className:'pk-point-chip'+(pkSelectedTerminalPoints.includes(o.id)?' selected':''),
+         onClick:()=>{
+          setPkSelectedTerminalPoints(cur=>cur.includes(o.id)?cur.filter(i=>i!==o.id):[...cur,o.id]);
+         }
+        },'t='+o.time_raw+'h ('+(o.blq_flag?'BLQ':o.concentration_raw+')')))),
+        e('button',{style:{marginTop:'10px'},onClick:()=>runNcaAction(pkSelectedTerminalPoints)},'Apply Manual Terminal Override')
+       ])
+      ]),
+
+      e('details',{style:{marginTop:'14px'},key:'prov'},[
+       e('summary',{},'NCA Engine Provenance & Calculation Parameters'),
+       e('div',{className:'small',style:{marginTop:'6px'}},[
+        e('div',{},'Engine: '+details.latest_nca.nca_engine+' v'+details.latest_nca.nca_engine_version),
+        e('div',{},'Method: '+details.latest_nca.calculation_method),
+        e('div',{},'Analysis Version: #'+details.latest_nca.analysis_version+' · Timestamp: '+details.latest_nca.calculation_timestamp),
+        e('div',{},'BLQ Policy: '+JSON.stringify(details.latest_nca.blq_policy))
+       ])
+      ])
+     ]):e('div',{className:'empty-state'},[StatusBadge({type:'Not calculated'}),e('p',{},'No NCA calculation performed yet. Click Run / Recalculate NCA above.')])
+    ]),
+
+    e('section',{className:'pk-ba-card',key:'section-3'},[
+     e('div',{className:'eyebrow'},'3 · ABSOLUTE BIOAVAILABILITY (F)'),
+     e('h4',{},'Matched Species Absolute Bioavailability'),
+     (bioavailability||[]).length?e('div',{},bioavailability.map(b=>e('div',{key:b.study_id||b.species,style:{marginTop:'8px'}},[
+      b.status==='MATCHED'?e('div',{className:'pass'},[
+       e('strong',{},b.label+' ('+b.species+'): '),
+       e('span',{className:'mono',style:{fontSize:'18px'}},b.bioavailability_pct+'%'),
+       e('span',{className:'small',style:{marginLeft:'10px'}},b.message)
+      ]):e('div',{className:'small alert'},[e('strong',{},b.species+' '+b.route+': '),b.message])
+     ]))):e('p',{className:'small'},'Absolute bioavailability cannot be calculated without a matched IV study.')
+    ])
+   ]),
+
+   pkModalOpen&&e('div',{className:'modal-backdrop',key:'study-modal'},e('div',{className:'card compound-modal'},[
+    e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Add PK Study'),e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Close')]),
+    e('div',{className:'grid'},[
+     e('div',{className:'col-6'},Field({label:'Study Name *',value:pkStudyForm.study_name,onChange:v=>setPkStudyForm(c=>({...c,study_name:v})),placeholder:'e.g. Single dose oral PK in SD rats'})),
+     e('div',{className:'col-3'},[e('label',{},'Species *'),e('select',{value:pkStudyForm.species,onChange:ev=>setPkStudyForm(c=>({...c,species:ev.target.value}))},['Rat','Mouse','Dog','Monkey','Human','Custom'].map(s=>e('option',{key:s,value:s},s)))]),
+     e('div',{className:'col-3'},Field({label:'Strain',value:pkStudyForm.strain,onChange:v=>setPkStudyForm(c=>({...c,strain:v})),placeholder:'e.g. Sprague-Dawley'})),
+     e('div',{className:'col-3'},[e('label',{},'Sex'),e('select',{value:pkStudyForm.sex,onChange:ev=>setPkStudyForm(c=>({...c,sex:ev.target.value}))},['Male','Female','Mixed','Unknown'].map(s=>e('option',{key:s,value:s},s)))]),
+     e('div',{className:'col-3'},[e('label',{},'Route *'),e('select',{value:pkStudyForm.route,onChange:ev=>setPkStudyForm(c=>({...c,route:ev.target.value}))},['PO','IV','SC','IP','Custom'].map(r=>e('option',{key:r,value:r},r)))]),
+     e('div',{className:'col-3'},Field({label:'Dose *',type:'number',value:pkStudyForm.dose,onChange:v=>setPkStudyForm(c=>({...c,dose:v}))})),
+     e('div',{className:'col-3'},[e('label',{},'Dose Unit *'),e('select',{value:pkStudyForm.dose_unit,onChange:ev=>setPkStudyForm(c=>({...c,dose_unit:ev.target.value}))},['mg/kg','µg/kg','mg','µg'].map(u=>e('option',{key:u,value:u},u)))]),
+     e('div',{className:'col-4'},Field({label:'Matrix',value:pkStudyForm.matrix,onChange:v=>setPkStudyForm(c=>({...c,matrix:v})),placeholder:'Plasma'})),
+     e('div',{className:'col-4'},Field({label:'Formulation',value:pkStudyForm.formulation,onChange:v=>setPkStudyForm(c=>({...c,formulation:v}))})),
+     e('div',{className:'col-4'},Field({label:'Study Date',type:'date',value:pkStudyForm.study_date,onChange:v=>setPkStudyForm(c=>({...c,study_date:v}))})),
+     e('div',{className:'col-6'},Field({label:'Source / CRO',value:pkStudyForm.source,onChange:v=>setPkStudyForm(c=>({...c,source:v}))})),
+     e('div',{className:'col-6'},Field({label:'Notes',value:pkStudyForm.notes,onChange:v=>setPkStudyForm(c=>({...c,notes:v}))}))
+    ]),
+    e('div',{className:'row modal-actions'},[
+     e('button',{disabled:pkBusy||!pkStudyForm.study_name.trim(),onClick:createPkStudyAction},pkBusy?'Saving…':'Create PK Study'),
+     e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Cancel')
+    ])
+   ])),
+
+   pkCsvModalOpen&&e('div',{className:'modal-backdrop',key:'csv-modal'},e('div',{className:'card compound-modal'},[
+    e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Import PK Observation CSV'),e('button',{className:'secondary',onClick:()=>setPkCsvModalOpen(false)},'Close')]),
+    e('p',{className:'small'},'Paste CSV concentration-time data below. Columns will be auto-detected or can be explicitly mapped.'),
+    e('textarea',{rows:8,value:pkCsvText,placeholder:'time,concentration,subject,blq\n0.0,0.0,Rat_1,0\n0.5,25.4,Rat_1,0\n1.0,88.1,Rat_1,0\n2.0,54.2,Rat_1,0\n4.0,18.9,Rat_1,0\n8.0,BLQ,Rat_1,1\n',onChange:ev=>{setPkCsvText(ev.target.value);setPkCsvPreview(null)}}),
+    e('div',{className:'row',style:{marginTop:'12px'}},[
+     e('button',{className:'secondary',disabled:pkBusy||!pkCsvText.trim(),onClick:previewCsvAction},'Preview & Validate CSV'),
+     e('button',{disabled:pkBusy||!pkCsvPreview||pkCsvPreview.valid_count===0,onClick:importCsvAction},'Import '+(pkCsvPreview?.valid_count||0)+' Valid Rows')
+    ]),
+    pkCsvPreview&&e('div',{style:{marginTop:'14px'}},[
+     e('div',{className:pkCsvPreview.error_count?'fail':'pass'},pkCsvPreview.valid_count+' valid rows · '+pkCsvPreview.error_count+' errors'),
+     pkCsvPreview.preview_rows.length>0&&e('table',{style:{marginTop:'8px'}},[
+      e('thead',{},e('tr',{},['Time','Concentration','Subject','BLQ'].map(h=>e('th',{key:h},h)))),
+      e('tbody',{},pkCsvPreview.preview_rows.map((r,i)=>e('tr',{key:i},[e('td',{},r.time_raw+' h'),e('td',{},r.blq_flag?'BLQ':r.concentration_raw+' ng/mL'),e('td',{},r.subject),e('td',{},r.blq_flag?'Yes':'No')])))
+     ])
+    ])
+   ]))
+  ]);
+ }
+
  function compoundDetail(){
   if(!detail)return null;
   const version=detail.version,detailMeasurements=admet?.measurements||[],detailRuns=admet?.prediction_runs||[],detailPredictions=admet?.predictions||[];
   const activity=workspace?.activity||{measurements:[],predictions:[]},properties=version?.properties||{};
-  const tabs=['overview','properties','activity','admet','metabolism','history'];
+  const tabs=['overview','properties','activity','admet','metabolism','pk','history'];
   const highlights=detailPredictions.filter((row,index,array)=>array.findIndex(item=>item.endpoint===row.endpoint)===index).slice(0,5);
   const activityTable=e('div',{},[
    e('h3',{key:'exp'},'Experimental Activity'),activity.measurements.length?e('table',{key:'exp-table'},[e('thead',{},e('tr',{},['Assay','Measurement','Value','Source'].map(x=>e('th',{key:x},x)))),e('tbody',{},activity.measurements.map(row=>e('tr',{key:row.id},[e('td',{},row.assay),e('td',{},row.measurement_type),e('td',{className:'mono'},row.qualifier+' '+row.value+' '+row.unit),e('td',{},[StatusBadge({type:'Experimental'}),' '+row.source])])))]):e('div',{className:'empty-state'},[StatusBadge({type:'Not measured'}),e('p',{},'No experimental activity measurement entered.')]),
@@ -945,7 +1296,7 @@ function App(){
   ]);
   return e('div',{className:'compound-workspace'},[
    e('div',{className:'card compound-hero',key:'hero'},[e('div',{className:'compound-hero-structure'},Svg({src:version?.highlighted_svg||version?.svg})),e('div',{className:'compound-hero-copy'},[e('div',{className:'eyebrow'},'COMPOUND DETAIL'),e('h2',{},detail.name),e('div',{className:'row'},[StatusBadge({type:detail.status}),e('span',{className:'mono'},detail.compound_id+(version?' · Version '+version.version_number:' · No structure version'))]),e('p',{className:'small'},workspace?'Strict scope: Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id:'Draft compound; no version-linked data exists.'),e('div',{className:'row'},[version&&e('button',{className:'secondary',onClick:updateStructure},'Modify Structure / New Version'),e('button',{className:'secondary',onClick:()=>setDetail(null)},'Back to Compounds')])])]),
-   e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>e('button',{key:tab,className:detailTab===tab?'':'secondary',disabled:!version&&['properties','activity','admet','metabolism'].includes(tab),onClick:()=>setDetailTab(tab)},tab.toUpperCase()))),
+   e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>e('button',{key:tab,className:detailTab===tab?'':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk'].includes(tab),onClick:()=>setDetailTab(tab)},tab.toUpperCase()))),
    detailTab==='overview'&&e('div',{className:'grid',key:'overview'},[
     e('div',{className:'card col-4'},[
      e('h3',{},'Key Properties'),

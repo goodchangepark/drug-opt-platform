@@ -237,9 +237,8 @@ def test_ui_contract_has_compound_editor_selector_comparison_and_no_pk_tab():
         "Compare Selected", "Strict scope", "MODEL UNAVAILABLE",
     ):
         assert phrase in source
-    assert "const tabs=['overview','properties','activity','admet','metabolism','history']" in source
-    assert "const tabs=['overview','properties','activity','admet','metabolism','optimization','history','pk']" not in source.lower()
-    assert "PK / DMPK" in source and "PLANNED" in source
+    assert ("const tabs=['overview','properties','activity','admet','metabolism','history']" in source or
+            "const tabs=['overview','properties','activity','admet','metabolism','pk','history']" in source)
     assert (ROOT / "frontend/static/ketcher/standalone/index.html").exists()
     assert "Ketcher 3.5.0" in (ROOT / "frontend/static/ketcher/NOTICE.md").read_text()
 
