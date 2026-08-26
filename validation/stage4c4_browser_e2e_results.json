@@ -1,0 +1,37 @@
+{
+  "stage": "4C-4",
+  "run_id": "20260827-085034",
+  "base_url": "http://127.0.0.1:8833",
+  "checks": [
+    {
+      "name": "1. Dashboard Navigation",
+      "status": "PASS"
+    },
+    {
+      "name": "2. Project Workspace Render",
+      "status": "PASS"
+    },
+    {
+      "name": "3. Properties -> Ionization & pH Behavior DOM Verification",
+      "status": "PASS"
+    },
+    {
+      "name": "4. Interactive Custom pH Calculator Execution",
+      "status": "PASS"
+    },
+    {
+      "name": "5. ADMET Workspace Render",
+      "status": "PASS"
+    },
+    {
+      "name": "6. PK Workspace & Ionization Governance DOM Render",
+      "status": "PASS"
+    },
+    {
+      "name": "7. Zero Uncaught JS Errors Check",
+      "status": "PASS"
+    }
+  ],
+  "screenshot": "/home/xavier/chem/drug-opt-platform/validation/stage4c4_browser_e2e.png",
+  "status": "PASS"
+}

@@ -38,19 +38,169 @@ const TRANSPORTER_ENDPOINTS=new Set([
 const SAFETY_ENDPOINTS=new Set(['hERG liability','Ames mutagenicity','DILI clinical liability']);
 const OPTIONAL_SAFETY_ENDPOINTS=new Set(['Mitochondrial toxicity','General cytotoxicity','Skin sensitization','BBB penetration','CNS liability']);
 const EXPERIMENT_OPTIONS=[
+ ['pKa — acidic','Physicochemistry'],['pKa — basic','Physicochemistry'],['pKa — macroscopic','Physicochemistry'],['pKa — microscopic','Physicochemistry'],
+ ['logP','Physicochemistry'],['logD (pH mandatory)','Physicochemistry'],
+ ['Intrinsic solubility','Physicochemistry'],['Kinetic solubility','Physicochemistry'],['Thermodynamic solubility','Physicochemistry'],
  ['Solubility','ADME'],['Caco-2 Permeability','ADME'],['Plasma Protein Binding (PPB)','ADME'],
  ['Human Microsomal Stability','ADME'],['Rat Microsomal Stability','ADME'],['Hepatocyte Stability','ADME'],['CYP Inhibition','ADME'],['Transporter','ADME'],
  ['Activity','Activity'],['hERG','Safety'],['Ames','Safety'],['DILI','Safety']
 ];
 const EXPERIMENT_PRESETS={
+ 'Physicochemical Profile':['pKa — macroscopic','logP','logD (pH mandatory)','Intrinsic solubility'],
  'Standard Early ADME':['Solubility','Caco-2 Permeability','Plasma Protein Binding (PPB)','Human Microsomal Stability','Rat Microsomal Stability'],
  'DDI Panel':['CYP Inhibition']
 };
-const EMPTY_EXPERIMENT={value:'',unit:'',species:'Human',measurement:'',assay:'',role:'Inhibition',isoform:'3A4',transporter:'P-gp',matrix:'',pH:'',medium:'',solubility_type:'',source:'User experimental',notes:'',assay_id:''};
+const EMPTY_EXPERIMENT={value:'',unit:'',species:'Human',measurement:'',assay:'',role:'Inhibition',isoform:'3A4',transporter:'P-gp',matrix:'',pH:'7.4',medium:'',solubility_type:'Thermodynamic',source:'User experimental',notes:'',assay_id:'',pka_type:'macroscopic',method:'Potentiometric titration',temperature_c:'25.0',ionic_strength_m:'0.15'};
 
 function StatusBadge({type}){
  const labels={Experimental:'EXP',Calculated:'CALC',Predicted:'PRED','Not calculated':'NOT CALCULATED','Not measured':'NOT MEASURED','Not predicted':'NOT PREDICTED','Model unavailable':'MODEL UNAVAILABLE','Not applicable':'NOT APPLICABLE',DRAFT:'DRAFT',STRUCTURE_READY:'STRUCTURE READY',CALCULATED:'CALCULATED',READY:'READY',LIMITED:'LIMITED',MODEL_UNAVAILABLE:'MODEL UNAVAILABLE',PLANNED:'PLANNED',PARTIAL:'PARTIAL',NOT_STARTED:'NOT STARTED',NOT_RUN:'NOT RUN',EXPERIMENTAL:'EXPERIMENTAL',PREDICTED:'PREDICTED'};
  return e('span',{className:'status-badge status-'+String(type||'not-applicable').toLowerCase().replace(/[^a-z]+/g,'-')},labels[type]||type||'NOT APPLICABLE');
+}
+
+function IonizationSection({version}){
+ const ion=version?.ionization||{};
+ const ionClass=ion.ionization_class||'NEUTRAL';
+ const centers=ion.ionizable_centers||[];
+ const profiles=ion.ph_profiles||[];
+ const admetCtx=ion.admet_context||{};
+ const [customPh,setCustomPh]=useState('5.5');
+ const [customPhResult,setCustomPhResult]=useState(null);
+
+ const calcCustomPh=()=>{
+  const ph=parseFloat(customPh);
+  if(isNaN(ph)||ph<0||ph>14)return;
+  const repPka=ion.primary_pka;
+  if(ionClass==='NEUTRAL'||repPka==null){
+   setCustomPhResult({ph,dom:'Predominantly neutral',fn:100.0,fi:0.0,logd:version?.properties?.clogp});
+   return;
+  }
+  if(ionClass==='ACID'){
+   const dp=repPka-ph;
+   const fi=dp>15?0:(dp<-15?1:1/(1+Math.pow(10,dp)));
+   const fn=1-fi;
+   const dom=fi>=0.8?'Predominantly ionized (anion)':(fn>=0.8?'Predominantly neutral':'Mixed ionization');
+   const logd=Number(version?.properties?.clogp||0)-Math.log10(1+Math.pow(10,ph-repPka));
+   setCustomPhResult({ph,dom,fn:Math.round(fn*1000)/10,fi:Math.round(fi*1000)/10,logd:Math.round(logd*100)/100});
+  }else if(ionClass==='BASE'){
+   const dp=ph-repPka;
+   const fi=dp>15?0:(dp<-15?1:1/(1+Math.pow(10,dp)));
+   const fn=1-fi;
+   const dom=fi>=0.8?'Predominantly protonated (cation)':(fn>=0.8?'Predominantly neutral (free base)':'Mixed ionization');
+   const logd=Number(version?.properties?.clogp||0)-Math.log10(1+Math.pow(10,repPka-ph));
+   setCustomPhResult({ph,dom,fn:Math.round(fn*1000)/10,fi:Math.round(fi*1000)/10,logd:Math.round(logd*100)/100});
+  }else{
+   setCustomPhResult({ph,dom:'Complex polyprotic species',fn:50.0,fi:50.0,logd:version?.properties?.clogp});
+  }
+ };
+
+ return e('section',{className:'card',key:'ionization-section',style:{marginTop:'16px'}},[
+  e('div',{className:'eyebrow'},'IONIZATION & pH-DEPENDENT PHYSICOCHEMISTRY'),
+  e('div',{className:'row toolbar'},[
+   e('h3',{},'Ionization State, pKa & pH Profiles'),
+   e('span',{className:'badge '+(ionClass==='NEUTRAL'?'pass':(ionClass==='BASE'||ionClass==='ACID'?'info':'warn'))},'CLASS: '+ionClass)
+  ]),
+  e('p',{},ion.class_summary||'Deterministic structural ionization assessment.'),
+  e('div',{className:'grid',style:{marginTop:'12px'}},[
+   e('div',{className:'col-3'},[
+    e('div',{className:'small'},'Primary pKa'),
+    e('strong',{className:'mono',style:{fontSize:'16px'}},ion.primary_pka!=null?String(ion.primary_pka):'None (neutral)'),
+    e('div',{className:'small',style:{color:'#666'}},ion.primary_pka_source||'—')
+   ]),
+   e('div',{className:'col-3'},[
+    e('div',{className:'small'},'Calculated cLogP (Crippen)'),
+    e('strong',{className:'mono',style:{fontSize:'16px'}},String(version?.properties?.clogp??'—')),
+    e('div',{className:'small',style:{color:'#666'}},'Intrinsic uncharged partition')
+   ]),
+   e('div',{className:'col-3'},[
+    e('div',{className:'small'},'Estimated logD (pH 7.4)'),
+    e('strong',{className:'mono',style:{fontSize:'16px'}},String(ion.physiological_state_7_4?.estimated_logd74??version?.properties?.clogp??'—')),
+    e('div',{className:'small',style:{color:'#666'}},'Physiological distribution coeff')
+   ]),
+   e('div',{className:'col-3'},[
+    e('div',{className:'small'},'Quantitative ML pKa'),
+    e('span',{className:'status-badge status-model-unavailable'},'MODEL UNAVAILABLE'),
+    e('div',{className:'small',style:{color:'#666'}},'Rule engine active; ML uninstalled')
+   ])
+  ]),
+
+  e('div',{style:{marginTop:'18px'}},[
+   e('h4',{},'Ionizable Centers ('+centers.length+')'),
+   centers.length?e('table',{},[
+    e('thead',{},e('tr',{},['Atom #','Symbol','Motif Name','Type','Typical Range','Rule pKa','Evidence'].map(h=>e('th',{key:h},h)))),
+    e('tbody',{},centers.map((c,i)=>e('tr',{key:i},[
+     e('td',{className:'mono'},'#'+c.atom_index),
+     e('td',{},c.atom_symbol),
+     e('td',{},e('strong',{},c.motif_name)),
+     e('td',{},e('span',{className:c.type==='ACID'?'info':'pass'},c.type)),
+     e('td',{className:'mono'},c.typical_pka_range?c.typical_pka_range[0]+' – '+c.typical_pka_range[1]:'—'),
+     e('td',{className:'mono'},c.estimated_rule_pka??'—'),
+     e('td',{className:'small'},c.evidence)
+    ])))
+   ]):e('p',{className:'small'},'No ionizable centers detected (100% neutral non-electrolyte across physiological pH range).')
+  ]),
+
+  e('div',{style:{marginTop:'18px'}},[
+   e('h4',{},'pH-Dependent Ionization & Partitioning Profile'),
+   profiles.length?e('table',{},[
+    e('thead',{},e('tr',{},['pH','Physiological Region','Dominant State','Neutral Fraction','Ionized Fraction','Estimated logD','Evidence / Note'].map(h=>e('th',{key:h},h)))),
+    e('tbody',{},profiles.map((p,i)=>{
+     const region=p.ph===1.2?'Fasted Stomach':(p.ph===2.0?'Fed Stomach':(p.ph===4.5?'Duodenum (Proximal GI)':(p.ph===6.5?'Jejunum (Mid GI)':(p.ph===7.4?'Blood / Plasma / Caco-2':'Custom'))));
+     return e('tr',{key:i,style:p.ph===7.4?{background:'#f0f7ff',fontWeight:'bold'}:{}},[
+      e('td',{className:'mono'},p.ph.toFixed(1)),
+      e('td',{},region),
+      e('td',{},p.dominant_state),
+      e('td',{className:'mono'},(p.fraction_neutral*100).toFixed(1)+'%'),
+      e('td',{className:'mono'},(p.fraction_ionized*100).toFixed(1)+'%'),
+      e('td',{className:'mono'},p.estimated_logd!=null?p.estimated_logd.toFixed(2):'—'),
+      e('td',{className:'small'},p.logd_note||p.evidence_source)
+     ]);
+    }))
+   ]):null,
+   e('div',{className:'row',style:{marginTop:'10px',alignItems:'center',gap:'8px'}},[
+    e('span',{className:'small'},'Evaluate custom pH:'),
+    e('input',{type:'number',step:'0.1',min:'0',max:'14',value:customPh,onChange:ev=>setCustomPh(ev.target.value),style:{width:'80px'}}),
+    e('button',{className:'secondary',onClick:calcCustomPh},'Calculate Fraction'),
+    customPhResult&&e('span',{className:'small mono',style:{marginLeft:'10px'}},'pH '+customPhResult.ph+': '+customPhResult.dom+' · Neutral: '+customPhResult.fn+'% · Ionized: '+customPhResult.fi+'% · logD: '+customPhResult.logd)
+   ])
+  ]),
+
+  e('div',{style:{marginTop:'18px'}},[
+   e('h4',{},'Downstream ADMET & PK Contextual Interpretation'),
+   e('div',{className:'grid'},[
+    e('div',{className:'col-6 card',style:{background:'#fafafa'}},[
+     e('strong',{},'Aqueous Solubility: '),
+     e('p',{className:'small'},admetCtx.solubility?.summary||'Neutral compound; pH-independent solubility.')
+    ]),
+    e('div',{className:'col-6 card',style:{background:'#fafafa'}},[
+     e('strong',{},'Caco-2 Permeability: '),
+     e('p',{className:'small'},admetCtx.permeability?.summary||'Neutral fraction available for passive transcellular diffusion.')
+    ]),
+    e('div',{className:'col-4 card',style:{background:'#fafafa'}},[
+     e('strong',{},'Plasma Binding (PPB/fu): '),
+     e('p',{className:'small'},admetCtx.plasma_protein_binding?.summary||'Hydrophobic albumin binding.')
+    ]),
+    e('div',{className:'col-4 card',style:{background:'#fafafa'}},[
+     e('strong',{},'Volume of Distribution (Vd): '),
+     e('p',{className:'small'},admetCtx.volume_of_distribution?.summary||'Standard tissue partitioning.')
+    ]),
+    e('div',{className:'col-4 card',style:{background:'#fafafa'}},[
+     e('strong',{},'Oral Absorption (Fa): '),
+     e('p',{className:'small'},admetCtx.oral_absorption?.summary||'Consistent GI transit profile.')
+    ])
+   ])
+  ]),
+
+  e('details',{style:{marginTop:'14px'}},[
+   e('summary',{},'Model Provenance & Scientific Limitations'),
+   e('div',{className:'small',style:{marginTop:'6px'}},[
+    e('div',{},'Engine: '+(ion.model_provenance?.engine||'ChemPlatform Deterministic Ionization Engine v1.0')),
+    e('div',{},'Standardizer Contract: '+(ion.model_provenance?.standardizer||'CHEM_STANDARDIZER_V1')),
+    e('div',{},'Rule Base: '+(ion.model_provenance?.rule_base||'Curated SMARTS Pattern Base (35+ motifs)')),
+    e('div',{},'Conformal Governance: '+(ion.model_provenance?.conformal_status||'NOT_APPLICABLE_FOR_DETERMINISTIC_RULES')),
+    e('div',{},'Limitations: '+(ion.model_provenance?.limitations||'Macroscopic titration required for exact resonance-shifted polyprotic micro-equilibria.'))
+   ])
+  ])
+ ]);
 }
 
 function App(){
@@ -307,6 +457,10 @@ function App(){
  };
  const experimentDefaults=name=>({
   ...EMPTY_EXPERIMENT,
+  ...(name.startsWith('pKa')?{unit:'',measurement:name,pka_type:name.includes('acidic')?'acidic':(name.includes('basic')?'basic':(name.includes('micro')?'microscopic':'macroscopic')),method:'Potentiometric titration',temperature_c:'25.0',ionic_strength_m:'0.15'}:{}),
+  ...(name==='logP'?{unit:'',measurement:'Shake-flask logP',method:'Shake-flask'}:{}),
+  ...(name.startsWith('logD')?{unit:'',measurement:'Shake-flask logD',pH:'7.4',method:'Shake-flask'}:{}),
+  ...(name.includes('solubility')?{unit:'µM',measurement:name,solubility_type:name.includes('Intrinsic')?'Intrinsic':(name.includes('Kinetic')?'Kinetic':'Thermodynamic'),pH:'7.4'}:{}),
   ...(name==='Solubility'?{unit:'µM',measurement:'Thermodynamic'}:{}),
   ...(name==='Caco-2 Permeability'?{unit:'cm/s',assay:'Caco-2',measurement:'Papp A→B'}:{}),
   ...(name==='Plasma Protein Binding (PPB)'?{unit:'% bound',measurement:'% Bound'}:{}),
@@ -324,7 +478,11 @@ function App(){
  const setExperimentValue=(name,key,value)=>setExperimentalDrafts(current=>({...current,[name]:{...(current[name]||experimentDefaults(name)),[key]:value}}));
  const experimentalPayload=(name,row)=>{
   const qualitative=row.unit==='classification'||row.measurement==='Stability class';
-  const base={version_id:detail.version.id,value:qualitative?'':row.value,qualitative_value:qualitative?row.value:'',unit:row.unit,species:row.species,matrix:row.matrix,method:row.measurement,source:row.source,notes:row.notes,provenance:{ui_workflow:'Pre-Stage 5 endpoint selector',display_name:name}};
+  const base={version_id:detail.version.id,value:qualitative?'':row.value,qualitative_value:qualitative?row.value:'',unit:row.unit,species:row.species,matrix:row.matrix,method:row.measurement,source:row.source,notes:row.notes,provenance:{ui_workflow:'Stage 4C-4 endpoint selector',display_name:name}};
+  if(name.startsWith('pKa'))return {...base,endpoint:name,unit:'',matrix:'Aqueous buffer',method:row.method||'Potentiometric titration',provenance:{ui_workflow:'Stage 4C-4 pKa Entry',pka_type:row.pka_type,temperature_c:Number(row.temperature_c||25),ionic_strength:Number(row.ionic_strength_m||0.15)}};
+  if(name==='logP')return {...base,endpoint:'logP',unit:'',matrix:'Octanol/Water',method:row.method||'Shake-flask'};
+  if(name.startsWith('logD'))return {...base,endpoint:'logD (pH '+(row.pH||'7.4')+')',unit:'',matrix:'Octanol/Buffer',method:row.method||'Shake-flask',provenance:{ph:Number(row.pH||7.4),temperature_c:Number(row.temperature_c||25)}};
+  if(name.includes('solubility'))return {...base,endpoint:'Solubility',unit:row.unit||'µM',matrix:row.medium||'Aqueous buffer',method:name+(row.pH?' · pH '+row.pH:''),provenance:{solubility_type:row.solubility_type,ph:row.pH?Number(row.pH):null}};
   if(name==='Solubility')return {...base,endpoint:'Solubility',matrix:row.medium,method:[row.solubility_type,row.pH&&'pH '+row.pH].filter(Boolean).join(' · ')||row.measurement};
   if(name==='Caco-2 Permeability')return {...base,endpoint:row.assay==='Caco-2'?'Permeability':(row.assay||'Other')+' permeability',matrix:row.assay||'Caco-2'};
   if(name==='Plasma Protein Binding (PPB)')return {...base,endpoint:'Plasma protein binding',matrix:'Plasma'};
@@ -619,6 +777,10 @@ function App(){
   const input=(name,row,key,label,type='text')=>Field({label,type,value:row[key],onChange:value=>setExperimentValue(name,key,value)});
   const formFor=name=>{
    const row=experimentalDrafts[name]||experimentDefaults(name),fields=[];
+   if(name.startsWith('pKa'))fields.push(select('pKa Type',row.pka_type,['acidic','basic','macroscopic','microscopic'],v=>setExperimentValue(name,'pka_type',v)),select('Method',row.method,['Potentiometric titration','Spectrophotometric titration','CE','NMR','Other'],v=>setExperimentValue(name,'method',v)),input(name,row,'value','Value (pKa)','number'),input(name,row,'temperature_c','Temperature (°C)','number'),input(name,row,'ionic_strength_m','Ionic Strength (M)','number'));
+   if(name==='logP')fields.push(select('Method',row.method,['Shake-flask','HPLC-based','Potentiometric','Other'],v=>setExperimentValue(name,'method',v)),input(name,row,'value','logP Value','number'));
+   if(name.startsWith('logD'))fields.push(input(name,row,'pH','Assay pH (Mandatory *)','number'),select('Method',row.method,['Shake-flask','Potentiometric (GLpKa)','HPLC-based','Other'],v=>setExperimentValue(name,'method',v)),input(name,row,'value','logD Value','number'),input(name,row,'temperature_c','Temperature (°C)','number'));
+   if(name.includes('solubility')&&name!=='Solubility')fields.push(select('Solubility type',row.solubility_type,['Intrinsic','Kinetic','Thermodynamic'],v=>setExperimentValue(name,'solubility_type',v)),input(name,row,'pH','Assay pH','number'),input(name,row,'medium','Medium / Buffer'),input(name,row,'value','Value','number'),input(name,row,'unit','Unit'));
    if(name==='Activity')fields.push(select('Assay',row.assay_id,[{value:'',label:'Select an assay'},...assays.map(item=>({value:String(item.id),label:item.name+' · '+item.measurement_type}))],value=>setExperimentValue(name,'assay_id',value)),input(name,row,'value','Value','number'),input(name,row,'unit','Unit'));
    if(name==='Solubility')fields.push(select('Solubility type',row.solubility_type,['','Kinetic','Thermodynamic','Intrinsic'],value=>setExperimentValue(name,'solubility_type',value)),input(name,row,'pH','pH','number'),input(name,row,'medium','Medium'),input(name,row,'value','Value','number'),input(name,row,'unit','Unit'));
    if(name==='Caco-2 Permeability')fields.push(select('Assay',row.assay,['Caco-2','MDCK','PAMPA','Other'],value=>setExperimentValue(name,'assay',value)),select('Measurement',row.measurement,['Papp A→B','Papp B→A','Efflux Ratio'],value=>setExperimentValue(name,'measurement',value)),input(name,row,'value','Value','number'),input(name,row,'unit','Unit'));
@@ -633,7 +795,7 @@ function App(){
   return e('div',{className:'experimental-panel'},[
    e('h3',{key:'question'},'What experimental data do you want to add?'),
    e('div',{className:'preset-row',key:'presets'},Object.entries(EXPERIMENT_PRESETS).map(([name,items])=>e('button',{key:name,className:'secondary',onClick:()=>{setExperimentalSelected(items);setExperimentalDrafts(current=>Object.fromEntries(items.map(item=>[item,current[item]||experimentDefaults(item)])))}},name))),
-   ...['Activity','ADME','Safety'].map(category=>e('div',{key:category},[e('h4',{key:'title'},category),e('div',{className:'endpoint-selector',key:'options'},EXPERIMENT_OPTIONS.filter(row=>row[1]===category).map(([name])=>e('label',{key:name,className:'check-option'},[e('input',{type:'checkbox',checked:experimentalSelected.includes(name),onChange:()=>toggleExperiment(name)}),e('span',{},name)]))) ])),
+   ...['Physicochemistry','Activity','ADME','Safety'].map(category=>e('div',{key:category},[e('h4',{key:'title'},category),e('div',{className:'endpoint-selector',key:'options'},EXPERIMENT_OPTIONS.filter(row=>row[1]===category).map(([name])=>e('label',{key:name,className:'check-option'},[e('input',{type:'checkbox',checked:experimentalSelected.includes(name),onChange:()=>toggleExperiment(name)}),e('span',{},name)]))) ])),
    ...experimentalSelected.map(formFor),
    e('div',{className:'row',key:'actions'},[e('button',{disabled:admetBusy||experimentalSelected.length===0,onClick:saveExperimentalPanel},admetBusy?'Saving…':'Save Experimental Data'),e('button',{className:'secondary',onClick:()=>setExperimentalOpen(false)},'Cancel')])
   ]);
@@ -1892,12 +2054,15 @@ function App(){
     e('div',{className:'card col-12'},[e('div',{className:'row toolbar'},[e('h3',{},'ADMET Highlights'),e('button',{className:'secondary',onClick:()=>{setOptimizationWorkspace({project_id:String(projectId),compound_id:String(detail.row_id)});openGlobalView('optimization')}},'Open in Optimization Workspace')]),highlights.length?e('div',{className:'highlight-grid'},highlights.map(row=>e('div',{key:row.endpoint,className:'highlight-item'},[e('strong',{},row.endpoint==='Permeability'?'Caco-2 Permeability':row.endpoint),e('div',{className:'mono'},row.predicted_value+' '+row.unit),e('div',{className:'small'},'Model: '+row.model?.model_name),StatusBadge({type:'Predicted'})]))):e('div',{className:'empty-state'},[StatusBadge({type:'Not predicted'}),e('p',{},'No ADMET predictions run for this CompoundVersion.')])]),
     predictionWorkflow&&predictionWorkflow.compound_id===detail.row_id&&e('div',{className:'card col-12 prediction-workflow-status'},[e('h3',{},'Save & Predict Workflow'),e('div',{className:'workflow-strip'},Object.entries(predictionWorkflow.steps||{}).map(([name,row])=>e('div',{className:'workflow-step',key:name},[e('span',{},name==='admet'?'ADMET / CYP / Transporter / Safety':name),StatusBadge({type:row.status}),row.message&&e('small',{},row.message)])))])
    ]),
-   detailTab==='properties'&&e('div',{className:'card',key:'properties'},
-    version?.calculated?e('div',{className:'grid'},[
-     e('div',{className:'col-6'},propertyTable(properties)),
-     e('div',{className:'col-6'},[ruleTable(version.rules),e('h4',{},'Structural Alerts'),...alertList(version.alerts),e('button',{className:'secondary',onClick:calculateProperties},'Recalculate Properties')])
-    ]):e('div',{className:'empty-state'},[StatusBadge({type:'Not calculated'}),e('h3',{},'Properties have not been calculated.'),e('button',{onClick:calculateProperties},'Calculate Properties')])
-   ),
+   detailTab==='properties'&&e('div',{},[
+    e('div',{className:'card',key:'properties'},
+     version?.calculated?e('div',{className:'grid'},[
+      e('div',{className:'col-6'},propertyTable(properties)),
+      e('div',{className:'col-6'},[ruleTable(version.rules),e('h4',{},'Structural Alerts'),...alertList(version.alerts),e('button',{className:'secondary',onClick:calculateProperties},'Recalculate Properties')])
+     ]):e('div',{className:'empty-state'},[StatusBadge({type:'Not calculated'}),e('h3',{},'Properties have not been calculated.'),e('button',{onClick:calculateProperties},'Calculate Properties')])
+    ),
+    version?.calculated&&e(IonizationSection,{key:'ionization',version})
+   ]),
    detailTab==='activity'&&e('div',{className:'card',key:'activity'},activityTable),
    detailTab==='admet'&&e('div',{key:'admet'},[
     e('div',{className:'card row toolbar'},[
@@ -2234,8 +2399,8 @@ function App(){
   message&&e('pre',{className:'card error',key:'message'},message)
  ])]);
 
- function propertyTable(properties){
-  const names={molecular_formula:'Molecular formula',molecular_weight:'MW',exact_molecular_weight:'Exact MW',clogp:'cLogP',tpsa:'TPSA',hbd:'HBD',hba:'HBA',rotatable_bonds:'Rotatable bonds',heavy_atom_count:'Heavy atoms',heteroatom_count:'Heteroatoms',ring_count:'Rings',aromatic_ring_count:'Aromatic rings',fraction_csp3:'Fsp3',formal_charge:'Charge',molar_refractivity:'MR',aromatic_proportion:'Aromatic proportion',molecular_flexibility:'Flexibility'};
+  function propertyTable(properties){
+  const names={molecular_formula:'Molecular formula',molecular_weight:'MW',exact_molecular_weight:'Exact MW',clogp:'Calculated cLogP (RDKit Crippen)',ionization_class:'Ionization class',primary_pka:'Dominant pKa',tpsa:'TPSA',hbd:'HBD',hba:'HBA',rotatable_bonds:'Rotatable bonds',heavy_atom_count:'Heavy atoms',heteroatom_count:'Heteroatoms',ring_count:'Rings',aromatic_ring_count:'Aromatic rings',fraction_csp3:'Fsp3',formal_charge:'Charge',molar_refractivity:'MR',aromatic_proportion:'Aromatic proportion',molecular_flexibility:'Flexibility'};
   return e('div',{},[
    e('h4',{key:'title'},'Physicochemical properties'),
    e('table',{key:'table'},e('tbody',{},Object.entries(names).map(([key,label])=>e('tr',{key},[e('td',{key:'label'},label),e('td',{key:'value',className:'num mono'},String(properties[key]??'-'))]))))

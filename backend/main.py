@@ -71,6 +71,7 @@ from .evaluation import (EVALUATION_REGISTRY, evaluate_mmp_directional_accuracy,
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
+from .ionization import analyze_ionization
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
 app = FastAPI(title="AI Drug Optimization Platform", version="0.5.3-stage5b1")
@@ -450,11 +451,19 @@ def compound_out(compound: Compound):
 
 
 def serialize_version(version: CompoundVersion):
+    calc_json = version.calculation_json or {}
+    ionization_data = calc_json.get("ionization")
+    if not ionization_data and version.canonical_smiles:
+        try:
+            ionization_data = analyze_ionization(version.canonical_smiles)
+        except Exception:
+            ionization_data = {}
     return {
         "id": version.id, "version_number": version.version_number, "original_smiles": version.original_smiles,
         "canonical_smiles": version.canonical_smiles, "isomeric_smiles": version.isomeric_smiles,
         "inchi": version.inchi, "inchikey": version.inchikey, "change_note": version.change_note,
         "properties": version.properties_json or {}, "rules": (version.calculation_json or {}).get("rules", {}),
+        "ionization": ionization_data or {},
         "assessment": version.assessment_json or {}, "svg": version.svg,
         "highlighted_svg": version.highlighted_svg, "provenance": (version.calculation_json or {}).get("provenance", {}),
         "alerts": version.alerts_json or [],
@@ -468,7 +477,11 @@ def _store_calculation(db: Session, compound: Compound, version: CompoundVersion
     version.properties_json = analysis["properties"]
     version.alerts_json = analysis["alerts"]
     version.assessment_json = analysis["assessment"]
-    version.calculation_json = {"provenance": analysis["provenance"], "rules": analysis["rules"]}
+    version.calculation_json = {
+        "provenance": analysis["provenance"],
+        "rules": analysis["rules"],
+        "ionization": analysis.get("ionization", {}),
+    }
     version.highlighted_svg = analysis["highlighted_svg"]
     for endpoint, value in analysis["properties"].items():
         if value is None or isinstance(value, (dict, list)): continue
@@ -1087,7 +1100,11 @@ def add_admet_measurement(db: Session, project_id: int, payload: dict) -> dict:
         standard_deviation=sd, sample_size=int(payload["n"]) if payload.get("n") else None,
         method=str(payload.get("method") or ""), source=str(payload.get("source") or "User experimental"),
         experiment_date=str(payload.get("date") or ""), notes=str(payload.get("notes") or ""),
-        provenance_json={"data_type": "experimental", **(payload.get("provenance") or {})},
+        provenance_json={
+            "data_type": "experimental",
+            **(payload.get("provenance") or {}),
+            **{k: payload[k] for k in ("ph", "assay_ph", "temperature_c", "ionic_strength", "pka_type", "solubility_type") if payload.get(k) is not None}
+        },
     )
     if not row.unit:
         db.rollback(); raise HTTPException(status_code=400, detail="unit is required")

@@ -208,8 +208,17 @@ def analyze_smiles(smiles: str) -> dict:
     props = calculate_properties(mol)
     rules = drug_likeness(props)
     alerts = structural_alerts(mol)
+    from .ionization import analyze_ionization
+    ionization = analyze_ionization(canonical)
+    props["clogp_definition"] = "Calculated cLogP (RDKit Crippen)"
+    props["ionization_class"] = ionization.get("ionization_class", "NEUTRAL")
+    props["primary_pka"] = ionization.get("primary_pka")
+
     highlight = sorted({atom_id for alert in alerts for atom_id in alert.get("matched_atoms", [])})
+    ion_highlight = sorted({c["atom_index"] for c in ionization.get("ionizable_centers", [])})
     svg, highlighted_svg = structure_images(mol, highlight)
+    _, ion_highlighted_svg = structure_images(mol, ion_highlight)
+
     identity = {
         "canonical_smiles": canonical,
         "isomeric_smiles": Chem.MolToSmiles(mol, isomericSmiles=True),
@@ -222,10 +231,11 @@ def analyze_smiles(smiles: str) -> dict:
         identity["inchi_error"] = str(exc)
     inputs_hash = hashlib.sha256(canonical.encode()).hexdigest()
     provenance = {"type": "Calculated", "engine": ENGINE, "engine_version": ENGINE_VERSION,
-                  "methods": ["Crippen cLogP/MR", "Ertl TPSA", "RDKit QED", "RDKit FilterCatalog"],
+                  "methods": ["Crippen cLogP/MR", "Ertl TPSA", "RDKit QED", "RDKit FilterCatalog", "ChemPlatform Ionization v1.0"],
                   "calculated_at_utc": __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()}
     return {
         "identity": identity, "properties": props, "rules": rules, "alerts": alerts,
-        "assessment": assessment(props, alerts, rules), "svg": svg, "highlighted_svg": highlighted_svg,
+        "ionization": ionization, "assessment": assessment(props, alerts, rules), "svg": svg,
+        "highlighted_svg": highlighted_svg, "ion_highlighted_svg": ion_highlighted_svg,
         "provenance": provenance, "inputs_hash": inputs_hash,
     }

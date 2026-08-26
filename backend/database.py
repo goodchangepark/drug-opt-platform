@@ -6,7 +6,7 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 ROOT = Path(__file__).resolve().parents[1]
 DATABASE_URL = f"sqlite:///{ROOT / 'drug_opt.db'}"
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False, "timeout": 30.0})
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

@@ -1115,17 +1115,43 @@ def estimate_volume_of_distribution(db: Session, project_id: int, version_id: in
             "provenance": {"study_id": po_study.id, "study_name": po_study.study_name, "route": po_study.route}
         }
 
-    # 3. Priority 3: Empirical / Mechanistic Vd Estimator
+    # 3. Priority 3: Empirical / Mechanistic Vd Estimator with Ionization Governance
     candidates = gather_ivive_candidates(db, project_id, version_id, species_clean)
     ppb_cand = candidates.get("PPB")
     fu_val = fraction_unbound_from_candidate(ppb_cand) if ppb_cand else None
     props = version.properties_json or {}
     clogp = props.get("clogp")
 
-    if fu_val is not None and clogp is not None:
-        clogp_clamped = max(-1.0, min(4.0, float(clogp)))
-        vd_est = 0.6 + 0.4 * fu_val + 0.15 * fu_val * (10.0 ** (0.3 * clogp_clamped))
-        vd_est = max(0.1, min(20.0, vd_est))
+    from .ionization import IonizationClass, analyze_ionization
+    ion_res = analyze_ionization(version.canonical_smiles)
+    ion_class = ion_res.get("ionization_class", IonizationClass.NEUTRAL)
+    logd74 = ion_res.get("physiological_state_7_4", {}).get("estimated_logd74", clogp)
+
+    if fu_val is not None and (clogp is not None or logd74 is not None):
+        effective_lipo = float(logd74 if logd74 is not None else clogp)
+        effective_lipo_clamped = max(-1.5, min(4.5, effective_lipo))
+
+        if ion_class == IonizationClass.ACID:
+            vd_est = 0.08 + 0.15 * fu_val + 0.05 * fu_val * (10.0 ** (0.2 * effective_lipo_clamped))
+            vd_est = max(0.05, min(1.5, vd_est))
+            vd_msg = f"Predicted Vd for acidic compound ({ion_class}) incorporating restricted tissue distribution and albumin affinity (logD7.4={logd74})."
+            vd_model = "Lombardo Ionization-Governed Model (Acid Class)"
+        elif ion_class == IonizationClass.BASE:
+            vd_est = 0.6 + 0.4 * fu_val + 0.30 * fu_val * (10.0 ** (0.35 * effective_lipo_clamped))
+            vd_est = max(0.2, min(30.0, vd_est))
+            vd_msg = f"Predicted Vd for basic compound ({ion_class}) incorporating tissue phospholipid affinity and lysosomal trapping (logD7.4={logd74})."
+            vd_model = "Lombardo Ionization-Governed Model (Base Class)"
+        elif ion_class == IonizationClass.ZWITTERION_POSSIBLE or ion_class == IonizationClass.AMPHOLYTE:
+            vd_est = 0.3 + 0.2 * fu_val + 0.10 * fu_val * (10.0 ** (0.2 * effective_lipo_clamped))
+            vd_est = max(0.1, min(5.0, vd_est))
+            vd_msg = f"Predicted Vd for zwitterionic/ampholytic compound ({ion_class}, logD7.4={logd74})."
+            vd_model = "Lombardo Ionization-Governed Model (Ampholyte/Zwitterion Class)"
+        else:
+            vd_est = 0.6 + 0.4 * fu_val + 0.15 * fu_val * (10.0 ** (0.3 * effective_lipo_clamped))
+            vd_est = max(0.1, min(20.0, vd_est))
+            vd_msg = f"Predicted Vd for neutral compound ({ion_class}) from lipophilicity (cLogP={clogp}) and plasma binding."
+            vd_model = "Lombardo Empirical Vd Estimator (Neutral Class)"
+
         conf = confidence_ceiling([ppb_cand.get("confidence", "LOW")])
         return {
             "v_value": round(vd_est, 3),
@@ -1133,8 +1159,15 @@ def estimate_volume_of_distribution(db: Session, project_id: int, version_id: in
             "v_source_type": "PREDICTED_VD",
             "v_type": "Vd_estimate",
             "confidence": conf,
-            "message": "Predicted Vd from empirical lipophilicity and plasma protein binding model.",
-            "provenance": {"fu_p": fu_val, "clogp": clogp, "model": "Lombardo Empirical Vd Estimator"},
+            "message": vd_msg,
+            "provenance": {
+                "fu_p": fu_val,
+                "clogp": clogp,
+                "logd74": logd74,
+                "ionization_class": ion_class,
+                "model": vd_model,
+                "lysosomal_trapping_risk": bool(ion_class == IonizationClass.BASE and effective_lipo > 1.0)
+            },
             "apparent_vzf": exp_vzf
         }
 
@@ -1145,8 +1178,8 @@ def estimate_volume_of_distribution(db: Session, project_id: int, version_id: in
         "v_source_type": "MODEL_UNAVAILABLE",
         "v_type": "Vd_estimate",
         "confidence": "MODEL_UNAVAILABLE",
-        "message": "Vd prediction unavailable due to missing experimental/predicted fu_p or cLogP.",
-        "provenance": {"missing_inputs": ["fu_p" if fu_val is None else None, "clogp" if clogp is None else None]},
+        "message": "Vd prediction unavailable due to missing experimental/predicted fu_p or lipophilicity/ionization inputs.",
+        "provenance": {"missing_inputs": ["fu_p" if fu_val is None else None, "lipophilicity" if clogp is None else None]},
         "apparent_vzf": exp_vzf
     }
 
@@ -1155,7 +1188,7 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
     """
     Absorption architecture deconstructs oral bioavailability F = Fa * Fg * Fh.
     - Fh: Hepatic availability fraction from Well-Stirred IVIVE model.
-    - Fa: Fraction absorbed from gut lumen (from Caco-2 permeability & solubility).
+    - Fa: Fraction absorbed from gut lumen (from Caco-2 permeability & GI pH ionization gradient).
     - Fg: Intestinal first-pass availability (MODEL_UNAVAILABLE without gut wall CYP3A abundance data).
     - F_predicted: Computed ONLY when Fa, Fg, Fh are all quantitatively valid numbers.
     - F_experimental: Matched IV/PO bioavailability % from Stage 5A-1.
@@ -1175,7 +1208,12 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
 
     fh_val = run.outputs_json.get("fh") if (run and run.outputs_json) else None
 
-    # 2. Fa from Caco-2 & Solubility
+    # 2. Fa from Caco-2 & Ionization Governance
+    from .ionization import analyze_ionization
+    ion_res = analyze_ionization(version.canonical_smiles)
+    ion_class = ion_res.get("ionization_class", "NEUTRAL")
+    admet_ctx = ion_res.get("admet_context", {}).get("oral_absorption", {})
+
     measurements = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version_id)).all()
     predictions = db.scalars(select(ADMETPrediction).where(ADMETPrediction.version_id == version_id)).all()
 
@@ -1206,7 +1244,7 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
         fa_calc = 1.0 - math.exp(-0.4 * peff)
         fa_val = round(max(0.01, min(1.0, fa_calc)), 3)
         fa_status = "ESTIMATED"
-        fa_message = f"Fa estimated from {caco2_source} Caco-2 permeability ({papp} {caco2_unit})."
+        fa_message = f"Fa estimated from {caco2_source} Caco-2 permeability ({papp} {caco2_unit}) with {ion_class} GI transit context."
 
     # 3. Fg (Intestinal first-pass availability)
     fg_val = None
@@ -1245,6 +1283,8 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
         "f_experimental_detail": exp_f_detail,
         "caco2_val": caco2_val,
         "caco2_source": caco2_source,
+        "ionization_class": ion_class,
+        "gi_transit_context": admet_ctx.get("summary", ""),
     }
 
 

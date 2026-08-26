@@ -79,6 +79,17 @@ SAFETY_UNAVAILABLE = {
     },
 }
 
+PHYSICOCHEM_UNAVAILABLE = {
+    "pKa (quantitative ML)": {
+        "endpoint": "pKa (quantitative ML)", "species": "Chemical / In Vitro",
+        "reason": "Evaluated candidate models (MolGpKa, Epik, Chemprop) were rejected due to ARM64 binary build failures or proprietary licensing. Deterministic structural classification (IonizationEngine_v1) is active; quantitative ML pKa is marked MODEL_UNAVAILABLE to prevent fabricated values.",
+    },
+    "logD7.4 (quantitative ML)": {
+        "endpoint": "logD7.4 (quantitative ML)", "species": "Chemical / In Vitro",
+        "reason": "No qualified standalone open-source logD7.4 checkpoint was identified in Stage 4C-4. Calculated cLogP is strictly distinguished and never equated to logD7.4 without explicit ionization assumptions.",
+    },
+}
+
 
 def ensure_admet_schema(engine):
     inspector = inspect(engine)
@@ -111,22 +122,27 @@ def ensure_admet_schema(engine):
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
             "Monkey liver microsomal intrinsic clearance",
             "CYP1A2 substrate", "CYP2C19 substrate",
-        ] + list(TRANSPORTER_UNAVAILABLE) + list(SAFETY_UNAVAILABLE)
+        ] + list(TRANSPORTER_UNAVAILABLE) + list(SAFETY_UNAVAILABLE) + list(PHYSICOCHEM_UNAVAILABLE)
         for name in registry_names:
             if name not in registered:
                 values = registry_seed(name) if name in MODEL_SPECS else {
                     "endpoint_name": name,
                     "model_name": f"{name} — no scientifically qualified model installed",
                     "model_version": (
-                        "unavailable-stage3f" if name in SAFETY_UNAVAILABLE else
+                        "unavailable-stage4c4" if name in PHYSICOCHEM_UNAVAILABLE else
+                        ("unavailable-stage3f" if name in SAFETY_UNAVAILABLE else
                         ("unavailable-stage3e" if name in TRANSPORTER_UNAVAILABLE else
                         ("unavailable-stage3c" if name.startswith("CYP") else "unavailable-stage3b")
-                        )), "implementation_status": "MODEL_UNAVAILABLE",
+                        ))), "implementation_status": "MODEL_UNAVAILABLE",
                     "is_active": False,
                     "provenance_json": (
-                        {**SAFETY_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False,
-                         "model_source": "Stage 3F public-model qualification audit",
+                        {**PHYSICOCHEM_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False,
+                         "model_source": "Stage 4C-4 pKa / logD model qualification audit",
                          "license": "No qualified model/checkpoint license"}
+                        if name in PHYSICOCHEM_UNAVAILABLE else
+                        ({**SAFETY_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False,
+                          "model_source": "Stage 3F public-model qualification audit",
+                          "license": "No qualified model/checkpoint license"}
                         if name in SAFETY_UNAVAILABLE else
                         ({**TRANSPORTER_UNAVAILABLE[name], "status": "MODEL_UNAVAILABLE", "checkpoint_available": False}
                         if name in TRANSPORTER_UNAVAILABLE else
@@ -134,7 +150,7 @@ def ensure_admet_schema(engine):
                             "A released upstream checkpoint exists, but CYP1A2/CYP2C19 substrate endpoints lack publisher-reported validation and sufficiently clear dataset/assay provenance; disabled rather than emitting an unsupported prediction."
                             if name in {"CYP1A2 substrate", "CYP2C19 substrate"} else
                             "No endpoint- and species-specific public pretrained model qualified in Stage 3B; no cross-species reuse or fake prediction."
-                        )})
+                        )}))
                     ),
                 }
                 connection.execute(
@@ -366,6 +382,12 @@ def validate_measurement(payload: dict):
         raise HTTPException(status_code=400, detail="Sample size must be at least 1")
     if payload.get("qualifier") not in (None, "", "=", "<", "<=", ">", ">=", "~"):
         raise HTTPException(status_code=400, detail="Qualifier must be one of = < <= > >= ~")
+    endpoint_str = str(payload.get("endpoint") or "").strip()
+    if endpoint_str.lower() in {"logd", "logd(ph)", "distribution coefficient", "logd (ph)"} or (endpoint_str.lower().startswith("logd") and "7.4" not in endpoint_str and "ph" not in endpoint_str.lower()):
+        ph_val = payload.get("ph") or payload.get("assay_ph") or (payload.get("provenance") or {}).get("ph")
+        notes_str = str(payload.get("notes") or "").lower()
+        if ph_val is None and "ph=" not in notes_str and "ph " not in notes_str:
+            raise HTTPException(status_code=400, detail="Assay pH is mandatory for experimental logD measurements (e.g. pH 7.4).")
     return value, mean, sd
 
 
