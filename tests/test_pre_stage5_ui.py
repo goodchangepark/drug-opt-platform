@@ -17,6 +17,7 @@ from backend.main import (
     create_compound,
     create_experimental_metabolite,
     create_project,
+    dashboard_summary,
     get_compound_version_admet,
     get_compound_version_workspace,
     get_project,
@@ -191,6 +192,31 @@ def test_compare_contains_only_selected_same_project_compounds_and_handles_uncal
     assert result["ranges"]["MW"] == {"min": None, "max": None}
 
 
+def test_dashboard_summary_is_project_isolated_and_uses_current_version_status(db):
+    project_a = create_project(ProjectCreate(name="Dashboard A", target="EGFR"), db)
+    project_b = create_project(ProjectCreate(name="Dashboard B", target="BRAF"), db)
+    compound_a = add(db, project_a.id, "A-1", "CCO")
+    add(db, project_b.id, "B-1", "CCN", calculate=False)
+    assay = create_assay(project_a.id, {"name": "A IC50", "measurement_type": "IC50", "unit": "nM"}, db)
+    add_activity_measurement(assay["id"], {"version_id": compound_a["version"]["id"], "value": 9, "unit": "nM"}, db)
+    create_admet_measurement(project_a.id, {
+        "version_id": compound_a["version"]["id"], "endpoint": "Solubility", "value": 15,
+        "unit": "µM", "source": "Dashboard A only",
+    }, db)
+
+    result = dashboard_summary(db)
+    rows = {row["id"]: row for row in result["projects"]}
+    assert result["totals"] == {"projects": 2, "compounds": 2}
+    assert rows[project_a.id]["experimental_activity_count"] == 1
+    assert rows[project_a.id]["experimental_admet_count"] == 1
+    assert rows[project_a.id]["workflow"]["Properties"] == "READY"
+    assert rows[project_a.id]["compounds"][0]["activity"] == "EXPERIMENTAL"
+    assert rows[project_b.id]["experimental_activity_count"] == 0
+    assert rows[project_b.id]["experimental_admet_count"] == 0
+    assert rows[project_b.id]["compounds"][0]["properties"] == "NOT_RUN"
+    assert "Dashboard A only" not in str(rows[project_b.id])
+
+
 def test_drafts_do_not_break_stage2_project_analysis(db):
     project = create_project(ProjectCreate(name="Draft safe Stage 2", target="T"), db)
     add(db, project.id, "Draft only")
@@ -212,7 +238,8 @@ def test_ui_contract_has_compound_editor_selector_comparison_and_no_pk_tab():
     ):
         assert phrase in source
     assert "const tabs=['overview','properties','activity','admet','metabolism','optimization','history']" in source
-    assert "'pk'" not in source.lower()
+    assert "const tabs=['overview','properties','activity','admet','metabolism','optimization','history','pk']" not in source.lower()
+    assert "PK / DMPK" in source and "PLANNED" in source
     assert (ROOT / "frontend/static/ketcher/standalone/index.html").exists()
     assert "Ketcher 3.5.0" in (ROOT / "frontend/static/ketcher/NOTICE.md").read_text()
 
@@ -221,14 +248,16 @@ def test_main_dashboard_contract_and_responsive_layout():
     source = (ROOT / "frontend/static/app.js").read_text()
     styles = (ROOT / "frontend/static/app.css").read_text()
     for phrase in (
-        "MAIN DASHBOARD", "Structure-first drug optimization workspace", "Default Workspace Settings",
-        "Projects", "Compounds", "Default molecule type", "Save first · Calculate on demand",
-        "Project + CompoundVersion", "Continue Current Project", "Open Project",
+        "PLATFORM OVERVIEW", "Drug Optimization Platform", "Available Scientific Modules",
+        "Structure & Chemistry", "Activity & SAR", "CYP & Transporters", "Safety / Toxicology",
+        "PK / DMPK", "PLANNED", "Create New Project", "Typical Workflow", "Default Workspace Settings",
+        "Current Project Status", "Compound Status", "WORKFLOW STATUS", "Continue Current Project", "Open Project",
     ):
         assert phrase in source
     assert "useState('dashboard')" in source
     assert "function MainDashboard()" in source
     assert "function ProjectWorkspace()" in source
     assert "projectTab==='dashboard'?MainDashboard():ProjectWorkspace()" in source
-    assert ".dashboard-project-grid" in styles and ".dashboard-settings" in styles
+    assert ".module-grid" in styles and ".dashboard-project-grid" in styles and ".scientific-nav" in styles
+    assert ".sidebar.open .sidebar-body" in styles and ".project-overview-grid" in styles
     assert "@media(max-width:900px)" in styles and "@media(max-width:620px)" in styles

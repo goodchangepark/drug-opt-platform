@@ -114,26 +114,42 @@ def main():
     checks = []
     try:
         driver.get(BASE_URL + "/?pre-stage5-ui-e2e=" + RUN_ID)
-        WebDriverWait(driver, 60).until(lambda d: "Create Project" in d.page_source)
+        WebDriverWait(driver, 60).until(lambda d: "Create New Project" in d.page_source)
         assert browser_api(driver, "GET", "/health")["step"] == "4B"
-        for text in ("MAIN DASHBOARD", "Structure-first drug optimization workspace", "Default Workspace Settings", "Projects", "Compounds"):
-            if text not in driver.page_source:
+        body_text = driver.execute_script("return document.body.innerText")
+        for text in (
+            "PLATFORM OVERVIEW", "Available Scientific Modules", "Structure & Chemistry", "Activity & SAR",
+            "ADME", "CYP & Transporters", "Safety / Toxicology", "Optimization", "PK / DMPK", "PLANNED",
+            "Create New Project", "Typical Workflow", "Projects",
+        ):
+            if text not in body_text:
                 raise AssertionError(f"Main Dashboard is missing {text!r}")
         driver.set_window_size(390, 844)
         WebDriverWait(driver, 10).until(lambda d: d.execute_script("return window.innerWidth") <= 500)
-        columns = driver.execute_script("return getComputedStyle(document.querySelector('.dashboard-project-grid')).gridTemplateColumns")
+        columns = driver.execute_script("return getComputedStyle(document.querySelector('.module-grid')).gridTemplateColumns")
         if " " in columns.strip():
-            raise AssertionError(f"Mobile dashboard project grid is not single-column: {columns}")
+            raise AssertionError(f"Mobile dashboard module grid is not single-column: {columns}")
+        click_button(driver, "Menu")
+        if driver.execute_script("return getComputedStyle(document.querySelector('.sidebar-body')).display") == "none":
+            raise AssertionError("Mobile scientific navigation did not expand")
+        click_button(driver, "Close")
         driver.set_window_size(1900, 1800)
-        checks.extend(["Main Dashboard summary", "Responsive mobile dashboard"])
+        checks.extend(["Platform overview and scientific module registry", "Responsive collapsible scientific navigation"])
 
         set_labeled_control(driver, "Project Name *", PROJECT_NAME)
         set_labeled_control(driver, "Target *", "EGFR")
         set_labeled_control(driver, "Molecule Type", "Small Molecule")
-        set_labeled_control(driver, "Description (optional)", "Public ethanol/ethylamine workflow fixture")
         click_button(driver, "Create Project")
-        WebDriverWait(driver, 45).until(lambda d: PROJECT_NAME in d.page_source and "No compounds yet" in d.page_source)
-        checks.append("Simplified project creation and project navigation")
+        WebDriverWait(driver, 45).until(lambda d: PROJECT_NAME in d.page_source and "Current Project Status" in d.page_source and "No compounds yet" in d.page_source)
+        click_button(driver, "Dashboard")
+        project_card = WebDriverWait(driver, 30).until(
+            lambda d: d.find_element(By.XPATH, f"//article[contains(@class,'dashboard-project')][.//h3[normalize-space()={json.dumps(PROJECT_NAME)}]]")
+        )
+        if "0 compounds" not in project_card.text:
+            raise AssertionError(f"Project card status is incomplete: {project_card.text}")
+        driver.execute_script("arguments[0].click();", project_card)
+        WebDriverWait(driver, 30).until(lambda d: "Current Project Status" in d.page_source and "Compound Status" in d.page_source)
+        checks.append("Dashboard project creation, card summary, and Project Dashboard navigation")
 
         click_button(driver, "Add Compound", last=True)
         WebDriverWait(driver, 60).until(lambda d: "Draw Chemical Structure" in d.page_source and d.find_element(By.ID, "ketcher-editor"))
@@ -207,6 +223,12 @@ def main():
         click_button(driver, "Compare Selected")
         WebDriverWait(driver, 45).until(lambda d: "Selected Compound Comparison" in d.page_source and "UI-DRAW-001" in d.page_source and "UI-SMILES-002" in d.page_source)
         checks.append("Checkbox-based Compare Selected")
+
+        click_button(driver, "Dashboard")
+        WebDriverWait(driver, 30).until(lambda d: "Available Scientific Modules" in d.page_source)
+        click_button(driver, "Structure")
+        WebDriverWait(driver, 30).until(lambda d: "Current Project Status" in d.page_source and "Compound Status" in d.page_source)
+        checks.append("Dashboard return and sidebar scientific navigation")
 
         projects = browser_api(driver, "GET", "/projects")
         project = next(row for row in projects if row["name"] == PROJECT_NAME)

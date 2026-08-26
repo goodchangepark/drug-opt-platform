@@ -99,6 +99,131 @@ def list_projects(db: Session = Depends(get_db)):
     return [_project_out(db, project) for project in db.scalars(select(Project).order_by(Project.created_at.desc()))]
 
 
+def _workflow_status(covered: int, total: int):
+    if not total or not covered:
+        return "NOT_STARTED"
+    return "READY" if covered >= total else "PARTIAL"
+
+
+@app.get("/api/dashboard")
+def dashboard_summary(db: Session = Depends(get_db)):
+    """Small read-only workspace summary for the main and project dashboards."""
+    projects = db.scalars(select(Project).order_by(Project.created_at.desc())).all()
+    project_rows = []
+    total_compounds = 0
+    for project in projects:
+        compounds = db.scalars(
+            select(Compound).where(Compound.project_id == project.id).order_by(Compound.compound_id)
+        ).all()
+        total_compounds += len(compounds)
+        compound_ids = [row.id for row in compounds]
+        versions = db.scalars(
+            select(CompoundVersion).where(CompoundVersion.compound_row_id.in_(compound_ids))
+        ).all() if compound_ids else []
+        version_ids = [row.id for row in versions]
+        current_versions = {
+            row.compound_row_id: row for row in versions
+            if row.version_number == next(
+                (compound.current_version for compound in compounds if compound.id == row.compound_row_id), -1
+            )
+        }
+
+        def version_set(model):
+            if not version_ids:
+                return set()
+            return set(db.scalars(select(model.version_id).where(model.version_id.in_(version_ids))).all())
+
+        property_versions = version_set(PropertyCalculation)
+        activity_experimental = version_set(ActivityMeasurement)
+        activity_predicted = version_set(ActivityPrediction)
+        admet_experimental = version_set(ADMETMeasurement)
+        admet_predicted = version_set(ADMETPrediction)
+        optimization_runs = db.scalars(
+            select(OptimizationRun).where(OptimizationRun.project_id == project.id)
+        ).all()
+        optimized_versions = {row.parent_version_id for row in optimization_runs}
+        activity_count = db.scalar(
+            select(func.count(ActivityMeasurement.id)).where(ActivityMeasurement.version_id.in_(version_ids))
+        ) if version_ids else 0
+        admet_count = db.scalar(
+            select(func.count(ADMETMeasurement.id)).where(ADMETMeasurement.version_id.in_(version_ids))
+        ) if version_ids else 0
+        activity_prediction_count = db.scalar(
+            select(func.count(ActivityPrediction.id)).where(ActivityPrediction.version_id.in_(version_ids))
+        ) if version_ids else 0
+        admet_prediction_count = db.scalar(
+            select(func.count(ADMETPrediction.id)).where(ADMETPrediction.version_id.in_(version_ids))
+        ) if version_ids else 0
+
+        compound_rows = []
+        for compound in compounds:
+            version = current_versions.get(compound.id)
+            version_id = version.id if version else None
+            compound_rows.append({
+                "row_id": compound.id,
+                "compound_id": compound.compound_id,
+                "name": compound.name,
+                "status": compound.status,
+                "version_id": version_id,
+                "structure": "READY" if version and version.canonical_smiles else "NOT_STARTED",
+                "properties": "CALCULATED" if version_id in property_versions else "NOT_RUN",
+                "activity": "EXPERIMENTAL" if version_id in activity_experimental else (
+                    "PREDICTED" if version_id in activity_predicted else "NOT_RUN"
+                ),
+                "admet": "EXPERIMENTAL" if version_id in admet_experimental else (
+                    "PREDICTED" if version_id in admet_predicted else "NOT_RUN"
+                ),
+                "optimization": "READY" if version_id in optimized_versions else "NOT_RUN",
+            })
+
+        current_total = len(compounds)
+        structure_covered = sum(row["structure"] == "READY" for row in compound_rows)
+        property_covered = sum(row["properties"] == "CALCULATED" for row in compound_rows)
+        activity_covered = sum(row["activity"] != "NOT_RUN" for row in compound_rows)
+        admet_covered = sum(row["admet"] != "NOT_RUN" for row in compound_rows)
+        optimization_covered = sum(row["optimization"] == "READY" for row in compound_rows)
+        status_parts = [f"{current_total} compound{'s' if current_total != 1 else ''}"]
+        if activity_count:
+            status_parts.append(f"{activity_count} experimental activity record{'s' if activity_count != 1 else ''}")
+        if admet_count:
+            status_parts.append(f"{admet_count} experimental ADMET record{'s' if admet_count != 1 else ''}")
+        elif activity_prediction_count or admet_prediction_count:
+            status_parts.append("predictions available")
+        else:
+            status_parts.append("experimental and prediction data not started")
+        project_rows.append({
+            "id": project.id,
+            "name": project.name,
+            "target": project.target,
+            "molecule_type": project.molecule_type,
+            "compound_count": current_total,
+            "experimental_activity_count": int(activity_count or 0),
+            "experimental_admet_count": int(admet_count or 0),
+            "prediction_count": int((activity_prediction_count or 0) + (admet_prediction_count or 0)),
+            "optimization_run_count": len(optimization_runs),
+            "status_summary": " · ".join(status_parts),
+            "workflow": {
+                "Structure": _workflow_status(structure_covered, current_total),
+                "Properties": _workflow_status(property_covered, current_total),
+                "Activity": _workflow_status(activity_covered, current_total),
+                "ADMET": _workflow_status(admet_covered, current_total),
+                "Optimization": _workflow_status(optimization_covered, current_total),
+                "PK": "PLANNED",
+            },
+            "compounds": compound_rows,
+        })
+
+    model_rows = [
+        _admet_model_out(model)
+        for model in db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name))
+    ]
+    return {
+        "totals": {"projects": len(projects), "compounds": total_compounds},
+        "projects": project_rows,
+        "model_registry": model_rows,
+    }
+
+
 @app.post("/api/projects", status_code=201)
 def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
     values = payload.model_dump()
