@@ -31,7 +31,8 @@ def test_project_crud(db):
     assert project.compound_count == 0
     updated = update_project(project.id, ProjectUpdate(mechanism_modality="inhibitor"), db)
     assert updated.mechanism_modality == "inhibitor"
-    assert delete_project(project.id, db) is None
+    deleted = delete_project(project.id, {"confirmation_name": "Test Target"}, db)
+    assert deleted["deleted_project_ids"] == [project.id]
     with pytest.raises(HTTPException):
         get_project(project.id, db)
 

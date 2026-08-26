@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
 from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, MatchedMolecularPair, QSARModel
-from .admet import (ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
+from .admet import (ADMETAssayDefinition, ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
 from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimental, comparison_for_prediction, cyp_experimental_evidence,
@@ -36,8 +36,10 @@ from .optimization_engine import (ENGINE_NAME as OPTIMIZATION_ENGINE,
                                   ENGINE_VERSION as OPTIMIZATION_VERSION,
                                   EVIDENCE_HIERARCHY, OBJECTIVES,
                                   TRANSFORMATION_LIBRARY, analyze_run)
-from .proposal import (CandidateRejectionReason, OptimizationCandidate,
-                       OptimizationProposalRun, ensure_proposal_schema)
+from .proposal import (CandidatePredictionSnapshot, CandidateRanking,
+                       CandidateRejectionReason, CandidateTransformation,
+                       OptimizationCandidate, OptimizationProposalRun,
+                       ensure_proposal_schema)
 from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
                               ENGINE_VERSION as PROPOSAL_VERSION,
                               EXECUTABLE_TRANSFORMATIONS,
@@ -290,11 +292,109 @@ def update_project(project_id: int, payload: ProjectUpdate, db: Session = Depend
     db.refresh(project); return _project_out(db, project)
 
 
-@app.delete("/api/projects/{project_id}", status_code=204)
-def delete_project(project_id: int, db: Session = Depends(get_db)):
-    project = db.get(Project, project_id)
-    if not project: raise HTTPException(status_code=404, detail="Project not found")
-    db.delete(project); db.commit()
+def _delete_project_tree_rows(db: Session, project_ids: list[int]):
+    """Delete complete project trees inside the caller's open transaction."""
+    compound_ids = list(db.scalars(select(Compound.id).where(Compound.project_id.in_(project_ids))))
+    version_ids = list(db.scalars(
+        select(CompoundVersion.id).where(CompoundVersion.compound_row_id.in_(compound_ids))
+    )) if compound_ids else []
+    assay_ids = list(db.scalars(select(AssayDefinition.id).where(AssayDefinition.project_id.in_(project_ids))))
+    endpoint_ids = list(db.scalars(select(ADMETEndpoint.id).where(ADMETEndpoint.project_id.in_(project_ids))))
+    optimization_ids = list(db.scalars(select(OptimizationRun.id).where(OptimizationRun.project_id.in_(project_ids))))
+    proposal_ids = list(db.scalars(
+        select(OptimizationProposalRun.id).where(OptimizationProposalRun.project_id.in_(project_ids))
+    ))
+    candidate_ids = list(db.scalars(
+        select(OptimizationCandidate.id).where(OptimizationCandidate.project_id.in_(project_ids))
+    ))
+
+    if version_ids:
+        external_candidate = db.scalar(select(OptimizationCandidate.id).where(
+            OptimizationCandidate.existing_version_id.in_(version_ids),
+            ~OptimizationCandidate.project_id.in_(project_ids),
+        ))
+        if external_candidate:
+            raise HTTPException(status_code=409, detail="Project tree has an invalid cross-project candidate reference")
+
+    if candidate_ids:
+        for model in (CandidateTransformation, CandidatePredictionSnapshot, CandidateRanking, CandidateRejectionReason):
+            db.execute(delete(model).where(model.candidate_id.in_(candidate_ids)))
+        db.execute(delete(OptimizationCandidate).where(OptimizationCandidate.id.in_(candidate_ids)))
+    if proposal_ids:
+        db.execute(delete(OptimizationProposalRun).where(OptimizationProposalRun.id.in_(proposal_ids)))
+    if optimization_ids:
+        db.execute(delete(OptimizationRun).where(OptimizationRun.id.in_(optimization_ids)))
+
+    if assay_ids:
+        db.execute(delete(MatchedMolecularPair).where(MatchedMolecularPair.assay_id.in_(assay_ids)))
+        db.execute(delete(ActivityPrediction).where(ActivityPrediction.assay_id.in_(assay_ids)))
+        db.execute(delete(ActivityMeasurement).where(ActivityMeasurement.assay_id.in_(assay_ids)))
+        db.execute(delete(QSARModel).where(QSARModel.assay_id.in_(assay_ids)))
+        db.execute(delete(AssayDefinition).where(AssayDefinition.id.in_(assay_ids)))
+
+    if endpoint_ids:
+        db.execute(delete(ADMETPrediction).where(ADMETPrediction.endpoint_id.in_(endpoint_ids)))
+        db.execute(delete(ADMETMeasurement).where(ADMETMeasurement.endpoint_id.in_(endpoint_ids)))
+        db.execute(delete(ADMETAssayDefinition).where(ADMETAssayDefinition.endpoint_id.in_(endpoint_ids)))
+        db.execute(delete(ADMETEndpoint).where(ADMETEndpoint.id.in_(endpoint_ids)))
+
+    if version_ids:
+        db.execute(delete(PredictedMetabolite).where(PredictedMetabolite.version_id.in_(version_ids)))
+        db.execute(delete(MetabolicSoftSpot).where(MetabolicSoftSpot.version_id.in_(version_ids)))
+        db.execute(delete(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id.in_(version_ids)))
+        db.execute(delete(ExperimentalMetabolite).where(ExperimentalMetabolite.version_id.in_(version_ids)))
+        db.execute(delete(ADMETPrediction).where(ADMETPrediction.version_id.in_(version_ids)))
+        db.execute(delete(ADMETMeasurement).where(ADMETMeasurement.version_id.in_(version_ids)))
+        db.execute(delete(ADMETPredictionRun).where(ADMETPredictionRun.version_id.in_(version_ids)))
+        db.execute(delete(ActivityPrediction).where(ActivityPrediction.version_id.in_(version_ids)))
+        db.execute(delete(ActivityMeasurement).where(ActivityMeasurement.version_id.in_(version_ids)))
+        db.execute(delete(MatchedMolecularPair).where(
+            MatchedMolecularPair.version_a_id.in_(version_ids) | MatchedMolecularPair.version_b_id.in_(version_ids)
+        ))
+        db.execute(delete(PropertyCalculation).where(PropertyCalculation.version_id.in_(version_ids)))
+        db.execute(delete(StructuralAlert).where(StructuralAlert.version_id.in_(version_ids)))
+        db.execute(delete(PredictionRun).where(PredictionRun.version_id.in_(version_ids)))
+        db.execute(delete(CompoundVersion).where(CompoundVersion.id.in_(version_ids)))
+    if compound_ids:
+        db.execute(delete(Compound).where(Compound.id.in_(compound_ids)))
+    db.execute(delete(Project).where(Project.id.in_(project_ids)))
+    db.flush()
+
+
+def _confirmed_project_delete(db: Session, confirmations: list[dict]):
+    if not confirmations:
+        raise HTTPException(status_code=400, detail="At least one project confirmation is required")
+    project_ids = [int(item.get("id", 0)) for item in confirmations]
+    if not all(project_ids) or len(project_ids) != len(set(project_ids)):
+        raise HTTPException(status_code=400, detail="Project confirmations must contain unique valid IDs")
+    projects = list(db.scalars(select(Project).where(Project.id.in_(project_ids))))
+    if len(projects) != len(project_ids):
+        raise HTTPException(status_code=404, detail="One or more projects were not found")
+    names = {row.id: row.name for row in projects}
+    for item in confirmations:
+        project_id = int(item["id"])
+        if item.get("confirmation_name") != names[project_id]:
+            raise HTTPException(status_code=400, detail=f"Confirmation name does not match project {project_id}")
+    try:
+        _delete_project_tree_rows(db, project_ids)
+        db.commit()
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Project deletion failed; all changes were rolled back: {exc}")
+    return {"deleted_project_ids": project_ids, "deleted_project_names": [names[row_id] for row_id in project_ids]}
+
+
+@app.delete("/api/projects/{project_id}")
+def delete_project(project_id: int, payload: dict, db: Session = Depends(get_db)):
+    return _confirmed_project_delete(db, [{"id": project_id, "confirmation_name": payload.get("confirmation_name")}])
+
+
+@app.post("/api/projects/bulk-delete")
+def bulk_delete_projects(payload: dict, db: Session = Depends(get_db)):
+    return _confirmed_project_delete(db, payload.get("projects") or [])
 
 
 def compound_out(compound: Compound):

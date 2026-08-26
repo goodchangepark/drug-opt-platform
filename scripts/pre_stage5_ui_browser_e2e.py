@@ -105,6 +105,23 @@ return {ok:true};
         raise AssertionError(f"Could not set {endpoint} / {label}: {result}")
 
 
+def set_delete_confirmation(driver, project_name):
+    result = driver.execute_script(
+        """
+const name=arguments[0];
+const card=[...document.querySelectorAll('.delete-project-summary')].find(row=>row.querySelector('h3')?.textContent.trim()===name);
+const control=card?.querySelector('input');
+if(!control)return {ok:false,names:[...document.querySelectorAll('.delete-project-summary h3')].map(row=>row.textContent.trim())};
+Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(control,name);
+control.dispatchEvent(new Event('input',{bubbles:true}));control.dispatchEvent(new Event('change',{bubbles:true}));
+return {ok:true};
+""",
+        project_name,
+    )
+    if not result["ok"]:
+        raise AssertionError(f"Could not confirm deletion for {project_name}: {result}")
+
+
 def main():
     options = webdriver.ChromeOptions()
     options.binary_location = "/snap/chromium/current/usr/lib/chromium-browser/chrome"
@@ -237,6 +254,32 @@ def main():
         workspace = browser_api(driver, "GET", f"/compound-versions/{first['version']['id']}/workspace")
         if workspace["scope"]["version_id"] != first["version"]["id"] or any(row["version_id"] != first["version"]["id"] for row in workspace["admet"]["measurements"]):
             raise AssertionError("Workspace API scope mismatch")
+
+        cleanup_names = [f"Temporary UI Cleanup A {RUN_ID}", f"Temporary UI Cleanup B {RUN_ID}"]
+        cleanup_projects = [
+            browser_api(driver, "POST", "/projects", {"name": name, "target": "E2E cleanup", "molecule_type": "Small Molecule"})
+            for name in cleanup_names
+        ]
+        driver.get(BASE_URL + "/?project-delete-e2e=" + RUN_ID)
+        WebDriverWait(driver, 60).until(lambda d: all(name in d.execute_script("return document.body.innerText") for name in cleanup_names))
+        for name in cleanup_names:
+            card = driver.find_element(By.XPATH, f"//article[contains(@class,'dashboard-project')][.//h3[normalize-space()={json.dumps(name)}]]")
+            card.find_element(By.CSS_SELECTOR, "input[type='checkbox']").click()
+        click_button(driver, "Delete Selected")
+        WebDriverWait(driver, 30).until(lambda d: "Delete Selected Projects Permanently" in d.page_source)
+        for name in cleanup_names:
+            set_delete_confirmation(driver, name)
+        click_button(driver, "Delete Selected Projects Permanently")
+        WebDriverWait(driver, 45).until(
+            lambda d: all(
+                not d.find_elements(By.XPATH, f"//article[contains(@class,'dashboard-project')][.//h3[normalize-space()={json.dumps(name)}]]")
+                for name in cleanup_names
+            )
+        )
+        remaining_ids = {row["id"] for row in browser_api(driver, "GET", "/projects")}
+        if any(row["id"] in remaining_ids for row in cleanup_projects):
+            raise AssertionError("Bulk project cleanup left a selected project behind")
+        checks.append("Typed-confirmation bulk project cleanup and dashboard refresh")
 
         result = {
             "status": "PASS", "base_url": BASE_URL, "project": PROJECT_NAME,

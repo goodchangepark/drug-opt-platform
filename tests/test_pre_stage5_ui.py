@@ -261,3 +261,17 @@ def test_main_dashboard_contract_and_responsive_layout():
     assert ".module-grid" in styles and ".dashboard-project-grid" in styles and ".scientific-nav" in styles
     assert ".sidebar.open .sidebar-body" in styles and ".project-overview-grid" in styles
     assert "@media(max-width:900px)" in styles and "@media(max-width:620px)" in styles
+
+
+def test_project_delete_ui_requires_typed_confirmation_and_manual_bulk_selection():
+    source = (ROOT / "frontend/static/app.js").read_text()
+    styles = (ROOT / "frontend/static/app.css").read_text()
+    for phrase in (
+        "Delete Selected", "Delete Project…", "This action permanently deletes all project-linked data.",
+        "Type ", " to confirm", "Delete Project Permanently", "Delete Selected Projects Permanently",
+        "confirmation_name", "projectSelection", "experimental_activity_count", "prediction_count",
+    ):
+        assert phrase in source
+    assert "useState([]),[deleteProjects" in source
+    assert "disabled:deleteBusy||!deleteNamesMatch" in source
+    assert ".project-delete-modal" in styles and ".delete-count-grid" in styles

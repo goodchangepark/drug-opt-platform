@@ -11,7 +11,7 @@ const api={
  get:path=>api.req(path),
  post:(path,data)=>api.req(path,{method:'POST',body:JSON.stringify(data)}),
  patch:(path,data)=>api.req(path,{method:'PATCH',body:JSON.stringify(data)}),
- del:path=>api.req(path,{method:'DELETE'})
+ del:(path,data)=>api.req(path,{method:'DELETE',body:data===undefined?undefined:JSON.stringify(data)})
 };
 
 function Field({label,value,onChange,type='text',placeholder=''}){
@@ -56,6 +56,7 @@ function StatusBadge({type}){
 function App(){
  const [projects,setProjects]=useState([]),[projectId,setProjectId]=useState(null),[project,setProject]=useState(null);
  const [dashboard,setDashboard]=useState(null),[sidebarOpen,setSidebarOpen]=useState(false);
+ const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false);
  const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState('');
@@ -990,7 +991,8 @@ function App(){
   const sample=currentVersions.find(row=>row.version)?.compound_id||'C001',placeholder='compound_id,version_number,endpoint,species,matrix,value,unit,qualifier,replicate,mean,sd,n,method,source,date,notes\n'+sample+',1,Solubility,Human,,12.5,µM,=,R1,,,,shake flask,Study A,2026-08-25,';
   return e('div',{},[
    e('div',{className:'card',key:'identity'},[e('h2',{},'Project Settings'),e('p',{className:'small'},'Indication and mechanism remain preserved in the database but are kept out of the primary creation workflow.'),e('div',{className:'grid'},[e('div',{className:'col-4'},Field({label:'Project Name',value:project.name,onChange:value=>setProject(current=>({...current,name:value}))})),e('div',{className:'col-4'},Field({label:'Target',value:project.target,onChange:value=>setProject(current=>({...current,target:value}))})),e('div',{className:'col-4'},[e('label',{},'Molecule Type'),e('select',{value:project.molecule_type,onChange:event=>setProject(current=>({...current,molecule_type:event.target.value}))},['Small Molecule','Peptide'].map(value=>e('option',{key:value,value},value)))]),e('div',{className:'col-12'},Field({label:'Description',value:project.description||'',onChange:value=>setProject(current=>({...current,description:value})),type:'textarea'}))]),e('button',{disabled:!project.name.trim()||!project.target.trim(),onClick:saveProjectSettings},'Save Project Settings')]),
-   e('div',{className:'card',key:'csv'},[e('h2',{},'Experimental ADMET CSV'),e('p',{className:'small'},'Advanced project-wide import/export. Compound Detail remains CompoundVersion-isolated.'),e('a',{className:'button secondary',href:'/api/projects/'+projectId+'/admet/export.csv'},'Export CSV'),e('textarea',{rows:7,value:admetCsv,placeholder,onChange:event=>{setAdmetCsv(event.target.value);setAdmetCsvPreview(null)}}),e('div',{className:'row',style:{marginTop:'10px'}},[e('button',{className:'secondary',disabled:admetBusy||!admetCsv.trim(),onClick:previewAdmet},'Preview CSV'),e('button',{disabled:admetBusy||!admetCsvPreview||admetCsvPreview.errors.length>0||!admetCsvPreview.valid_count,onClick:importAdmet},'Import Valid Rows')]),admetCsvPreview&&e('p',{className:admetCsvPreview.errors.length?'fail':'pass'},admetCsvPreview.valid_count+' valid · '+admetCsvPreview.errors.length+' errors')])
+   e('div',{className:'card',key:'csv'},[e('h2',{},'Experimental ADMET CSV'),e('p',{className:'small'},'Advanced project-wide import/export. Compound Detail remains CompoundVersion-isolated.'),e('a',{className:'button secondary',href:'/api/projects/'+projectId+'/admet/export.csv'},'Export CSV'),e('textarea',{rows:7,value:admetCsv,placeholder,onChange:event=>{setAdmetCsv(event.target.value);setAdmetCsvPreview(null)}}),e('div',{className:'row',style:{marginTop:'10px'}},[e('button',{className:'secondary',disabled:admetBusy||!admetCsv.trim(),onClick:previewAdmet},'Preview CSV'),e('button',{disabled:admetBusy||!admetCsvPreview||admetCsvPreview.errors.length>0||!admetCsvPreview.valid_count,onClick:importAdmet},'Import Valid Rows')]),admetCsvPreview&&e('p',{className:admetCsvPreview.errors.length?'fail':'pass'},admetCsvPreview.valid_count+' valid · '+admetCsvPreview.errors.length+' errors')]),
+   e('div',{className:'card danger-zone',key:'delete'},[e('div',{},[e('div',{className:'eyebrow'},'DANGER ZONE'),e('h2',{},'Delete Project'),e('p',{className:'small'},'Deletion requires a separate confirmation and the exact project name. No other project is included.')]),e('button',{className:'danger',onClick:()=>openDeleteDialog([selectedProjectSummary||project])},'Delete Project…')])
   ]);
  }
 
@@ -1002,6 +1004,48 @@ function App(){
   if(detail&&detailTarget)setDetailTab(detailTarget);else if(projectTarget!=='compounds')setDetail(null);
  };
  const selectedProjectSummary=(dashboard?.projects||[]).find(row=>row.id===projectId);
+ const openDeleteDialog=(items,event)=>{
+  event?.stopPropagation();
+  const safeItems=(items||[]).filter(item=>item?.id);
+  if(!safeItems.length)return;
+  setDeleteProjects(safeItems);setDeleteConfirmations({});setMessage('');
+ };
+ const closeDeleteDialog=()=>{if(deleteBusy)return;setDeleteProjects([]);setDeleteConfirmations({})};
+ const deleteNamesMatch=deleteProjects.length>0&&deleteProjects.every(item=>deleteConfirmations[item.id]===item.name);
+ const confirmProjectDeletion=async()=>{
+  if(!deleteNamesMatch)return;
+  setDeleteBusy(true);
+  try{
+   const confirmations=deleteProjects.map(item=>({id:item.id,confirmation_name:deleteConfirmations[item.id]}));
+   const result=confirmations.length===1
+    ?await api.del('/projects/'+confirmations[0].id,{confirmation_name:confirmations[0].confirmation_name})
+    :await api.post('/projects/bulk-delete',{projects:confirmations});
+   const deletedIds=result.deleted_project_ids||confirmations.map(item=>item.id),currentDeleted=deletedIds.includes(projectId);
+   const [rows,summary]=await Promise.all([api.get('/projects'),api.get('/dashboard')]);
+   setProjects(rows);setDashboard(summary);setProjectSelection([]);setDeleteProjects([]);setDeleteConfirmations({});
+   setProjectTab('dashboard');setDetail(null);setWorkspace(null);setAdmet(null);setMetabolism(null);setComparison(null);setSelected([]);setSelectedCandidate(null);
+   if(currentDeleted){setProjectId(null);setProject(null)}
+   setMessage((result.deleted_project_names||deleteProjects.map(item=>item.name)).join(', ')+' deleted');
+  }catch(error){setMessage('Project deletion failed: '+error.message)}finally{setDeleteBusy(false)}
+ };
+
+ function ProjectDeleteModal(){
+  if(!deleteProjects.length)return null;
+  const bulk=deleteProjects.length>1;
+  return e('div',{className:'modal-backdrop project-delete-backdrop',role:'presentation'},e('div',{className:'card project-delete-modal',role:'dialog','aria-modal':'true','aria-labelledby':'project-delete-title'},[
+   e('div',{className:'row toolbar',key:'head'},[e('div',{},[e('div',{className:'eyebrow'},bulk?'BULK PROJECT CLEANUP':'PROJECT DELETION'),e('h2',{id:'project-delete-title'},bulk?'Delete Selected Projects':'Delete Project')]),e('button',{className:'secondary',disabled:deleteBusy,onClick:closeDeleteDialog},'Cancel')]),
+   e('div',{className:'delete-warning',key:'warning'},[e('strong',{},'This action permanently deletes all project-linked data.'),e('p',{},'Compounds and versions, assays and activity, experimental ADMET, predictions and audit runs, metabolism, optimization runs and candidates, and related project-scoped records will all be deleted. Other projects are not affected.')]),
+   e('div',{className:'delete-project-list',key:'projects'},deleteProjects.map(item=>{
+    const experimental=(item.experimental_activity_count||0)+(item.experimental_admet_count||0),prediction=item.prediction_count||0,optimization=item.optimization_run_count||0;
+    return e('section',{className:'delete-project-summary',key:item.id},[
+     e('h3',{},item.name),e('div',{className:'delete-count-grid'},[
+      e('div',{key:'compound'},[e('span',{},'Compounds'),e('strong',{},String(item.compound_count||0))]),e('div',{key:'experimental'},[e('span',{},'Experimental data'),e('strong',{},String(experimental))]),e('div',{key:'prediction'},[e('span',{},'Predictions'),e('strong',{},String(prediction))]),e('div',{key:'optimization'},[e('span',{},'Optimization runs'),e('strong',{},String(optimization))])
+     ]),e('label',{},['Type ',e('strong',{key:'name'},item.name),' to confirm']),e('input',{value:deleteConfirmations[item.id]||'',autoComplete:'off',onChange:event=>setDeleteConfirmations(current=>({...current,[item.id]:event.target.value}))})
+    ]);
+   })),
+   e('div',{className:'row delete-actions',key:'actions'},[e('button',{className:'secondary',disabled:deleteBusy,onClick:closeDeleteDialog},'Keep Project'+(bulk?'s':'')),e('button',{className:'danger',disabled:deleteBusy||!deleteNamesMatch,onClick:confirmProjectDeletion},deleteBusy?'Deleting…':(bulk?'Delete Selected Projects Permanently':'Delete Project Permanently'))])
+  ]));
+ }
 
  function MainDashboard(){
   const registry=dashboard?.model_registry||[];
@@ -1048,8 +1092,9 @@ function App(){
     e('div',{className:'dashboard-setting',key:'type'},[e('span',{},'Default molecule type'),e('strong',{},'Small Molecule')]),e('div',{className:'dashboard-setting',key:'entry'},[e('span',{},'Structure entry'),e('strong',{},'Ketcher or SMILES')]),e('div',{className:'dashboard-setting',key:'calc'},[e('span',{},'Calculation policy'),e('strong',{},'Save first · Calculate on demand')]),e('div',{className:'dashboard-setting',key:'isolation'},[e('span',{},'Data isolation'),e('strong',{},'Project + CompoundVersion')])
    ])]),
    e('section',{className:'card',key:'projects'},[
-    e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'RESEARCH PORTFOLIO'),e('h2',{},'Projects'),e('p',{className:'small'},'Project cards summarize recorded evidence without synthetic progress percentages.')]),projectId&&e('button',{className:'secondary',onClick:()=>openProject(projectId)},'Continue Current Project')]),
+    e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'RESEARCH PORTFOLIO'),e('h2',{},'Projects'),e('p',{className:'small'},'Project cards summarize recorded evidence without synthetic progress percentages.')]),e('div',{className:'row'},[projectSelection.length>0&&e('span',{className:'small'},projectSelection.length+' selected'),e('button',{className:'danger',disabled:projectSelection.length===0,onClick:()=>openDeleteDialog(summaries.filter(item=>projectSelection.includes(item.id)))},'Delete Selected'),projectId&&e('button',{className:'secondary',onClick:()=>openProject(projectId)},'Continue Current Project')])]),
     summaries.length?e('div',{className:'dashboard-project-grid'},summaries.map(item=>e('article',{className:'dashboard-project',key:item.id,tabIndex:0,onClick:()=>openProject(item.id),onKeyDown:event=>{if(event.key==='Enter'||event.key===' ')openProject(item.id)}},[
+     e('div',{className:'dashboard-project-actions'},[e('label',{className:'project-select',onClick:event=>event.stopPropagation()},[e('input',{type:'checkbox',checked:projectSelection.includes(item.id),onChange:event=>setProjectSelection(current=>event.target.checked?[...current,item.id]:current.filter(id=>id!==item.id))}),e('span',{},'Select')]),e('button',{className:'danger project-delete-button',onClick:event=>openDeleteDialog([item],event)},'Delete…')]),
      e('div',{className:'dashboard-project-head'},[e('div',{},[e('div',{className:'eyebrow'},item.molecule_type||'Small Molecule'),e('h3',{},item.name)]),e('span',{className:'dashboard-count'},item.compound_count||0)]),
      e('dl',{},[e('div',{key:'target'},[e('dt',{},'Target'),e('dd',{},item.target||'Not set')]),e('div',{key:'experimental'},[e('dt',{},'Experimental records'),e('dd',{},String((item.experimental_activity_count||0)+(item.experimental_admet_count||0)))]),e('div',{key:'optimization'},[e('dt',{},'Optimization runs'),e('dd',{},String(item.optimization_run_count||0))])]),
      e('p',{className:'project-status-summary'},item.status_summary||((item.compound_count||0)+' compounds · experimental and prediction data not started')),e('span',{className:'project-open-link'},'Open Project →')
@@ -1098,6 +1143,7 @@ function App(){
  return e('div',{className:'shell'},[sidebar,e('main',{className:'content',key:'content'},[
   projectTab==='dashboard'?MainDashboard():ProjectWorkspace(),
   AddCompoundPanel(),
+  ProjectDeleteModal(),
   message&&e('pre',{className:'card error',key:'message'},message)
  ])]);
 
