@@ -16,7 +16,8 @@ from sqlalchemy.orm import Session
 
 from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
 from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, MatchedMolecularPair, QSARModel
-from .admet import (ADMETAssayDefinition, ADMETEndpoint, ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
+from .admet import (ADMETAssayDefinition, ADMETConsensusPrediction, ADMETEndpoint, ADMETMeasurement,
+                    ADMETModelComparison, ADMETModelPerformance, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
 from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimental, comparison_for_prediction, cyp_experimental_evidence,
@@ -333,6 +334,9 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
         db.execute(delete(AssayDefinition).where(AssayDefinition.id.in_(assay_ids)))
 
     if endpoint_ids:
+        db.execute(delete(ADMETModelComparison).where(ADMETModelComparison.project_id.in_(project_ids)))
+        db.execute(delete(ADMETModelPerformance).where(ADMETModelPerformance.project_id.in_(project_ids)))
+        db.execute(delete(ADMETConsensusPrediction).where(ADMETConsensusPrediction.endpoint_id.in_(endpoint_ids)))
         db.execute(delete(ADMETPrediction).where(ADMETPrediction.endpoint_id.in_(endpoint_ids)))
         db.execute(delete(ADMETMeasurement).where(ADMETMeasurement.endpoint_id.in_(endpoint_ids)))
         db.execute(delete(ADMETAssayDefinition).where(ADMETAssayDefinition.endpoint_id.in_(endpoint_ids)))
@@ -533,6 +537,52 @@ def calculate_compound_properties(row_id: int, db: Session = Depends(get_db)):
     return compound_out(compound)
 
 
+@app.post("/api/compounds/{row_id}/predict-workflow", status_code=202)
+def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db)):
+    """Save-following orchestration. Activity is intentionally never run here."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    version = next((row for row in compound.versions if row.version_number == compound.current_version), None)
+    if not version:
+        raise HTTPException(status_code=400, detail="A validated CompoundVersion is required before prediction")
+    if compound.project.molecule_type != "Small Molecule":
+        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
+    steps = {
+        "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
+        "properties": {"status": "PENDING"},
+        "admet": {"status": "PENDING", "endpoints": []},
+        "metabolism": {"status": "PENDING"},
+        "activity": {"status": "NOT_INCLUDED", "message": "Assay configuration required; Activity is excluded from Save & Predict."},
+    }
+    try:
+        steps["properties"] = {"status": "RUNNING"}
+        calculate_compound_properties(row_id, db)
+        steps["properties"] = {"status": "COMPLETE", "message": "Stage 1 properties calculated."}
+    except Exception as exc:
+        steps["properties"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc))}
+    try:
+        steps["admet"] = {"status": "RUNNING", "endpoints": []}
+        result = run_admet_predictions(version.id, db)
+        steps["admet"] = {"status": "COMPLETE" if result["status"] in {"COMPLETE", "CACHED"} else result["status"],
+                          "message": result.get("message", ""), "endpoints": result.get("endpoint_statuses", []),
+                          "consensus_count": len(result.get("consensus_predictions", []))}
+    except Exception as exc:
+        steps["admet"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc)), "endpoints": []}
+    try:
+        steps["metabolism"] = {"status": "RUNNING"}
+        result = run_metabolism_predictions(version.id, db)
+        steps["metabolism"] = {"status": "COMPLETE" if result["status"] in {"COMPLETE", "CACHED"} else result["status"],
+                               "message": result.get("message", ""), "soft_spots_and_metabolites": True}
+    except Exception as exc:
+        steps["metabolism"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc))}
+    required = [steps[name]["status"] for name in ("properties", "admet", "metabolism")]
+    status = "COMPLETE" if all(value == "COMPLETE" for value in required) else ("FAILED" if all(value == "FAILED" for value in required) else "PARTIAL")
+    return {"status": status, "compound_id": compound.id, "compound_version_id": version.id,
+            "activity_excluded": True, "steps": steps,
+            "message": "Save & Predict finished with isolated endpoint status reporting."}
+
+
 @app.get("/api/compounds/{row_id}")
 def get_compound(row_id: int, include_versions: bool = Query(False), db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
@@ -681,8 +731,191 @@ def _admet_model_out(model: ADMETModelRegistry):
         "model_version": model.model_version,
         "status": model.implementation_status if available else "MODEL_UNAVAILABLE",
         "active": bool(model.is_active and available), "output_unit": model.output_unit,
+        "source": model.source, "training_dataset": model.training_dataset,
+        "validation": model.validation_json or {}, "license": model.license,
+        "priority": model.model_priority, "ensemble_eligible": bool(model.ensemble_eligible),
+        "species": model.species, "output_type": model.output_type,
         "details": model.provenance_json or {}, "unavailable_reason": unavailable_reason,
     }
+
+
+def _performance_out(row: ADMETModelPerformance):
+    return {
+        "id": row.id, "scope": row.scope_key, "project_id": row.project_id,
+        "endpoint": row.endpoint_name, "model_id": row.model_id, "task_type": row.task_type,
+        "n": row.sample_size, "metrics": row.metrics_json or {},
+        "performance_factor": row.performance_factor, "updated_at": row.updated_at.isoformat(),
+    }
+
+
+def _consensus_out(row: ADMETConsensusPrediction):
+    return {
+        "id": row.id, "run_id": row.run_id, "version_id": row.version_id,
+        "endpoint_id": row.endpoint_id, "endpoint": row.endpoint.name,
+        "combined_value": row.combined_value, "unit": row.unit,
+        "classification": row.classification, "confidence": row.confidence,
+        "applicability_domain": row.applicability_domain, "models": row.weights_json or [],
+        "provenance": row.provenance_json or {}, "created_at": row.created_at.isoformat(),
+        "type": "Consensus Prediction",
+    }
+
+
+def _rank_correlation(x_values, y_values):
+    if len(x_values) < 2:
+        return None
+    x_rank = np.argsort(np.argsort(np.asarray(x_values, dtype=float))).astype(float)
+    y_rank = np.argsort(np.argsort(np.asarray(y_values, dtype=float))).astype(float)
+    value = float(np.corrcoef(x_rank, y_rank)[0, 1])
+    return None if np.isnan(value) else value
+
+
+def _refresh_model_feedback(db: Session, project_id: int, version_ids: list[int] | None = None):
+    """Persist compatible experimental/model comparisons, then recompute scoped metrics."""
+    endpoint_names = {row.id: row.name for row in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))}
+    version_query = select(CompoundVersion.id).join(Compound).where(Compound.project_id == project_id)
+    scoped_versions = version_ids or list(db.scalars(version_query))
+    if not scoped_versions:
+        return
+    measurements = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id.in_(scoped_versions))).all()
+    by_version = {version_id: [row for row in measurements if row.version_id == version_id] for version_id in scoped_versions}
+    predictions = db.scalars(select(ADMETPrediction).where(ADMETPrediction.version_id.in_(scoped_versions))).all()
+    for prediction in predictions:
+        if prediction.predicted_value is None or prediction.model.endpoint_name not in MODEL_SPECS:
+            continue
+        for item in comparison_for_prediction(
+            prediction.model.endpoint_name, prediction.predicted_value,
+            by_version.get(prediction.version_id, []), endpoint_names,
+        ):
+            existing = db.scalar(select(ADMETModelComparison.id).where(
+                ADMETModelComparison.prediction_id == prediction.id,
+                ADMETModelComparison.measurement_id == item["measurement_id"],
+            ))
+            if existing:
+                continue
+            classification = item.get("classification_match") is not None
+            experimental = item.get("experimental_normalized")
+            error = item.get("absolute_error")
+            db.add(ADMETModelComparison(
+                project_id=project_id, version_id=prediction.version_id,
+                endpoint_id=prediction.endpoint_id, model_id=prediction.model_id,
+                prediction_id=prediction.id, measurement_id=item["measurement_id"],
+                task_type="classification" if classification else "regression",
+                predicted_value=item.get("predicted_normalized"), experimental_value=experimental,
+                absolute_error=error, squared_error=(error * error if error is not None else None),
+                fold_error=(10 ** error if error is not None and prediction.model.endpoint_name != "Plasma protein binding" else None),
+                predicted_class=str(int(item.get("predicted_normalized", 0))) if classification else "",
+                experimental_class=str(int(experimental)) if classification else "",
+                correct=item.get("classification_match") if classification else None,
+            ))
+    db.flush()
+    model_ids = set(db.scalars(select(ADMETModelComparison.model_id).where(ADMETModelComparison.project_id == project_id)))
+    for model_id in model_ids:
+        model = db.get(ADMETModelRegistry, model_id)
+        for scope_key, scoped_project in (("GLOBAL", None), (f"PROJECT:{project_id}", project_id)):
+            query = select(ADMETModelComparison).where(ADMETModelComparison.model_id == model_id)
+            if scoped_project is not None:
+                query = query.where(ADMETModelComparison.project_id == scoped_project)
+            rows = list(db.scalars(query))
+            if not rows:
+                continue
+            task = rows[0].task_type
+            metrics = {}
+            if task == "classification":
+                actual = [int(row.experimental_class) for row in rows]
+                predicted = [int(row.predicted_class) for row in rows]
+                tp = sum(a == 1 and p == 1 for a, p in zip(actual, predicted)); tn = sum(a == 0 and p == 0 for a, p in zip(actual, predicted))
+                fp = sum(a == 0 and p == 1 for a, p in zip(actual, predicted)); fn = sum(a == 1 and p == 0 for a, p in zip(actual, predicted))
+                sensitivity = tp / (tp + fn) if tp + fn else None; specificity = tn / (tn + fp) if tn + fp else None
+                denominator = ((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn)) ** .5
+                accuracy = (tp + tn) / len(rows)
+                mcc = ((tp * tn - fp * fn) / denominator if denominator else None)
+                balanced_accuracy = ((sensitivity + specificity) / 2.0) if (sensitivity is not None and specificity is not None) else accuracy
+                metrics = {"n": len(rows), "accuracy": accuracy, "balanced_accuracy": balanced_accuracy,
+                           "sensitivity": sensitivity, "specificity": specificity, "mcc": mcc}
+                factor = .5 + .5 * balanced_accuracy
+            else:
+                errors = [float(row.absolute_error) for row in rows if row.absolute_error is not None]
+                predicted = [float(row.predicted_value) for row in rows if row.predicted_value is not None and row.experimental_value is not None]
+                experimental = [float(row.experimental_value) for row in rows if row.predicted_value is not None and row.experimental_value is not None]
+                mae = float(np.mean(errors)) if errors else None; rmse = float(np.sqrt(np.mean([value * value for value in errors]))) if errors else None
+                folds = [row.fold_error for row in rows if row.fold_error is not None]
+                metrics = {"n": len(rows), "mae": mae, "rmse": rmse, "mean_fold_error": float(np.mean(folds)) if folds else None,
+                           "spearman": _rank_correlation(predicted, experimental)}
+                factor = 1.0 / (1.0 + (mae or 0.0))
+            performance = db.scalar(select(ADMETModelPerformance).where(
+                ADMETModelPerformance.scope_key == scope_key, ADMETModelPerformance.model_id == model_id,
+            ))
+            if not performance:
+                performance = ADMETModelPerformance(scope_key=scope_key, project_id=scoped_project,
+                    endpoint_name=model.endpoint_name, model_id=model_id)
+                db.add(performance)
+            performance.task_type = task; performance.sample_size = len(rows)
+            performance.metrics_json = metrics; performance.performance_factor = factor
+            performance.updated_at = datetime.now(timezone.utc)
+    db.flush()
+
+
+def _consensus_factor(db: Session, model: ADMETModelRegistry, prediction: ADMETPrediction, project_id: int):
+    domain_factor = {"IN_DOMAIN": 1.0, "BORDERLINE": .65, "OUT_OF_DOMAIN": .25}.get(prediction.applicability_domain, .5)
+    confidence_factor = {"HIGH": 1.0, "MEDIUM": .8, "LOW": .55}.get(prediction.confidence, .45)
+    priority_factor = 1.0 / (1.0 + max(0, (model.model_priority or 100) - 1) * .01)
+    project_performance = db.scalar(select(ADMETModelPerformance).where(
+        ADMETModelPerformance.scope_key == f"PROJECT:{project_id}", ADMETModelPerformance.model_id == model.id,
+    ))
+    performance_factor, performance_reason = 1.0, "published validation and model priority"
+    if project_performance and project_performance.sample_size >= 10:
+        blend = .25 if project_performance.sample_size < 30 else .6
+        performance_factor = (1.0 - blend) + blend * project_performance.performance_factor
+        performance_reason = f"project performance N={project_performance.sample_size} blended at {blend:.0%}"
+    return max(.0001, priority_factor * domain_factor * confidence_factor * performance_factor), performance_reason
+
+
+def _store_consensus_predictions(db: Session, version: CompoundVersion, project_id: int, predictions: list[ADMETPrediction]):
+    grouped = {}
+    for prediction in predictions:
+        if prediction.predicted_value is not None and prediction.model.ensemble_eligible:
+            grouped.setdefault((prediction.endpoint_id, prediction.unit), []).append(prediction)
+    rows = []
+    for (endpoint_id, unit), items in grouped.items():
+        prediction_ids = sorted(item.id for item in items)
+        existing = db.scalar(select(ADMETConsensusPrediction).where(
+            ADMETConsensusPrediction.version_id == version.id,
+            ADMETConsensusPrediction.endpoint_id == endpoint_id,
+        ).order_by(ADMETConsensusPrediction.created_at.desc()))
+        if existing and sorted((existing.provenance_json or {}).get("prediction_ids", [])) == prediction_ids:
+            rows.append(existing); continue
+        weighted, weight_rows, reasons = [], [], []
+        for item in items:
+            factor, reason = _consensus_factor(db, item.model, item, project_id)
+            weighted.append((item, factor)); reasons.append(reason)
+        total = sum(factor for _, factor in weighted)
+        for item, factor in weighted:
+            weight_rows.append({"model_id": item.model_id, "model_name": item.model.model_name,
+                "model_version": item.model.model_version, "prediction_id": item.id,
+                "value": item.predicted_value, "confidence": item.confidence,
+                "domain": item.applicability_domain, "weight": factor / total})
+        value = sum(item.predicted_value * factor for item, factor in weighted) / total
+        spec = MODEL_SPECS.get(items[0].model.endpoint_name, {})
+        classification = ""
+        if spec.get("prediction_type") == "binary_classification":
+            classification = spec.get("positive_label", "POSITIVE") if value >= spec.get("decision_threshold", .5) else spec.get("negative_label", "NEGATIVE")
+        in_weight = sum(row["weight"] for row in weight_rows if row["domain"] == "IN_DOMAIN")
+        out_weight = sum(row["weight"] for row in weight_rows if row["domain"] == "OUT_OF_DOMAIN")
+        domain = "IN_DOMAIN" if in_weight >= .6 else ("OUT_OF_DOMAIN" if out_weight >= .5 else "BORDERLINE")
+        confidence = "HIGH" if domain == "IN_DOMAIN" and len(items) > 1 else ("MEDIUM" if domain != "OUT_OF_DOMAIN" else "LOW")
+        row = ADMETConsensusPrediction(
+            run_id=max(items, key=lambda item: item.created_at).run_id, endpoint_id=endpoint_id,
+            version_id=version.id, combined_value=value, unit=unit, classification=classification,
+            confidence=confidence, applicability_domain=domain, weights_json=weight_rows,
+            provenance_json={"record_type": "Consensus Prediction", "compound_version_id": version.id,
+                "endpoint": items[0].model.endpoint_name, "prediction_ids": prediction_ids,
+                "weighting_policy": "model priority × applicability domain × confidence × conservative project performance",
+                "performance_thresholds": {"project_blend": 10, "strong_project_blend": 30},
+                "reasons": sorted(set(reasons)), "timestamp": datetime.now(timezone.utc).isoformat()},
+        )
+        db.add(row); rows.append(row)
+    db.flush()
+    return rows
 
 
 def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_names):
@@ -835,6 +1068,11 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
         .where(ADMETPrediction.version_id.in_(version_ids))
         .order_by(ADMETPrediction.created_at.desc())
     ).all() if version_ids else []
+    consensuses = db.scalars(
+        select(ADMETConsensusPrediction)
+        .where(ADMETConsensusPrediction.version_id.in_(version_ids))
+        .order_by(ADMETConsensusPrediction.created_at.desc())
+    ).all() if version_ids else []
     measurements_by_version = {
         version_id: [row for row in rows if row.version_id == version_id] for version_id in version_ids
     }
@@ -848,12 +1086,33 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
     prediction_rows = [_admet_prediction_out(
         prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
     ) for prediction in predictions]
+    performance_rows = list(db.scalars(
+        select(ADMETModelPerformance).where(
+            (ADMETModelPerformance.project_id == project.id) | (ADMETModelPerformance.scope_key == "GLOBAL")
+        ).order_by(ADMETModelPerformance.endpoint_name, ADMETModelPerformance.scope_key)
+    ))
+    best_project_models = {}
+    for performance in [row for row in performance_rows if row.project_id == project.id and row.sample_size >= 10]:
+        model = db.get(ADMETModelRegistry, performance.model_id)
+        score = performance.metrics_json.get("mae") if performance.task_type == "regression" else -(performance.metrics_json.get("balanced_accuracy") or performance.metrics_json.get("accuracy") or 0)
+        current = best_project_models.get(performance.endpoint_name)
+        if current is None or score < current["selection_score"]:
+            best_project_models[performance.endpoint_name] = {"model_id": model.id, "model_name": model.model_name,
+                "model_version": model.model_version, "n": performance.sample_size,
+                "metrics": performance.metrics_json, "selection_score": score}
+    for row in best_project_models.values():
+        row.pop("selection_score", None)
     return {
         "scope": {"project_id": project.id, "version_ids": version_ids},
         "endpoints": [_admet_endpoint_out(e) for e in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id))],
         "measurements": [measurement_out(row) for row in rows],
         "models": model_rows,
         "predictions": prediction_rows,
+        "consensus_predictions": [_consensus_out(row) for row in consensuses],
+        "model_performance": [_performance_out(row) for row in performance_rows],
+        "best_project_models": best_project_models,
+        "consensus_policy": {"name": "Deterministic evidence-weighted consensus", "project_weight_start_n": 10,
+                             "project_weight_strong_n": 30, "probability_is_not_confidence": True},
         "integrated_profiles": {str(version_id): _integrated_admet_profile(version_id, prediction_rows, model_rows) for version_id in version_ids},
         "prediction_runs": [{"id": r.id, "version_id": r.version_id, "status": r.status,
                              "message": r.message, "started_at": r.started_at.isoformat()} for r in runs],
@@ -890,7 +1149,10 @@ def create_admet_measurement(project_id: int, payload: dict, db: Session = Depen
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-    return add_admet_measurement(db, project_id, payload)
+    result = add_admet_measurement(db, project_id, payload)
+    _refresh_model_feedback(db, project_id, [int(payload["version_id"])])
+    db.commit()
+    return result
 
 
 @app.post("/api/projects/{project_id}/admet/import-preview")
@@ -929,6 +1191,8 @@ def admet_import(project_id: int, payload: dict, db: Session = Depends(get_db)):
         version_number = int(item.get("version_number") or compound.current_version)
         version = next(version for version in compound.versions if version.version_number == version_number)
         created.append(add_admet_measurement(db, project_id, {**item, "version_id": version.id}))
+    _refresh_model_feedback(db, project_id)
+    db.commit()
     return {"imported": len(created), "measurements": created}
 
 
@@ -955,6 +1219,10 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if compound.project.molecule_type != "Small Molecule":
         raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
     active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
+    inactive_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(False))).all()
+    inactive_statuses = [{"endpoint": model.endpoint_name, "model_id": model.id, "status": "MODEL_UNAVAILABLE",
+                          "message": (model.provenance_json or {}).get("reason", "Model is disabled or no validated local checkpoint is installed")}
+                         for model in inactive_models]
     implemented_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS]
     available_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS and model_files_available(model.endpoint_name)[0]]
     cached = {}
@@ -974,11 +1242,16 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
     )}
     if implemented_models and len(available_models) == len(implemented_models) and len(cached) == len(available_models):
+        _refresh_model_feedback(db, compound.project_id, [row_id])
+        consensuses = _store_consensus_predictions(db, version, compound.project_id, list(cached.values()))
+        db.commit()
         predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
         return {
             "type": "Predicted", "run_id": predictions[0]["run_id"], "status": "CACHED",
             "message": "Cached predictions reused for this CompoundVersion and model version.",
             "models_available": len(available_models), "cache_hit": True, "predictions": predictions,
+            "consensus_predictions": [_consensus_out(row) for row in consensuses],
+            "endpoint_statuses": [{"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True} for model in available_models] + inactive_statuses,
         }
 
     digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
@@ -987,24 +1260,28 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         message="Running endpoint-specific ADMET predictions through Stage 3F.",
     )
     db.add(run); db.flush()
-    created, unavailable = [], []
+    created, unavailable, endpoint_statuses = [], [], []
     selected_predictions = dict(cached)
     for model in active_models:
         if model.id in cached:
+            endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True})
             continue
         if model.endpoint_name not in MODEL_SPECS:
             continue
         available, reason = model_files_available(model.endpoint_name)
         if not available:
             unavailable.append(f"{model.endpoint_name}: {reason}")
+            endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "MODEL_UNAVAILABLE", "message": reason})
             continue
         try:
             result = predict_endpoint(version.canonical_smiles, model.endpoint_name)
         except Exception as exc:
             unavailable.append(f"{model.endpoint_name}: inference failed ({exc})")
+            endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "FAILED", "message": str(exc)})
             continue
         if result.get("status") != "COMPLETE":
             unavailable.append(f"{model.endpoint_name}: {result.get('reason', 'model unavailable')}")
+            endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "MODEL_UNAVAILABLE", "message": result.get("reason", "model unavailable")})
             continue
         endpoint = get_or_create_admet_endpoint(db, compound.project_id, model.endpoint_name)
         db.add(endpoint); db.flush()
@@ -1038,6 +1315,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             uncertainty=result["uncertainty"], outputs_json=output,
         )
         db.add(prediction); created.append(prediction); selected_predictions[model.id] = prediction
+        endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": False})
     run.completed_at = datetime.now(timezone.utc)
     if selected_predictions and unavailable:
         run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
@@ -1047,6 +1325,9 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         )
     else:
         run.status, run.message = "MODEL_UNAVAILABLE", "; ".join(unavailable) or "No implemented ADMET model is available."
+    db.flush()
+    _refresh_model_feedback(db, compound.project_id, [row_id])
+    consensuses = _store_consensus_predictions(db, version, compound.project_id, list(selected_predictions.values()))
     db.commit()
     db.refresh(run)
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
@@ -1058,7 +1339,8 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     return {
         "type": "Predicted", "run_id": run.id, "status": run.status, "message": run.message,
         "models_available": len(available_models), "cache_hit": False, "predictions": predictions,
-        "unavailable": unavailable,
+        "consensus_predictions": [_consensus_out(row) for row in consensuses],
+        "endpoint_statuses": endpoint_statuses + inactive_statuses, "unavailable": unavailable,
     }
 
 
@@ -1077,6 +1359,10 @@ def _soft_spot_out(row: MetabolicSoftSpot):
 
 
 def _predicted_metabolite_out(row: PredictedMetabolite):
+    try:
+        structure_svg = analyze_smiles(row.canonical_smiles)["svg"]
+    except ChemistryError:
+        structure_svg = ""
     return {
         "id": row.id, "run_id": row.run_id, "soft_spot_id": row.soft_spot_id,
         "version_id": row.version_id, "canonical_smiles": row.canonical_smiles,
@@ -1085,6 +1371,7 @@ def _predicted_metabolite_out(row: PredictedMetabolite):
         "confidence": row.confidence, "evidence": row.evidence_json or {},
         "provenance": row.provenance_json or {}, "label": PREDICTED_LABEL,
         "created_at": row.created_at.isoformat(), "type": "Predicted",
+        "structure_svg": structure_svg,
     }
 
 

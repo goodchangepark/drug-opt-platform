@@ -84,19 +84,28 @@ def ensure_admet_schema(engine):
     inspector = inspect(engine)
     if "projects" not in inspector.get_table_names():
         return
-    existing = set(inspector.get_table_names())
-    if not {"admet_endpoints", "admet_model_registry", "admet_prediction_runs"}.issubset(existing):
-        Base.metadata.create_all(
-            bind=engine,
-            tables=[
-                ADMETEndpoint.__table__, ADMETAssayDefinition.__table__, ADMETMeasurement.__table__,
-                ADMETModelRegistry.__table__, ADMETPredictionRun.__table__, ADMETPrediction.__table__,
-            ],
-        )
+    Base.metadata.create_all(
+        bind=engine,
+        tables=[
+            ADMETEndpoint.__table__, ADMETAssayDefinition.__table__, ADMETMeasurement.__table__,
+            ADMETModelRegistry.__table__, ADMETPredictionRun.__table__, ADMETPrediction.__table__,
+            ADMETConsensusPrediction.__table__, ADMETModelComparison.__table__, ADMETModelPerformance.__table__,
+        ],
+    )
     with engine.begin() as connection:
         measurement_columns = {row["name"] for row in inspect(engine).get_columns("admet_measurements")}
         if "qualitative_value" not in measurement_columns:
             connection.execute(text("ALTER TABLE admet_measurements ADD COLUMN qualitative_value VARCHAR(120) NOT NULL DEFAULT ''"))
+        registry_columns = {row["name"] for row in inspect(engine).get_columns("admet_model_registry")}
+        registry_additions = {
+            "source": "TEXT NOT NULL DEFAULT ''", "training_dataset": "TEXT NOT NULL DEFAULT ''",
+            "validation_json": "JSON NOT NULL DEFAULT '{}'", "license": "TEXT NOT NULL DEFAULT ''",
+            "model_priority": "INTEGER NOT NULL DEFAULT 100", "ensemble_eligible": "BOOLEAN NOT NULL DEFAULT 1",
+            "species": "VARCHAR(100) NOT NULL DEFAULT ''", "output_type": "VARCHAR(60) NOT NULL DEFAULT ''",
+        }
+        for column, definition in registry_additions.items():
+            if column not in registry_columns:
+                connection.execute(text(f"ALTER TABLE admet_model_registry ADD COLUMN {column} {definition}"))
         registered = set(connection.execute(select(ADMETModelRegistry.endpoint_name)).scalars())
         registry_names = list(MODEL_SPECS) + [
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
@@ -133,11 +142,18 @@ def ensure_admet_schema(engine):
                 )
             elif name in MODEL_SPECS:
                 values = registry_seed(name)
-                connection.execute(
-                    ADMETModelRegistry.__table__.update()
-                    .where(ADMETModelRegistry.endpoint_name == name)
-                    .values(**{key: value for key, value in values.items() if key != "endpoint_name"})
-                )
+                canonical = connection.execute(
+                    select(ADMETModelRegistry.id).where(
+                        ADMETModelRegistry.endpoint_name == name,
+                        ADMETModelRegistry.model_name == values["model_name"],
+                        ADMETModelRegistry.model_version == values["model_version"],
+                    ).limit(1)
+                ).scalar()
+                if canonical:
+                    connection.execute(
+                        ADMETModelRegistry.__table__.update().where(ADMETModelRegistry.id == canonical)
+                        .values(**{key: value for key, value in values.items() if key != "endpoint_name"})
+                    )
 
 
 ADMET_CSV_COLUMNS = [
@@ -214,6 +230,14 @@ class ADMETModelRegistry(Base):
     supported_species: Mapped[list] = mapped_column(JSON, default=list)
     supported_matrix: Mapped[list] = mapped_column(JSON, default=list)
     output_unit: Mapped[str] = mapped_column(String(40), default="")
+    source: Mapped[str] = mapped_column(Text, default="")
+    training_dataset: Mapped[str] = mapped_column(Text, default="")
+    validation_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    license: Mapped[str] = mapped_column(Text, default="")
+    model_priority: Mapped[int] = mapped_column(Integer, default=100)
+    ensemble_eligible: Mapped[bool] = mapped_column(default=True)
+    species: Mapped[str] = mapped_column(String(100), default="")
+    output_type: Mapped[str] = mapped_column(String(60), default="")
     provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
     is_active: Mapped[bool] = mapped_column(default=False)
     registered_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
@@ -251,6 +275,63 @@ class ADMETPredictionRun(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     predictions = relationship("ADMETPrediction", back_populates="run", cascade="all, delete-orphan")
+
+
+class ADMETConsensusPrediction(Base):
+    """One reproducible endpoint consensus assembled from model-specific predictions."""
+    __tablename__ = "admet_consensus_predictions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    run_id: Mapped[int] = mapped_column(ForeignKey("admet_prediction_runs.id", ondelete="CASCADE"), index=True)
+    endpoint_id: Mapped[int] = mapped_column(ForeignKey("admet_endpoints.id", ondelete="CASCADE"), index=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    combined_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    unit: Mapped[str] = mapped_column(String(40), default="")
+    classification: Mapped[str] = mapped_column(String(120), default="")
+    confidence: Mapped[str] = mapped_column(String(30), default="UNKNOWN")
+    applicability_domain: Mapped[str] = mapped_column(String(40), default="UNKNOWN")
+    weights_json: Mapped[list] = mapped_column(JSON, default=list)
+    provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    endpoint = relationship("ADMETEndpoint")
+
+
+class ADMETModelComparison(Base):
+    """Experimental feedback retained per model without overwriting predictions."""
+    __tablename__ = "admet_model_comparisons"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    endpoint_id: Mapped[int] = mapped_column(ForeignKey("admet_endpoints.id", ondelete="CASCADE"), index=True)
+    model_id: Mapped[int] = mapped_column(ForeignKey("admet_model_registry.id", ondelete="RESTRICT"), index=True)
+    prediction_id: Mapped[int] = mapped_column(ForeignKey("admet_predictions.id", ondelete="CASCADE"), index=True)
+    measurement_id: Mapped[int] = mapped_column(ForeignKey("admet_measurements.id", ondelete="CASCADE"), index=True)
+    task_type: Mapped[str] = mapped_column(String(40), default="regression")
+    predicted_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    experimental_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    absolute_error: Mapped[float | None] = mapped_column(Float, nullable=True)
+    squared_error: Mapped[float | None] = mapped_column(Float, nullable=True)
+    fold_error: Mapped[float | None] = mapped_column(Float, nullable=True)
+    predicted_class: Mapped[str] = mapped_column(String(120), default="")
+    experimental_class: Mapped[str] = mapped_column(String(120), default="")
+    correct: Mapped[bool | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("prediction_id", "measurement_id", name="uq_admet_model_prediction_measurement"),)
+
+
+class ADMETModelPerformance(Base):
+    """Global and project-scoped metrics used by conservative consensus weighting."""
+    __tablename__ = "admet_model_performance"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    scope_key: Mapped[str] = mapped_column(String(80), index=True)
+    project_id: Mapped[int | None] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), nullable=True, index=True)
+    endpoint_name: Mapped[str] = mapped_column(String(120), index=True)
+    model_id: Mapped[int] = mapped_column(ForeignKey("admet_model_registry.id", ondelete="RESTRICT"), index=True)
+    task_type: Mapped[str] = mapped_column(String(40), default="regression")
+    sample_size: Mapped[int] = mapped_column(Integer, default=0)
+    metrics_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    performance_factor: Mapped[float] = mapped_column(Float, default=1.0)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("scope_key", "model_id", name="uq_admet_model_performance_scope"),)
 
 
 def measurement_out(row: ADMETMeasurement):
