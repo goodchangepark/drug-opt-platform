@@ -1,0 +1,21 @@
+{
+  "stage": "5B-1",
+  "run_id": "20260826-174711",
+  "base_url": "http://127.0.0.1:8766",
+  "checks": [
+    {
+      "name": "Health Step 5B-1",
+      "status": "PASS"
+    },
+    {
+      "name": "IV NCA Seed",
+      "status": "PASS"
+    },
+    {
+      "name": "PK Parameter Set Assembly",
+      "status": "PASS"
+    }
+  ],
+  "status": "FAIL",
+  "error": "Message: \n"
+}

@@ -53,12 +53,13 @@ from .models import (Compound, CompoundVersion, PredictionRun, Project,
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
 from .ivive import (IVIVEInputSet, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
                     ensure_ivive_schema, register_ivive_routes)
+from .simulation import PKSimulationRun, ensure_simulation_schema, register_simulation_routes
 from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_vector,
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.5.2-stage5a2b")
+app = FastAPI(title="AI Drug Optimization Platform", version="0.5.3-stage5b1")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -73,6 +74,10 @@ def startup():
         ensure_proposal_schema(engine)
         ensure_pk_schema(engine)
         ensure_ivive_schema(engine)
+        ensure_simulation_schema(engine)
+        register_pk_routes(app)
+        register_ivive_routes(app)
+        register_simulation_routes(app)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -86,7 +91,7 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": "5A", "step": "5A-2B", "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": "5B", "step": "5B-1", "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -349,6 +354,7 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
 
     if version_ids:
         db.execute(delete(PKParameterSet).where(PKParameterSet.version_id.in_(version_ids)))
+        db.execute(delete(PKSimulationRun).where(PKSimulationRun.version_id.in_(version_ids)))
         db.execute(delete(IVIVERun).where(IVIVERun.version_id.in_(version_ids)))
         db.execute(delete(IVIVEInputSet).where(IVIVEInputSet.version_id.in_(version_ids)))
         pk_study_ids = list(db.scalars(select(PKStudy.id).where(PKStudy.version_id.in_(version_ids))))
@@ -2366,4 +2372,5 @@ def index():
 
 register_pk_routes(app)
 register_ivive_routes(app)
+register_simulation_routes(app)
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")

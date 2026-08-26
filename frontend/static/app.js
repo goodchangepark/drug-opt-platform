@@ -1257,6 +1257,221 @@ function App(){
   ]);
  }
 
+ function PkSimulationSection({versionId}){
+  const [species, setSpecies] = React.useState('Rat');
+  const [adminType, setAdminType] = React.useState('IV_BOLUS');
+  const [dose, setDose] = React.useState(5.0);
+  const [doseUnit, setDoseUnit] = React.useState('mg/kg');
+  const [infusionDur, setInfusionDur] = React.useState(1.0);
+  const [frequency, setFrequency] = React.useState('Single Dose');
+  const [interval, setInterval] = React.useState(24.0);
+  const [numDoses, setNumDoses] = React.useState(3);
+  const [modelType, setModelType] = React.useState('ONE_COMPARTMENT');
+  const [logScale, setLogScale] = React.useState(false);
+  const [preview, setPreview] = React.useState(null);
+  const [activeRun, setActiveRun] = React.useState(null);
+  const [history, setHistory] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  const loadData = React.useCallback(async()=>{
+   if(!versionId) return;
+   try{
+    const prev = await api.get('/compound-versions/'+versionId+'/pk-simulation/preview?species='+species);
+    setPreview(prev);
+    const hist = await api.get('/compound-versions/'+versionId+'/pk-simulation/history?species='+species);
+    setHistory(hist||[]);
+    if(hist && hist.length > 0 && !activeRun){
+     setActiveRun(hist[0]);
+    }
+   }catch(err){
+    console.error("Simulation load error:", err);
+   }
+  },[versionId, species]);
+
+  React.useEffect(()=>{ loadData(); },[loadData]);
+
+  const handleRun = async()=>{
+   setLoading(true);
+   setError(null);
+   try{
+    const payload = {
+     species,
+     administration_type: adminType,
+     dose: parseFloat(dose),
+     dose_unit: doseUnit,
+     infusion_duration_hours: adminType === 'IV_INFUSION' ? parseFloat(infusionDur) : 0.0,
+     dosing_frequency: frequency,
+     dose_interval_hours: parseFloat(interval),
+     num_doses: frequency === 'Repeated Dosing' ? parseInt(numDoses, 10) : 1,
+     model_type: modelType
+    };
+    const res = await api.post('/compound-versions/'+versionId+'/pk-simulation/run', payload);
+    setActiveRun(res);
+    setHistory(h=>[res, ...h]);
+   }catch(err){
+    setError(err.message||"Simulation failed");
+   }finally{
+    setLoading(false);
+   }
+  };
+
+  const renderPlot = (run)=>{
+   if(!run || !run.time_series || run.time_series.length === 0) return null;
+   const ts = run.time_series;
+   const res = run.residuals || [];
+   const maxT = Math.max(...ts.map(p=>p.time), 1.0);
+
+   const getC = p => logScale ? (p.concentration > 0 ? Math.log10(p.concentration) : 0) : p.concentration;
+   const validObs = res.filter(r=>r.status==='VALID');
+   const maxC = Math.max(
+    ...ts.map(p=>getC(p)),
+    ...(validObs.map(r=> logScale ? (r.observed_ng_ml > 0 ? Math.log10(r.observed_ng_ml) : 0) : r.observed_ng_ml)),
+    1.0
+   );
+   const minC = logScale ? 0 : 0;
+
+   const W = 620, H = 240, padL = 60, padB = 40, padR = 20, padT = 20;
+   const mapX = t => padL + (t / maxT) * (W - padL - padR);
+   const mapY = c => padT + (1.0 - (c - minC) / (maxC - minC || 1.0)) * (H - padT - padB);
+
+   const pathD = ts.map((p, idx)=>(idx===0?'M':'L') + ' ' + mapX(p.time).toFixed(1) + ' ' + mapY(getC(p)).toFixed(1)).join(' ');
+
+   return e('svg',{width:W, height:H, style:{background:'#0f172a', borderRadius:'8px', width:'100%', height:'auto'}},[
+    e('line',{key:'axis-x', x1:padL, y1:H-padB, x2:W-padR, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('line',{key:'axis-y', x1:padL, y1:padT, x2:padL, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('text',{key:'lbl-x', x:W/2, y:H-8, fill:'#94a3b8', fontSize:12, textAnchor:'middle'},'Time (hours)'),
+    e('text',{key:'lbl-y', x:15, y:H/2, fill:'#94a3b8', fontSize:12, textAnchor:'middle', transform:'rotate(-90 15 '+(H/2)+')'}, logScale ? 'log10 Conc (ng/mL)' : 'Concentration (ng/mL)'),
+    e('path',{key:'sim-path', d:pathD, fill:'none', stroke:'#38bdf8', strokeWidth:2.5}),
+    validObs.map((ob, idx)=>{
+     const cx = mapX(ob.time_hours);
+     const cy = mapY(logScale ? Math.log10(ob.observed_ng_ml) : ob.observed_ng_ml);
+     return e('circle',{key:'obs-'+idx, cx, cy, r:4.5, fill:'#ef4444', stroke:'#ffffff', strokeWidth:1.5});
+    })
+   ]);
+  };
+
+  const clPreview = preview?.clearance;
+  const vPreview = preview?.volume;
+
+  return e('div',{className:'card', style:{marginTop:'16px'}},[
+   e('div',{className:'row toolbar'},[
+    e('h3',{},'PK SIMULATION — IV Concentration-Time Engine (Stage 5B-1)'),
+    StatusBadge({type: activeRun ? activeRun.confidence : (preview?.confidence_ceiling||'MEDIUM')})
+   ]),
+   e('p',{className:'small'},'Mechanistic mathematical simulation of IV bolus and IV infusion concentration-time profiles using Stage 5A PK parameters.'),
+
+   e('div',{className:'grid', style:{marginTop:'12px'}},[
+    e('div',{className:'col-3'},[
+     e('label',{},'Species'),
+     e('select',{value:species, onChange:ev=>setSpecies(ev.target.value)},['Rat','Mouse','Dog','Monkey','Human'].map(s=>e('option',{key:s,value:s},s)))
+    ]),
+    e('div',{className:'col-3'},[
+     e('label',{},'Administration Type'),
+     e('select',{value:adminType, onChange:ev=>setAdminType(ev.target.value)},[
+      e('option',{value:'IV_BOLUS'},'IV Bolus'),
+      e('option',{value:'IV_INFUSION'},'IV Infusion')
+     ])
+    ]),
+    e('div',{className:'col-3'},Field({label:'Dose', type:'number', value:dose, onChange:setDose})),
+    e('div',{className:'col-3'},[
+     e('label',{},'Dose Unit'),
+     e('select',{value:doseUnit, onChange:ev=>setDoseUnit(ev.target.value)},['mg/kg','µg/kg'].map(u=>e('option',{key:u,value:u},u)))
+    ]),
+    adminType === 'IV_INFUSION' && e('div',{className:'col-3', key:'inf-dur'},Field({label:'Infusion Duration (h)', type:'number', value:infusionDur, onChange:setInfusionDur})),
+    e('div',{className:'col-3'},[
+     e('label',{},'Dosing Frequency'),
+     e('select',{value:frequency, onChange:ev=>setFrequency(ev.target.value)},['Single Dose','Repeated Dosing'].map(f=>e('option',{key:f,value:f},f)))
+    ]),
+    frequency === 'Repeated Dosing' && e('div',{className:'col-3', key:'interval'},Field({label:'Dose Interval τ (h)', type:'number', value:interval, onChange:setInterval})),
+    frequency === 'Repeated Dosing' && e('div',{className:'col-3', key:'numDoses'},Field({label:'Number of Doses', type:'number', value:numDoses, onChange:setNumDoses})),
+    e('div',{className:'col-3'},[
+     e('label',{},'Model Type'),
+     e('select',{value:modelType, onChange:ev=>setModelType(ev.target.value)},[
+      e('option',{value:'ONE_COMPARTMENT'},'1-Compartment Model'),
+      e('option',{value:'TWO_COMPARTMENT'},'2-Compartment Model (If fit/parameters available)')
+     ])
+    ])
+   ]),
+
+   e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)', marginTop:'12px', padding:'12px'}},[
+    e('strong',{style:{fontSize:'14px'}},'Parameter Review Before Run:'),
+    e('div',{className:'row toolbar', style:{marginTop:'6px'}},[
+     e('span',{},'CL: '+(clPreview?.value!=null ? clPreview.value+' mL/min/kg ('+clPreview.source+')' : 'Unavailable')),
+     e('span',{},'Volume: '+(vPreview?.value!=null ? vPreview.value+' L/kg ('+vPreview.type+')' : 'Unavailable')),
+     e('button',{className:'primary', onClick:handleRun, disabled:loading}, loading ? 'Simulating...' : 'RUN SIMULATION')
+    ]),
+    (preview?.warnings||[]).map((w, idx)=>e('div',{key:idx, className:'small alert', style:{marginTop:'4px'}},w)),
+    error && e('div',{className:'small alert', style:{marginTop:'6px', color:'#ef4444'}},error)
+   ]),
+
+   activeRun && e('div',{style:{marginTop:'16px'}},[
+    e('div',{className:'row toolbar'},[
+     e('h4',{},'CALCULATED PK SIMULATION: '+(activeRun.administration_type==='IV_INFUSION'?'IV Infusion':'IV Bolus')+' ('+activeRun.species+')'),
+     e('div',{},[
+      e('button',{className: logScale ? 'secondary' : 'primary', style:{marginRight:'6px', padding:'4px 8px'}, onClick:()=>setLogScale(false)},'Linear'),
+      e('button',{className: logScale ? 'primary' : 'secondary', style:{padding:'4px 8px'}, onClick:()=>setLogScale(true)},'Semi-Log')
+     ])
+    ]),
+    e('div',{style:{marginTop:'10px'}},renderPlot(activeRun)),
+    e('div',{className:'row toolbar', style:{marginTop:'4px', fontSize:'12px', color:'#94a3b8'}},[
+     e('span',{},'── Blue Line: Calculated PK Simulation'),
+     e('span',{},'● Red Dots: Experimental Observed Points')
+    ]),
+    e('div',{className:'grid ivive-output-grid', style:{marginTop:'12px'}},[
+     e('div',{className:'card pk-nca-card'},[
+      e('span',{},'Cmax / C0'),
+      e('strong',{className:'mono'},activeRun.output_metrics?.cmax_ng_ml+' ng/mL')
+     ]),
+     e('div',{className:'card pk-nca-card'},[
+      e('span',{},'Tmax'),
+      e('strong',{className:'mono'},activeRun.output_metrics?.tmax_hours+' h')
+     ]),
+     e('div',{className:'card pk-nca-card'},[
+      e('span',{},'AUCinf (Analytical)'),
+      e('strong',{className:'mono'},activeRun.output_metrics?.auc_inf_analytical_ng_h_ml+' ng·h/mL')
+     ]),
+     e('div',{className:'card pk-nca-card'},[
+      e('span',{},'AUC Numerical Cross-Check'),
+      e('strong',{className:'mono'},activeRun.output_metrics?.auc_inf_numerical_ng_h_ml+' ng·h/mL ('+activeRun.output_metrics?.auc_agreement_pct+'% match)')
+     ]),
+     e('div',{className:'card pk-nca-card'},[
+      e('span',{},'Terminal Half-Life'),
+      e('strong',{className:'mono'},activeRun.output_metrics?.half_life_hours+' h')
+     ])
+    ]),
+    activeRun.residuals && activeRun.residuals.length > 0 && e('div',{style:{marginTop:'16px'}},[
+     e('h4',{},'Experimental Observation Overlay & Residual Analysis'),
+     e('table',{className:'table', style:{marginTop:'6px'}},[
+      e('thead',{},e('tr',{},[
+       e('th',{},'Time (h)'),
+       e('th',{},'Observed (ng/mL)'),
+       e('th',{},'Simulated (ng/mL)'),
+       e('th',{},'Residual'),
+       e('th',{},'Fold Error')
+      ])),
+      e('tbody',{},activeRun.residuals.map((r, idx)=>e('tr',{key:idx},[
+       e('td',{className:'mono'},r.time_hours),
+       e('td',{className:'mono'},r.observed_ng_ml),
+       e('td',{className:'mono'},r.simulated_ng_ml!=null?r.simulated_ng_ml:'—'),
+       e('td',{className:'mono'},r.residual_ng_ml!=null?r.residual_ng_ml:'—'),
+       e('td',{className:'mono'},r.fold_error!=null?r.fold_error+'x':'—')
+      ])))
+     ]),
+     activeRun.output_metrics?.goodness_of_fit?.rmse_ng_ml != null && e('div',{className:'small', style:{marginTop:'6px'}},[
+      e('strong',{},'Goodness of Fit: '),
+      'RMSE = '+activeRun.output_metrics.goodness_of_fit.rmse_ng_ml+' ng/mL, MAE = '+activeRun.output_metrics.goodness_of_fit.mae_ng_ml+' ng/mL'
+     ])
+    ]),
+    e('div',{className:'small', style:{marginTop:'12px', padding:'8px', background:'rgba(255,255,255,0.03)', borderRadius:'6px'}},[
+     e('div',{},[e('strong',{},'Engine: '),activeRun.provenance?.engine_name+' ('+activeRun.provenance?.engine_version+')']),
+     e('div',{},[e('strong',{},'Uncertainty Status: '),activeRun.output_metrics?.uncertainty_status||'UNCERTAINTY NOT QUANTIFIED']),
+     (activeRun.warnings||[]).map((w, idx)=>e('div',{key:idx, className:'alert', style:{marginTop:'2px'}},w))
+    ])
+   ])
+  ]);
+ }
+
  function pkProfile(versionId){
   const studies=pkData?.studies||[];
   const bioavailability=pkData?.bioavailability||[];
@@ -1490,6 +1705,7 @@ function App(){
 
    iviveProfile(versionId),
    e(PkFoundationProfile,{versionId,key:'pk-foundation'}),
+   e(PkSimulationSection,{versionId,key:'pk-simulation'}),
 
    pkModalOpen&&e('div',{className:'modal-backdrop',key:'study-modal'},e('div',{className:'card compound-modal'},[
     e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Add PK Study'),e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Close')]),
