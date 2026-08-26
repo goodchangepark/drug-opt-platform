@@ -85,6 +85,9 @@ function App(){
  const [pkCsvModalOpen,setPkCsvModalOpen]=useState(false),[pkCsvText,setPkCsvText]=useState(''),[pkCsvMapping,setPkCsvMapping]=useState({}),[pkCsvPreview,setPkCsvPreview]=useState(null);
  const [pkTerminalOverrideMode,setPkTerminalOverrideMode]=useState(false),[pkSelectedTerminalPoints,setPkSelectedTerminalPoints]=useState([]);
  const [pkBusy,setPkBusy]=useState(false);
+ const [iviveData,setIviveData]=useState(null),[iviveSpecies,setIviveSpecies]=useState('Rat'),[iviveBusy,setIviveBusy]=useState(false);
+ const [iviveInputForm,setIviveInputForm]=useState({input_endpoint:'CLINT',input_value:'',unit:'µL/min/mg protein',input_type:'RAW_MICROSOMAL',source_type:'EXPERIMENTAL',model_source:'User experimental',confidence:'HIGH',notes:''});
+ const [iviveOverrideForm,setIviveOverrideForm]=useState({parameter:'HEPATIC_BLOOD_FLOW',value:'',unit:'mL/min/kg',source:'Study-specific measurement',confidence:'MEDIUM',notes:''});
  const editorSmiles=useRef('');
 
  const currentVersions=project?.compounds||[];
@@ -135,6 +138,12 @@ function App(){
   }
   return data;
  };
+ const loadIviveData=async(versionId=detail?.version?.id,species=iviveSpecies)=>{
+  if(!versionId)return null;
+  const data=await api.get('/compound-versions/'+versionId+'/ivive?species='+encodeURIComponent(species));
+  if(data.scope.version_id!==Number(versionId))throw new Error('IVIVE CompoundVersion isolation check failed');
+  setIviveData(data);return data;
+ };
  const loadWorkspace=async versionId=>{
   if(!versionId){setWorkspace(null);setAdmet(null);setMetabolism(null);return null}
   const data=await api.get('/compound-versions/'+versionId+'/workspace');
@@ -160,7 +169,7 @@ function App(){
 
  useEffect(()=>{Promise.all([loadProjects(),loadDashboard()]).catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
-  setProject(null);setDetail(null);setWorkspace(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);setProposalRuns([]);setProposalRun(null);setSelectedCandidate(null);
+  setProject(null);setDetail(null);setWorkspace(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setIviveData(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);setProposalRuns([]);setProposalRun(null);setSelectedCandidate(null);
   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
  },[projectId]);
  useEffect(()=>{
@@ -178,6 +187,9 @@ function App(){
  useEffect(()=>{
   if(detail&&detailTab==='pk'&&detail.version)loadPkData(detail.version.id).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id]);
+ useEffect(()=>{
+  if(detail&&detailTab==='pk'&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
+ },[detail?.row_id,detailTab,detail?.version?.id,iviveSpecies]);
  useEffect(()=>{
   if(globalView!=='optimization'||projectTab!=='dashboard')return;
   const requestedProject=Number(optimizationWorkspace.project_id);
@@ -1012,6 +1024,145 @@ function App(){
   ]);
  }
 
+ function iviveProfile(versionId){
+  const data=iviveData,latest=data?.latest_run,outputs=latest?.outputs||{};
+  const candidates=data?.candidates||{clint:[],plasma_binding:[],blood_plasma_ratio:[]};
+  const physiology=data?.physiology||{};
+  const sig=value=>value==null?'—':Number(value).toLocaleString(undefined,{maximumSignificantDigits:3});
+  const sourceBadge=label=>e('span',{className:'ivive-source ivive-source-'+String(label||'').toLowerCase().replace(/[^a-z]+/g,'-')},label||'—');
+  const selected=rows=>(rows||[]).find(row=>row.selected);
+  const selectedClint=selected(candidates.clint),selectedBinding=selected(candidates.plasma_binding),selectedBpr=selected(candidates.blood_plasma_ratio);
+
+  const runIviveAction=async()=>{
+   setIviveBusy(true);
+   try{
+    const run=await api.post('/compound-versions/'+versionId+'/ivive/run',{species:iviveSpecies,method_key:'WELL_STIRRED'});
+    await loadIviveData(versionId,iviveSpecies);
+    setMessage(run.status==='COMPLETE'?'IVIVE hepatic clearance complete':'IVIVE run saved as unavailable; review missing inputs and warnings');
+   }catch(err){setMessage(String(err))}finally{setIviveBusy(false)}
+  };
+  const addIviveInputAction=async()=>{
+   if(iviveInputForm.input_value===''||!iviveInputForm.unit.trim())return;
+   setIviveBusy(true);
+   try{
+    await api.post('/compound-versions/'+versionId+'/ivive-inputs',{
+     ...iviveInputForm,species:iviveSpecies,input_value:Number(iviveInputForm.input_value)
+    });
+    setIviveInputForm(current=>({...current,input_value:'',notes:''}));
+    await loadIviveData(versionId,iviveSpecies);setMessage('IVIVE input saved with CompoundVersion provenance');
+   }catch(err){setMessage(String(err))}finally{setIviveBusy(false)}
+  };
+  const addOverrideAction=async()=>{
+   if(iviveOverrideForm.value===''||!iviveOverrideForm.source.trim())return;
+   setIviveBusy(true);
+   try{
+    await api.post('/projects/'+data.scope.project_id+'/ivive/physiology-overrides',{
+     ...iviveOverrideForm,species:iviveSpecies,value:Number(iviveOverrideForm.value)
+    });
+    setIviveOverrideForm(current=>({...current,value:'',notes:''}));
+    await loadIviveData(versionId,iviveSpecies);setMessage('Study-specific physiology override saved');
+   }catch(err){setMessage(String(err))}finally{setIviveBusy(false)}
+  };
+  const updateInputEndpoint=value=>{
+   const patch=value==='CLINT'?{input_endpoint:value,input_type:'RAW_MICROSOMAL',unit:'µL/min/mg protein'}:
+    value==='FU_PLASMA'?{input_endpoint:value,input_type:'',unit:'fu'}:{input_endpoint:value,input_type:'',unit:'ratio'};
+   setIviveInputForm(current=>({...current,...patch}));
+  };
+  const updateInputType=value=>setIviveInputForm(current=>({...current,input_type:value,unit:
+   value==='RAW_MICROSOMAL'?'µL/min/mg protein':value==='RAW_HEPATOCYTE'?'µL/min/10^6 cells':'mL/min/kg'}));
+  const candidateRow=(row,key)=>e('div',{className:'ivive-input-row'+(row?.selected?' selected':''),key},row?[
+   e('div',{key:'main'},[sourceBadge(row.source_label),e('strong',{className:'mono'},sig(row.value)+' '+row.unit),row.input_type&&e('small',{},row.input_type.replaceAll('_',' '))]),
+   e('div',{className:'small',key:'source'},row.model_source||row.provenance?.source||'Source not specified'),
+   e('div',{className:'small',key:'quality'},'Confidence '+row.confidence+' · Domain '+row.applicability_domain+(row.selected?' · SELECTED BY PRIORITY':''))
+  ]:[sourceBadge('UNAVAILABLE'),e('span',{className:'small'},'No compatible quantitative input')]);
+
+  return e('section',{className:'card ivive-section',key:'ivive'},[
+   e('div',{className:'row toolbar',key:'header'},[
+    e('div',{},[e('div',{className:'eyebrow'},'4 · IVIVE HEPATIC CLEARANCE FOUNDATION'),e('h2',{},'IVIVE'),e('p',{className:'small'},'Intrinsic clearance scaling and well-stirred hepatic clearance only. Renal and other non-hepatic clearance are not modeled; total clearance is not predicted.'),e('p',{className:'small'},'Source badges: EXP · PRED · CALC · DEFAULT PHYSIOLOGY · USER OVERRIDE')]),
+    e('div',{className:'ivive-run-controls'},[
+     e('label',{},'Species'),
+     e('select',{value:iviveSpecies,onChange:event=>setIviveSpecies(event.target.value)},(data?.supported_species||['Mouse','Rat','Dog','Monkey','Human']).map(species=>e('option',{key:species,value:species},species))),
+     e('button',{disabled:iviveBusy||!data,onClick:runIviveAction},iviveBusy?'Running…':'Run IVIVE')
+    ])
+   ]),
+
+   e('div',{className:'ivive-grid',key:'inputs'},[
+    e('div',{className:'ivive-panel',key:'clint'},[e('h3',{},'Inputs · Clint'),candidateRow(selectedClint,'clint'),(candidates.clint||[]).length>1&&e('details',{},[e('summary',{},'All '+candidates.clint.length+' compatible Clint candidates'),e('div',{},candidates.clint.map((row,index)=>candidateRow(row,'clint-'+index)))])]),
+    e('div',{className:'ivive-panel',key:'binding'},[e('h3',{},'Inputs · PPB / fu,p'),candidateRow(selectedBinding,'binding'),e('p',{className:'small'},'Experimental PPB/fu,p takes precedence over predicted PPB.')]),
+    e('div',{className:'ivive-panel',key:'bpr'},[e('h3',{},'Inputs · Blood/Plasma'),candidateRow(selectedBpr,'bpr'),e('p',{className:'small'},selectedBpr?'fu,b = fu,p / (B/P)':'No compound-specific B/P invented. A run may use a labeled plasma-based approximation.')])
+   ]),
+
+   e('details',{className:'ivive-entry',key:'add-input'},[
+    e('summary',{},'Add IVIVE-specific experimental or project-calibrated input'),
+    e('div',{className:'grid ivive-form'},[
+     e('div',{className:'col-3'},[e('label',{},'Endpoint'),e('select',{value:iviveInputForm.input_endpoint,onChange:event=>updateInputEndpoint(event.target.value)},[
+      e('option',{value:'CLINT'},'Intrinsic clearance (Clint)'),e('option',{value:'FU_PLASMA'},'Fraction unbound in plasma (fu,p)'),e('option',{value:'BLOOD_PLASMA_RATIO'},'Blood/plasma ratio (B/P)')
+     ])]),
+     iviveInputForm.input_endpoint==='CLINT'&&e('div',{className:'col-3'},[e('label',{},'Clint type'),e('select',{value:iviveInputForm.input_type,onChange:event=>updateInputType(event.target.value)},[
+      e('option',{value:'RAW_MICROSOMAL'},'Raw microsomal'),e('option',{value:'RAW_HEPATOCYTE'},'Raw hepatocyte'),e('option',{value:'PRESCALED_CLINT'},'Pre-scaled Clint')
+     ])]),
+     e('div',{className:'col-2'},Field({label:'Value',type:'number',value:iviveInputForm.input_value,onChange:value=>setIviveInputForm(current=>({...current,input_value:value}))})),
+     e('div',{className:'col-2'},Field({label:'Unit',value:iviveInputForm.unit,onChange:value=>setIviveInputForm(current=>({...current,unit:value}))})),
+     e('div',{className:'col-2'},[e('label',{},'Source type'),e('select',{value:iviveInputForm.source_type,onChange:event=>setIviveInputForm(current=>({...current,source_type:event.target.value}))},[e('option',{value:'EXPERIMENTAL'},'Experimental'),e('option',{value:'PROJECT_CALIBRATED'},'Project-calibrated')])]),
+     e('div',{className:'col-6'},Field({label:'Model / source',value:iviveInputForm.model_source,onChange:value=>setIviveInputForm(current=>({...current,model_source:value}))})),
+     e('div',{className:'col-3'},[e('label',{},'Confidence'),e('select',{value:iviveInputForm.confidence,onChange:event=>setIviveInputForm(current=>({...current,confidence:event.target.value}))},['HIGH','MEDIUM','LOW'].map(value=>e('option',{key:value,value},value)))]),
+     e('div',{className:'col-3'},[e('label',{},'Action'),e('button',{disabled:iviveBusy||iviveInputForm.input_value==='',onClick:addIviveInputAction},'Save Input')])
+    ]),
+    e('p',{className:'small'},'Stage 3 experimental ADME and quantitative predictions are connected automatically. Classification-only results are never converted to Clint.')
+   ]),
+
+   e('div',{className:'ivive-panel',key:'physiology'},[
+    e('div',{className:'row toolbar'},[e('div',{},[e('h3',{},'Species Physiology'),e('p',{className:'small'},'Versioned defaults and project-scoped study overrides remain visibly distinct.')]),e('span',{className:'mono small'},latest?.parameter_set_version||'PHRMA-CPCDC-2011-v1.0')]),
+    e('div',{className:'ivive-physiology-grid'},Object.values(physiology).map(row=>e('div',{className:'ivive-physiology-row',key:row.parameter},[
+     e('span',{},row.parameter.replaceAll('_',' ')),e('strong',{className:'mono'},sig(row.value)+' '+row.unit),sourceBadge(row.source_label),e('small',{},row.reference?.citation||row.reference?.source||'Reference retained in provenance')
+    ]))),
+    e('details',{className:'ivive-entry'},[e('summary',{},'Add study-specific physiology override'),e('div',{className:'grid ivive-form'},[
+     e('div',{className:'col-3'},[e('label',{},'Parameter'),e('select',{value:iviveOverrideForm.parameter,onChange:event=>setIviveOverrideForm(current=>({...current,parameter:event.target.value}))},Object.keys(physiology).map(value=>e('option',{key:value,value},value.replaceAll('_',' '))))]),
+     e('div',{className:'col-2'},Field({label:'Value',type:'number',value:iviveOverrideForm.value,onChange:value=>setIviveOverrideForm(current=>({...current,value}))})),
+     e('div',{className:'col-2'},Field({label:'Unit',value:iviveOverrideForm.unit,onChange:value=>setIviveOverrideForm(current=>({...current,unit:value}))})),
+     e('div',{className:'col-3'},Field({label:'Study source / reference',value:iviveOverrideForm.source,onChange:value=>setIviveOverrideForm(current=>({...current,source:value}))})),
+     e('div',{className:'col-2'},[e('label',{},'Action'),e('button',{disabled:iviveBusy||iviveOverrideForm.value==='',onClick:addOverrideAction},'Save Override')])
+    ])])
+   ]),
+
+   latest?e('div',{className:'ivive-results',key:'results'},[
+    e('div',{className:'row toolbar'},[e('div',{},[e('h3',{},'Scaling'),e('p',{className:'small'},outputs.scaling?.input_type==='PRESCALED_CLINT'?'Pre-scaled Clint: no MPPGL or hepatocellularity multiplication.':'Raw Clint scaled exactly once with the matching physiological scalar.')]),StatusBadge({type:latest.status==='COMPLETE'?'CALCULATED':'Not calculated'})]),
+    outputs.scaling&&e('div',{className:'ivive-scaling-flow'},[
+     e('div',{},[sourceBadge(latest.inputs_snapshot.clint?.source_label),e('strong',{className:'mono'},sig(outputs.scaling.raw_value)+' '+outputs.scaling.raw_unit),e('small',{},outputs.scaling.input_type)]),e('span',{className:'ivive-arrow'},'→'),e('div',{},[sourceBadge('CALC'),e('strong',{className:'mono'},sig(outputs.scaling.scaled_clint)+' '+outputs.scaling.scaled_unit),e('small',{},outputs.scaling.equation)])
+    ]),
+    latest.status==='COMPLETE'?e('div',{key:'complete'},[
+     e('h3',{},'Hepatic Clearance'),
+     e('div',{className:'pk-nca-grid ivive-output-grid'},[
+      e('div',{className:'pk-nca-card'},[e('span',{},'Scaled Clint'),e('strong',{className:'mono'},sig(outputs.clint)),e('small',{},outputs.clint_unit)]),
+      e('div',{className:'pk-nca-card'},[e('span',{},outputs.binding_basis==='BLOOD'?'Fraction unbound in blood (fu,b)':'fu,b · Plasma Approximation'),e('strong',{className:'mono'},sig(outputs.fu_b)),e('small',{},'fu,p '+sig(outputs.fu_p)+(outputs.blood_plasma_ratio?' · B/P '+sig(outputs.blood_plasma_ratio):''))]),
+      e('div',{className:'pk-nca-card'},[e('span',{},'Hepatic Blood Flow (Qh)'),e('strong',{className:'mono'},sig(outputs.qh)),e('small',{},outputs.qh_unit)]),
+      e('div',{className:'pk-nca-card ivive-primary-output'},[e('span',{},'Hepatic Clearance Estimate (CLh)'),e('strong',{className:'mono'},sig(outputs.clh)),e('small',{},outputs.clh_unit)]),
+      e('div',{className:'pk-nca-card'},[e('span',{},'Hepatic Extraction Ratio (Eh)'),e('strong',{className:'mono'},sig(outputs.extraction_ratio)),e('small',{},outputs.extraction_class+' extraction · Low <0.3 · High >0.7')]),
+      e('div',{className:'pk-nca-card'},[e('span',{},'Predicted Hepatic Availability (Fh)'),e('strong',{className:'mono'},sig(outputs.hepatic_availability)),e('small',{},'Fh = 1 − Eh · not absolute oral F')])
+     ]),
+     e('p',{className:'ivive-scope-warning'},'Non-hepatic Clearance: Not modeled · Predicted Total Clearance: Not generated')
+    ]):e('div',{className:'empty-state'},[StatusBadge({type:'Not calculated'}),e('p',{},'Required quantitative inputs are unavailable. No fake value was inserted; review warnings below.')]),
+    outputs.experimental_comparison&&e('div',{className:'ivive-comparison'},[
+     e('h3',{},'Experimental Comparison'),
+     e('div',{className:'ivive-comparison-grid'},[
+      e('div',{},[sourceBadge('EXP'),e('span',{},'Observed IV systemic CL'),e('strong',{className:'mono'},sig(outputs.experimental_comparison.observed_systemic_cl)+' '+outputs.experimental_comparison.unit)]),
+      e('div',{},[sourceBadge('CALC'),e('span',{},'Predicted hepatic CL'),e('strong',{className:'mono'},sig(outputs.experimental_comparison.predicted_hepatic_cl)+' '+outputs.experimental_comparison.unit)]),
+      e('div',{},[sourceBadge('CALC'),e('span',{},'Estimated hepatic contribution'),e('strong',{className:'mono'},sig(outputs.experimental_comparison.estimated_hepatic_contribution*100)+'%')])
+     ]),e('p',{className:'small'},outputs.experimental_comparison.limitation)
+    ]),
+    e('div',{className:'ivive-warnings'},[e('h3',{},'Assumptions & Warnings'),
+     (latest.warnings||[]).length?e('ul',{},latest.warnings.map((warning,index)=>e('li',{key:index},warning))):e('p',{className:'pass'},'No additional run warnings.'),
+     e('p',{className:'small'},'Run confidence: '+latest.confidence+' · Result confidence cannot exceed its weakest required input.')
+    ]),
+    e('details',{className:'ivive-provenance'},[e('summary',{},'IVIVE Provenance & Equations'),e('div',{className:'small'},[
+     e('p',{},'Method: Well-stirred hepatic clearance model · PK/IVIVE Method Registry · Timestamp: '+latest.timestamp),
+     e('p',{className:'mono'},latest.equations.hepatic_clearance),e('p',{className:'mono'},latest.equations.blood_binding),
+     e('p',{},'Input snapshot hash: '+latest.inputs_hash),e('pre',{},JSON.stringify(latest.inputs_snapshot,null,2))
+    ])])
+   ]):e('div',{className:'empty-state',key:'no-run'},[StatusBadge({type:'Not calculated'}),e('p',{},'Review selected inputs and physiology, then run IVIVE. Missing data will produce an auditable unavailable run rather than a fabricated estimate.')])
+  ]);
+ }
+
  function pkProfile(versionId){
   const studies=pkData?.studies||[];
   const bioavailability=pkData?.bioavailability||[];
@@ -1243,6 +1394,8 @@ function App(){
     ])
    ]),
 
+   iviveProfile(versionId),
+
    pkModalOpen&&e('div',{className:'modal-backdrop',key:'study-modal'},e('div',{className:'card compound-modal'},[
     e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Add PK Study'),e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Close')]),
     e('div',{className:'grid'},[
@@ -1341,6 +1494,7 @@ function App(){
     ])
    ]),
    detailTab==='metabolism'&&metabolismProfile(version.id),
+   detailTab==='pk'&&pkProfile(version.id),
    detailTab==='history'&&e('div',{className:'grid',key:'history'},[
     e('div',{className:'card col-6'},[
      e('h3',{},'Version History'),

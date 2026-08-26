@@ -1,0 +1,19 @@
+{
+  "stage": "5A-2A",
+  "run_id": "20260826-143848",
+  "base_url": "http://127.0.0.1:8766",
+  "checks": [
+    "Seeded exact CompoundVersion with experimental Rat microsomal Clint, PPB, B/P, and IV NCA",
+    "Compound Detail > PK > IVIVE preview shows experimental source precedence and Rat physiology",
+    "Run IVIVE shows scaled Clint, Qh, fu,b, CLh, Eh, Fh, and no total-clearance claim",
+    "Observed systemic CL comparison and estimated hepatic contribution are distinctly labeled",
+    "Expanded provenance exposes equation, immutable input snapshot, source policy, and hash"
+  ],
+  "status": "PASS",
+  "project_id": 14,
+  "compound_row_id": 13,
+  "version_id": 13,
+  "screenshot": "validation/stage5a2a_browser_e2e.png",
+  "temporary_project_deleted": true,
+  "timestamp": "2026-08-26T14:39:00.650759+00:00"
+}

@@ -1,0 +1,54 @@
+{
+  "stage": "5A-2A",
+  "engine_version": "5A-2A.1.0",
+  "physiology_version": "PHRMA-CPCDC-2011-v1.0",
+  "scope": "Hepatic clearance only",
+  "cases": [
+    {
+      "id": "synthetic-low-extraction",
+      "kind": "synthetic",
+      "inputs": {"qh_mL_min_kg": 100, "fu_b": 0.1, "clint_mL_min_kg": 10},
+      "expected": {"clh_mL_min_kg": 0.9900990099, "eh": 0.0099009901, "fh": 0.9900990099, "class": "Low"}
+    },
+    {
+      "id": "synthetic-high-extraction",
+      "kind": "synthetic",
+      "inputs": {"qh_mL_min_kg": 100, "fu_b": 1, "clint_mL_min_kg": 1000},
+      "expected": {"clh_mL_min_kg": 90.9090909091, "eh": 0.9090909091, "fh": 0.0909090909, "class": "High"}
+    },
+    {
+      "id": "literature-hepatocyte-diclofenac",
+      "kind": "public-literature-calculation-reproduction",
+      "compound": "Diclofenac",
+      "source": "Li et al. Mechanistic IVIVE using a biomimetic in vitro system, 2025; PMCID PMC12173689",
+      "inputs": {"raw_clint_uL_min_1e6_cells": 261, "hepatocellularity_million_g": 99, "liver_weight_g_kg": 25.7, "qh_mL_min_kg": 20.7142857143, "fu_p": 0.005, "bpr": null},
+      "expected": {"scaled_clint_mL_min_kg": 663.9843, "clh_mL_min_kg": 2.862, "published_clh_mL_min_kg": 2.91, "calculation_reproduction_fold_difference": 1.017},
+      "limitation": "Published calculation used fu,inc 0.963. B/P was not supplied, so the local case explicitly uses fu,b approximately fu,p. Published CLh is not observed systemic CL."
+    },
+    {
+      "id": "literature-microsome-low-boundary",
+      "kind": "public-literature-input-plus-equation-check",
+      "compound": "Diphenhydramine",
+      "source": "Obach RS. Drug Metab Dispos. 1999;27:1350-1359",
+      "inputs": {"prescaled_clint_mL_min_kg": 2.1, "qh_mL_min_kg": 20.7142857143, "fu_b_boundary_check": 1},
+      "expected": {"physiological_scaling_count": 0, "clh_mL_min_kg": 1.906, "class": "Low"},
+      "limitation": "fu,b=1 is an equation-boundary check, not a compound-specific binding claim."
+    },
+    {
+      "id": "literature-microsome-high-boundary",
+      "kind": "public-literature-input-plus-equation-check",
+      "compound": "Diclofenac",
+      "source": "Obach RS. Drug Metab Dispos. 1999;27:1350-1359",
+      "inputs": {"prescaled_clint_mL_min_kg": 189, "qh_mL_min_kg": 20.7142857143, "fu_b_boundary_check": 1},
+      "expected": {"physiological_scaling_count": 0, "clh_mL_min_kg": 18.669, "class": "High"},
+      "limitation": "fu,b=1 is an equation-boundary check, not a compound-specific binding claim."
+    }
+  ],
+  "metrics_definition": {
+    "fold_error": "max(predicted/observed, observed/predicted)",
+    "average_absolute_fold_error": "10^(mean(abs(log10(predicted/observed))))",
+    "within_2_fold_pct": "100 * n(fold_error <= 2) / n",
+    "within_3_fold_pct": "100 * n(fold_error <= 3) / n",
+    "limitation": "Observed IV CL is total systemic clearance; predicted CLh is hepatic clearance only."
+  }
+}
