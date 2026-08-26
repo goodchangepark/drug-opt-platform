@@ -11,6 +11,8 @@ import numpy as np
 from rdkit import Chem, DataStructs
 from rdkit.Chem import Crippen, Descriptors, Lipinski, rdFingerprintGenerator
 
+from backend.conformal import compute_calibrated_uncertainty
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_ROOT = ROOT / "models" / "admetica"
@@ -468,9 +470,18 @@ def registry_seed(endpoint: str) -> dict:
         "is_active": True,
     }
 
+_RUNTIME_LOCK = threading.Lock()
+try:
+    import torch  # noqa: F401
+    import chemprop  # noqa: F401
+    _RUNTIME_CHECKED = True
+    _RUNTIME_ERROR = ""
+except ImportError as exc:
+    _RUNTIME_CHECKED = True
+    _RUNTIME_ERROR = f"{exc.__class__.__name__}: {exc}"
+
 
 def model_files_available(endpoint: str) -> tuple[bool, str]:
-    global _RUNTIME_CHECKED, _RUNTIME_ERROR
     if endpoint not in MODEL_SPECS:
         return False, "No endpoint- and species-specific model installed; cross-species reuse is prohibited."
     spec = MODEL_SPECS[endpoint]
@@ -487,16 +498,6 @@ def model_files_available(endpoint: str) -> tuple[bool, str]:
         missing = [name for name in ("model_v2_1.pt", "training.csv", "ad_index.npz") if not (MODEL_ROOT / key / name).is_file()]
     if missing:
         return False, "Packaged model asset missing: " + ", ".join(missing)
-    # FastAPI sync endpoints may call this concurrently on a fresh process. PyTorch's
-    # extension import is not safe to observe half-initialized from another worker thread.
-    with _RUNTIME_LOCK:
-        if not _RUNTIME_CHECKED:
-            try:
-                import torch  # noqa: F401
-                import chemprop  # noqa: F401
-            except ImportError as exc:
-                _RUNTIME_ERROR = f"{exc.__class__.__name__}: {exc}"
-            _RUNTIME_CHECKED = True
     if _RUNTIME_ERROR:
         return False, f"Runtime dependency unavailable: {_RUNTIME_ERROR}"
     return True, ""
@@ -640,12 +641,15 @@ def predict_endpoint(smiles: str, endpoint: str) -> dict:
             confidence = "LOW"
     else:
         confidence = "LOW" if endpoint.endswith("intrinsic clearance") else ("MEDIUM" if domain["classification"] == "IN_DOMAIN" else "LOW")
+    calibrated_unc = compute_calibrated_uncertainty(endpoint, value, domain)
+
     result = {
         "status": "COMPLETE",
         "predicted_value": value,
         "unit": MODEL_SPECS[endpoint]["unit"],
         "confidence": confidence,
         "applicability_domain": domain,
+        "calibrated_uncertainty": calibrated_unc,
         "uncertainty": round(float(np.std(ensemble_values)), 6) if ensemble_values is not None else None,
         "uncertainty_reason": (
             "Standard deviation across five ADMET-AI v2 checkpoints; useful as model disagreement but not calibrated uncertainty."

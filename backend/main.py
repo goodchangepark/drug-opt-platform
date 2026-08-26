@@ -1,8 +1,16 @@
 import hashlib
 import json
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
+
+# Force static TLS allocation for PyTorch & OpenMP on main thread startup
+try:
+    import torch
+    import chemprop
+except ImportError:
+    pass
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware

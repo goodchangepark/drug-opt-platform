@@ -191,7 +191,7 @@ function App(){
   if(detail&&detailTab==='pk'&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id,iviveSpecies]);
  useEffect(()=>{
-  if(globalView!=='optimization'||projectTab!=='dashboard')return;
+  if(globalView!=='optimization')return;
   const requestedProject=Number(optimizationWorkspace.project_id);
   if(requestedProject&&requestedProject!==Number(projectId)){setProjectId(requestedProject);return}
   const requestedCompound=Number(optimizationWorkspace.compound_id);
@@ -871,8 +871,8 @@ function App(){
 
  function optimizationPanel(versionId){
   const config=optimizationConfig||{objectives:[],evidence_hierarchy:[]},run=optimizationRun;
-  const setConstraint=(key,value)=>setOptimizationForm(current=>({...current,constraints:{...current.constraints,[key]:value}}));
-  const toggleObjective=name=>setOptimizationForm(current=>({...current,objectives:current.objectives.includes(name)?current.objectives.filter(value=>value!==name):[...current.objectives,name]}));
+  const setConstraint=(key,value)=>setOptimizationForm(current=>({...current,constraints:{...(current?.constraints||{}),[key]:value}}));
+  const toggleObjective=name=>setOptimizationForm(current=>({...current,objectives:(current?.objectives||[]).includes(name)?(current?.objectives||[]).filter(value=>value!==name):[...(current?.objectives||[]),name]}));
   const addOverride=(key,value)=>{
    const values=run?.manual_overrides?.[key]||[],encoded=JSON.stringify(value);
    const next=values.some(item=>JSON.stringify(item)===encoded)?values:[...values,value];
@@ -884,7 +884,7 @@ function App(){
    const value=preferred.classification??preferred.assessment?.category??preferred.value;
    return String(value??'Not available')+(preferred.unit?' '+preferred.unit:'')+' · '+preferred.type+(preferred.confidence?' · '+preferred.confidence:'')+(preferred.applicability_domain?' · '+preferred.applicability_domain:'');
   };
-  const constraintField=(key,label,type='number')=>e('div',{className:'col-3',key},Field({label,type,value:optimizationForm.constraints[key],onChange:value=>setConstraint(key,value)}));
+  const constraintField=(key,label,type='number')=>e('div',{className:'col-3',key},Field({label,type,value:optimizationForm?.constraints?.[key]??'',onChange:value=>setConstraint(key,value)}));
   const regionTable=(title,rows,protectedType)=>e('div',{className:'col-6 optimization-region',key:title},[
    e('h3',{key:'title'},title),
    rows?.length?e('table',{key:'table'},[
@@ -903,22 +903,22 @@ function App(){
    ]),
    e('div',{className:'card',key:'setup'},[
     e('h3',{key:'title'},'Step 3 — Select Optimization Goal'),
-    e('p',{key:'parent',className:'small'},'Parent: '+detail.compound_id+' v'+detail.current_version+' · CompoundVersion #'+versionId),
+    e('p',{key:'parent',className:'small'},'Parent: '+(detail?.compound_id||'Compound')+' v'+(detail?.current_version||'1')+' · CompoundVersion #'+versionId),
     e('div',{className:'grid',key:'top'},[
-     e('div',{className:'col-4',key:'assay'},[e('label',{},'Selected assay'),e('select',{value:optimizationForm.assay_id,onChange:event=>setOptimizationForm(current=>({...current,assay_id:event.target.value}))},[e('option',{key:'none',value:''},'No assay selected'),...assays.map(assay=>e('option',{key:assay.id,value:assay.id},assay.name+' · '+assay.measurement_type))])]),
-     e('div',{className:'col-8',key:'objectives'},[e('label',{},'Optimization objective(s)'),e('div',{className:'objective-grid'},config.objectives.map(name=>e('label',{key:name,className:'check-option'},[e('input',{key:'input',type:'checkbox',checked:optimizationForm.objectives.includes(name),onChange:()=>toggleObjective(name)}),e('span',{key:'label'},name)])))])
+     e('div',{className:'col-4',key:'assay'},[e('label',{},'Selected assay'),e('select',{value:optimizationForm?.assay_id||'',onChange:event=>setOptimizationForm(current=>({...current,assay_id:event.target.value}))},[e('option',{key:'none',value:''},'No assay selected'),...assays.map(assay=>e('option',{key:assay.id,value:assay.id},assay.name+' · '+(assay.measurement_type||'')))])]),
+     e('div',{className:'col-8',key:'objectives'},[e('label',{},'Optimization objective(s)'),e('div',{className:'objective-grid'},(config.objectives||[]).map(name=>e('label',{key:name,className:'check-option'},[e('input',{key:'input',type:'checkbox',checked:(optimizationForm?.objectives||[]).includes(name),onChange:()=>toggleObjective(name)}),e('span',{key:'label'},name)])))])
     ]),
-    optimizationForm.objectives.includes('Custom')&&e('div',{key:'custom',style:{marginTop:'10px'}},Field({label:'Custom objective',value:optimizationForm.custom_objective,onChange:value=>setOptimizationForm(current=>({...current,custom_objective:value}))})),
+    (optimizationForm?.objectives||[]).includes('Custom')&&e('div',{key:'custom',style:{marginTop:'10px'}},Field({label:'Custom objective',value:optimizationForm?.custom_objective||'',onChange:value=>setOptimizationForm(current=>({...current,custom_objective:value}))})),
     e('h4',{key:'constraints-title',style:{marginTop:'18px'}},'Constraints'),
     e('div',{className:'grid',key:'constraints'},[
      constraintField('potency_max_nm','Potency IC50 ≤ (nM)'),constraintField('do_not_worsen_fold','Do not worsen potency > fold'),constraintField('clogp_max','cLogP ≤'),constraintField('mw_max','MW ≤'),
      constraintField('tpsa_min','TPSA minimum Å²'),constraintField('tpsa_max','TPSA maximum Å²'),constraintField('similarity_min','Future analog similarity ≥'),constraintField('logs_min','LogS minimum'),constraintField('caco2_logpapp_min','Caco-2 LogPapp minimum'),
-     e('div',{className:'col-3',key:'herg'},e('label',{className:'check-option'},[e('input',{type:'checkbox',checked:!!optimizationForm.constraints.herg_do_not_increase,onChange:event=>setConstraint('herg_do_not_increase',event.target.checked)}),e('span',{},'hERG: do not increase liability')]))
+     e('div',{className:'col-3',key:'herg'},e('label',{className:'check-option'},[e('input',{type:'checkbox',checked:!!optimizationForm?.constraints?.herg_do_not_increase,onChange:event=>setConstraint('herg_do_not_increase',event.target.checked)}),e('span',{},'hERG: do not increase liability')]))
     ]),
     e('p',{key:'precedence',className:'small'},'Experimental evidence takes precedence over prediction. Low-confidence classification alone remains supporting-only. Similarity and do-not-worsen constraints are stored now as hard gates for a future proposal stage; Stage 4A does not create candidates.'),
-    e('button',{key:'analyze',disabled:optimizationBusy||!optimizationForm.objectives.length,onClick:()=>analyzeOptimization(versionId)},optimizationBusy?'Analyzing…':'Analyze Optimization Strategy')
+    e('button',{key:'analyze',disabled:optimizationBusy||!(optimizationForm?.objectives||[]).length,onClick:()=>analyzeOptimization(versionId)},optimizationBusy?'Analyzing…':'Analyze Optimization Strategy')
    ]),
-   optimizationRuns.length>0&&e('div',{className:'row run-picker',key:'history'},[e('label',{key:'label'},'Saved runs'),e('select',{key:'select',value:run?.id||'',onChange:event=>setOptimizationRun(optimizationRuns.find(item=>item.id===Number(event.target.value)))},optimizationRuns.map(item=>e('option',{key:item.id,value:item.id},'#'+item.id+' · '+item.objectives.join(' + ')+' · '+item.status))) ]),
+   (optimizationRuns||[]).length>0&&e('div',{className:'row run-picker',key:'history'},[e('label',{key:'label'},'Saved runs'),e('select',{key:'select',value:run?.id||'',onChange:event=>setOptimizationRun(optimizationRuns.find(item=>item.id===Number(event.target.value)))},optimizationRuns.map(item=>e('option',{key:item.id,value:item.id},'#'+item.id+' · '+(item.objectives||[]).join(' + ')+' · '+item.status))) ]),
    run&&e(React.Fragment,{key:'results'},[
     e('div',{className:'card',key:'profile'},[
      e('div',{className:'row toolbar',key:'head'},[e('h3',{},'Current profile'),e('span',{className:'small'},run.engine+' '+run.engine_version)]),
@@ -927,7 +927,7 @@ function App(){
       e('div',{className:'col-4',key:'properties'},[e('h4',{},'Properties'),e('p',{className:'small'},['molecular_weight','clogp','tpsa','fraction_csp3'].map(key=>key+' '+(properties[key]?.value??'—')).join(' · ')+' · Calculated / RDKit')]),
       e('div',{className:'col-4',key:'admet'},[e('h4',{},'ADMET / metabolism'),...Object.entries(admetProfile).slice(0,12).map(([name,row])=>e('div',{key:name,className:'small'},name+': '+evidenceValue(row))),Object.keys(admetProfile).length===0&&Empty({children:'No compatible experimental or predicted ADMET evidence.'})])
      ]),
-     e('details',{key:'hierarchy'},[e('summary',{key:'summary'},'Evidence hierarchy'),e('ol',{key:'list',className:'small'},(run.evidence.evidence_hierarchy||[]).map(item=>e('li',{key:item.rank},item.type+' · ordinal weight '+item.weight)))])
+     e('details',{key:'hierarchy'},[e('summary',{key:'summary'},'Evidence hierarchy'),e('ol',{key:'list',className:'small'},(run.evidence?.evidence_hierarchy||[]).map(item=>e('li',{key:item.rank},item.type+' · ordinal weight '+item.weight)))])
     ]),
     e('div',{className:'card',key:'liabilities'},[
      e('h3',{key:'title'},'Main liabilities'),
@@ -2059,9 +2059,24 @@ function App(){
 
  function GlobalOptimizationWorkspace(){
   const projectChoices=dashboard?.projects||projects;
-  const selectedProject=projectChoices.find(row=>row.id===Number(optimizationWorkspace.project_id));
-  const compounds=project?.id===Number(optimizationWorkspace.project_id)?currentVersions:[];
-  const selectedCompound=compounds.find(row=>row.row_id===Number(optimizationWorkspace.compound_id));
+  const selectedProjectId=Number(optimizationWorkspace.project_id);
+  const selectedCompoundId=Number(optimizationWorkspace.compound_id);
+  const selectedProject=projectChoices.find(row=>row.id===selectedProjectId);
+
+  React.useEffect(()=>{
+   if(selectedProjectId && project?.id !== selectedProjectId){
+    loadProject(selectedProjectId).catch(err=>setMessage(String(err)));
+   }
+  },[selectedProjectId, project?.id]);
+
+  React.useEffect(()=>{
+   if(selectedCompoundId && detail?.row_id !== selectedCompoundId){
+    openDetail(selectedCompoundId).then(()=>setDetailTab('optimization')).catch(err=>setMessage(String(err)));
+   }
+  },[selectedCompoundId, detail?.row_id]);
+
+  const compounds=project?.id===selectedProjectId?currentVersions:[];
+  const selectedCompound=compounds.find(row=>row.row_id===selectedCompoundId);
   const version=detail?.row_id===selectedCompound?.row_id?detail.version:null;
   const predictions=version?(admet?.predictions||[]).filter(row=>row.version_id===version.id):[];
   return e('div',{className:'optimization-workspace'},[
@@ -2080,15 +2095,17 @@ function App(){
    ])]),
    selectedCompound&&!version&&e('div',{className:'card empty-state',key:'draft'},[StatusBadge({type:'DRAFT'}),e('p',{},'Add a validated structure before optimization.')]),
    version&&optimizationConfig&&optimizationPanel(version.id),
-   selectedProject&&!selectedCompound&&e('section',{className:'card empty-state',key:'choose'},[e('h3',{},'Choose a parent compound'),e('p',{},'The selected project has '+compounds.length+' compound record(s). Drafts without structure cannot be optimized.')])
+   selectedProject&&!selectedCompound&&e('section',{className:'card empty-state',key:'choose'},[e('h3',{},'Choose a parent compound'),e('p',{},'The selected project has '+compounds.length+' compound record(s). Drafts without structure cannot be optimized.')]),
+   !selectedProject&&e('section',{className:'card empty-state',key:'no-project'},[e('h3',{},'No project selected'),e('p',{},'Select a project from the dropdown above to open its optimization workspace.')])
   ]);
  }
 
  function MainDashboard(){
   const registry=dashboard?.model_registry||[];
-  const registryStatus=(endpoint,activeStatus='LIMITED')=>{
+  const registryStatus=(endpoint,defaultFallback='MODEL_UNAVAILABLE')=>{
    const model=registry.find(row=>row.endpoint===endpoint);
-   return model?.active?activeStatus:'MODEL_UNAVAILABLE';
+   if(!model)return defaultFallback;
+   return model.active?(model.status||'READY'):'MODEL_UNAVAILABLE';
   };
   const modules=[
    {title:'Structure & Chemistry',status:'READY',description:'Version-controlled chemical identity and calculated molecular properties.',items:[['Structure Drawing','READY'],['SMILES Input','READY'],['Compound Versioning','READY'],['Structure Validation','READY'],['Physicochemical Properties','READY'],['Structural Alerts','READY']]},
