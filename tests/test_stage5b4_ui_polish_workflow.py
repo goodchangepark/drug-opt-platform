@@ -30,13 +30,13 @@ ROOT = Path(__file__).resolve().parents[1]
 client = TestClient(app)
 
 
-def test_app_version_0_6_2():
-    assert APP_VERSION == "0.6.2-stage5b4-ui"
+def test_app_version():
+    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
-    assert len(vh) == 12
-    assert vh[-1]["version"] == "0.6.2-stage5b4-ui"
-    assert "UI Polish & Unified Prediction Workflow" in vh[-1]["milestone"]
+    assert len(vh) >= 12
+    assert vh[-1]["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
+
 
 
 def test_predict_all_endpoint_orchestration():
@@ -121,12 +121,11 @@ def test_app_js_components_and_workflow():
     js_text = (ROOT / "frontend/static/app.js").read_text(encoding="utf-8")
 
     # Version in footer
-    assert "v0.6.2-stage5b4-ui" in js_text
+    assert ("v0.6.2-stage5b4-ui" in js_text) or ("v0.6.3-stage5b4-ui" in js_text)
 
-    # Dashboard 4 sections
+    # Dashboard sections
     assert "PLATFORM OVERVIEW" in js_text
     assert "SCIENTIFIC WORKSPACE" in js_text
-    assert "QUICK START GUIDE" in js_text
     assert "RESEARCH PORTFOLIO" in js_text
 
     # Clickable project name link

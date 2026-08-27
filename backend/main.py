@@ -629,7 +629,7 @@ def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depe
     if not project: raise HTTPException(status_code=404, detail="Project not found")
     name = payload.name.strip() or payload.compound_id.strip()
     if not name:
-        raise HTTPException(status_code=400, detail="Compound Name is required")
+        raise HTTPException(status_code=400, detail="Compound name is required.")
     base_id = payload.compound_id.strip() or "".join(character if character.isalnum() or character in "-_" else "-" for character in name.upper()).strip("-")[:50] or "COMPOUND"
     compound_id = base_id
     suffix = 2
@@ -645,10 +645,13 @@ def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depe
         db.rollback(); raise HTTPException(status_code=400, detail="This model currently supports small molecules only. Save a peptide as a draft without structure calculations.")
     try:
         persist_structure(db, compound, payload.smiles, "Initial structure", calculate=payload.calculate)
+        db.commit()
     except HTTPException:
         db.rollback(); raise
     except ChemistryError as exc:
-        db.rollback(); raise HTTPException(status_code=400, detail=str(exc))
+        db.rollback(); raise HTTPException(status_code=400, detail=f"Structure could not be standardized: {exc}")
+    except Exception as exc:
+        db.rollback(); raise HTTPException(status_code=500, detail=f"Server could not save compound: {exc}")
     db.refresh(compound); return compound_out(compound)
 
 

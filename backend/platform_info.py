@@ -10,7 +10,7 @@ from pathlib import Path
 
 from typing import Any
 
-APP_VERSION = "0.6.2-stage5b4-ui"
+APP_VERSION = "0.6.3-stage5b4-ui"
 CURRENT_STAGE = "5B-4"
 
 PACKAGE_SPECS = (
@@ -155,6 +155,13 @@ VERSION_HISTORY = [
         "stage": "Stage 5B-4 Refinement 2",
         "milestone": "UI Polish & Unified Prediction Workflow",
         "improvements": "Dashboard card grid redesign, compound overview primary predict workflow, tab-level re-predict actions, PK overview summary, global Noto Sans KR font, and test project cleanup.",
+    },
+    {
+        "version": "0.6.3-stage5b4-ui",
+        "release_date": "2026-08-27",
+        "stage": "Stage 5B-4 Refinement 3",
+        "milestone": "Dashboard Redesign & Compound Save Workflow Restoration",
+        "improvements": "Clean 3-column scientific workspace dashboard, streamlined single-card platform overview, restored robust compound save and initial versioning workflow with instant property calculation.",
     },
 ]
 
