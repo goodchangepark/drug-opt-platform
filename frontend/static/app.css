@@ -93,13 +93,15 @@ p { margin: 0 0 8px; font-size: 13px; font-family: var(--font-ui); }
   gap: 8px;
 }
 
+.brand-lockup { min-width: 0; }
+
 .brand-button {
   border: 0;
   background: transparent;
   color: #fff;
   padding: 0;
   font-family: var(--font-ui);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 750;
   line-height: 1.2;
   margin: 0 0 3px;
@@ -107,7 +109,12 @@ p { margin: 0 0 8px; font-size: 13px; font-family: var(--font-ui); }
   cursor: pointer;
 }
 .brand-button:hover { text-decoration: underline; }
-.sidebar-tag { color: #94a3b8; font-size: 11px; }
+.sidebar-tag {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .035em;
+}
 
 .sidebar-body {
   margin-top: 24px;
@@ -143,6 +150,7 @@ p { margin: 0 0 8px; font-size: 13px; font-family: var(--font-ui); }
 .global-nav > button.active {
   background: #1e3a8a;
   color: #fff;
+  box-shadow: inset 3px 0 0 #60a5fa;
 }
 
 .menu-toggle {
@@ -1003,4 +1011,3 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .ivive-source-calc { border-left: 3px solid #059669; }
 .ivive-source-user-override { border-left: 3px solid #d97706; }
 .ivive-comparison { margin-top: 12px; }
-

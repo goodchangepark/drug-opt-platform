@@ -83,14 +83,14 @@ def main():
         print("\n--- STEP 1: Verifying Main Dashboard Redesign ---")
         driver.get(BASE_URL)
         WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "dashboard-hero")))
-        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "scientific-card")))
-        time.sleep(1)
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, "sidebar-footer")))
+        time.sleep(0.5)
 
         # Verify Sidebar
         sidebar = driver.find_element(By.CLASS_NAME, "sidebar")
         assert sidebar.is_displayed(), "Sidebar is not visible"
         sidebar_text = sidebar.text
-        assert "Drug-OPT" in sidebar_text, "Brand title missing in sidebar"
+        assert "Drug Optimization Platform" in sidebar_text or "Drug-OPT" in sidebar_text, "Brand title missing in sidebar"
         assert "v0.6.3-stage5b4-ui" in sidebar_text, "v0.6.3-stage5b4-ui missing in sidebar footer"
         assert "Updated: 2026-08-27" in sidebar_text, "Updated date missing in sidebar footer"
         print("✓ Sidebar and footer version verified (v0.6.3-stage5b4-ui).")

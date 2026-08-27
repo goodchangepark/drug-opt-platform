@@ -334,6 +334,7 @@ function App(){
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
  const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState('');
+ const previewRequest=useRef(0);
  const [projectTab,setProjectTab]=useState('dashboard'),[detailTab,setDetailTab]=useState('overview');
  const [admet,setAdmet]=useState(null),[admetVersionId,setAdmetVersionId]=useState(''),[admetForm,setAdmetForm]=useState({...EMPTY_ADMET_FORM});
  const [admetCsv,setAdmetCsv]=useState(''),[admetCsvPreview,setAdmetCsvPreview]=useState(null),[admetBusy,setAdmetBusy]=useState(false);
@@ -370,17 +371,29 @@ function App(){
  };
  const endpointName=endpointId=>(admet?.endpoints||[]).find(item=>item.id===endpointId)?.name||endpointId;
 
- const loadProjects=async()=>{
-  const rows=await api.get('/projects');setProjects(rows);
-  if(rows.length&&!projectId)setProjectId(rows[0].id);
- };
- const loadDashboard=async()=>{const data=await api.get('/dashboard');setDashboard(data);return data};
- const loadHelpRegistry=async()=>{setHelpBusy(true);try{const data=await api.get('/help/registry');setHelpRegistry(data);return data}finally{setHelpBusy(false)}};
- const loadProject=async id=>{
-  const data=await api.get('/projects/'+id);setProject(data);
-  setAdmetVersionId(current=>data.compounds.some(item=>item.version?.id===Number(current))?current:(data.compounds.find(item=>item.version)?.version.id||''));
-  return data;
- };
+  const loadProjects=async()=>{
+   const rows=await api.get('/projects');setProjects(rows);
+   if(rows.length>0){
+    if(!projectId||!rows.some(r=>r.id===Number(projectId))){
+     setProjectId(rows[0].id);
+    }
+   }else{
+    setProjectId(null);setProject(null);
+   }
+  };
+  const loadDashboard=async()=>{const data=await api.get('/dashboard');setDashboard(data);return data};
+  const loadHelpRegistry=async()=>{setHelpBusy(true);try{const data=await api.get('/help/registry');setHelpRegistry(data);return data}finally{setHelpBusy(false)}};
+  const loadProject=async id=>{
+   if(!id){setProject(null);return null;}
+   try{
+    const data=await api.get('/projects/'+id);setProject(data);
+    setAdmetVersionId(current=>data.compounds?.some(item=>item.version?.id===Number(current))?current:(data.compounds?.find(item=>item.version)?.version.id||''));
+    return data;
+   }catch(err){
+    setProject(null);
+    return null;
+   }
+  };
  const loadAdmet=async(id=projectId)=>{
   if(!id)return null;
   const data=await api.get('/projects/'+id+'/admet');setAdmet(data);return data;
@@ -522,18 +535,19 @@ function App(){
  useEffect(()=>{
   if(!addCompoundOpen||project?.molecule_type!=='Small Molecule')return;
   const sm=(compoundForm.smiles||'').trim();
+  const requestId=++previewRequest.current;
   if(!sm){setPreview(null);return}
   const timer=setTimeout(async()=>{
    try{
     const result=await api.post('/structure/validate',{smiles:sm});
-    if(result&&result.valid){
+    if(requestId===previewRequest.current&&result&&result.valid){
      setPreview(result);
     }
    }catch(_){
-    /* invalid or typing in progress */
+    if(requestId===previewRequest.current)setPreview(null);
    }
-  },250);
-  return ()=>clearTimeout(timer);
+  },180);
+  return ()=>{clearTimeout(timer);};
  },[addCompoundOpen,project?.molecule_type,compoundForm.smiles]);
 
  const loadSmilesIntoEditor=async()=>{
@@ -4187,9 +4201,9 @@ function App(){
   const sidebarItems=[['Dashboard',()=>goDashboard(),'dashboard'],['New Project',()=>openGlobalView('new-project'),'new-project'],['Projects',()=>openGlobalView('projects'),'projects'],['Optimization',openOptimizationOverview,'optimization'],['Settings',openSettings,'settings'],['Help',()=>openGlobalView('help'),'help']];
   const sidebar=e('aside',{className:'sidebar'+(sidebarOpen?' open':''),key:'sidebar'},[
    e('div',{className:'sidebar-head',key:'head'},[
-    e('div',{},[
-     e('button',{className:'brand-button',onClick:goDashboard},'Drug-OPT'),
-     e('div',{className:'tag'},'Medicinal Chemistry')
+    e('div',{className:'brand-lockup'},[
+     e('button',{className:'brand-button',onClick:goDashboard},'Drug Optimization Platform'),
+     e('div',{className:'sidebar-tag'},'Research Workspace')
     ]),
     e('button',{className:'menu-toggle',onClick:()=>setSidebarOpen(value=>!value),'aria-expanded':sidebarOpen,'aria-label':'Toggle primary navigation'},sidebarOpen?'Close':'Menu')
    ]),
@@ -4197,9 +4211,9 @@ function App(){
     e('nav',{className:'global-nav',key:'nav','aria-label':'Primary navigation'},sidebarItems.map(([label,action,view])=>e('button',{key:label,className:(projectTab==='dashboard'&&globalView===view)||(projectTab===view)?'active':'',onClick:action},label)))
    ]),
     e('div',{className:'sidebar-footer',key:'footer'},[
-     e('div',{className:'brand-title'},'Drug-OPT'),
-     e('div',{className:'version-badge'},'v0.6.3-stage5b4-ui'),
-     e('div',{className:'update-date'},'Updated: 2026-08-27')
+    e('div',{className:'sidebar-footer-brand'},'Drug Optimization Platform'),
+    e('div',{className:'sidebar-footer-version'},'v0.6.3-stage5b4-ui'),
+    e('div',{className:'sidebar-footer-date'},'Updated: 2026-08-27')
     ])
   ]);
   return e('div',{className:'shell'},[sidebar,e('main',{className:'content',key:'content'},[
