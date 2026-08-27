@@ -62,7 +62,7 @@ from .models import (Compound, CompoundVersion, PredictionRun, Project,
                      utcnow)
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
 from .ivive import (IVIVEInputSet, IVIVEMethodRegistry, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
-                    ensure_ivive_schema, register_ivive_routes)
+                    ensure_ivive_schema, register_ivive_routes, get_multi_species_pk_profile)
 from .simulation import PKSimulationRun, ensure_simulation_schema, register_simulation_routes
 from .standardizer import GLOBAL_DESCRIPTOR_CONFIG, GLOBAL_FINGERPRINT_CONFIG, RDKIT_VERSION, STANDARDIZER_NAME, STANDARDIZER_VERSION, standardize_molecule
 from .golden_set import run_golden_gate_test
@@ -862,8 +862,12 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
         comparison_row["Activity"] = activity.normalized_value_nm if activity else None
         comparison_row["sources"]["Activity"] = "Experimental" if activity else "Not measured"
         endpoint_map = {
-            "HLM intrinsic clearance": "HLM", "RLM intrinsic clearance": "RLM",
+            "HLM intrinsic clearance": "HLM", "RLM intrinsic clearance": "RLM", "MLM intrinsic clearance": "MLM",
             "Plasma protein binding": "PPB", "Solubility": "Solubility", "Permeability": "Caco-2",
+            "CYP1A2 inhibitor": "CYP1A2 Inh", "CYP2C9 inhibitor": "CYP2C9 Inh", "CYP2C19 inhibitor": "CYP2C19 Inh",
+            "CYP2D6 inhibitor": "CYP2D6 Inh", "CYP3A4 inhibitor": "CYP3A4 Inh",
+            "CYP2C9 substrate": "CYP2C9 Sub", "CYP2D6 substrate": "CYP2D6 Sub", "CYP3A4 substrate": "CYP3A4 Sub",
+            "P-gp inhibitor": "P-gp Inh",
             "hERG liability": "hERG", "Ames mutagenicity": "Ames", "DILI clinical liability": "DILI",
         }
         experimental = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version.id)).all()
@@ -885,17 +889,96 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
             matches = comparison_for_prediction(endpoint_name, prediction.predicted_value, experimental, endpoint_names)
             comparison_row[label] = matches[0]["experimental_normalized"] if matches else prediction.predicted_value
             comparison_row["sources"][label] = "Experimental" if matches else "Predicted"
+
+        # Explicit Dog and Monkey metabolism entries
+        comparison_row["DLM"] = None
+        comparison_row["sources"]["DLM"] = "MODEL_UNAVAILABLE"
+        comparison_row["CyLM"] = None
+        comparison_row["sources"]["CyLM"] = "MODEL_UNAVAILABLE"
+
+        # Derived fraction unbound (fu)
+        ppb_val = comparison_row.get("PPB")
+        if ppb_val is not None and isinstance(ppb_val, (int, float)):
+            comparison_row["fu"] = round((100.0 - float(ppb_val)) / 100.0, 4)
+            comparison_row["sources"]["fu"] = "Calculated (1 - PPB)"
+        else:
+            comparison_row["fu"] = None
+            comparison_row["sources"]["fu"] = "Not calculated"
+
+        # Soft Spots
+        spots = list(db.scalars(select(MetabolicSoftSpot).where(MetabolicSoftSpot.version_id == version.id)).all())
+        comparison_row["Soft Spots"] = len(spots) if spots else 0
+        comparison_row["sources"]["Soft Spots"] = "Predicted (SyGMa)" if spots else "Not calculated"
+
+        # Multi-species PK assembly (Normalized 1 mg/kg single dose standard)
+        pk_prof = get_multi_species_pk_profile(db, version.id)
+        sp_map = pk_prof.get("species_profiles", {})
+
+        # Mouse
+        m_prof = sp_map.get("Mouse", {})
+        comparison_row["Mouse CL (IV)"] = m_prof.get("cl", {}).get("value")
+        comparison_row["sources"]["Mouse CL (IV)"] = m_prof.get("cl", {}).get("source", "UNAVAILABLE")
+        comparison_row["Mouse Vd"] = m_prof.get("v", {}).get("value")
+        comparison_row["sources"]["Mouse Vd"] = m_prof.get("v", {}).get("source", "UNAVAILABLE")
+        comparison_row["Mouse t1/2"] = m_prof.get("t_half_hours")
+        comparison_row["sources"]["Mouse t1/2"] = "Calculated" if m_prof.get("t_half_hours") else "UNAVAILABLE"
+
+        # Rat
+        r_prof = sp_map.get("Rat", {})
+        comparison_row["Rat CL (IV)"] = r_prof.get("cl", {}).get("value")
+        comparison_row["sources"]["Rat CL (IV)"] = r_prof.get("cl", {}).get("source", "UNAVAILABLE")
+        comparison_row["Rat Vd"] = r_prof.get("v", {}).get("value")
+        comparison_row["sources"]["Rat Vd"] = r_prof.get("v", {}).get("source", "UNAVAILABLE")
+        comparison_row["Rat t1/2"] = r_prof.get("t_half_hours")
+        comparison_row["sources"]["Rat t1/2"] = "Calculated" if r_prof.get("t_half_hours") else "UNAVAILABLE"
+        comparison_row["Rat F (%)"] = r_prof.get("f_pct")
+        comparison_row["sources"]["Rat F (%)"] = r_prof.get("f_source", "UNAVAILABLE")
+
+        # Dog
+        d_prof = sp_map.get("Dog", {})
+        comparison_row["Dog CL (IV)"] = d_prof.get("cl", {}).get("value")
+        comparison_row["sources"]["Dog CL (IV)"] = d_prof.get("cl", {}).get("source", "MODEL_UNAVAILABLE")
+
+        # Monkey
+        cy_prof = sp_map.get("Monkey", {})
+        comparison_row["Monkey CL (IV)"] = cy_prof.get("cl", {}).get("value")
+        comparison_row["sources"]["Monkey CL (IV)"] = cy_prof.get("cl", {}).get("source", "MODEL_UNAVAILABLE")
+
+        # Human
+        h_prof = sp_map.get("Human", {})
+        comparison_row["Human CL (IVIVE)"] = h_prof.get("cl", {}).get("value")
+        comparison_row["sources"]["Human CL (IVIVE)"] = h_prof.get("cl", {}).get("source", "UNAVAILABLE")
+        comparison_row["Human Vd (pred)"] = h_prof.get("v", {}).get("value")
+        comparison_row["sources"]["Human Vd (pred)"] = h_prof.get("v", {}).get("source", "UNAVAILABLE")
+        comparison_row["Human t1/2 (pred)"] = h_prof.get("t_half_hours")
+        comparison_row["sources"]["Human t1/2 (pred)"] = "Calculated" if h_prof.get("t_half_hours") else "UNAVAILABLE"
+        comparison_row["Human AUC (1mg/kg IV)"] = h_prof.get("normalized_1mpk_iv", {}).get("auc_ng_h_ml")
+        comparison_row["sources"]["Human AUC (1mg/kg IV)"] = "Normalized 1 mg/kg IV" if h_prof.get("normalized_1mpk_iv", {}).get("auc_ng_h_ml") else "UNAVAILABLE"
+        comparison_row["Human Cmax (1mg/kg IV)"] = h_prof.get("normalized_1mpk_iv", {}).get("cmax_ng_ml")
+        comparison_row["sources"]["Human Cmax (1mg/kg IV)"] = "Normalized 1 mg/kg IV" if h_prof.get("normalized_1mpk_iv", {}).get("cmax_ng_ml") else "UNAVAILABLE"
+
         rows.append(comparison_row)
     if len(rows) < 2: raise HTTPException(status_code=400, detail="At least two selected compounds must belong to the project")
     property_metrics = ["MW", "cLogP", "TPSA", "HBD", "HBA", "RotB", "Fsp3", "QED"]
-    metrics = property_metrics + ["Activity", "HLM", "RLM", "PPB", "Solubility", "Caco-2", "hERG", "Ames", "DILI"]
+    adme_metrics = ["Solubility", "Caco-2", "PPB", "fu"]
+    metabolism_metrics = ["HLM", "RLM", "MLM", "DLM", "CyLM", "CYP1A2 Inh", "CYP2C9 Inh", "CYP2C19 Inh", "CYP2D6 Inh", "CYP3A4 Inh", "CYP2C9 Sub", "CYP2D6 Sub", "CYP3A4 Sub", "P-gp Inh", "Soft Spots"]
+    pk_metrics = ["Mouse CL (IV)", "Mouse Vd", "Mouse t1/2", "Rat CL (IV)", "Rat Vd", "Rat t1/2", "Rat F (%)", "Dog CL (IV)", "Monkey CL (IV)", "Human CL (IVIVE)", "Human Vd (pred)", "Human t1/2 (pred)", "Human AUC (1mg/kg IV)", "Human Cmax (1mg/kg IV)"]
+    safety_metrics = ["hERG", "Ames", "DILI"]
+    metrics = property_metrics + ["Activity"] + adme_metrics + metabolism_metrics + pk_metrics + safety_metrics
     ranges = {}
     for metric in property_metrics:
         values = [row[metric] for row in rows if row[metric] is not None]
         ranges[metric] = {"min": min(values), "max": max(values)} if values else {"min": None, "max": None}
     return {"metrics": metrics, "ranges": ranges, "compounds": rows, "metric_units": {
-        "Activity": "nM (latest experimental)", "HLM": "log10(mL/min/kg)", "RLM": "log10(mL/min/kg)",
-        "PPB": "% bound", "Solubility": "log10(mol/L)", "Caco-2": "log10(cm/s)",
+        "Activity": "nM (latest experimental)", "HLM": "log10(mL/min/kg)", "RLM": "log10(mL/min/kg)", "MLM": "log10(mL/min/kg)",
+        "DLM": "MODEL_UNAVAILABLE", "CyLM": "MODEL_UNAVAILABLE",
+        "PPB": "% bound", "fu": "fraction unbound (0-1)", "Solubility": "log10(mol/L)", "Caco-2": "log10(cm/s)",
+        "Soft Spots": "count",
+        "Mouse CL (IV)": "mL/min/kg", "Mouse Vd": "L/kg", "Mouse t1/2": "hours",
+        "Rat CL (IV)": "mL/min/kg", "Rat Vd": "L/kg", "Rat t1/2": "hours", "Rat F (%)": "% bioavailability",
+        "Dog CL (IV)": "mL/min/kg", "Monkey CL (IV)": "mL/min/kg",
+        "Human CL (IVIVE)": "mL/min/kg", "Human Vd (pred)": "L/kg", "Human t1/2 (pred)": "hours",
+        "Human AUC (1mg/kg IV)": "ng·h/mL (1 mg/kg IV single dose)", "Human Cmax (1mg/kg IV)": "ng/mL (1 mg/kg IV)",
         "hERG": "classification/probability", "Ames": "classification/probability", "DILI": "classification/probability",
     }}
 

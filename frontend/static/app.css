@@ -655,6 +655,39 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   margin-top: 14px;
 }
 
+.dashboard-project-table-wrap { margin-top: 14px; }
+.dashboard-project-table { min-width: 760px; }
+.dashboard-project-table th { white-space: nowrap; }
+.dashboard-project-table td { padding: 12px 10px; vertical-align: middle; }
+.dashboard-project-table tbody tr { transition: background .12s ease; }
+.dashboard-project-table tbody tr.dashboard-project { display: table-row; }
+.dashboard-project-table tbody tr:hover td { background: #f8fbff; }
+.dashboard-project-table .project-name-cell { min-width: 220px; }
+.dashboard-project-table .project-name-cell .eyebrow { margin-bottom: 3px; }
+.dashboard-project-table .dashboard-count { width: 110px; font-size: 18px; font-weight: 750; color: var(--accent); }
+.dashboard-project-table .project-actions-cell { width: 90px; text-align: right; }
+.project-status-table .compound-select-cell { width: 42px; text-align: center; }
+.project-status-table input.compound-select {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  accent-color: var(--accent);
+  vertical-align: middle;
+}
+.comparison-table-scroll { width: 100%; overflow-x: auto; }
+.comparison-table { width: 100%; table-layout: fixed; }
+.comparison-table th,
+.comparison-table td { overflow-wrap: anywhere; }
+.comparison-table thead th:first-child,
+.comparison-table tbody th { width: 22%; background: #f8fafc; font-weight: 700; }
+.comparison-metric-title { color: #334155; font-size: 12px; }
+.comparison-criteria { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; font-weight: 500; line-height: 1.35; }
+.comparison-table .comparison-value { vertical-align: top; }
+.comparison-source { margin-top: 5px; }
+.comparison-table .status-badge { max-width: 100%; white-space: normal; }
+
 .dashboard-project {
   border: 1px solid var(--line);
   border-radius: 9px;
@@ -673,15 +706,16 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 .project-link-title {
   cursor: pointer;
-  color: #0f172a;
+  color: #fff;
   font-size: 15px;
   font-weight: 700;
   margin: 0;
   text-decoration: none;
 }
 .project-link-title:hover {
-  color: #1a56db;
-  text-decoration: underline;
+  color: #fff;
+  background: #1d4ed8;
+  text-decoration: none;
 }
 
 .project-delete-secondary {
@@ -960,6 +994,12 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   font-weight: 700;
   padding: 6px 12px;
 }
+.detail-tabs button.active-tab {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.detail-tabs button.active-tab:hover { background: #1d4ed8; }
 
 /* Modals & Dialogs */
 .modal-backdrop {
@@ -1001,6 +1041,44 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 /* Module Grid & Project Deletion */
 .module-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
 .project-overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 10px; }
+.workflow-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding: 2px 1px 6px;
+  scrollbar-width: thin;
+}
+.workflow-step {
+  flex: 1 1 0;
+  min-width: 118px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fafc;
+  text-align: center;
+  white-space: nowrap;
+}
+.workflow-step > span:first-child {
+  color: #334155;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.workflow-arrow {
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1;
+}
 .project-delete-modal { width: min(600px, 100%); margin: 0; }
 .delete-count-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
 

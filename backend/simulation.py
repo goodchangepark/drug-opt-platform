@@ -971,6 +971,18 @@ def run_pk_simulation(
             f_evidence = "DERIVED_ESTIMATE"
             f_conf = "MEDIUM"
             parameter_sources["F"] = {"value": route_set["f_predicted"], "source": f_source, "evidence_type": f_evidence, "confidence": f_conf}
+        elif abs_decomp.get("f_predicted") is not None:
+            f_val = float(abs_decomp["f_predicted"]) / 100.0
+            f_source = "MECHANISTIC_COMPONENT_ASSEMBLY"
+            f_evidence = "DERIVED_ESTIMATE"
+            f_conf = "MEDIUM"
+            parameter_sources["F"] = {"value": abs_decomp["f_predicted"], "source": f_source, "evidence_type": f_evidence, "confidence": f_conf}
+        elif abs_decomp.get("fh_value") is not None:
+            f_val = float(abs_decomp["fh_value"])
+            f_source = "HEPATIC_ESCAPE_FALLBACK"
+            f_evidence = "DERIVED_ESTIMATE"
+            f_conf = "LOW"
+            parameter_sources["F"] = {"value": round(f_val * 100.0, 1), "source": f_source, "evidence_type": f_evidence, "confidence": f_conf}
 
         if f_val is None:
             warnings.append("MECHANISTIC F INCOMPLETE: Bioavailability could not be fully resolved.")
@@ -1044,6 +1056,19 @@ def run_pk_simulation(
                 ka_conf = "HIGH"
                 ka_diagnostics = fit_res
                 parameter_sources["ka"] = {"value": ka_val, "unit": "1/h", "source": ka_source, "evidence_type": ka_evidence, "confidence": ka_conf}
+        elif route_set.get("ka_value") is not None:
+            ka_val = float(route_set["ka_value"])
+            ka_source = route_set.get("ka_source_type", "DERIVED_FROM_PERMEABILITY")
+            ka_evidence = "DERIVED_ESTIMATE"
+            ka_conf = "MEDIUM"
+            parameter_sources["ka"] = {"value": ka_val, "unit": "1/h", "source": ka_source, "evidence_type": ka_evidence, "confidence": ka_conf}
+        elif abs_decomp.get("fa_value") is not None or f_val is not None:
+            # Standard fast oral absorption rate default (1.0 1/h)
+            ka_val = 1.0
+            ka_source = "DERIVED_DEFAULT"
+            ka_evidence = "DERIVED_ESTIMATE"
+            ka_conf = "LOW"
+            parameter_sources["ka"] = {"value": ka_val, "unit": "1/h", "source": ka_source, "evidence_type": ka_evidence, "confidence": ka_conf}
 
         if ka_val is None:
             warnings.append("KA ESTIMATION UNRELIABLE: Absorption rate constant ka could not be identified.")
