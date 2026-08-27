@@ -1,0 +1,92 @@
+{
+  "all_passed": true,
+  "base_url": "http://127.0.0.1:8765",
+  "checks": [
+    {
+      "details": "Found 7 module cards on Dashboard",
+      "name": "Dashboard Scientific Modules Rendered",
+      "passed": true
+    },
+    {
+      "details": "PK/DMPK READY: True, CYP PARTIAL: True, Safety PARTIAL: True",
+      "name": "Capability Consistency on Dashboard",
+      "passed": true
+    },
+    {
+      "details": "New Project form rendered successfully without errors.",
+      "name": "Global View: New Project",
+      "passed": true
+    },
+    {
+      "details": "Projects portfolio view rendered successfully.",
+      "name": "Global View: Projects",
+      "passed": true
+    },
+    {
+      "details": "Optimization workspace selector rendered successfully.",
+      "name": "Global View: Optimization Workspace",
+      "passed": true
+    },
+    {
+      "details": "Settings view rendered successfully.",
+      "name": "Global View: Settings",
+      "passed": true
+    },
+    {
+      "details": "Help tables and registries verified: 10/10 sections present.",
+      "name": "Global View: Help Page & Registries",
+      "passed": true
+    },
+    {
+      "details": "Compound overview tab rendered with key properties and structure.",
+      "name": "Compound Detail: Overview Tab",
+      "passed": true
+    },
+    {
+      "details": "Properties tab rendered with calculated physicochemical properties.",
+      "name": "Compound Detail: Properties Tab",
+      "passed": true
+    },
+    {
+      "details": "Activity tab rendered experimental and prediction sections.",
+      "name": "Compound Detail: Activity Tab",
+      "passed": true
+    },
+    {
+      "details": "ADMET tab rendered.",
+      "name": "Compound Detail: ADMET Tab",
+      "passed": true
+    },
+    {
+      "details": "Metabolism tab rendered with SyGMa soft spot engine support.",
+      "name": "Compound Detail: Metabolism Tab",
+      "passed": true
+    },
+    {
+      "details": "PK tab rendered with translational and human PK workflow sections.",
+      "name": "Compound Detail: PK Tab",
+      "passed": true
+    },
+    {
+      "details": "History tab rendered version log.",
+      "name": "Compound Detail: History Tab",
+      "passed": true
+    },
+    {
+      "details": "Optimization view operational for project and compound.",
+      "name": "Optimization Workspace Execution",
+      "passed": true
+    },
+    {
+      "details": "Total severe/error logs: 0",
+      "name": "Zero JavaScript Console Errors",
+      "passed": true
+    }
+  ],
+  "failed_checks": 0,
+  "passed_checks": 16,
+  "run_id": "20260827-064430",
+  "suite": "Stage 5B-4 Platform Stabilization Chromium E2E Acceptance",
+  "timestamp": "2026-08-27T06:47:44.204155+00:00",
+  "total_checks": 16
+}

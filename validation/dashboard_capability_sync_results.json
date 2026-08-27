@@ -1,0 +1,35 @@
+{
+  "suite": "Dashboard Capability Status Sync Chromium E2E",
+  "timestamp": "2026-08-27T06:18:42.547850+00:00",
+  "all_passed": true,
+  "total_checks": 6,
+  "passed_checks": 6,
+  "failed_checks": 0,
+  "checks": [
+    {
+      "name": "CYP and transporter partial availability",
+      "passed": true
+    },
+    {
+      "name": "Safety partial availability",
+      "passed": true
+    },
+    {
+      "name": "PK and DMPK ready",
+      "passed": true
+    },
+    {
+      "name": "Availability and confidence rendered separately",
+      "passed": true
+    },
+    {
+      "name": "Dashboard API and model registry consistency",
+      "passed": true
+    },
+    {
+      "name": "Zero JavaScript console errors",
+      "passed": true,
+      "details": []
+    }
+  ]
+}

@@ -206,6 +206,7 @@ function IonizationSection({version}){
 function App(){
  const [projects,setProjects]=useState([]),[projectId,setProjectId]=useState(null),[project,setProject]=useState(null);
  const [dashboard,setDashboard]=useState(null),[sidebarOpen,setSidebarOpen]=useState(false);
+ const [helpRegistry,setHelpRegistry]=useState(null),[helpBusy,setHelpBusy]=useState(false);
  const [globalView,setGlobalView]=useState('dashboard');
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
@@ -252,6 +253,7 @@ function App(){
   if(rows.length&&!projectId)setProjectId(rows[0].id);
  };
  const loadDashboard=async()=>{const data=await api.get('/dashboard');setDashboard(data);return data};
+ const loadHelpRegistry=async()=>{setHelpBusy(true);try{const data=await api.get('/help/registry');setHelpRegistry(data);return data}finally{setHelpBusy(false)}};
  const loadProject=async id=>{
   const data=await api.get('/projects/'+id);setProject(data);
   setAdmetVersionId(current=>data.compounds.some(item=>item.version?.id===Number(current))?current:(data.compounds.find(item=>item.version)?.version.id||''));
@@ -317,7 +319,8 @@ function App(){
   if(!id)return null;const data=await api.get('/proposals/'+id+'?view='+view);setProposalRun(data);setProposalView(view);return data;
  };
 
- useEffect(()=>{Promise.all([loadProjects(),loadDashboard()]).catch(error=>setMessage(String(error)))},[]);
+ useEffect(()=>{Promise.all([loadProjects(),loadDashboard(),loadHelpRegistry()]).catch(error=>setMessage(String(error)))},[]);
+ useEffect(()=>{if(globalView==='help'&&!helpRegistry)loadHelpRegistry().catch(error=>setMessage(String(error)))},[globalView]);
  useEffect(()=>{
   setProject(null);setDetail(null);setWorkspace(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setIviveData(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);setProposalRuns([]);setProposalRun(null);setSelectedCandidate(null);
   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
@@ -3228,7 +3231,7 @@ function App(){
   ]);
  }
 
- const openGlobalView=view=>{setGlobalView(view);setProjectTab('dashboard');setDetail(null);setAddCompoundOpen(false);setComparison(null);setSelectedCandidate(null);setSidebarOpen(false);loadDashboard().catch(error=>setMessage(String(error)))};
+ const openGlobalView=view=>{setGlobalView(view);setProjectTab('dashboard');setDetail(null);setAddCompoundOpen(false);setComparison(null);setSelectedCandidate(null);setSidebarOpen(false);if(view==='help'&&!helpRegistry)loadHelpRegistry().catch(error=>setMessage(String(error)));loadDashboard().catch(error=>setMessage(String(error)))};
  const goDashboard=()=>openGlobalView('dashboard');
  const openProject=itemId=>{setProjectId(itemId);setProjectTab('compounds');setDetail(null);setAddCompoundOpen(false);setComparison(null);setSidebarOpen(false)};
  const openOptimizationOverview=()=>{setOptimizationWorkspace(current=>({...current,project_id:current.project_id||String(projectId||''),compound_id:''}));openGlobalView('optimization')};
@@ -3321,22 +3324,49 @@ function App(){
   ]);
  }
 
- function MainDashboard(){
-  const registry=dashboard?.model_registry||[];
-  const registryStatus=(endpoint,defaultFallback='MODEL_UNAVAILABLE')=>{
-   const model=registry.find(row=>row.endpoint===endpoint);
-   if(!model)return defaultFallback;
-   return model.active?(model.status||'READY'):'MODEL_UNAVAILABLE';
-  };
-  const modules=[
-   {title:'Structure & Chemistry',status:'READY',description:'Version-controlled chemical identity and calculated molecular properties.',items:[['Structure Drawing','READY'],['SMILES Input','READY'],['Compound Versioning','READY'],['Structure Validation','READY'],['Physicochemical Properties','READY'],['Structural Alerts','READY']]},
-   {title:'Activity & SAR',status:'READY',description:'Project-local experimental activity, modeling, and structure–activity evidence.',items:[['Experimental Activity','READY'],['IC50 / EC50 / Ki / Kd / GI50','READY'],['Project QSAR','LIMITED'],['Similarity Analysis','READY'],['SAR / MMP / Activity Cliff','READY']]},
-   {title:'ADME',status:'READY',description:'Absorption, distribution, and metabolic-liability evidence.',items:[['Solubility',registryStatus('Solubility','READY')],['Caco-2 Permeability',registryStatus('Permeability','READY')],['Plasma Protein Binding',registryStatus('Plasma protein binding','READY')],['fu','READY'],['HLM / RLM / MLM',registryStatus('HLM intrinsic clearance')],['Metabolic Soft Spot','LIMITED'],['Metabolite Hypothesis','LIMITED']]},
-   {title:'CYP & Transporters',status:'LIMITED',description:'Endpoint- and role-separated metabolism and transporter classifications.',items:[['CYP1A2 inhibitor',registryStatus('CYP1A2 inhibitor')],['CYP2C9 inhibitor',registryStatus('CYP2C9 inhibitor')],['CYP2C19 inhibitor',registryStatus('CYP2C19 inhibitor')],['CYP2D6 inhibitor',registryStatus('CYP2D6 inhibitor')],['CYP3A4 inhibitor',registryStatus('CYP3A4 inhibitor')],['CYP substrates where available','LIMITED'],['P-gp inhibitor',registryStatus('P-gp inhibitor')]],unavailable:registry.filter(row=>/P-gp substrate|BCRP|BSEP|OATP|OCT|MATE/.test(row.endpoint)&&!row.active).map(row=>row.endpoint)},
-   {title:'Safety / Toxicology',status:'LIMITED',description:'Classification evidence and calculated structural safety alerts.',items:[['hERG',registryStatus('hERG liability')],['Ames',registryStatus('Ames mutagenicity')],['DILI',registryStatus('DILI clinical liability')],['Structural Alerts','READY']]},
-   {title:'Optimization',status:'READY',description:'Deterministic strategy, analog generation, filtering, and transparent ranking.',items:[['Liability Analysis','READY'],['Protected / Modifiable Regions','READY'],['Medicinal Chemistry Transformations','READY'],['Analog Generation','READY'],['Re-scoring','LIMITED'],['Pareto Optimization','READY'],['Top Candidate Selection','READY']]},
-   {title:'PK / DMPK',status:'PLANNED',description:'Stage 5 capabilities are intentionally not active.',items:[['Experimental PK','PLANNED'],['NCA','PLANNED'],['IVIVE','PLANNED'],['PK Simulation','PLANNED']]}
-  ];
+ function HelpPage(){
+  if(helpBusy&&!helpRegistry)return e('section',{className:'card help-view'},[e('h2',{},'Loading platform inventory…'),e('p',{className:'small'},'Reading runtime packages and scientific registries.')]);
+  if(!helpRegistry)return e('section',{className:'card help-view'},[e('h2',{},'Help inventory unavailable'),e('button',{onClick:()=>loadHelpRegistry().catch(error=>setMessage(String(error)))},'Retry')]);
+  const appInfo=helpRegistry.application||{},models=helpRegistry.models||[],caps=helpRegistry.capability_summary?.groups||[];
+  const modelRows=names=>models.filter(row=>names.includes(row.endpoint));
+  const renderModelTable=(rows,withSpecies=true)=>e('div',{className:'table-scroll help-model-table'},e('table',{},[
+   e('thead',{},e('tr',{},['Endpoint','Model','Model Version','Output',...(withSpecies?['Species']:[]),'Availability','Scientific Confidence'].map(label=>e('th',{key:label},label)))),
+   e('tbody',{},rows.map(row=>e('tr',{key:row.id||row.endpoint},[
+    e('td',{},row.endpoint),e('td',{},row.model_name),e('td',{className:'mono'},row.model_version),e('td',{},row.output_type+(row.output_unit?' · '+row.output_unit:'')),
+    ...(withSpecies?[e('td',{key:'species'},row.species||'Endpoint-defined')]:[]),e('td',{},StatusBadge({type:row.availability})),e('td',{},row.confidence)
+   ])))
+  ]));
+  const supportedCyp=modelRows(['CYP1A2 inhibitor','CYP2C9 inhibitor','CYP2C19 inhibitor','CYP2D6 inhibitor','CYP3A4 inhibitor','CYP2C9 substrate','CYP2D6 substrate','CYP3A4 substrate','P-gp inhibitor']);
+  const safety=modelRows(['hERG liability','Ames mutagenicity','DILI clinical liability']);
+  const unsupported=(caps.find(row=>row.key==='cyp_transporters')?.items||[]).filter(row=>row.availability==='MODEL_UNAVAILABLE');
+  const pkCaps=caps.find(row=>row.key==='pk')?.items||[];
+  return e('div',{className:'help-view',key:'help-page','data-testid':'help-registry'},[
+   e('section',{className:'card help-section',id:'help-overview',key:'overview'},[
+    e('div',{className:'eyebrow'},'PLATFORM OVERVIEW'),e('h2',{},'Drug-OPT Platform Help'),
+    e('p',{},'Drug-OPT is a structure-to-PK medicinal chemistry optimization platform supporting project-based compound registration, physicochemical properties, activity, ADMET, metabolism, optimization, experimental PK, IVIVE, simulation and translational PK. Where scientific functions live: access project and compound workspaces from the left navigation to run calculations, models and simulations.'),
+    e('p',{className:'help-caution'},'Results are decision-support predictions and calculations. They do not replace fit-for-purpose experimental studies or expert scientific review.')
+   ]),
+   e('section',{className:'card help-section',id:'help-version',key:'version'},[e('h2',{},'Current Platform Version'),e('dl',{className:'help-version-grid'},[
+    ['Application version',appInfo.version],['Current Stage',appInfo.current_stage],['Git/build version',appInfo.build_version],['Standardizer',appInfo.standardizer+' '+appInfo.standardizer_version],['RDKit',appInfo.rdkit_version]
+   ].map(([label,value])=>e('div',{key:label},[e('dt',{},label),e('dd',{className:'mono'},value||'Unavailable')])))]),
+   e('section',{className:'card help-section',id:'help-modules',key:'modules'},[e('h2',{},'Structure & Cheminformatics Modules'),e('p',{className:'small'},'Versions below are read from the active production Python environment.'),e('div',{className:'table-scroll'},e('table',{},[
+    e('thead',{},e('tr',{},['Module','Version','Used For','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{},(helpRegistry.structure_modules||[]).map(row=>e('tr',{key:row.module},[e('td',{},row.module),e('td',{className:'mono'},row.version),e('td',{},row.used_for),e('td',{},StatusBadge({type:row.status}))])))
+   ])),e('p',{className:'small'},'RDKit provides structure parsing, CHEM_STANDARDIZER_V1 processing, molecular properties, Crippen cLogP, TPSA, fingerprints and structural handling. SyGMa is a rule-based metabolism engine; installed prediction checkpoints use ML where identified.'),e('details',{},[e('summary',{},'Complete runtime package inventory'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Package','Installed Version','Purpose','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{},(helpRegistry.package_inventory||[]).map(row=>e('tr',{key:row.package},[e('td',{},row.package),e('td',{className:'mono'},row.version),e('td',{},row.purpose),e('td',{},StatusBadge({type:row.status}))])))]))])]),
+   e('section',{className:'card help-section',id:'help-adme',key:'adme'},[e('h2',{},'ADME Prediction Models'),renderModelTable(modelRows(['Solubility','Permeability','Plasma protein binding','HLM intrinsic clearance','RLM intrinsic clearance','MLM intrinsic clearance'])),e('details',{},[e('summary',{},'Validation, applicability and limitations'),e('div',{className:'help-details'},modelRows(['Solubility','Permeability','Plasma protein binding','HLM intrinsic clearance','RLM intrinsic clearance','MLM intrinsic clearance']).map(row=>e('article',{key:row.endpoint},[e('h3',{},row.endpoint+' — '+row.model_name),e('p',{className:'small'},'Training: '+(row.training_dataset||'Not reported')),e('p',{className:'small'},'Conformal: '+row.conformal_status+' · License: '+(row.license||'Not reported')),e('p',{className:'small'},row.details?.limitations||'See model registry for current limitations.')])) )])]),
+   e('section',{className:'card help-section',id:'help-cyp',key:'cyp'},[e('h2',{},'CYP & Transporters'),e('p',{},'Inhibitor and substrate models are distinct endpoint-specific classifiers. Availability does not imply quantitative inhibition or substrate kinetics.'),renderModelTable(supportedCyp,false),e('details',{className:'unavailable-collapse'},[e('summary',{},'Currently unavailable transporter and CYP endpoints'),e('ul',{},unsupported.map(row=>e('li',{key:row.key},row.label+' — MODEL_UNAVAILABLE')))])]),
+   e('section',{className:'card help-section',id:'help-safety',key:'safety'},[e('h2',{},'Safety / Toxicology'),renderModelTable(safety,false),e('p',{className:'small'},'hERG, Ames and DILI are classification models. Structural Alerts are deterministic rule-based calculations and remain distinct from model predictions. Outputs are screening evidence, not regulatory toxicology conclusions.')]),
+   e('section',{className:'card help-section',id:'help-activity',key:'activity'},[e('h2',{},'Activity / SAR'),e('p',{},'Define project-local assays and record experimental IC50, EC50, Ki, Kd or GI50 values with cell line, species, mutation and protocol context. Project SAR includes similarity, matched molecular pairs and activity cliffs.'),e('p',{className:'help-caution'},'Activity prediction depends on the selected project assay and sufficient project data. It is not automatically run by Save & Predict.')]),
+   e('section',{className:'card help-section',id:'help-optimization',key:'optimization'},[e('h2',{},'Optimization Engine'),e('h3',{},'Stage 4A — Optimization Strategy Engine'),e('p',{},'Identifies liabilities, protected and modifiable regions, metabolic soft spots and relevant MMP evidence.'),e('h3',{},'Stage 4B — Analog Generation Engine'),e('p',{},'Applies the transformation library, generates and filters analogs, predicts supported properties, and ranks candidates using transparent objectives and Pareto evidence.'),e('p',{className:'help-caution'},'Proposed structures are medicinal chemistry hypotheses, not experimentally validated compounds.')]),
+   e('section',{className:'card help-section',id:'help-pk',key:'pk'},[e('div',{className:'row toolbar'},[e('h2',{},'PK / DMPK'),StatusBadge({type:'READY'})]),e('p',{className:'help-flow'},'Experimental PK → NCA → IVIVE → PK Foundation → IV/PO/SC/IP Simulation → Cross-Species Translation → Human Translational PK → Prospective Validation'),e('div',{className:'help-topic-grid'},[
+    ['Experimental PK',['PK Study and concentration-time input','CSV import and BLQ handling','Noncompartmental analysis (NCA)']],['IVIVE',['Clint, MPPGL and hepatocellularity','PPB/fu and blood:plasma ratio','Well-stirred CLh, extraction ratio and Fh']],['Simulation',['IV bolus and infusion','PO, SC and IP routes','Repeated dosing, ka, F, Cmax, Tmax and AUC']],['Translation',['Allometry and LOSO','Human clearance and volume','Simulation readiness','Prospective freeze and retrospective validation']]
+   ].map(([title,items])=>e('article',{key:title},[e('h3',{},title),e('ul',{},items.map(item=>e('li',{key:item},item)))]))),e('h3',{},'Implemented capability registry'),e('ul',{className:'help-capability-list'},pkCaps.map(row=>e('li',{key:row.key},[e('span',{},row.label),StatusBadge({type:row.availability})]))),e('details',{},[e('summary',{},'Registered PK methods'),e('ul',{},(helpRegistry.pk_method_registry||[]).map(row=>e('li',{key:row.method_key},row.method_name+' · '+row.method_version+' · '+row.status)))])]),
+   e('section',{className:'card help-section',id:'help-glossary',key:'glossary'},[e('h2',{},'Important Scientific Terminology'),e('dl',{className:'help-glossary'},(helpRegistry.glossary||[]).map(row=>e('div',{key:row.term},[e('dt',{},row.term),e('dd',{},row.definition)])))]),
+   e('section',{className:'card help-section',id:'help-limitations',key:'limits'},[e('h2',{},'Current Limitations'),e('ul',{},(helpRegistry.limitations||[]).map(item=>e('li',{key:item},item))),e('p',{className:'small'},'Registry source: '+helpRegistry.source)])
+  ]);
+ }
+
+function MainDashboard(){
+  const modules=dashboard?.capability_summary?.groups||[];
   const summaries=dashboard?.projects||projects;
   const home=globalView==='dashboard';
   return e(React.Fragment,{},[
@@ -3353,11 +3383,13 @@ function App(){
     ])
    ]),
    home&&e('section',{className:'dashboard-section',key:'modules'},[
-    e('div',{className:'section-heading'},[e('div',{},[e('div',{className:'eyebrow'},'SCIENTIFIC WORKSPACE'),e('h2',{},'Available Scientific Modules')]),e('p',{className:'small'},'Status reflects the current local engine and model registry.')]),
+    e('div',{className:'section-heading'},[e('div',{},[e('div',{className:'eyebrow'},'SCIENTIFIC WORKSPACE'),e('h2',{},'Available Scientific Modules')]),e('p',{className:'small'},'Status reflects backend feature and model registries · '+(dashboard?.capability_summary?.stage||'current stage'))]),
     e('div',{className:'module-grid'},modules.map(module=>e('article',{className:'module-card',key:module.title},[
      e('div',{className:'module-card-head'},[e('h3',{},module.title),StatusBadge({type:module.status})]),e('p',{className:'small'},module.description),
-     e('ul',{className:'module-list'},module.items.map(([label,status])=>e('li',{key:label},[e('span',{},label),StatusBadge({type:status})]))),
-     module.unavailable?.length>0&&e('div',{className:'module-unavailable'},['Unavailable: ',module.unavailable.join(' · ')])
+     e('ul',{className:'module-list'},module.items.map(item=>e('li',{key:item.key},[
+      e('span',{className:'capability-label'},[e('span',{key:'label'},item.label),item.confidence&&item.confidence!=='NOT_APPLICABLE'&&e('small',{key:'confidence'},'Confidence: '+item.confidence),item.conformal_status&&item.conformal_status!=='NOT_APPLICABLE'&&e('small',{key:'conformal'},'Conformal: '+item.conformal_status.replace(/^CONFORMAL_/,''))]),
+      StatusBadge({type:item.availability})
+     ])))
     ])))
    ]),
    (home||globalView==='new-project')&&e('div',{className:'dashboard-split',key:'start'},[
@@ -3379,13 +3411,7 @@ function App(){
      e('p',{className:'project-status-summary'},item.status_summary||((item.compound_count||0)+' compounds · experimental and prediction data not started')),e('span',{className:'project-open-link'},'Open Project →')
     ]))):e('div',{className:'empty-state'},[e('h3',{},'No projects yet'),e('p',{},'Use Create New Project above to begin a compound-version-isolated workspace.')])
    ]),
-   globalView==='help'&&e('section',{className:'card help-view',key:'help'},[
-    e('h2',{},'Platform Workflow'),e('p',{},'Create a project, add compounds, calculate properties, add experimental evidence, run available predictions, then compare or optimize compounds.'),
-    e('ol',{},['Create or open a Project','Add a Compound by drawing a structure or entering SMILES','Calculate Properties when ready','Add Experimental Data and run available predictions','Compare compounds or open an Optimization run'].map(item=>e('li',{key:item},item))),
-    e('h3',{},'Where scientific functions live'),e('p',{},'Structure, Properties, Activity, ADMET, Metabolism, CYP, Transporters, Safety, and Optimization tools are available inside Project and Compound Detail pages. The global sidebar only changes top-level workspace views.'),
-    e('h3',{},'Evidence and support'),e('p',{},'Experimental, Calculated, Predicted, Rule-based, Model unavailable, and Planned states remain distinct. PK / DMPK is planned and is not active in the current stage.'),
-    e('div',{className:'row'},[e('button',{onClick:()=>openGlobalView('new-project')},'Create a Project'),e('button',{className:'secondary',onClick:()=>openGlobalView('projects')},'View Projects')])
-   ])
+   globalView==='help'&&e(HelpPage,{key:'help'})
   ]);
  }
 
@@ -3399,7 +3425,7 @@ function App(){
     e('section',{className:'card',key:'overview'},[e('div',{className:'eyebrow'},'PROJECT OVERVIEW'),e('h2',{},'Current Project Status'),e('div',{className:'project-overview-grid'},[
      ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
     ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
-    e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||(stage==='PK'?'PLANNED':'NOT_STARTED')})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
+    e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},'Compound Status'),e('p',{className:'small'},'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{onClick:()=>setAddCompoundOpen(true)},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},['','Compound','Structure','Properties','Activity','ADMET','Optimization',''].map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id},[e('td',{},e('input',{type:'checkbox',checked:selected.includes(compound.row_id),onChange:event=>setSelected(event.target.checked?[...selected,compound.row_id]:selected.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},compound.compound_id)]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||'NOT_STARTED'})]),e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),e('td',{},e('button',{className:'secondary',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{onClick:()=>setAddCompoundOpen(true)},'Add Compound')])])
    ]),
    project&&projectTab==='compounds'&&detail&&compoundDetail(),

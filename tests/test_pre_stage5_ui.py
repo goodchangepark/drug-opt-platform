@@ -246,13 +246,17 @@ def test_ui_contract_has_compound_editor_selector_comparison_and_no_pk_tab():
 def test_main_dashboard_contract_and_responsive_layout():
     source = (ROOT / "frontend/static/app.js").read_text()
     styles = (ROOT / "frontend/static/app.css").read_text()
+    capabilities = (ROOT / "backend/capabilities.py").read_text()
     for phrase in (
         "PLATFORM OVERVIEW", "Drug Optimization Platform", "Available Scientific Modules",
-        "Structure & Chemistry", "Activity & SAR", "CYP & Transporters", "Safety / Toxicology",
-        "PK / DMPK", "PLANNED", "Create New Project", "Typical Workflow", "Default Workspace Settings",
+        "Create New Project", "Typical Workflow", "Default Workspace Settings",
         "Current Project Status", "Compound Status", "WORKFLOW STATUS", "Continue Current Project", "Open Project",
     ):
         assert phrase in source
+    for phrase in ("Structure & Chemistry", "Activity & SAR", "CYP & Transporters", "Safety / Toxicology", "PK / DMPK"):
+        assert phrase in capabilities
+    assert "dashboard?.capability_summary?.groups" in source
+    assert "const modules=[" not in source
     assert "useState('dashboard')" in source
     assert "function MainDashboard()" in source
     assert "function ProjectWorkspace()" in source

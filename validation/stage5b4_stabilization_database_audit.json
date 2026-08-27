@@ -1,0 +1,25 @@
+{
+  "confirmed_test_orphan_repairs": [],
+  "database": "drug_opt.db",
+  "foreign_key_violations_after": [],
+  "foreign_key_violations_before": [],
+  "integrity_check": [
+    "ok"
+  ],
+  "major_entity_counts": {
+    "activity_measurements": 0,
+    "admet_predictions": 36,
+    "compound_versions": 28,
+    "compounds": 28,
+    "optimization_runs": 0,
+    "pk_human_prediction_snapshots": 4,
+    "pk_nca_results": 38,
+    "pk_observations": 6,
+    "pk_simulation_runs": 6,
+    "pk_studies": 38,
+    "pk_translational_snapshots": 4,
+    "projects": 30
+  },
+  "status": "PASS",
+  "timestamp": "2026-08-27T06:53:38.955454+00:00"
+}

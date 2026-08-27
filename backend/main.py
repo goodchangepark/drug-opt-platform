@@ -61,7 +61,7 @@ from .models import (Compound, CompoundVersion, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
-from .ivive import (IVIVEInputSet, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
+from .ivive import (IVIVEInputSet, IVIVEMethodRegistry, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
                     ensure_ivive_schema, register_ivive_routes)
 from .simulation import PKSimulationRun, ensure_simulation_schema, register_simulation_routes
 from .standardizer import GLOBAL_DESCRIPTOR_CONFIG, GLOBAL_FINGERPRINT_CONFIG, RDKIT_VERSION, STANDARDIZER_NAME, STANDARDIZER_VERSION, standardize_molecule
@@ -76,6 +76,12 @@ from contextlib import asynccontextmanager
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 from .translational import PKTranslationalSnapshot, ensure_translational_schema, register_translational_routes
 from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, register_human_pk_routes
+from .capabilities import build_capability_summary
+from .platform_info import (APP_VERSION, GLOSSARY, LIMITATIONS, build_version,
+                            package_inventory, structure_modules)
+
+
+CURRENT_STAGE = "5B-4"
 
 
 @asynccontextmanager
@@ -99,7 +105,7 @@ async def lifespan(app_instance: FastAPI):
     yield
 
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.5.6-stage5b4", lifespan=lifespan)
+app = FastAPI(title="AI Drug Optimization Platform", version=APP_VERSION, lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # Register modular sub-routers
@@ -117,7 +123,8 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": "5B", "step": "5B-1", "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {"status": "ok", "stage": "5B", "step": CURRENT_STAGE, "version": APP_VERSION,
+            "engine": ENGINE, "engine_version": ENGINE_VERSION}
 
 
 @app.post("/api/structure/validate")
@@ -177,6 +184,7 @@ def dashboard_summary(db: Session = Depends(get_db)):
         activity_predicted = version_set(ActivityPrediction)
         admet_experimental = version_set(ADMETMeasurement)
         admet_predicted = version_set(ADMETPrediction)
+        pk_recorded = version_set(PKStudy)
         optimization_runs = db.scalars(
             select(OptimizationRun).where(OptimizationRun.project_id == project.id)
         ).all()
@@ -221,6 +229,7 @@ def dashboard_summary(db: Session = Depends(get_db)):
         activity_covered = sum(row["activity"] != "NOT_RUN" for row in compound_rows)
         admet_covered = sum(row["admet"] != "NOT_RUN" for row in compound_rows)
         optimization_covered = sum(row["optimization"] == "READY" for row in compound_rows)
+        pk_covered = len(pk_recorded)
         status_parts = [f"{current_total} compound{'s' if current_total != 1 else ''}"]
         if activity_count:
             status_parts.append(f"{activity_count} experimental activity record{'s' if activity_count != 1 else ''}")
@@ -247,7 +256,7 @@ def dashboard_summary(db: Session = Depends(get_db)):
                 "Activity": _workflow_status(activity_covered, current_total),
                 "ADMET": _workflow_status(admet_covered, current_total),
                 "Optimization": _workflow_status(optimization_covered, current_total),
-                "PK": "PLANNED",
+                "PK": _workflow_status(pk_covered, current_total),
             },
             "compounds": compound_rows,
         })
@@ -260,6 +269,46 @@ def dashboard_summary(db: Session = Depends(get_db)):
         "totals": {"projects": len(projects), "compounds": total_compounds},
         "projects": project_rows,
         "model_registry": model_rows,
+        "capability_summary": build_capability_summary(
+            model_rows,
+            (route.path for route in app.routes if hasattr(route, "path")),
+            stage=CURRENT_STAGE,
+        ),
+    }
+
+
+@app.get("/api/help/registry")
+def help_registry(db: Session = Depends(get_db)):
+    """Researcher-facing inventory composed from live registries and runtime packages."""
+    inventory = package_inventory()
+    models = [
+        _admet_model_out(model)
+        for model in db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.model_priority,
+                                                                    ADMETModelRegistry.endpoint_name))
+    ]
+    capabilities = build_capability_summary(
+        models, (route.path for route in app.routes if hasattr(route, "path")), stage=CURRENT_STAGE,
+    )
+    pk_methods = [
+        {"method_key": row.method_key, "method_name": row.method_name,
+         "method_version": row.method_version, "status": row.status,
+         "assumptions": row.assumptions_json or {}, "reference": row.reference_json or {}}
+        for row in db.scalars(select(IVIVEMethodRegistry).order_by(IVIVEMethodRegistry.method_key))
+    ]
+    return {
+        "application": {
+            "name": "Drug-OPT", "version": APP_VERSION, "current_stage": CURRENT_STAGE,
+            "build_version": build_version(), "standardizer": STANDARDIZER_NAME,
+            "standardizer_version": STANDARDIZER_VERSION, "rdkit_version": RDKIT_VERSION,
+        },
+        "package_inventory": inventory,
+        "structure_modules": structure_modules(inventory),
+        "models": models,
+        "capability_summary": capabilities,
+        "pk_method_registry": pk_methods,
+        "glossary": [{"term": term, "definition": definition} for term, definition in GLOSSARY],
+        "limitations": list(LIMITATIONS),
+        "source": "RUNTIME_PACKAGE_INVENTORY + ADMET_MODEL_REGISTRY + PK_METHOD_REGISTRY + CAPABILITY_REGISTRY",
     }
 
 
@@ -785,23 +834,38 @@ def _admet_endpoint_out(endpoint: ADMETEndpoint):
 
 
 def _admet_model_out(model: ADMETModelRegistry):
-    available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (
+    assets_available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (
         False, (model.provenance_json or {}).get("reason", "No endpoint-specific model installed in the current stage"),
     )
+    available = bool(model.is_active and assets_available and model.implementation_status == "READY")
+    if assets_available and not available:
+        unavailable_reason = (model.provenance_json or {}).get("reason", "Model registry entry is inactive")
     cal_info = CONFORMAL_CALIBRATION_REGISTRY.get(model.endpoint_name, {})
     cal_provenance = cal_info.get("data_provenance", DataProvenance.UNAVAILABLE if not available else DataProvenance.TRAINING_OVERLAP_UNKNOWN)
     cal_quality = cal_info.get("calibration_quality", CalibrationQuality.UNAVAILABLE)
+    details = model.provenance_json or {}
+    limitations = str(details.get("limitations") or "")
+    confidence = (
+        "NOT_APPLICABLE" if not available else
+        ("LOW" if model.endpoint_name.endswith("intrinsic clearance") or "confidence is capped at LOW" in limitations else "COMPOUND_DEPENDENT")
+    )
+    conformal_status = (
+        "CONFORMAL_UNAVAILABLE" if cal_quality == CalibrationQuality.UNAVAILABLE else f"CONFORMAL_{cal_quality}"
+    )
 
     return {
         "id": model.id, "endpoint": model.endpoint_name, "model_name": model.model_name,
         "model_version": model.model_version,
         "status": model.implementation_status if available else "MODEL_UNAVAILABLE",
-        "active": bool(model.is_active and available), "output_unit": model.output_unit,
+        "availability": model.implementation_status if available else "MODEL_UNAVAILABLE",
+        "confidence": confidence,
+        "conformal_status": conformal_status,
+        "active": available, "output_unit": model.output_unit,
         "source": model.source, "training_dataset": model.training_dataset,
         "validation": model.validation_json or {}, "license": model.license,
         "priority": model.model_priority, "ensemble_eligible": bool(model.ensemble_eligible),
         "species": model.species, "output_type": model.output_type,
-        "details": model.provenance_json or {}, "unavailable_reason": unavailable_reason,
+        "details": details, "unavailable_reason": unavailable_reason,
         "calibration_provenance": cal_provenance,
         "calibration_quality": cal_quality,
         "conformal_governance": cal_info,

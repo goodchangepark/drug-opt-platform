@@ -1,0 +1,513 @@
+{
+  "architecture": "aarch64",
+  "audit": "Stage 5B-4 stabilization model runtime audit",
+  "models": [
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/solubility/model_v2_1.pt",
+          "sha256": "1e41f9e30687954657d3ac19fd579febc1d66452bfa718c9951b87da115dd6f7"
+        }
+      ],
+      "confidence": "MEDIUM",
+      "cpu_inference": "PASS",
+      "endpoint": "Solubility",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop Solubility",
+      "predicted_value": -1.5900557041168213,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "log10(mol/L)",
+      "version": "admetica-d4f7056-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "BORDERLINE",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/caco2/model_v2_1.pt",
+          "sha256": "87bedd7ea3b314557f803b6ec3f3e7726dba0cdcd19128fd232b2d10511bc8d1"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "Permeability",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop Caco-2",
+      "predicted_value": -4.793001174926758,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "log10(cm/s)",
+      "version": "admetica-d4f7056-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "BORDERLINE",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/ppbr/model_v2_1.pt",
+          "sha256": "88d4891f0738ae33689c59026a420102b92aa9db567982f36bdc7b5de3841525"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "Plasma protein binding",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop Human PPB",
+      "predicted_value": 83.72769927978516,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "% bound",
+      "version": "admetica-d4f7056-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp1a2-inhibitor/model_v2_1.pt",
+          "sha256": "f6ee791d52933bf8bb6288ea13f872f1a87124d764f33eee5430e664863d3a9b"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP1A2 inhibitor",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP1A2 inhibitor",
+      "predicted_value": 0.01506717037409544,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp2c9-inhibitor/model_v2_1.pt",
+          "sha256": "d98f7ba0e98d1933982a5c3127faf7822a8f285059adca2792454e4206d22f8f"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP2C9 inhibitor",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP2C9 inhibitor",
+      "predicted_value": 2.6396957764518447e-05,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp2c19-inhibitor/model_v2_1.pt",
+          "sha256": "64bca5fa3887af766d493722ae4aa4fb73c5462261d5f88f80823a9c829ef33f"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP2C19 inhibitor",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP2C19 inhibitor",
+      "predicted_value": 0.0013461584458127618,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp2d6-inhibitor/model_v2_1.pt",
+          "sha256": "0a877a7bd071437d51f4ed4808a6939a84e227cd34a26565b80fa5ddcbf65b2c"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP2D6 inhibitor",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP2D6 inhibitor",
+      "predicted_value": 0.21879759430885315,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp3a4-inhibitor/model_v2_1.pt",
+          "sha256": "06ee536b07b22fcd550a2157959bd6980a3379e4a6fb720e4ec2228ae20cf0cc"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP3A4 inhibitor",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP3A4 inhibitor",
+      "predicted_value": 3.382668728590943e-05,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp2c9-substrate/model_v2_1.pt",
+          "sha256": "c746ae847b813eda9d173b6fd0e1e112f0ec53df33c962e4fb66fca4c0776017"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP2C9 substrate",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP2C9 substrate",
+      "predicted_value": 0.6163895130157471,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp2d6-substrate/model_v2_1.pt",
+          "sha256": "53e45d891f59a622c0a59b8f7b91b4c7ac0ede79395a47dce40ec1e8d93ac604"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP2D6 substrate",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP2D6 substrate",
+      "predicted_value": 0.0035086877178400755,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/cyp/cyp3a4-substrate/model_v2_1.pt",
+          "sha256": "e4b8f7d6ed2f50a0ed644e0a221dda23e67878eef415a1c41773bf2a0e7b0aa9"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "CYP3A4 substrate",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop CYP3A4 substrate",
+      "predicted_value": 0.26537540555000305,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-cyp-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/transporter/pgp-inhibitor/model_v2_1.pt",
+          "sha256": "2d3f039a49c8ed1ea7ae084f538f0957530a48f602fa8501e02c97c3f96e146e"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "P-gp inhibitor",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+      "predicted_value": 6.535192369483411e-05,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "BORDERLINE",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admetica/safety/herg/model_v2_1.pt",
+          "sha256": "c1aae9ca495c5dcb699f386eb0d8a2c0a7bafb78fca7c92f78241bb6790a5b26"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "hERG liability",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "Admetica Chemprop human hERG blocker liability",
+      "predicted_value": 0.0024576166179031134,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admetica-d4f7056-herg-chemprop-v2.1"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admet_ai/classification/model_0.pt",
+          "sha256": "9a5fb298a6564e8ef739890c90b02e831521073f49eefd2310fb56cdb61a2378"
+        },
+        {
+          "path": "models/admet_ai/classification/model_1.pt",
+          "sha256": "2bf047553eef397060af376e78dd4e990114df8428e05f734c4e4aca284280ca"
+        },
+        {
+          "path": "models/admet_ai/classification/model_2.pt",
+          "sha256": "0e9d7eb3ff0b53bd2f20e43a75e0872c682b0ee27059dd50735c416d97a3fd24"
+        },
+        {
+          "path": "models/admet_ai/classification/model_3.pt",
+          "sha256": "4b35cb5686f23c6e3e5a4c587a5c4dd79b7f1f46be26684260c0b78366145d58"
+        },
+        {
+          "path": "models/admet_ai/classification/model_4.pt",
+          "sha256": "9fdac559e3058b5f7b03780f9c696223d27adb94c78f9eb9aba6154e2dbff492"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "Ames mutagenicity",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+      "predicted_value": 0.08012307658791543,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+    },
+    {
+      "applicability_domain": "IN_DOMAIN",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/admet_ai/classification/model_0.pt",
+          "sha256": "9a5fb298a6564e8ef739890c90b02e831521073f49eefd2310fb56cdb61a2378"
+        },
+        {
+          "path": "models/admet_ai/classification/model_1.pt",
+          "sha256": "2bf047553eef397060af376e78dd4e990114df8428e05f734c4e4aca284280ca"
+        },
+        {
+          "path": "models/admet_ai/classification/model_2.pt",
+          "sha256": "0e9d7eb3ff0b53bd2f20e43a75e0872c682b0ee27059dd50735c416d97a3fd24"
+        },
+        {
+          "path": "models/admet_ai/classification/model_3.pt",
+          "sha256": "4b35cb5686f23c6e3e5a4c587a5c4dd79b7f1f46be26684260c0b78366145d58"
+        },
+        {
+          "path": "models/admet_ai/classification/model_4.pt",
+          "sha256": "9fdac559e3058b5f7b03780f9c696223d27adb94c78f9eb9aba6154e2dbff492"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "DILI clinical liability",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+      "predicted_value": 0.6746290445327758,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "probability",
+      "version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+    },
+    {
+      "applicability_domain": "BORDERLINE",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/openadmet/microsomal_clearance/model.pth",
+          "sha256": "dd143760b58af67a9c698759830c62b7daabaedbd17b96556b1c508d927a9ffc"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "HLM intrinsic clearance",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "OpenADMET CheMeleon HLM intrinsic clearance",
+      "predicted_value": -0.13486945629119873,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "log10(mL/min/kg)",
+      "version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+    },
+    {
+      "applicability_domain": "BORDERLINE",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/openadmet/microsomal_clearance/model.pth",
+          "sha256": "dd143760b58af67a9c698759830c62b7daabaedbd17b96556b1c508d927a9ffc"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "RLM intrinsic clearance",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "OpenADMET CheMeleon RLM intrinsic clearance",
+      "predicted_value": -0.0637129545211792,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "log10(mL/min/kg)",
+      "version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+    },
+    {
+      "applicability_domain": "BORDERLINE",
+      "asset_error": "",
+      "assets_available": true,
+      "checkpoint_assets": [
+        {
+          "path": "models/openadmet/microsomal_clearance/model.pth",
+          "sha256": "dd143760b58af67a9c698759830c62b7daabaedbd17b96556b1c508d927a9ffc"
+        }
+      ],
+      "confidence": "LOW",
+      "cpu_inference": "PASS",
+      "endpoint": "MLM intrinsic clearance",
+      "endpoint_mapping": "PASS",
+      "error": "",
+      "finite_prediction": true,
+      "loader": "PASS",
+      "manifest_status": "CHECKSUM_RECORDED_BY_AUDIT",
+      "model": "OpenADMET CheMeleon MLM intrinsic clearance",
+      "predicted_value": 0.13976025581359863,
+      "registry_entry": true,
+      "registry_status": "READY",
+      "unit": "log10(mL/min/kg)",
+      "version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+    }
+  ],
+  "note": "This is an execution sanity check, not a scientific performance validation.",
+  "processor": "CPU",
+  "smiles": "CC(=O)Oc1ccccc1C(=O)O",
+  "summary": {
+    "failed": 0,
+    "passed": 18,
+    "status": "PASS",
+    "supporting_engines_passed": 2,
+    "total_models": 18
+  },
+  "supporting_engines": {
+    "RDKit": {
+      "canonical_smiles": "CC(=O)Oc1ccccc1C(=O)O",
+      "finite_molecular_weight": true,
+      "status": "PASS"
+    },
+    "SyGMa": {
+      "availability": "LIMITED",
+      "metabolite_count": 4,
+      "method": "RULE_BASED",
+      "soft_spot_count": 4,
+      "status": "PASS"
+    }
+  },
+  "timestamp": "2026-08-27T05:12:48.753773+00:00"
+}
