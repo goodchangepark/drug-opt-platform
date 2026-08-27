@@ -529,10 +529,24 @@ function App(){
  };
 
  const createProject=async()=>{
+  const name=(form.name||'').trim();
+  const target=(form.target||'').trim();
+  if(!name){setMessage('Project name is required');return}
+  if(!target){setMessage('Target is required');return}
   try{
-   const created=await api.post('/projects',form);setForm({name:'',target:'',molecule_type:'Small Molecule',description:''});
-   await Promise.all([loadProjects(),loadDashboard()]);setProjectId(created.id);setProjectTab('compounds');setMessage('Project created');
-  }catch(error){setMessage(String(error))}
+   const created=await api.post('/projects',{...form,name,target});
+   setForm({name:'',target:'',molecule_type:'Small Molecule',description:''});
+   await Promise.all([loadProjects(),loadDashboard()]);
+   setProjectId(created.id);
+   setGlobalView('dashboard');
+   setProjectTab('compounds');
+   await loadProject(created.id);
+   setMessage('Project "'+created.name+'" created successfully');
+  }catch(error){
+   let msg='Failed to create project';
+   try{const parsed=JSON.parse(error.message);msg=parsed.detail||msg}catch(_){msg=error.message||String(error)}
+   setMessage(msg.replace(/^Error:\s*/,''));
+  }
  };
  const saveProjectSettings=async()=>{
   try{
@@ -3844,23 +3858,29 @@ function App(){
   setDeleteProjects(safeItems);setDeleteConfirmations({});setMessage('');
  };
  const closeDeleteDialog=()=>{if(deleteBusy)return;setDeleteProjects([]);setDeleteConfirmations({})};
- const deleteNamesMatch=deleteProjects.length>0&&deleteProjects.every(item=>deleteConfirmations[item.id]===item.name);
- const confirmProjectDeletion=async()=>{
-  if(!deleteNamesMatch)return;
-  setDeleteBusy(true);
-  try{
-   const confirmations=deleteProjects.map(item=>({id:item.id,confirmation_name:deleteConfirmations[item.id]}));
-   const result=confirmations.length===1
-    ?await api.del('/projects/'+confirmations[0].id,{confirmation_name:confirmations[0].confirmation_name})
-    :await api.post('/projects/bulk-delete',{projects:confirmations});
-   const deletedIds=result.deleted_project_ids||confirmations.map(item=>item.id),currentDeleted=deletedIds.includes(projectId);
-   const [rows,summary]=await Promise.all([api.get('/projects'),api.get('/dashboard')]);
-   setProjects(rows);setDashboard(summary);setProjectSelection([]);setDeleteProjects([]);setDeleteConfirmations({});
-   setGlobalView('dashboard');setProjectTab('dashboard');setDetail(null);setWorkspace(null);setAdmet(null);setMetabolism(null);setComparison(null);setSelected([]);setSelectedCandidate(null);
-   if(currentDeleted){setProjectId(null);setProject(null)}
-   setMessage((result.deleted_project_names||deleteProjects.map(item=>item.name)).join(', ')+' deleted');
-  }catch(error){setMessage('Project deletion failed: '+error.message)}finally{setDeleteBusy(false)}
- };
+  const deleteNamesMatch=deleteProjects.length>0&&deleteProjects.every(item=>(deleteConfirmations[item.id]||'').trim()===item.name.trim());
+  const confirmProjectDeletion=async()=>{
+   if(!deleteNamesMatch||deleteBusy)return;
+   setDeleteBusy(true);
+   try{
+    const confirmations=deleteProjects.map(item=>({id:item.id,confirmation_name:(deleteConfirmations[item.id]||'').trim()}));
+    const result=confirmations.length===1
+     ?await api.del('/projects/'+confirmations[0].id,{confirmation_name:confirmations[0].confirmation_name})
+     :await api.post('/projects/bulk-delete',{projects:confirmations});
+    const deletedIds=result.deleted_project_ids||confirmations.map(item=>item.id),currentDeleted=deletedIds.includes(projectId);
+    const [rows,summary]=await Promise.all([api.get('/projects'),api.get('/dashboard')]);
+    setProjects(rows);setDashboard(summary);setProjectSelection([]);setDeleteProjects([]);setDeleteConfirmations({});
+    setGlobalView('dashboard');setProjectTab('dashboard');setDetail(null);setWorkspace(null);setAdmet(null);setMetabolism(null);setComparison(null);setSelected([]);setSelectedCandidate(null);
+    if(currentDeleted){setProjectId(null);setProject(null)}
+    setMessage((result.deleted_project_names||deleteProjects.map(item=>item.name)).join(', ')+' deleted successfully');
+   }catch(error){
+    let msg='Project deletion failed';
+    try{const parsed=JSON.parse(error.message);msg=parsed.detail||msg}catch(_){msg=error.message||String(error)}
+    setMessage(msg.replace(/^Error:\s*/,''));
+   }finally{
+    setDeleteBusy(false);
+   }
+  };
 
  function ProjectDeleteModal(){
   if(!deleteProjects.length)return null;

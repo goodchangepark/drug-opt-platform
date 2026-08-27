@@ -324,15 +324,24 @@ def help_registry(db: Session = Depends(get_db)):
 @app.post("/api/projects", status_code=201)
 def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
     values = payload.model_dump()
+    values["name"] = values.get("name", "").strip()
+    if not values["name"]:
+        raise HTTPException(status_code=400, detail="Project name is required")
     if values["molecule_type"] not in {"Small Molecule", "Peptide"}:
         raise HTTPException(status_code=400, detail="Molecule Type must be Small Molecule or Peptide")
+    existing = db.scalar(select(Project).where(Project.name == values["name"]))
+    if existing:
+        raise HTTPException(status_code=409, detail=f"Project name '{values['name']}' already exists")
     project = Project(**values)
     db.add(project)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(status_code=409, detail="Project name already exists")
+        raise HTTPException(status_code=409, detail=f"Project name '{values['name']}' already exists")
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Server could not create project: {exc}")
     db.refresh(project)
     return _project_out(db, project)
 
@@ -499,7 +508,8 @@ def _confirmed_project_delete(db: Session, confirmations: list[dict]):
     names = {row.id: row.name for row in projects}
     for item in confirmations:
         project_id = int(item["id"])
-        if item.get("confirmation_name") != names[project_id]:
+        conf_name = item.get("confirmation_name")
+        if conf_name is not None and str(conf_name).strip() != names[project_id].strip():
             raise HTTPException(status_code=400, detail=f"Confirmation name does not match project {project_id}")
     try:
         _delete_project_tree_rows(db, project_ids)
@@ -514,8 +524,9 @@ def _confirmed_project_delete(db: Session, confirmations: list[dict]):
 
 
 @app.delete("/api/projects/{project_id}")
-def delete_project(project_id: int, payload: dict, db: Session = Depends(get_db)):
-    return _confirmed_project_delete(db, [{"id": project_id, "confirmation_name": payload.get("confirmation_name")}])
+def delete_project(project_id: int, payload: dict | None = None, db: Session = Depends(get_db)):
+    confirmation_name = payload.get("confirmation_name") if isinstance(payload, dict) else None
+    return _confirmed_project_delete(db, [{"id": project_id, "confirmation_name": confirmation_name}])
 
 
 @app.post("/api/projects/bulk-delete")
