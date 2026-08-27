@@ -72,15 +72,14 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
                    fingerprint_and_descriptors, nearest_neighbors, normalize_concentration, tanimoto_similarity,
                    pactivity, train_model, value_from_pactivity)
 from .ionization import analyze_ionization
+from contextlib import asynccontextmanager
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
-
-app = FastAPI(title="AI Drug Optimization Platform", version="0.5.4-stage5b2")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+from .translational import ensure_translational_schema, register_translational_routes
 
 
-@app.on_event("startup")
-def startup():
-    if not app.dependency_overrides:
+@asynccontextmanager
+async def lifespan(app_instance: FastAPI):
+    if not app_instance.dependency_overrides:
         Base.metadata.create_all(bind=engine)
         ensure_ui_schema(engine)
         ensure_admet_schema(engine)
@@ -90,13 +89,22 @@ def startup():
         ensure_pk_schema(engine)
         ensure_ivive_schema(engine)
         ensure_simulation_schema(engine)
-        register_pk_routes(app)
-        register_ivive_routes(app)
-        register_simulation_routes(app)
+        ensure_translational_schema(engine)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
     import backend.activity_models
+    yield
+
+
+app = FastAPI(title="AI Drug Optimization Platform", version="0.5.5-stage5b3", lifespan=lifespan)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+# Register modular sub-routers
+register_pk_routes(app)
+register_ivive_routes(app)
+register_simulation_routes(app)
+register_translational_routes(app)
 
 
 def _project_out(db: Session, project: Project):

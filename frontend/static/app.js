@@ -1766,6 +1766,429 @@ function App(){
     ])
    ])
   ]);
+  }
+
+
+ function TranslationalPkSection({versionId}){
+  const [data, setData] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  const loadData = React.useCallback(async ()=>{
+   if(!versionId) return;
+   setLoading(true);
+   try {
+    const res = await api.get('/compound-versions/' + versionId + '/translational-pk');
+    setData(res);
+    setError(null);
+   } catch(err) {
+    console.error(err);
+    setError(err.message || 'Failed to load translational PK data.');
+   } finally {
+    setLoading(false);
+   }
+  }, [versionId]);
+
+  React.useEffect(()=>{
+   loadData();
+  }, [loadData]);
+
+  if(loading && !data) {
+   return e('div',{className:'card', style:{marginTop:'16px'}}, e('p',{},'Loading translational PK scaling data…'));
+  }
+
+  if(!data) {
+   return null;
+  }
+
+  const clAllo = data.clearance_allometry || {};
+  const vssAllo = data.volume_allometry || {};
+  const clLoso = data.clearance_loso || {};
+  const hComp = data.human_comparison || {};
+  const readiness = data.human_simulation_readiness || {};
+  const spMatrix = data.species_data_matrix || [];
+
+  // Render Log-Log Scatter Plot for Allometry (CL or Vss)
+  const renderAllometryPlot = (alloData, title, yLabel) => {
+   if(alloData.status !== 'SUCCESS' || !alloData.plot_points || alloData.plot_points.length === 0) {
+    return e('div',{className:'empty-state small', style:{padding:'20px'}},'Insufficient data for allometric scaling curve.');
+   }
+
+   const points = alloData.plot_points;
+   const extPt = alloData.extrapolated_point;
+   const allPts = extPt ? [...points, extPt] : points;
+
+   const minBw = Math.min(...allPts.map(p=>p.bw_kg));
+   const maxBw = Math.max(...allPts.map(p=>p.bw_kg));
+   const minVal = Math.min(...allPts.map(p=>p.observed_total || p.fitted_total));
+   const maxVal = Math.max(...allPts.map(p=>p.observed_total || p.fitted_total));
+
+   const logMinX = Math.log10(Math.max(minBw * 0.5, 0.005));
+   const logMaxX = Math.log10(maxBw * 1.5);
+   const logMinY = Math.log10(Math.max(minVal * 0.5, 0.001));
+   const logMaxY = Math.log10(Math.max(maxVal * 2.0, 0.01));
+
+   const W = 540, H = 220, padL = 55, padB = 35, padR = 20, padT = 20;
+   const mapX = bw => padL + ((Math.log10(bw) - logMinX) / (logMaxX - logMinX || 1.0)) * (W - padL - padR);
+   const mapY = val => padT + (1.0 - (Math.log10(val) - logMinY) / (logMaxY - logMinY || 1.0)) * (H - padT - padB);
+
+   // Fitted line across full range
+   const lineSteps = 50;
+   const linePath = [];
+   for(let i=0; i<=lineSteps; i++){
+    const bwVal = Math.pow(10, logMinX + (i / lineSteps) * (logMaxX - logMinX));
+    const fittedVal = alloData.coefficient_a * Math.pow(bwVal, alloData.exponent_b);
+    linePath.push((i===0?'M':'L') + ' ' + mapX(bwVal).toFixed(1) + ' ' + mapY(fittedVal).toFixed(1));
+   }
+
+   return e('svg',{width:W, height:H, style:{background:'#0f172a', borderRadius:'8px', width:'100%', height:'auto'}},[
+    e('line',{key:'axis-x', x1:padL, y1:H-padB, x2:W-padR, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('line',{key:'axis-y', x1:padL, y1:padT, x2:padL, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('text',{key:'lbl-x', x:W/2, y:H-8, fill:'#94a3b8', fontSize:11, textAnchor:'middle'},'Body Weight (kg, log scale)'),
+    e('text',{key:'lbl-y', x:14, y:H/2, fill:'#94a3b8', fontSize:11, textAnchor:'middle', transform:'rotate(-90 14 '+(H/2)+')'}, yLabel + ' (log scale)'),
+    e('path',{key:'fit-line', d:linePath.join(' '), fill:'none', stroke:'#38bdf8', strokeWidth:2, strokeDasharray:'3,3'}),
+    // Animal Experimental Points
+    points.map((pt, idx)=>{
+     const cx = mapX(pt.bw_kg);
+     const cy = mapY(pt.observed_total);
+     return e('g',{key:'pt-'+idx},[
+      e('circle',{cx, cy, r:5, fill:'#3b82f6', stroke:'#ffffff', strokeWidth:1.5}),
+      e('text',{x:cx+7, y:cy-4, fill:'#93c5fd', fontSize:10},pt.species)
+     ]);
+    }),
+    // Extrapolated Target Point (Human)
+    extPt && e('g',{key:'ext-pt'},[
+     e('circle',{cx:mapX(extPt.bw_kg), cy:mapY(extPt.fitted_total), r:6, fill:'#f59e0b', stroke:'#ffffff', strokeWidth:2}),
+     e('text',{x:mapX(extPt.bw_kg)-10, y:mapY(extPt.fitted_total)-8, fill:'#fcd34d', fontSize:11, fontWeight:'bold'},'Extrapolated Human (' + extPt.fitted_norm + ' ' + (alloData.param_type==='CL'?'mL/min/kg':'L/kg') + ')')
+    ])
+   ]);
+  };
+
+  return e('div',{className:'card', style:{marginTop:'16px'}},[
+   e('div',{className:'row toolbar'},[
+    e('div',{},[
+     e('div',{className:'eyebrow'},'5 · TRANSLATIONAL PK & CROSS-SPECIES ALLOMETRIC SCALING'),
+     e('h3',{},'Interspecies Scaling & Translational Foundation (Stage 5B-3)'),
+    ]),
+    StatusBadge({type: readiness.overall_status === 'READY' ? 'READY' : (readiness.overall_status === 'PARTIALLY READY' ? 'PARTIALLY_READY' : 'NOT_READY')})
+   ]),
+   e('p',{className:'small'},'Classical body-weight allometry (Y = a · BW^b), Leave-One-Species-Out (LOSO) cross-validation, and deterministic Human simulation readiness assessment.'),
+
+   // Cross-Species Data Matrix Table
+   e('div',{style:{marginTop:'12px'}},[
+    e('h4',{},'Cross-Species In Vivo PK Observation Matrix'),
+    e('table',{className:'table', style:{marginTop:'6px'}},[
+     e('thead',{},e('tr',{},[
+      e('th',{},'Species'),
+      e('th',{},'Body Weight (kg)'),
+      e('th',{},'IV CL (mL/min/kg)'),
+      e('th',{},'IV Vss (L/kg)'),
+      e('th',{},'IV Vz (L/kg)'),
+      e('th',{},'IV t1/2 (h)'),
+      e('th',{},'PO F (%)'),
+      e('th',{},'IV / PO Studies'),
+      e('th',{},'Evidence')
+     ])),
+     e('tbody',{},spMatrix.map(sp=>e('tr',{key:sp.species},[
+      e('td',{},e('strong',{},sp.species)),
+      e('td',{className:'mono'},sp.effective_bw_kg + (sp.study_bw_kg ? ' (Study)' : ' (Ref)')),
+      e('td',{className:'mono'},sp.cl_iv != null ? sp.cl_iv : '—'),
+      e('td',{className:'mono'},sp.vss_iv != null ? sp.vss_iv : '—'),
+      e('td',{className:'mono'},sp.vz_iv != null ? sp.vz_iv : '—'),
+      e('td',{className:'mono'},sp.half_life_iv != null ? sp.half_life_iv : '—'),
+      e('td',{className:'mono'},sp.f_po != null ? sp.f_po + '%' : '—'),
+      e('td',{className:'small'},sp.iv_studies_count + ' IV / ' + sp.po_studies_count + ' PO'),
+      e('td',{},StatusBadge({type: sp.has_experimental_iv ? 'EXPERIMENTAL' : (sp.has_experimental_po ? 'EXPERIMENTAL' : 'MODEL_UNAVAILABLE')}))
+     ])))
+    ])
+   ]),
+
+   // Allometry Scaling Panels Grid
+   e('div',{className:'grid', style:{marginTop:'16px'}},[
+    // Clearance Allometry Card
+    e('div',{className:'col-6'},e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)'}},[
+     e('div',{className:'row toolbar'},[
+      e('strong',{style:{fontSize:'14px'}},'Clearance (CL) Allometry (Animal IV Data)'),
+      StatusBadge({type: clAllo.confidence || 'INSUFFICIENT_DATA'})
+     ]),
+     clAllo.status === 'SUCCESS' ? e('div',{},[
+      e('div',{style:{marginTop:'8px'}},renderAllometryPlot(clAllo, 'Clearance Allometry', 'Total CL (mL/min)')),
+      e('div',{className:'grid ivive-output-grid', style:{marginTop:'10px'}},[
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Exponent b (CL)'), e('strong',{className:'mono'},clAllo.exponent_b), e('small',{},'Classical ref ~0.75')]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Coefficient a'), e('strong',{className:'mono'},clAllo.coefficient_a)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Goodness of Fit R²'), e('strong',{className:'mono'},clAllo.r_squared)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Human Extrapolated CL'), e('strong',{className:'mono'},clAllo.extrapolated_norm + ' mL/min/kg'), e('small',{},clAllo.extrapolated_total + ' mL/min total')])
+      ]),
+      (clAllo.warnings||[]).map((w, idx)=>e('div',{key:idx, className:'alert', style:{marginTop:'6px', fontSize:'12px'}},w)),
+      clAllo.historical_roe_correction && e('div',{className:'card', style:{marginTop:'10px', background:'rgba(255,255,255,0.02)', padding:'8px'}},[
+       e('div',{className:'small', style:{fontWeight:'bold'}},'Historical Rule of Exponents (Mahmood & Balian):'),
+       e('div',{className:'small mono', style:{marginTop:'4px'}},'Selected: ' + clAllo.historical_roe_correction.selected_rule + ' → ' + clAllo.historical_roe_correction.roe_predicted_norm + ' mL/min/kg'),
+       e('div',{className:'small', style:{color:'#94a3b8', marginTop:'2px'}},clAllo.historical_roe_correction.citation)
+      ])
+     ]) : e('div',{className:'empty-state small', style:{padding:'20px'}},clAllo.message || 'Requires at least 2 distinct animal species with experimental IV CL.')
+    ])),
+
+    // Volume of Distribution Allometry Card
+    e('div',{className:'col-6'},e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)'}},[
+     e('div',{className:'row toolbar'},[
+      e('strong',{style:{fontSize:'14px'}},'Volume of Distribution (Vss) Allometry (Animal IV Data)'),
+      StatusBadge({type: vssAllo.confidence || 'INSUFFICIENT_DATA'})
+     ]),
+     vssAllo.status === 'SUCCESS' ? e('div',{},[
+      e('div',{style:{marginTop:'8px'}},renderAllometryPlot(vssAllo, 'Volume Allometry', 'Total Vss (L)')),
+      e('div',{className:'grid ivive-output-grid', style:{marginTop:'10px'}},[
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Exponent b (Vss)'), e('strong',{className:'mono'},vssAllo.exponent_b), e('small',{},'Classical ref ~1.0')]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Coefficient a'), e('strong',{className:'mono'},vssAllo.coefficient_a)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Goodness of Fit R²'), e('strong',{className:'mono'},vssAllo.r_squared)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Human Extrapolated Vss'), e('strong',{className:'mono'},vssAllo.extrapolated_norm + ' L/kg'), e('small',{},vssAllo.extrapolated_total + ' L total')])
+      ]),
+      (vssAllo.warnings||[]).map((w, idx)=>e('div',{key:idx, className:'alert', style:{marginTop:'6px', fontSize:'12px'}},w)),
+      hComp.translated_half_life?.value != null && e('div',{className:'card', style:{marginTop:'10px', background:'rgba(255,255,255,0.02)', padding:'8px'}},[
+       e('div',{className:'small', style:{fontWeight:'bold'}},'Translated Human Elimination Half-Life:'),
+       e('div',{className:'small mono', style:{fontSize:'15px', color:'#38bdf8', marginTop:'4px'}},hComp.translated_half_life.value + ' hours'),
+       e('div',{className:'small', style:{color:'#94a3b8', marginTop:'2px'}},'Formula: ln(2) · Vss_allometric / CL_allometric (' + hComp.translated_half_life.v_definition_used + ')')
+      ])
+     ]) : e('div',{className:'empty-state small', style:{padding:'20px'}},vssAllo.message || 'Requires at least 2 distinct animal species with experimental IV Vss.')
+    ]))
+   ]),
+
+   // Leave-One-Species-Out (LOSO) Cross-Validation Card
+   clLoso.status === 'SUCCESS' && e('div',{className:'card', style:{marginTop:'16px', background:'rgba(255,255,255,0.02)'}},[
+    e('div',{className:'row toolbar'},[
+     e('h4',{},'Leave-One-Species-Out (LOSO) Allometry Cross-Validation (CL)'),
+     e('span',{className:'small'},'Evaluated Species N = ' + clLoso.n_species_evaluated)
+    ]),
+    e('div',{className:'grid ivive-output-grid', style:{marginTop:'8px'}},[
+     e('div',{className:'card pk-nca-card'},[e('span',{},'LOSO AAFE'), e('strong',{className:'mono'},clLoso.aafe + 'x')]),
+     e('div',{className:'card pk-nca-card'},[e('span',{},'LOSO Bias (GMFE)'), e('strong',{className:'mono'},clLoso.bias_gmfe + 'x')]),
+     e('div',{className:'card pk-nca-card'},[e('span',{},'Within 2-Fold Accuracy'), e('strong',{className:'mono'},clLoso.within_2_fold_pct + '%')]),
+     e('div',{className:'card pk-nca-card'},[e('span',{},'Within 3-Fold Accuracy'), e('strong',{className:'mono'},clLoso.within_3_fold_pct + '%')])
+    ]),
+    e('table',{className:'table', style:{marginTop:'10px'}},[
+     e('thead',{},e('tr',{},[
+      e('th',{},'Held-Out Species'),
+      e('th',{},'Observed CL (mL/min/kg)'),
+      e('th',{},'Predicted CL (mL/min/kg)'),
+      e('th',{},'Fold Error'),
+      e('th',{},'Absolute Fold Error'),
+      e('th',{},'Status')
+     ])),
+     e('tbody',{},clLoso.loso_evaluations.map(ev=>e('tr',{key:ev.held_out_species},[
+      e('td',{},e('strong',{},ev.held_out_species)),
+      e('td',{className:'mono'},ev.observed_norm),
+      e('td',{className:'mono'},ev.predicted_norm),
+      e('td',{className:'mono'},ev.fold_error + 'x'),
+      e('td',{className:'mono'},ev.absolute_fold_error + 'x'),
+      e('td',{},StatusBadge({type: ev.within_2_fold ? 'PASS' : 'FAIL'}))
+     ])))
+    ])
+   ]),
+
+   // Human Side-by-Side Comparison & Simulation Readiness
+   e('div',{className:'card', style:{marginTop:'16px'}},[
+    e('h4',{},'Human PK Translational Comparison & Readiness Scorecard'),
+    e('p',{className:'small'},'Side-by-side comparison of independent prediction methods without silent averaging. Observed clinical data takes precedence.'),
+
+    e('table',{className:'table', style:{marginTop:'8px'}},[
+     e('thead',{},e('tr',{},[
+      e('th',{},'Method / Evidence'),
+      e('th',{},'Predicted / Measured CL (mL/min/kg)'),
+      e('th',{},'Predicted / Measured Vss (L/kg)'),
+      e('th',{},'Predicted / Measured F (%)'),
+      e('th',{},'Confidence / Evidence Type'),
+      e('th',{},'Method Notes')
+     ])),
+     e('tbody',{},[
+      e('tr',{},[
+       e('td',{},e('strong',{},'Method A: Mechanistic Hepatic IVIVE')),
+       e('td',{className:'mono'},hComp.clearance?.method_a_hepatic_ivive?.value != null ? hComp.clearance.method_a_hepatic_ivive.value : '—'),
+       e('td',{className:'mono'},'— (Not Modeled)'),
+       e('td',{className:'mono'},'— (Not Modeled)'),
+       e('td',{},StatusBadge({type: hComp.clearance?.method_a_hepatic_ivive?.confidence || 'MODEL_UNAVAILABLE'})),
+       e('td',{className:'small'},hComp.clearance?.method_a_hepatic_ivive?.notes)
+      ]),
+      e('tr',{},[
+       e('td',{},e('strong',{},'Method B: Simple Allometric Scaling')),
+       e('td',{className:'mono'},hComp.clearance?.method_b_simple_allometry?.value != null ? hComp.clearance.method_b_simple_allometry.value : '—'),
+       e('td',{className:'mono'},hComp.volume_vss?.simple_allometry?.value != null ? hComp.volume_vss.simple_allometry.value : '—'),
+       e('td',{className:'mono'},'— (Not Inferred)'),
+       e('td',{},StatusBadge({type: hComp.clearance?.method_b_simple_allometry?.confidence || 'INSUFFICIENT_DATA'})),
+       e('td',{className:'small'},'Animal power-law extrapolation (N=' + (hComp.clearance?.method_b_simple_allometry?.n_species || 0) + ' sp, R²=' + (hComp.clearance?.method_b_simple_allometry?.r2 || '—') + ')')
+      ]),
+      e('tr',{},[
+       e('td',{},e('strong',{},'Method C: Human Clinical PK (Experimental)')),
+       e('td',{className:'mono'},hComp.clearance?.method_d_experimental_human?.value != null ? hComp.clearance.method_d_experimental_human.value : '—'),
+       e('td',{className:'mono'},hComp.volume_vss?.experimental_human?.value != null ? hComp.volume_vss.experimental_human.value : '—'),
+       e('td',{className:'mono'},spMatrix.find(s=>s.species==='Human')?.f_po != null ? spMatrix.find(s=>s.species==='Human').f_po + '%' : '—'),
+       e('td',{},StatusBadge({type: hComp.clearance?.method_d_experimental_human?.value != null ? 'EXPERIMENTAL' : 'MODEL_UNAVAILABLE'})),
+       e('td',{className:'small'},hComp.clearance?.method_d_experimental_human?.notes)
+      ])
+     ])
+    ]),
+
+    // Readiness Scorecard Box
+    e('div',{className:'card', style:{marginTop:'12px', background:'rgba(255,255,255,0.02)', padding:'12px'}},[
+     e('div',{className:'row toolbar'},[
+      e('strong',{},'Human Simulation Readiness Assessment:'),
+      StatusBadge({type: readiness.overall_status === 'READY' ? 'READY' : (readiness.overall_status === 'PARTIALLY READY' ? 'PARTIALLY_READY' : 'NOT_READY')})
+     ]),
+     e('div',{className:'grid ivive-output-grid', style:{marginTop:'8px'}},[
+      e('div',{className:'card pk-nca-card'},[
+       e('div',{className:'row toolbar'},[e('span',{},'Clearance (CL)'), StatusBadge({type:readiness.clearance?.status||'UNAVAILABLE'})]),
+       e('small',{},readiness.clearance?.reason)
+      ]),
+      e('div',{className:'card pk-nca-card'},[
+       e('div',{className:'row toolbar'},[e('span',{},'Volume (Vss)'), StatusBadge({type:readiness.volume?.status||'UNAVAILABLE'})]),
+       e('small',{},readiness.volume?.reason)
+      ]),
+      e('div',{className:'card pk-nca-card'},[
+       e('div',{className:'row toolbar'},[e('span',{},'Bioavailability (F)'), StatusBadge({type:readiness.bioavailability?.status||'UNAVAILABLE'})]),
+       e('small',{},readiness.bioavailability?.reason)
+      ]),
+      e('div',{className:'card pk-nca-card'},[
+       e('div',{className:'row toolbar'},[e('span',{},'Absorption Rate (ka)'), StatusBadge({type:readiness.absorption_rate?.status||'UNAVAILABLE'})]),
+       e('small',{},readiness.absorption_rate?.reason)
+      ])
+     ]),
+     e('div',{className:'alert', style:{marginTop:'10px', fontSize:'12px'}},readiness.oral_translation_guardrail)
+    ])
+   ])
+  ]);
+ }
+
+
+ function PkValidationSection({versionId}){
+  const [valData, setValData] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+
+  const loadVal = React.useCallback(async ()=>{
+   if(!versionId) return;
+   setLoading(true);
+   try {
+    const res = await api.get('/compound-versions/' + versionId + '/pk-validation');
+    setValData(res.validation_metrics);
+   } catch(err) {
+    console.error(err);
+   } finally {
+    setLoading(false);
+   }
+  }, [versionId]);
+
+  React.useEffect(()=>{
+   loadVal();
+  }, [loadVal]);
+
+  if(loading && !valData) return null;
+  if(!valData || valData.status !== 'SUCCESS') {
+   return e('div',{className:'card', style:{marginTop:'16px'}},[
+    e('div',{className:'eyebrow'},'6 · PK VALIDATION & PREDICTION ERROR METRICS'),
+    e('h3',{},'PK VALIDATION — Prediction Accuracy & Error Analysis (Stage 5B-3)'),
+    e('p',{className:'small'},'No paired Predicted vs Observed PK records available yet for this compound. Add experimental PK studies or run IVIVE / Allometry to quantify prediction accuracy.')
+   ]);
+  }
+
+  const pairs = valData.pairs || [];
+
+  // Render Log-Log Predicted vs Observed Plot with 2-fold / 3-fold bands
+  const renderPredObsPlot = () => {
+   if(pairs.length === 0) return null;
+
+   const allVals = pairs.flatMap(p=>[p.observed, p.predicted]);
+   const minVal = Math.min(...allVals);
+   const maxVal = Math.max(...allVals);
+
+   const logMin = Math.log10(Math.max(minVal * 0.5, 0.01));
+   const logMax = Math.log10(Math.max(maxVal * 2.0, 0.1));
+
+   const W = 540, H = 240, padL = 55, padB = 40, padR = 20, padT = 20;
+   const mapCoord = val => padL + ((Math.log10(val) - logMin) / (logMax - logMin || 1.0)) * (W - padL - padR);
+   const mapYCoord = val => padT + (1.0 - (Math.log10(val) - logMin) / (logMax - logMin || 1.0)) * (H - padT - padB);
+
+   const p1 = {x: mapCoord(Math.pow(10, logMin)), y: mapYCoord(Math.pow(10, logMin))};
+   const p2 = {x: mapCoord(Math.pow(10, logMax)), y: mapYCoord(Math.pow(10, logMax))};
+
+   return e('svg',{width:W, height:H, style:{background:'#0f172a', borderRadius:'8px', width:'100%', height:'auto'}},[
+    e('line',{key:'axis-x', x1:padL, y1:H-padB, x2:W-padR, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('line',{key:'axis-y', x1:padL, y1:padT, x2:padL, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('text',{key:'lbl-x', x:W/2, y:H-8, fill:'#94a3b8', fontSize:11, textAnchor:'middle'},'Observed Value (log scale)'),
+    e('text',{key:'lbl-y', x:14, y:H/2, fill:'#94a3b8', fontSize:11, textAnchor:'middle', transform:'rotate(-90 14 '+(H/2)+')'},'Predicted Value (log scale)'),
+
+    // Identity line (y = x)
+    e('line',{key:'line-ident', x1:p1.x, y1:p1.y, x2:p2.x, y2:p2.y, stroke:'#94a3b8', strokeWidth:1.5}),
+    // 2-fold lines
+    e('line',{key:'line-2f-up', x1:mapCoord(Math.pow(10, logMin)), y1:mapYCoord(Math.pow(10, logMin)*2), x2:mapCoord(Math.pow(10, logMax)/2), y2:mapYCoord(Math.pow(10, logMax)), stroke:'#38bdf8', strokeWidth:1, strokeDasharray:'3,3'}),
+    e('line',{key:'line-2f-dn', x1:mapCoord(Math.pow(10, logMin)*2), y1:mapYCoord(Math.pow(10, logMin)), x2:mapCoord(Math.pow(10, logMax)), y2:mapYCoord(Math.pow(10, logMax)/2), stroke:'#38bdf8', strokeWidth:1, strokeDasharray:'3,3'}),
+
+    // Points
+    pairs.map((p, idx)=>{
+     const cx = mapCoord(p.observed);
+     const cy = mapYCoord(p.predicted);
+     const color = p.absolute_fold_error <= 1.5 ? '#10b981' : (p.absolute_fold_error <= 2.0 ? '#38bdf8' : (p.absolute_fold_error <= 3.0 ? '#f59e0b' : '#ef4444'));
+     return e('g',{key:'p-'+idx},[
+      e('circle',{cx, cy, r:5, fill:color, stroke:'#ffffff', strokeWidth:1.5}),
+      e('text',{x:cx+7, y:cy-3, fill:'#cbd5e1', fontSize:10},p.species + ' ' + p.endpoint)
+     ]);
+    })
+   ]);
+  };
+
+  return e('div',{className:'card', style:{marginTop:'16px'}},[
+   e('div',{className:'row toolbar'},[
+    e('div',{},[
+     e('div',{className:'eyebrow'},'6 · PK VALIDATION & PREDICTION ERROR METRICS'),
+     e('h3',{},'PK VALIDATION — Prediction Accuracy & Error Analysis (Stage 5B-3)'),
+    ]),
+    StatusBadge({type: valData.within_2_fold_pct >= 70 ? 'PASS' : 'MEDIUM'})
+   ]),
+   e('p',{className:'small'},'Objective error metrics quantifying predictive accuracy across compatible endpoint and method pairs.'),
+
+   // Summary Metrics Grid
+   e('div',{className:'grid ivive-output-grid', style:{marginTop:'12px'}},[
+    e('div',{className:'card pk-nca-card'},[e('span',{},'Pairs Evaluated (N)'), e('strong',{className:'mono'},valData.n)]),
+    e('div',{className:'card pk-nca-card'},[e('span',{},'AAFE (Avg Abs Fold Error)'), e('strong',{className:'mono'},valData.aafe + 'x')]),
+    e('div',{className:'card pk-nca-card'},[e('span',{},'Bias (GMFE)'), e('strong',{className:'mono'},valData.bias_gmfe + 'x')]),
+    e('div',{className:'card pk-nca-card'},[e('span',{},'RMSE (log10 space)'), e('strong',{className:'mono'},valData.rmse_log10)]),
+    e('div',{className:'card pk-nca-card'},[e('span',{},'Within 2-Fold (%)'), e('strong',{className:'mono'},valData.within_2_fold_pct + '% (' + valData.within_2_fold_count + '/' + valData.n + ')')]),
+    e('div',{className:'card pk-nca-card'},[e('span',{},'Within 3-Fold (%)'), e('strong',{className:'mono'},valData.within_3_fold_pct + '% (' + valData.within_3_fold_count + '/' + valData.n + ')')])
+   ]),
+
+   // Plot & Table Grid
+   e('div',{className:'grid', style:{marginTop:'16px'}},[
+    e('div',{className:'col-6'},e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)'}},[
+     e('h4',{},'Predicted vs Observed Scatter Plot'),
+     e('div',{style:{marginTop:'8px'}},renderPredObsPlot()),
+     e('div',{className:'row toolbar', style:{marginTop:'4px', fontSize:'11px', color:'#94a3b8'}},[
+      e('span',{},'── Identity Line (y = x)'),
+      e('span',{},'┄┄ 2-Fold Band (0.5x – 2.0x)')
+     ])
+    ])),
+    e('div',{className:'col-6'},e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)'}},[
+     e('h4',{},'Performance Band Breakdown'),
+     e('div',{className:'table-scroll', style:{marginTop:'8px'}},[
+      e('table',{className:'table'},[
+       e('thead',{},e('tr',{},[
+        e('th',{},'Species / Route'),
+        e('th',{},'Endpoint'),
+        e('th',{},'Method'),
+        e('th',{},'Observed'),
+        e('th',{},'Predicted'),
+        e('th',{},'AFE'),
+        e('th',{},'Band')
+       ])),
+       e('tbody',{},pairs.map((p, idx)=>e('tr',{key:idx},[
+        e('td',{},p.species + ' ' + p.route),
+        e('td',{className:'mono'},p.endpoint),
+        e('td',{className:'small'},p.method),
+        e('td',{className:'mono'},p.observed),
+        e('td',{className:'mono'},p.predicted),
+        e('td',{className:'mono'},p.absolute_fold_error + 'x'),
+        e('td',{},e('span',{className:'status-badge ' + (p.absolute_fold_error<=2.0 ? 'status-ready' : 'status-failed'), style:{fontSize:'10px'}},p.performance_band))
+       ])))
+      ])
+     ])
+    ]))
+   ])
+  ]);
  }
 
 
@@ -2107,6 +2530,8 @@ function App(){
    iviveProfile(versionId),
    e(PkFoundationProfile,{versionId,key:'pk-foundation'}),
    e(PkSimulationSection,{versionId,key:'pk-simulation'}),
+   e(TranslationalPkSection,{versionId,key:'translational-pk'}),
+   e(PkValidationSection,{versionId,key:'pk-validation'}),
 
    pkModalOpen&&e('div',{className:'modal-backdrop',key:'study-modal'},e('div',{className:'card compound-modal'},[
     e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Add PK Study'),e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Close')]),
