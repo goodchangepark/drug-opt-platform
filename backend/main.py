@@ -74,7 +74,8 @@ from .qsar import (DESCRIPTOR_NAMES, FINGERPRINT_CONFIG, applicability, feature_
 from .ionization import analyze_ionization
 from contextlib import asynccontextmanager
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
-from .translational import ensure_translational_schema, register_translational_routes
+from .translational import PKTranslationalSnapshot, ensure_translational_schema, register_translational_routes
+from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, register_human_pk_routes
 
 
 @asynccontextmanager
@@ -90,6 +91,7 @@ async def lifespan(app_instance: FastAPI):
         ensure_ivive_schema(engine)
         ensure_simulation_schema(engine)
         ensure_translational_schema(engine)
+        ensure_human_pk_schema(engine)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -97,7 +99,7 @@ async def lifespan(app_instance: FastAPI):
     yield
 
 
-app = FastAPI(title="AI Drug Optimization Platform", version="0.5.5-stage5b3", lifespan=lifespan)
+app = FastAPI(title="AI Drug Optimization Platform", version="0.5.6-stage5b4", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 # Register modular sub-routers
@@ -105,6 +107,7 @@ register_pk_routes(app)
 register_ivive_routes(app)
 register_simulation_routes(app)
 register_translational_routes(app)
+register_human_pk_routes(app)
 
 
 def _project_out(db: Session, project: Project):
@@ -378,6 +381,8 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
     if version_ids:
         db.execute(delete(PKParameterSet).where(PKParameterSet.version_id.in_(version_ids)))
         db.execute(delete(PKSimulationRun).where(PKSimulationRun.version_id.in_(version_ids)))
+        db.execute(delete(PKTranslationalSnapshot).where(PKTranslationalSnapshot.version_id.in_(version_ids)))
+        db.execute(delete(PKHumanPredictionSnapshot).where(PKHumanPredictionSnapshot.version_id.in_(version_ids)))
         db.execute(delete(IVIVERun).where(IVIVERun.version_id.in_(version_ids)))
         db.execute(delete(IVIVEInputSet).where(IVIVEInputSet.version_id.in_(version_ids)))
         pk_study_ids = list(db.scalars(select(PKStudy.id).where(PKStudy.version_id.in_(version_ids))))

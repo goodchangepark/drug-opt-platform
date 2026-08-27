@@ -2192,6 +2192,484 @@ function App(){
  }
 
 
+ function HumanPkSection({versionId}){
+  const [profile, setProfile] = React.useState(null);
+  const [simResult, setSimResult] = React.useState(null);
+  const [snapshots, setSnapshots] = React.useState([]);
+  const [valData, setValData] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [simBusy, setSimBusy] = React.useState(false);
+  const [freezeBusy, setFreezeBusy] = React.useState(false);
+  const [plotScale, setPlotScale] = React.useState('linear');
+  const [snapshotName, setSnapshotName] = React.useState('Human Prospective PK Prediction');
+  const [showOverrides, setShowOverrides] = React.useState(false);
+  const [form, setForm] = React.useState({
+   route: 'IV',
+   administration_type: 'IV_BOLUS',
+   dose: 100,
+   dose_unit: 'mg',
+   body_weight_kg: 70,
+   infusion_duration_hours: 1,
+   dosing_frequency: 'Single Dose',
+   dose_interval_hours: 24,
+   num_doses: 1,
+   user_cl_override: '',
+   user_v_override: '',
+   user_f_override: '',
+   user_fg_override: '',
+   user_ka_override: ''
+  });
+
+  const loadData = React.useCallback(async ()=>{
+   if(!versionId) return;
+   setLoading(true);
+   try {
+    const [pRes, sRes, vRes] = await Promise.all([
+     api.get('/compound-versions/' + versionId + '/human-pk/profile'),
+     api.get('/compound-versions/' + versionId + '/human-pk/snapshots'),
+     api.get('/compound-versions/' + versionId + '/human-pk/validation')
+    ]);
+    setProfile(pRes);
+    setSnapshots(sRes?.snapshots || []);
+    setValData(vRes);
+   } catch(err) {
+    console.error(err);
+   } finally {
+    setLoading(false);
+   }
+  }, [versionId]);
+
+  React.useEffect(()=>{
+   loadData();
+  }, [loadData]);
+
+  const runSimulation = async ()=>{
+   if(!versionId) return;
+   setSimBusy(true);
+   try {
+    const payload = {
+     route: form.route,
+     administration_type: form.administration_type,
+     dose: Number(form.dose),
+     dose_unit: form.dose_unit,
+     body_weight_kg: Number(form.body_weight_kg),
+     infusion_duration_hours: Number(form.infusion_duration_hours),
+     dosing_frequency: form.dosing_frequency,
+     dose_interval_hours: Number(form.dose_interval_hours),
+     num_doses: Number(form.num_doses),
+     model_type: 'ONE_COMPARTMENT',
+     user_cl_override: form.user_cl_override ? Number(form.user_cl_override) : null,
+     user_v_override: form.user_v_override ? Number(form.user_v_override) : null,
+     user_f_override: form.user_f_override ? Number(form.user_f_override) : null,
+     user_fg_override: form.user_fg_override ? Number(form.user_fg_override) : null,
+     user_ka_override: form.user_ka_override ? Number(form.user_ka_override) : null
+    };
+    const res = await api.post('/compound-versions/' + versionId + '/human-pk/simulation/run', payload);
+    setSimResult(res);
+   } catch(err) {
+    alert(err.message || String(err));
+   } finally {
+    setSimBusy(false);
+   }
+  };
+
+  const freezeSnapshot = async ()=>{
+   if(!versionId) return;
+   setFreezeBusy(true);
+   try {
+    await api.post('/compound-versions/' + versionId + '/human-pk/freeze-snapshot', {snapshot_name: snapshotName || 'Prospective Human PK Prediction'});
+    await loadData();
+    alert('Prospective Human PK prediction snapshot frozen successfully.');
+   } catch(err) {
+    alert(err.message || String(err));
+   } finally {
+    setFreezeBusy(false);
+   }
+  };
+
+  // Render SVG Concentration-Time Plot (Linear or Semi-Log)
+  const renderCurvePlot = ()=>{
+   if(!simResult || !simResult.time_series || simResult.time_series.length === 0) return null;
+   const pts = simResult.time_series;
+   const obs = simResult.observations_overlay || [];
+
+   const allT = pts.map(p=>p.time_hours);
+   const maxT = Math.max(...allT, 1.0);
+
+   let allC = pts.map(p=>p.concentration_ng_ml);
+   if(obs.length > 0) {
+    allC = allC.concat(obs.filter(o=>o.concentration_ng_ml!=null).map(o=>o.concentration_ng_ml));
+   }
+   const maxC = Math.max(...allC, 1.0);
+   const isLog = plotScale === 'log';
+   const minC = isLog ? Math.max(0.1, Math.min(...allC.filter(c=>c>0), 1.0) * 0.5) : 0;
+
+   const W = 620, H = 260, padL = 60, padB = 40, padR = 20, padT = 25;
+
+   const mapX = t => padL + (t / maxT) * (W - padL - padR);
+   const mapY = c => {
+    if(isLog) {
+     const safeC = Math.max(c, minC);
+     const logMin = Math.log10(minC);
+     const logMax = Math.log10(maxC * 1.2);
+     return padT + (1.0 - (Math.log10(safeC) - logMin) / (logMax - logMin || 1.0)) * (H - padT - padB);
+    } else {
+     return padT + (1.0 - c / (maxC * 1.15 || 1.0)) * (H - padT - padB);
+    }
+   };
+
+   const pathData = pts.map((p, idx)=>(idx === 0 ? 'M ' : 'L ') + mapX(p.time_hours).toFixed(1) + ' ' + mapY(p.concentration_ng_ml).toFixed(1)).join(' ');
+
+   return e('svg',{width:W, height:H, style:{background:'#0f172a', borderRadius:'8px', width:'100%', height:'auto'}},[
+    // Axes
+    e('line',{key:'ax-x', x1:padL, y1:H-padB, x2:W-padR, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('line',{key:'ax-y', x1:padL, y1:padT, x2:padL, y2:H-padB, stroke:'#334155', strokeWidth:1}),
+    e('text',{key:'lbl-x', x:W/2, y:H-8, fill:'#94a3b8', fontSize:11, textAnchor:'middle'},'Time (hours)'),
+    e('text',{key:'lbl-y', x:16, y:H/2, fill:'#94a3b8', fontSize:11, textAnchor:'middle', transform:'rotate(-90 16 '+(H/2)+')'},isLog?'Plasma Conc. [log] (ng/mL)':'Plasma Conc. (ng/mL)'),
+
+    // Grid ticks
+    [0, maxT*0.25, maxT*0.5, maxT*0.75, maxT].map((t, idx)=>e('g',{key:'tick-x-'+idx},[
+     e('line',{x1:mapX(t), y1:H-padB, x2:mapX(t), y2:H-padB+4, stroke:'#64748b'}),
+     e('text',{x:mapX(t), y:H-padB+16, fill:'#64748b', fontSize:10, textAnchor:'middle'},t.toFixed(0)+'h')
+    ])),
+
+    // Predicted Curve
+    e('path',{key:'pred-path', d:pathData, fill:'none', stroke:'#38bdf8', strokeWidth:2.5}),
+
+    // Observed clinical overlay points
+    obs.map((o, idx)=>{
+     if(o.concentration_ng_ml == null) return null;
+     const cx = mapX(o.time_hours);
+     const cy = mapY(o.concentration_ng_ml);
+     return e('g',{key:'obs-'+idx},[
+      e('circle',{cx, cy, r:4.5, fill:'#f59e0b', stroke:'#ffffff', strokeWidth:1.5}),
+      e('text',{x:cx+6, y:cy-4, fill:'#fbbf24', fontSize:9},'Obs ('+o.concentration_ng_ml+')')
+     ]);
+    }),
+
+    // Legend
+    e('g',{key:'legend', transform:'translate('+(W-190)+', 12)'},[
+     e('line',{x1:0, y1:6, x2:20, y2:6, stroke:'#38bdf8', strokeWidth:2}),
+     e('text',{x:25, y:10, fill:'#cbd5e1', fontSize:10},'Human Prediction'),
+     obs.length>0&&e('circle',{cx:110, cy:6, r:4, fill:'#f59e0b', stroke:'#ffffff', strokeWidth:1}),
+     obs.length>0&&e('text',{x:120, y:10, fill:'#cbd5e1', fontSize:10},'Clinical Obs')
+    ])
+   ]);
+  };
+
+  if(!profile) return null;
+
+  const cl = profile.clearance || {};
+  const v = profile.volume || {};
+  const abs = profile.absorption || {};
+  const readiness = profile.readiness || {};
+  const clDis = cl.disagreement || {};
+  const vDis = v.disagreement || {};
+  const hasMajorDis = clDis.has_major_disagreement || vDis.has_major_disagreement;
+
+  return e('div',{className:'card', key:'human-pk-section', style:{marginTop:'20px', border:'1px solid var(--border-color,#334155)'}},[
+   e('div',{className:'row toolbar'},[
+    e('div',{},[
+     e('div',{className:'eyebrow'},'7 · HUMAN PK PREDICTION & TRANSLATIONAL SIMULATION'),
+     e('h3',{},'HUMAN PK PREDICTION — Multi-Stream Parameter Assembly & Simulation (Stage 5B-4)'),
+    ]),
+    e('div',{className:'row', style:{gap:'8px'}},[
+     e('span',{className:'status-badge ' + (readiness.iv_simulation?.status==='READY'?'status-ready':(readiness.iv_simulation?.status==='PARTIALLY_READY'?'status-medium':'status-failed'))},'IV: ' + (readiness.iv_simulation?.status||'UNAVAILABLE')),
+     e('span',{className:'status-badge ' + (readiness.po_simulation?.status==='READY'?'status-ready':(readiness.po_simulation?.status==='PARTIALLY_READY'?'status-medium':'status-failed'))},'PO: ' + (readiness.po_simulation?.status||'UNAVAILABLE'))
+    ])
+   ]),
+   e('p',{className:'small'},'Scientifically conservative Human PK translation assembling multi-stream evidence (Clinical Experimental > Hepatic IVIVE > Cross-Species Allometry > Physicochemical Distribution).'),
+
+   // Readiness Scorecard
+   e('div',{className:'grid', style:{marginTop:'12px'}},[
+    e('div',{className:'col-6'},e('div',{className:'card', style:{background:'rgba(15,23,42,0.6)'}},[
+     e('div',{className:'row toolbar'},[
+      e('strong',{},'Human IV Simulation Readiness'),
+      e('span',{className:'status-badge ' + (readiness.iv_simulation?.status==='READY'?'status-ready':(readiness.iv_simulation?.status==='PARTIALLY_READY'?'status-medium':'status-failed'))},readiness.iv_simulation?.status)
+     ]),
+     e('ul',{style:{paddingLeft:'18px', margin:'6px 0 0 0', fontSize:'12px', color:'#94a3b8'}},
+      (readiness.iv_simulation?.reasons||[]).map((r, i)=>e('li',{key:i},r))
+     )
+    ])),
+    e('div',{className:'col-6'},e('div',{className:'card', style:{background:'rgba(15,23,42,0.6)'}},[
+     e('div',{className:'row toolbar'},[
+      e('strong',{},'Human PO Simulation Readiness'),
+      e('span',{className:'status-badge ' + (readiness.po_simulation?.status==='READY'?'status-ready':(readiness.po_simulation?.status==='PARTIALLY_READY'?'status-medium':'status-failed'))},readiness.po_simulation?.status)
+     ]),
+     e('ul',{style:{paddingLeft:'18px', margin:'6px 0 0 0', fontSize:'12px', color:'#94a3b8'}},
+      (readiness.po_simulation?.reasons||[]).map((r, i)=>e('li',{key:i},r))
+     )
+    ])),
+    e('div',{className:'col-12'},e('div',{className:'alert', style:{fontSize:'12px'}},readiness.oral_translation_guardrail))
+   ]),
+
+   // Disagreement Alert Banner
+   hasMajorDis&&e('div',{className:'alert alert-danger', style:{marginTop:'12px', background:'rgba(239,68,68,0.15)', border:'1px solid #ef4444', padding:'12px', borderRadius:'6px'}},[
+    e('strong',{style:{color:'#f87171'}},'⚠️ MAJOR DISAGREEMENT DETECTED (>3-fold difference between candidate methods)'),
+    e('p',{className:'small', style:{color:'#fca5a5', marginTop:'4px'}},'Independent scientific estimates disagree by >3-fold. Automatic averaging is disabled by scientific policy. Review candidates in the assembly matrix below.')
+   ]),
+
+   // Multi-Stream Assembly Table
+   e('div',{className:'card', style:{marginTop:'16px'}},[
+    e('h4',{},'Human Parameter Assembly & Candidate Evidence Streams'),
+    e('p',{className:'small'},'Independent quantitative estimates are preserved side-by-side rather than silently overwritten.'),
+    e('div',{className:'table-scroll', style:{marginTop:'8px'}},[
+     e('table',{className:'table'},[
+      e('thead',{},e('tr',{},[
+       e('th',{},'Parameter'),
+       e('th',{},'Selected Value'),
+       e('th',{},'Source Type'),
+       e('th',{},'Confidence'),
+       e('th',{},'Available Candidates'),
+       e('th',{},'Disagreement')
+      ])),
+      e('tbody',{},[
+       // CL Row
+       e('tr',{key:'row-cl'},[
+        e('td',{},e('strong',{},'Clearance (CL)')),
+        e('td',{className:'mono'},cl.selected_value ? cl.selected_value + ' ' + cl.selected_unit : '—'),
+        e('td',{className:'small'},cl.selected_source || 'MODEL_UNAVAILABLE'),
+        e('td',{},e('span',{className:'status-badge '+(cl.confidence==='HIGH'?'status-ready':(cl.confidence==='MEDIUM'?'status-medium':'status-failed')), style:{fontSize:'10px'}},cl.confidence)),
+        e('td',{className:'small'},(cl.candidates||[]).map(c=>c.source_name + ': ' + c.value + ' ' + c.unit).join(' · ') || 'None'),
+        e('td',{},e('span',{className:'status-badge ' + (clDis.status==='GENERALLY_CONSISTENT'?'status-ready':(clDis.status==='MODERATE_DISAGREEMENT'?'status-medium':'status-failed')), style:{fontSize:'10px'}},clDis.status||'N/A'))
+       ]),
+       // Volume Row
+       e('tr',{key:'row-v'},[
+        e('td',{},e('strong',{},'Volume (Vss / Vz)')),
+        e('td',{className:'mono'},v.selected_value ? v.selected_value + ' ' + v.selected_unit : '—'),
+        e('td',{className:'small'},v.selected_source || 'MODEL_UNAVAILABLE'),
+        e('td',{},e('span',{className:'status-badge '+(v.confidence==='HIGH'?'status-ready':(v.confidence==='MEDIUM'?'status-medium':'status-failed')), style:{fontSize:'10px'}},v.confidence)),
+        e('td',{className:'small'},(v.candidates||[]).map(c=>c.source_name + ': ' + c.value + ' ' + c.unit).join(' · ') || 'None'),
+        e('td',{},e('span',{className:'status-badge ' + (vDis.status==='GENERALLY_CONSISTENT'?'status-ready':(vDis.status==='MODERATE_DISAGREEMENT'?'status-medium':'status-failed')), style:{fontSize:'10px'}},vDis.status||'N/A'))
+       ]),
+       // Half-Life Row
+       e('tr',{key:'row-thalf'},[
+        e('td',{},e('strong',{},'Half-Life (t½)')),
+        e('td',{className:'mono'},profile.half_life?.selected_value ? profile.half_life.selected_value + ' ' + profile.half_life.selected_unit : '—'),
+        e('td',{className:'small'},'Analytical ln(2)*V/CL'),
+        e('td',{},e('span',{className:'status-badge status-ready', style:{fontSize:'10px'}},'CALCULATED')),
+        e('td',{className:'small'},'Allometric: ' + (profile.half_life?.allometric_value || '—') + ' h · Clinical: ' + (profile.half_life?.experimental_value || '—') + ' h'),
+        e('td',{},'—')
+       ]),
+       // Bioavailability Row
+       e('tr',{key:'row-f'},[
+        e('td',{},e('strong',{},'Bioavailability (F)')),
+        e('td',{className:'mono'},abs.f_selected ? abs.f_selected + '%' : '—'),
+        e('td',{className:'small'},abs.f_selected_source || 'MODEL_UNAVAILABLE'),
+        e('td',{},e('span',{className:'status-badge '+(abs.f_experimental?'status-ready':(abs.f_predicted?'status-medium':'status-failed')), style:{fontSize:'10px'}},abs.f_experimental?'HIGH':(abs.f_predicted?'MEDIUM':'LOW'))),
+        e('td',{className:'small'},'Fa: '+(abs.fa_value?Math.round(abs.fa_value*100)+'%':'—')+' · Fg: '+(abs.fg_value?Math.round(abs.fg_value*100)+'%':'MODEL_UNAVAILABLE')+' · Fh: '+(abs.fh_value?Math.round(abs.fh_value*100)+'%':'—')),
+        e('td',{},abs.f_disagreement?.status || 'N/A')
+       ]),
+       // ka Row
+       e('tr',{key:'row-ka'},[
+        e('td',{},e('strong',{},'Absorption Rate (ka)')),
+        e('td',{className:'mono'},abs.ka_value ? abs.ka_value + ' 1/h' : '—'),
+        e('td',{className:'small'},abs.ka_source || 'MODEL_UNAVAILABLE'),
+        e('td',{},e('span',{className:'status-badge '+(abs.ka_value?'status-ready':'status-failed'), style:{fontSize:'10px'}},abs.ka_value?'HIGH':'UNAVAILABLE')),
+        e('td',{className:'small'},abs.ka_value ? 'Derived from Clinical Tmax' : 'No clinical Tmax or validated ka available'),
+        e('td',{},'—')
+       ])
+      ])
+     ])
+    ])
+   ]),
+
+   // Simulation Parameter Controls
+   e('div',{className:'card', style:{marginTop:'16px', background:'rgba(30,41,59,0.5)'}},[
+    e('div',{className:'row toolbar'},[
+     e('h4',{},'Human PK Simulation Engine (1-Compartment)'),
+     e('button',{className:'secondary', onClick:()=>setShowOverrides(!showOverrides)},showOverrides?'Hide Scientific Overrides':'Explore Overrides / Sensitivity')
+    ]),
+    e('div',{className:'grid', style:{marginTop:'8px'}},[
+     e('div',{className:'col-3'},[
+      e('label',{},'Route'),
+      e('select',{value:form.route, onChange:ev=>setForm(c=>({...c, route:ev.target.value}))},[
+       e('option',{value:'IV'},'IV (Intravenous)'),
+       e('option',{value:'PO'},'PO (Oral Extravascular)')
+      ])
+     ]),
+     form.route==='IV'&&e('div',{className:'col-3'},[
+      e('label',{},'Administration Type'),
+      e('select',{value:form.administration_type, onChange:ev=>setForm(c=>({...c, administration_type:ev.target.value}))},[
+       e('option',{value:'IV_BOLUS'},'IV Bolus'),
+       e('option',{value:'IV_INFUSION'},'IV Infusion')
+      ])
+     ]),
+     form.route==='IV'&&form.administration_type==='IV_INFUSION'&&e('div',{className:'col-3'},Field({
+      label:'Infusion Duration (h)',
+      type:'number',
+      value:form.infusion_duration_hours,
+      onChange:v=>setForm(c=>({...c, infusion_duration_hours:v}))
+     })),
+     e('div',{className:'col-3'},Field({label:'Dose', type:'number', value:form.dose, onChange:v=>setForm(c=>({...c, dose:v}))})),
+     e('div',{className:'col-3'},[
+      e('label',{},'Dose Unit'),
+      e('select',{value:form.dose_unit, onChange:ev=>setForm(c=>({...c, dose_unit:ev.target.value}))},[
+       e('option',{value:'mg'},'mg'),
+       e('option',{value:'mg/kg'},'mg/kg'),
+       e('option',{value:'ug'},'µg')
+      ])
+     ]),
+     e('div',{className:'col-3'},Field({label:'Patient BW (kg)', type:'number', value:form.body_weight_kg, onChange:v=>setForm(c=>({...c, body_weight_kg:v}))})),
+     e('div',{className:'col-3'},[
+      e('label',{},'Dosing Frequency'),
+      e('select',{value:form.dosing_frequency, onChange:ev=>setForm(c=>({...c, dosing_frequency:ev.target.value}))},[
+       e('option',{value:'Single Dose'},'Single Dose'),
+       e('option',{value:'Repeated Dosing'},'Repeated Dosing')
+      ])
+     ]),
+     form.dosing_frequency==='Repeated Dosing'&&e('div',{className:'col-3'},Field({label:'Dose Interval (h)', type:'number', value:form.dose_interval_hours, onChange:v=>setForm(c=>({...c, dose_interval_hours:v}))})),
+     form.dosing_frequency==='Repeated Dosing'&&e('div',{className:'col-3'},Field({label:'Number of Doses', type:'number', value:form.num_doses, onChange:v=>setForm(c=>({...c, num_doses:v}))}))
+    ]),
+
+    // Overrides section
+    showOverrides&&e('div',{className:'card', style:{marginTop:'12px', background:'rgba(15,23,42,0.8)', border:'1px dashed #475569'}},[
+     e('h5',{},'Scientific Sensitivity Analysis / User Overrides'),
+     e('p',{className:'small'},'Explicit overrides are recorded as assumptions and do not overwrite base models.'),
+     e('div',{className:'grid', style:{marginTop:'6px'}},[
+      e('div',{className:'col-3'},Field({label:'CL Override (mL/min/kg)', type:'number', value:form.user_cl_override, onChange:v=>setForm(c=>({...c, user_cl_override:v}))})),
+      e('div',{className:'col-3'},Field({label:'V Override (L/kg)', type:'number', value:form.user_v_override, onChange:v=>setForm(c=>({...c, user_v_override:v}))})),
+      form.route==='PO'&&e('div',{className:'col-3'},Field({label:'Oral F Override (%)', type:'number', value:form.user_f_override, onChange:v=>setForm(c=>({...c, user_f_override:v}))})),
+      form.route==='PO'&&e('div',{className:'col-3'},Field({label:'Gut Fg Override (0-1)', type:'number', value:form.user_fg_override, onChange:v=>setForm(c=>({...c, user_fg_override:v}))})),
+      form.route==='PO'&&e('div',{className:'col-3'},Field({label:'ka Override (1/h)', type:'number', value:form.user_ka_override, onChange:v=>setForm(c=>({...c, user_ka_override:v}))}))
+     ])
+    ]),
+
+    e('div',{className:'row toolbar', style:{marginTop:'14px'}},[
+     e('button',{onClick:runSimulation, disabled:simBusy},simBusy?'Simulating…':'Run Human PK Simulation')
+    ])
+   ]),
+
+   // Simulation Output & Interactive Curve Plot
+   simResult&&e('div',{className:'card', style:{marginTop:'16px'}},[
+    e('div',{className:'row toolbar'},[
+     e('div',{},[
+      e('div',{className:'eyebrow'},'SIMULATION OUTPUT'),
+      e('h4',{},simResult.route + ' Human Concentration-Time Profile (' + simResult.administration_type + ')')
+     ]),
+     e('div',{className:'row', style:{gap:'6px'}},[
+      e('button',{className:plotScale==='linear'?'':'secondary', onClick:()=>setPlotScale('linear')},'Linear Scale'),
+      e('button',{className:plotScale==='log'?'':'secondary', onClick:()=>setPlotScale('log')},'Semi-Log Scale')
+     ])
+    ]),
+
+    // Scientific Disclaimer Tags
+    e('div',{className:'row', style:{gap:'6px', margin:'6px 0 12px 0'}},
+     (simResult.scientific_labels||[]).map((lbl, i)=>e('span',{key:i, className:'status-badge status-medium', style:{fontSize:'10px'}},lbl))
+    ),
+
+    // Grid: Curve + Metrics
+    e('div',{className:'grid'},[
+     e('div',{className:'col-7'},e('div',{style:{marginTop:'6px'}},renderCurvePlot())),
+     e('div',{className:'col-5'},[
+      e('h5',{},'Analytical PK Metrics'),
+      e('div',{className:'grid ivive-output-grid', style:{marginTop:'6px'}},[
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Cmax (ng/mL)'), e('strong',{className:'mono'},simResult.output_metrics?.cmax_ng_ml)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Tmax (h)'), e('strong',{className:'mono'},simResult.output_metrics?.tmax_hours)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'AUC single (ng·h/mL)'), e('strong',{className:'mono'},simResult.output_metrics?.auc_single_ng_h_ml)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Half-Life (h)'), e('strong',{className:'mono'},simResult.output_metrics?.half_life_hours)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Clearance (L/h)'), e('strong',{className:'mono'},simResult.output_metrics?.clearance_l_h)]),
+       e('div',{className:'card pk-nca-card'},[e('span',{},'Volume (L)'), e('strong',{className:'mono'},simResult.output_metrics?.volume_l)]),
+       simResult.route==='PO'&&e('div',{className:'card pk-nca-card'},[e('span',{},'Bioavailability (%)'), e('strong',{className:'mono'},simResult.output_metrics?.bioavailability_pct + '%')]),
+       simResult.route==='PO'&&e('div',{className:'card pk-nca-card'},[e('span',{},'ka (1/h)'), e('strong',{className:'mono'},simResult.output_metrics?.ka_1_per_h)])
+      ]),
+      (simResult.assumptions||[]).length>0&&e('div',{style:{marginTop:'8px'}},[
+       e('strong',{className:'small'},'Assumptions & Overrides:'),
+       e('ul',{style:{paddingLeft:'16px', margin:'4px 0 0 0', fontSize:'11px', color:'#f59e0b'}},
+        simResult.assumptions.map((a, i)=>e('li',{key:i},a))
+       )
+      ])
+     ])
+    ])
+   ]),
+
+   // Prospective Prediction Freeze & Snapshot Panel
+   e('div',{className:'card', style:{marginTop:'16px'}},[
+    e('div',{className:'row toolbar'},[
+     e('div',{},[
+      e('div',{className:'eyebrow'},'PROSPECTIVE SNAPSHOT GOVERNANCE'),
+      e('h4',{},'Freeze Prospective Human PK Prediction'),
+     ]),
+     e('button',{onClick:freezeSnapshot, disabled:freezeBusy},freezeBusy?'Freezing…':'Freeze Prospective Snapshot')
+    ]),
+    e('p',{className:'small'},'Freezes the current prediction parameters into an immutable database snapshot BEFORE entering clinical Human trial data to prevent hindsight bias.'),
+    e('div',{className:'row', style:{marginTop:'8px'}},[
+     Field({label:'Snapshot Name', value:snapshotName, onChange:setSnapshotName, placeholder:'e.g. Phase 1 Clinical Dose Candidate'})
+    ]),
+
+    // Snapshots table
+    snapshots.length>0&&e('div',{className:'table-scroll', style:{marginTop:'12px'}},[
+     e('h5',{},'Immutable Prediction Snapshot History (' + snapshots.length + ')'),
+     e('table',{className:'table'},[
+      e('thead',{},e('tr',{},[
+       e('th',{},'Snapshot Name'),
+       e('th',{},'Freeze Date'),
+       e('th',{},'Pred CL'),
+       e('th',{},'Pred V'),
+       e('th',{},'Pred F'),
+       e('th',{},'Pred ka'),
+       e('th',{},'Inputs Hash')
+      ])),
+      e('tbody',{},snapshots.map(s=>e('tr',{key:s.id},[
+       e('td',{},e('strong',{},s.snapshot_name)),
+       e('td',{className:'small'},new Date(s.created_at).toLocaleString()),
+       e('td',{className:'mono'},s.selected_cl ? s.selected_cl + ' mL/min/kg' : '—'),
+       e('td',{className:'mono'},s.selected_v ? s.selected_v + ' L/kg' : '—'),
+       e('td',{className:'mono'},s.f_selected ? s.f_selected + '%' : '—'),
+       e('td',{className:'mono'},s.ka_value ? s.ka_value + ' 1/h' : '—'),
+       e('td',{className:'mono small', style:{color:'#64748b'}},s.inputs_hash ? s.inputs_hash.slice(0,10)+'…' : '—')
+      ])))
+     ])
+    ])
+   ]),
+
+   // Retrospective Clinical Validation Panel
+   valData&&valData.status==='VALIDATED'&&e('div',{className:'card', style:{marginTop:'16px', background:'rgba(23,105,170,0.08)'}},[
+    e('div',{className:'row toolbar'},[
+     e('div',{},[
+      e('div',{className:'eyebrow'},'RETROSPECTIVE VALIDATION'),
+      e('h4',{},'Clinical Validation Against Frozen Prospective Snapshot'),
+     ]),
+     e('span',{className:'status-badge status-ready'},'AAFE ' + (valData.metrics?.aafe || '—') + 'x')
+    ]),
+    e('p',{className:'small'},'Comparing subsequent Human clinical data against the immutable prospective prediction snapshot (' + (valData.snapshot_name || '') + ').'),
+
+    e('div',{className:'grid ivive-output-grid', style:{marginTop:'8px'}},[
+     e('div',{className:'card pk-nca-card'},[e('span',{},'Clinical Comparisons'), e('strong',{className:'mono'},valData.n_comparisons)]),
+     e('div',{className:'card pk-nca-card'},[e('span',{},'AAFE (Fold Error)'), e('strong',{className:'mono'},valData.metrics?.aafe + 'x')]),
+     e('div',{className:'card pk-nca-card'},[e('span',{},'Within 2-Fold (%)'), e('strong',{className:'mono'},valData.metrics?.within_2_fold_pct + '%')]),
+     e('div',{className:'card pk-nca-card'},[e('span',{},'Within 3-Fold (%)'), e('strong',{className:'mono'},valData.metrics?.within_3_fold_pct + '%')])
+    ]),
+
+    e('div',{className:'table-scroll', style:{marginTop:'12px'}},[
+     e('table',{className:'table'},[
+      e('thead',{},e('tr',{},[
+       e('th',{},'Study'),
+       e('th',{},'Endpoint'),
+       e('th',{},'Route'),
+       e('th',{},'Predicted'),
+       e('th',{},'Observed'),
+       e('th',{},'Fold Error'),
+       e('th',{},'AFE'),
+       e('th',{},'Performance Band')
+      ])),
+      e('tbody',{},(valData.comparisons||[]).map((c, i)=>e('tr',{key:i},[
+       e('td',{},c.study_name),
+       e('td',{className:'mono'},c.endpoint),
+       e('td',{},c.route),
+       e('td',{className:'mono'},c.predicted + ' ' + c.unit),
+       e('td',{className:'mono'},c.observed + ' ' + c.unit),
+       e('td',{className:'mono'},c.fold_error + 'x'),
+       e('td',{className:'mono'},c.absolute_fold_error + 'x'),
+       e('td',{},e('span',{className:'status-badge ' + (c.absolute_fold_error<=2.0?'status-ready':(c.absolute_fold_error<=3.0?'status-medium':'status-failed')), style:{fontSize:'10px'}},c.performance_band))
+      ])))
+     ])
+    ])
+   ])
+  ]);
+ }
+
+
  function ScientificValidationSection(){
   const [configs, setConfigs] = React.useState(null);
   const [gate, setGate] = React.useState(null);
@@ -2532,6 +3010,7 @@ function App(){
    e(PkSimulationSection,{versionId,key:'pk-simulation'}),
    e(TranslationalPkSection,{versionId,key:'translational-pk'}),
    e(PkValidationSection,{versionId,key:'pk-validation'}),
+   e(HumanPkSection,{versionId,key:'human-pk'}),
 
    pkModalOpen&&e('div',{className:'modal-backdrop',key:'study-modal'},e('div',{className:'card compound-modal'},[
     e('div',{className:'row toolbar',key:'head'},[e('h2',{},'Add PK Study'),e('button',{className:'secondary',onClick:()=>setPkModalOpen(false)},'Close')]),

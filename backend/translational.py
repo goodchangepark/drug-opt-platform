@@ -135,7 +135,7 @@ def fit_allometry(
 
     for pt in species_points:
         bw = pt["bw_kg"]
-        val_norm = pt["value_norm"]  # mL/min/kg for CL, L/kg for Vss
+        val_norm = pt.get("value_norm") if pt.get("value_norm") is not None else pt.get("observed_norm", 0.0)  # mL/min/kg for CL, L/kg for Vss
         if val_norm <= 0 or bw <= 0:
             continue
         val_total = val_norm * bw  # Total mL/min or Total L
@@ -206,7 +206,7 @@ def fit_allometry(
     plot_points = []
     for pt in species_points:
         bw = pt["bw_kg"]
-        val_norm = pt["value_norm"]
+        val_norm = pt.get("value_norm") if pt.get("value_norm") is not None else pt.get("observed_norm", 0.0)
         val_total = val_norm * bw
         plot_points.append({
             "species": pt["species"],
