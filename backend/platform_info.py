@@ -10,7 +10,7 @@ from pathlib import Path
 
 from typing import Any
 
-APP_VERSION = "0.6.1-stage5b4-ui"
+APP_VERSION = "0.6.2-stage5b4-ui"
 CURRENT_STAGE = "5B-4"
 
 PACKAGE_SPECS = (
@@ -149,7 +149,15 @@ VERSION_HISTORY = [
         "milestone": "Scientific UI/UX Refinement & Multi-Species Visualization",
         "improvements": "Main dashboard simplification, Noto Sans KR typography standard, centralized interpretation registry, multi-species comparative PK summary and interactive curves.",
     },
+    {
+        "version": "0.6.2-stage5b4-ui",
+        "release_date": "2026-08-27",
+        "stage": "Stage 5B-4 Refinement 2",
+        "milestone": "UI Polish & Unified Prediction Workflow",
+        "improvements": "Dashboard card grid redesign, compound overview primary predict workflow, tab-level re-predict actions, PK overview summary, global Noto Sans KR font, and test project cleanup.",
+    },
 ]
+
 
 
 @lru_cache(maxsize=1)

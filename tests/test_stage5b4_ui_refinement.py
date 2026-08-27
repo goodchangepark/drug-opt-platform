@@ -20,16 +20,16 @@ client = TestClient(app)
 
 
 def test_platform_version_and_history():
-    assert APP_VERSION == "0.6.1-stage5b4-ui"
+    assert APP_VERSION == "0.6.2-stage5b4-ui"
     assert CURRENT_STAGE == "5B-4"
     assert latest_release_date() == "2026-08-27"
     
     vh = version_history()
-    assert len(vh) == 11
+    assert len(vh) == 12
     assert vh[0]["version"] == "0.1.0"
-    assert vh[-1]["version"] == "0.6.1-stage5b4-ui"
-    assert vh[-1]["stage"] == "Stage 5B-4 Refinement"
-    assert "Scientific UI/UX Refinement" in vh[-1]["milestone"]
+    assert vh[-1]["version"] == "0.6.2-stage5b4-ui"
+    assert vh[-1]["stage"] == "Stage 5B-4 Refinement 2"
+    assert "Unified Prediction Workflow" in vh[-1]["milestone"]
 
 
 def test_api_health_endpoint():
@@ -37,7 +37,7 @@ def test_api_health_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.6.1-stage5b4-ui"
+    assert data["version"] == "0.6.2-stage5b4-ui"
     assert data["step"] == "5B-4"
     assert data["updated"] == "2026-08-27"
 
@@ -59,11 +59,12 @@ def test_api_help_registry_includes_history_and_rules():
     response = client.get("/api/help/registry")
     assert response.status_code == 200
     data = response.json()
-    assert data["application"]["version"] == "0.6.1-stage5b4-ui"
+    assert data["application"]["version"] == "0.6.2-stage5b4-ui"
     assert "version_history" in data
-    assert len(data["version_history"]) == 11
+    assert len(data["version_history"]) == 12
     assert "interpretation_registry" in data
     assert data["interpretation_registry"]["rules_count"] >= 20
+
 
 
 def test_physicochemical_interpretations():
@@ -175,4 +176,5 @@ def test_static_assets_consistency():
     assert "unifiedPhysicochemicalTable" in js_content
     assert "speciesMetabolicStabilityTable" in js_content
     assert "MultiSpeciesPkSummaryTable" in js_content
-    assert "v0.6.1-stage5b4-ui" in js_content
+    assert "v0.6.2-stage5b4-ui" in js_content
+

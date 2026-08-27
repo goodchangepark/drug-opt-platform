@@ -436,6 +436,19 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
         db.execute(delete(ADMETAssayDefinition).where(ADMETAssayDefinition.endpoint_id.in_(endpoint_ids)))
         db.execute(delete(ADMETEndpoint).where(ADMETEndpoint.id.in_(endpoint_ids)))
 
+    # PK and IVIVE project-level cleanup
+    db.execute(delete(PKParameterSet).where(PKParameterSet.project_id.in_(project_ids)))
+    db.execute(delete(PKSimulationRun).where(PKSimulationRun.project_id.in_(project_ids)))
+    db.execute(delete(PKTranslationalSnapshot).where(PKTranslationalSnapshot.project_id.in_(project_ids)))
+    db.execute(delete(PKHumanPredictionSnapshot).where(PKHumanPredictionSnapshot.project_id.in_(project_ids)))
+    db.execute(delete(IVIVERun).where(IVIVERun.project_id.in_(project_ids)))
+    db.execute(delete(IVIVEInputSet).where(IVIVEInputSet.project_id.in_(project_ids)))
+    all_proj_pk_studies = list(db.scalars(select(PKStudy.id).where(PKStudy.project_id.in_(project_ids))))
+    if all_proj_pk_studies:
+        db.execute(delete(PKNCAResult).where(PKNCAResult.pk_study_id.in_(all_proj_pk_studies)))
+        db.execute(delete(PKObservation).where(PKObservation.pk_study_id.in_(all_proj_pk_studies)))
+        db.execute(delete(PKStudy).where(PKStudy.id.in_(all_proj_pk_studies)))
+
     if version_ids:
         db.execute(delete(PKParameterSet).where(PKParameterSet.version_id.in_(version_ids)))
         db.execute(delete(PKSimulationRun).where(PKSimulationRun.version_id.in_(version_ids)))
@@ -471,6 +484,7 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
     ))
     db.execute(delete(Project).where(Project.id.in_(project_ids)))
     db.flush()
+
 
 
 def _confirmed_project_delete(db: Session, confirmations: list[dict]):
@@ -659,7 +673,7 @@ def calculate_compound_properties(row_id: int, db: Session = Depends(get_db)):
 
 @app.post("/api/compounds/{row_id}/predict-workflow", status_code=202)
 def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db)):
-    """Save-following orchestration. Activity is intentionally never run here."""
+    """Save-following and Overview prediction orchestration. Activity is intentionally excluded unless configured."""
     compound = db.get(Compound, row_id)
     if not compound:
         raise HTTPException(status_code=404, detail="Compound not found")
@@ -673,37 +687,77 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
         "properties": {"status": "PENDING"},
         "admet": {"status": "PENDING", "endpoints": []},
         "metabolism": {"status": "PENDING"},
-        "activity": {"status": "NOT_INCLUDED", "message": "Assay configuration required; Activity is excluded from Save & Predict."},
+        "activity": {"status": "NOT_INCLUDED", "message": "Assay configuration required; Activity is excluded from automatic prediction."},
     }
+    completed_endpoints = []
+    unavailable_endpoints = []
+    failed_endpoints = []
+
     try:
         steps["properties"] = {"status": "RUNNING"}
         calculate_compound_properties(row_id, db)
         steps["properties"] = {"status": "COMPLETE", "message": "Stage 1 properties calculated."}
+        completed_endpoints.extend(["Physicochemical Properties", "Ionization (pH)", "Structural Alerts"])
     except Exception as exc:
         steps["properties"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc))}
+        failed_endpoints.append("Physicochemical Properties")
+
     try:
         steps["admet"] = {"status": "RUNNING", "endpoints": []}
         result = run_admet_predictions(version.id, db)
         steps["admet"] = {"status": "COMPLETE" if result["status"] in {"COMPLETE", "CACHED"} else result["status"],
                           "message": result.get("message", ""), "endpoints": result.get("endpoint_statuses", []),
                           "consensus_count": len(result.get("consensus_predictions", []))}
+        if result["status"] in {"COMPLETE", "CACHED"}:
+            completed_endpoints.extend(["Solubility", "Caco-2 Permeability", "Plasma Protein Binding", "HLM Clearance", "RLM Clearance", "MLM Clearance", "hERG Liability", "DILI Liability", "Ames Mutagenicity"])
+        else:
+            unavailable_endpoints.append("ADMET Model Panel")
     except Exception as exc:
         steps["admet"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc)), "endpoints": []}
+        failed_endpoints.append("ADMET Predictions")
+
     try:
         steps["metabolism"] = {"status": "RUNNING"}
         result = run_metabolism_predictions(version.id, db)
         steps["metabolism"] = {"status": "COMPLETE" if result["status"] in {"COMPLETE", "CACHED"} else result["status"],
                                "message": result.get("message", ""), "soft_spots_and_metabolites": True}
+        if result["status"] in {"COMPLETE", "CACHED"}:
+            completed_endpoints.extend(["CYP Inhibition Panel", "CYP Substrate Panel", "P-gp Transporter", "SyGMa Soft Spots", "Metabolite Hypotheses"])
+        else:
+            unavailable_endpoints.append("Metabolism Prediction Panel")
     except Exception as exc:
         steps["metabolism"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc))}
+        failed_endpoints.append("Metabolism Predictions")
+
     required = [steps[name]["status"] for name in ("properties", "admet", "metabolism")]
     status = "COMPLETE" if all(value == "COMPLETE" for value in required) else ("FAILED" if all(value == "FAILED" for value in required) else "PARTIAL")
-    return {"status": status, "compound_id": compound.id, "compound_version_id": version.id,
-            "activity_excluded": True, "steps": steps,
-            "message": "Save & Predict finished with isolated endpoint status reporting."}
+    timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+
+    return {
+        "status": status,
+        "compound_id": compound.id,
+        "compound_version_id": version.id,
+        "activity_excluded": True,
+        "completed_endpoints": completed_endpoints,
+        "unavailable_endpoints": unavailable_endpoints,
+        "failed_endpoints": failed_endpoints,
+        "completed_count": len(completed_endpoints),
+        "unavailable_count": len(unavailable_endpoints),
+        "failed_count": len(failed_endpoints),
+        "timestamp": timestamp,
+        "steps": steps,
+        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
+    }
+
+
+@app.post("/api/compounds/{row_id}/predict-all", status_code=202)
+def run_compound_predict_all(row_id: int, db: Session = Depends(get_db)):
+    """Overview Primary Predict Endpoint alias."""
+    return run_compound_prediction_workflow(row_id, db)
 
 
 @app.get("/api/compounds/{row_id}")
+
 def get_compound(row_id: int, include_versions: bool = Query(False), db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
     if not compound: raise HTTPException(status_code=404, detail="Compound not found")
@@ -746,7 +800,20 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
 def delete_compound(row_id: int, db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
     if not compound: raise HTTPException(status_code=404, detail="Compound not found")
+    v_ids = [v.id for v in compound.versions]
+    db.execute(delete(PKParameterSet).where((PKParameterSet.compound_row_id == row_id) | (PKParameterSet.version_id.in_(v_ids))))
+    db.execute(delete(PKSimulationRun).where((PKSimulationRun.compound_row_id == row_id) | (PKSimulationRun.version_id.in_(v_ids))))
+    db.execute(delete(PKTranslationalSnapshot).where(PKTranslationalSnapshot.compound_row_id == row_id))
+    db.execute(delete(PKHumanPredictionSnapshot).where(PKHumanPredictionSnapshot.compound_row_id == row_id))
+    db.execute(delete(IVIVERun).where(IVIVERun.version_id.in_(v_ids)))
+    db.execute(delete(IVIVEInputSet).where(IVIVEInputSet.version_id.in_(v_ids)))
+    st_ids = list(db.scalars(select(PKStudy.id).where(PKStudy.compound_row_id == row_id)))
+    if st_ids:
+        db.execute(delete(PKNCAResult).where(PKNCAResult.pk_study_id.in_(st_ids)))
+        db.execute(delete(PKObservation).where(PKObservation.pk_study_id.in_(st_ids)))
+        db.execute(delete(PKStudy).where(PKStudy.id.in_(st_ids)))
     db.delete(compound); db.commit()
+
 
 
 @app.get("/api/projects/{project_id}/compare")

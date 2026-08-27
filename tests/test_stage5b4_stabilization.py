@@ -19,7 +19,7 @@ def test_help_registry_endpoint_uses_runtime_registries_and_versions():
     with SessionLocal() as db:
         payload = help_registry(db)
     assert payload["application"]["current_stage"] == "5B-4"
-    assert payload["application"]["version"] in ("0.6.0-stage5b4-stable", "0.6.1-stage5b4-ui")
+    assert payload["application"]["version"] in ("0.6.0-stage5b4-stable", "0.6.1-stage5b4-ui", "0.6.2-stage5b4-ui")
     versions = {row["package"]: row["version"] for row in payload["package_inventory"]}
     assert versions["RDKit"] == importlib.metadata.version("rdkit")
     assert versions["Chemprop"] == importlib.metadata.version("chemprop")
