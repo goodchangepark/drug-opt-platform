@@ -1435,7 +1435,8 @@ function App(){
 
  function PkSimulationSection({versionId}){
   const [species, setSpecies] = React.useState('Rat');
-  const [adminType, setAdminType] = React.useState('IV_BOLUS');
+  const [route, setRoute] = React.useState('PO');
+  const [adminType, setAdminType] = React.useState('EXTRAVASCULAR_1COMP');
   const [dose, setDose] = React.useState(5.0);
   const [doseUnit, setDoseUnit] = React.useState('mg/kg');
   const [infusionDur, setInfusionDur] = React.useState(1.0);
@@ -1443,27 +1444,42 @@ function App(){
   const [interval, setInterval] = React.useState(24.0);
   const [numDoses, setNumDoses] = React.useState(3);
   const [modelType, setModelType] = React.useState('ONE_COMPARTMENT');
+  const [userCl, setUserCl] = React.useState('');
+  const [userV, setUserV] = React.useState('');
+  const [userF, setUserF] = React.useState('');
+  const [userKa, setUserKa] = React.useState('');
   const [logScale, setLogScale] = React.useState(false);
   const [preview, setPreview] = React.useState(null);
   const [activeRun, setActiveRun] = React.useState(null);
   const [history, setHistory] = React.useState([]);
+  const [fitResult, setFitResult] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
+  const [fitting, setFitting] = React.useState(false);
   const [error, setError] = React.useState(null);
+
+  // Auto-adjust adminType when route changes
+  React.useEffect(()=>{
+    if(route === 'IV'){
+      if(adminType === 'EXTRAVASCULAR_1COMP') setAdminType('IV_BOLUS');
+    } else {
+      setAdminType('EXTRAVASCULAR_1COMP');
+    }
+  },[route]);
 
   const loadData = React.useCallback(async()=>{
    if(!versionId) return;
    try{
-    const prev = await api.get('/compound-versions/'+versionId+'/pk-simulation/preview?species='+species);
+    const prev = await api.get('/compound-versions/'+versionId+'/pk-simulation/preview?species='+species+'&route='+route);
     setPreview(prev);
-    const hist = await api.get('/compound-versions/'+versionId+'/pk-simulation/history?species='+species);
+    const hist = await api.get('/compound-versions/'+versionId+'/pk-simulation/history?species='+species+'&route='+route);
     setHistory(hist||[]);
-    if(hist && hist.length > 0 && !activeRun){
+    if(hist && hist.length > 0 && (!activeRun || activeRun.route !== route || activeRun.species !== species)){
      setActiveRun(hist[0]);
     }
    }catch(err){
     console.error("Simulation load error:", err);
    }
-  },[versionId, species]);
+  },[versionId, species, route]);
 
   React.useEffect(()=>{ loadData(); },[loadData]);
 
@@ -1473,14 +1489,19 @@ function App(){
    try{
     const payload = {
      species,
-     administration_type: adminType,
+     route,
+     administration_type: route === 'IV' ? adminType : 'EXTRAVASCULAR_1COMP',
      dose: parseFloat(dose),
      dose_unit: doseUnit,
-     infusion_duration_hours: adminType === 'IV_INFUSION' ? parseFloat(infusionDur) : 0.0,
+     infusion_duration_hours: (route === 'IV' && adminType === 'IV_INFUSION') ? parseFloat(infusionDur) : 0.0,
      dosing_frequency: frequency,
      dose_interval_hours: parseFloat(interval),
      num_doses: frequency === 'Repeated Dosing' ? parseInt(numDoses, 10) : 1,
-     model_type: modelType
+     model_type: modelType,
+     user_cl_override: userCl ? parseFloat(userCl) : null,
+     user_v_override: userV ? parseFloat(userV) : null,
+     user_f_override: (route !== 'IV' && userF) ? parseFloat(userF) : null,
+     user_ka_override: (route !== 'IV' && userKa) ? parseFloat(userKa) : null,
     };
     const res = await api.post('/compound-versions/'+versionId+'/pk-simulation/run', payload);
     setActiveRun(res);
@@ -1489,6 +1510,31 @@ function App(){
     setError(err.message||"Simulation failed");
    }finally{
     setLoading(false);
+   }
+  };
+
+  const handleFitKa = async()=>{
+   setFitting(true);
+   setError(null);
+   try{
+    const payload = {
+     species,
+     route,
+     dose: parseFloat(dose),
+     dose_unit: doseUnit,
+     fix_cl_v: true,
+     user_cl_override: userCl ? parseFloat(userCl) : null,
+     user_v_override: userV ? parseFloat(userV) : null,
+    };
+    const res = await api.post('/compound-versions/'+versionId+'/pk-simulation/fit-extravascular', payload);
+    setFitResult(res);
+    if(res && res.fitted_ka){
+      setUserKa(String(res.fitted_ka));
+    }
+   }catch(err){
+    setError("Parameter fitting error: " + (err.message || String(err)));
+   }finally{
+    setFitting(false);
    }
   };
 
@@ -1529,53 +1575,119 @@ function App(){
 
   const clPreview = preview?.clearance;
   const vPreview = preview?.volume;
+  const fPreview = preview?.bioavailability;
+  const kaPreview = preview?.absorption_rate;
+  const mechComp = preview?.mechanistic_components || {};
 
   return e('div',{className:'card', style:{marginTop:'16px'}},[
    e('div',{className:'row toolbar'},[
-    e('h3',{},'PK SIMULATION — IV Concentration-Time Engine (Stage 5B-1)'),
+    e('div',{},[
+     e('div',{className:'eyebrow'},'6 · PK CONCENTRATION-TIME SIMULATION & ABSORPTION KINETICS'),
+     e('h3',{},'PK SIMULATION — Extravascular (PO / SC / IP) & IV Engine (Stage 5B-2)'),
+    ]),
     StatusBadge({type: activeRun ? activeRun.confidence : (preview?.confidence_ceiling||'MEDIUM')})
    ]),
-   e('p',{className:'small'},'Mechanistic mathematical simulation of IV bolus and IV infusion concentration-time profiles using Stage 5A PK parameters.'),
+   e('p',{className:'small'},'Scientifically defensible concentration-time simulation for PO, SC, IP (first-order absorption) and IV routes with route isolation and parameter governance.'),
+
+   // Route Switcher Toolbar
+   e('div',{className:'row toolbar', style:{marginTop:'12px', background:'rgba(255,255,255,0.02)', padding:'8px 12px', borderRadius:'6px'}},[
+    e('span',{style:{fontWeight:'bold', marginRight:'10px'}},'Route:'),
+    ['PO','IV','SC','IP'].map(r=>e('button',{
+      key: r,
+      className: route === r ? 'primary' : 'secondary',
+      style: {marginRight:'6px', padding:'5px 14px'},
+      onClick: ()=>setRoute(r)
+    }, r + (r==='PO'?' (Oral)':r==='IV'?' (Intravenous)':r==='SC'?' (Subcutaneous)':' (Intraperitoneal)'))),
+   ]),
 
    e('div',{className:'grid', style:{marginTop:'12px'}},[
     e('div',{className:'col-3'},[
      e('label',{},'Species'),
      e('select',{value:species, onChange:ev=>setSpecies(ev.target.value)},['Rat','Mouse','Dog','Monkey','Human'].map(s=>e('option',{key:s,value:s},s)))
     ]),
-    e('div',{className:'col-3'},[
+    route === 'IV' ? e('div',{className:'col-3'},[
      e('label',{},'Administration Type'),
      e('select',{value:adminType, onChange:ev=>setAdminType(ev.target.value)},[
       e('option',{value:'IV_BOLUS'},'IV Bolus'),
       e('option',{value:'IV_INFUSION'},'IV Infusion')
      ])
+    ]) : e('div',{className:'col-3'},[
+     e('label',{},'Administration Model'),
+     e('input',{type:'text', value:'1-Compartment First-Order Absorption', readOnly:true, disabled:true})
     ]),
     e('div',{className:'col-3'},Field({label:'Dose', type:'number', value:dose, onChange:setDose})),
     e('div',{className:'col-3'},[
      e('label',{},'Dose Unit'),
      e('select',{value:doseUnit, onChange:ev=>setDoseUnit(ev.target.value)},['mg/kg','µg/kg'].map(u=>e('option',{key:u,value:u},u)))
     ]),
-    adminType === 'IV_INFUSION' && e('div',{className:'col-3', key:'inf-dur'},Field({label:'Infusion Duration (h)', type:'number', value:infusionDur, onChange:setInfusionDur})),
+    (route === 'IV' && adminType === 'IV_INFUSION') && e('div',{className:'col-3', key:'inf-dur'},Field({label:'Infusion Duration (h)', type:'number', value:infusionDur, onChange:setInfusionDur})),
     e('div',{className:'col-3'},[
      e('label',{},'Dosing Frequency'),
      e('select',{value:frequency, onChange:ev=>setFrequency(ev.target.value)},['Single Dose','Repeated Dosing'].map(f=>e('option',{key:f,value:f},f)))
     ]),
     frequency === 'Repeated Dosing' && e('div',{className:'col-3', key:'interval'},Field({label:'Dose Interval τ (h)', type:'number', value:interval, onChange:setInterval})),
     frequency === 'Repeated Dosing' && e('div',{className:'col-3', key:'numDoses'},Field({label:'Number of Doses', type:'number', value:numDoses, onChange:setNumDoses})),
-    e('div',{className:'col-3'},[
+    route === 'IV' && e('div',{className:'col-3'},[
      e('label',{},'Model Type'),
      e('select',{value:modelType, onChange:ev=>setModelType(ev.target.value)},[
       e('option',{value:'ONE_COMPARTMENT'},'1-Compartment Model'),
-      e('option',{value:'TWO_COMPARTMENT'},'2-Compartment Model (If fit/parameters available)')
+      e('option',{value:'TWO_COMPARTMENT'},'2-Compartment Model (If fit available)')
      ])
     ])
    ]),
 
+   // Parameter Source & Governance Panel
    e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)', marginTop:'12px', padding:'12px'}},[
-    e('strong',{style:{fontSize:'14px'}},'Parameter Review Before Run:'),
-    e('div',{className:'row toolbar', style:{marginTop:'6px'}},[
-     e('span',{},'CL: '+(clPreview?.value!=null ? clPreview.value+' mL/min/kg ('+clPreview.source+')' : 'Unavailable')),
-     e('span',{},'Volume: '+(vPreview?.value!=null ? vPreview.value+' L/kg ('+vPreview.type+')' : 'Unavailable')),
-     e('button',{className:'primary', onClick:handleRun, disabled:loading}, loading ? 'Simulating...' : 'RUN SIMULATION')
+    e('div',{className:'row toolbar'},[
+     e('strong',{style:{fontSize:'14px'}},'Parameter Provenance & Evidence Hierarchy ('+route+' · '+species+'):'),
+     route !== 'IV' && e('button',{className:'secondary', style:{fontSize:'12px'}, disabled:fitting, onClick:handleFitKa}, fitting ? 'Fitting…' : 'Fit ka from Observations')
+    ]),
+    e('div',{className:'grid ivive-output-grid', style:{marginTop:'8px'}},[
+     e('div',{className:'card pk-nca-card'},[
+      e('div',{className:'row toolbar'},[e('span',{},'Systemic CL'), StatusBadge({type:clPreview?.evidence_type||'MODEL_UNAVAILABLE'})]),
+      e('strong',{className:'mono'},clPreview?.value!=null ? clPreview.value+' '+clPreview.unit : 'Unavailable'),
+      e('small',{},'Source: '+(clPreview?.source||'None'))
+     ]),
+     e('div',{className:'card pk-nca-card'},[
+      e('div',{className:'row toolbar'},[e('span',{},'Distribution V'), StatusBadge({type:vPreview?.evidence_type||'MODEL_UNAVAILABLE'})]),
+      e('strong',{className:'mono'},vPreview?.value!=null ? vPreview.value+' '+vPreview.unit : 'Unavailable'),
+      e('small',{},'Type: '+(vPreview?.type||'None'))
+     ]),
+     route !== 'IV' && e('div',{className:'card pk-nca-card'},[
+      e('div',{className:'row toolbar'},[e('span',{},'Bioavailability (F)'), StatusBadge({type:fPreview?.evidence_type||'MODEL_UNAVAILABLE'})]),
+      e('strong',{className:'mono'},fPreview?.value!=null ? fPreview.value+'%' : 'Unavailable'),
+      e('small',{},'Source: '+(fPreview?.source||'None'))
+     ]),
+     route !== 'IV' && e('div',{className:'card pk-nca-card'},[
+      e('div',{className:'row toolbar'},[e('span',{},'Absorption ka'), StatusBadge({type:kaPreview?.evidence_type||'MODEL_UNAVAILABLE'})]),
+      e('strong',{className:'mono'},kaPreview?.value!=null ? kaPreview.value+' 1/h' : 'Unavailable'),
+      e('small',{},'Source: '+(kaPreview?.source||'None'))
+     ])
+    ]),
+
+    route === 'PO' && e('div',{className:'row toolbar', style:{marginTop:'8px', fontSize:'12px', color:'#94a3b8'}},[
+     e('span',{},'Mechanistic Decomposition: Fa = '+(mechComp.fa!=null?(mechComp.fa*100).toFixed(1)+'%':'—')+', Fg = '+(mechComp.fg!=null?(mechComp.fg*100).toFixed(1)+'%':'—')+', Fh = '+(mechComp.fh!=null?(mechComp.fh*100).toFixed(1)+'%':'—'))
+    ]),
+
+    // Advanced Manual Overrides
+    e('details',{style:{marginTop:'10px'}},[
+     e('summary',{style:{cursor:'pointer', fontSize:'13px', color:'#38bdf8'}},'Manual Parameter Overrides (Optional)'),
+     e('div',{className:'grid', style:{marginTop:'8px'}},[
+      e('div',{className:'col-3'},Field({label:'Override CL (mL/min/kg)', type:'number', value:userCl, onChange:setUserCl})),
+      e('div',{className:'col-3'},Field({label:'Override V (L/kg)', type:'number', value:userV, onChange:setUserV})),
+      route !== 'IV' && e('div',{className:'col-3'},Field({label:'Override F (fraction or %)', type:'number', value:userF, onChange:setUserF})),
+      route !== 'IV' && e('div',{className:'col-3'},Field({label:'Override ka (1/h)', type:'number', value:userKa, onChange:setUserKa})),
+     ])
+    ]),
+
+    e('div',{className:'row toolbar', style:{marginTop:'12px'}},[
+     e('span',{},'Ready to simulate '+route+' in '+species),
+     e('button',{className:'primary', onClick:handleRun, disabled:loading}, loading ? 'Simulating…' : 'RUN PK SIMULATION')
+    ]),
+
+    fitResult && e('div',{className:'small pass', style:{marginTop:'8px'}},[
+     e('strong',{},'Fitted Parameter: '),
+     'ka = '+fitResult.fitted_ka+' 1/h (RMSE = '+fitResult.rmse+' ng/mL, AIC = '+fitResult.aic+')'
     ]),
     (preview?.warnings||[]).map((w, idx)=>e('div',{key:idx, className:'small alert', style:{marginTop:'4px'}},w)),
     error && e('div',{className:'small alert', style:{marginTop:'6px', color:'#ef4444'}},error)
@@ -1583,7 +1695,7 @@ function App(){
 
    activeRun && e('div',{style:{marginTop:'16px'}},[
     e('div',{className:'row toolbar'},[
-     e('h4',{},'CALCULATED PK SIMULATION: '+(activeRun.administration_type==='IV_INFUSION'?'IV Infusion':'IV Bolus')+' ('+activeRun.species+')'),
+     e('h4',{},'CALCULATED PK SIMULATION: '+activeRun.route+' '+activeRun.administration_type+' ('+activeRun.species+')'),
      e('div',{},[
       e('button',{className: logScale ? 'secondary' : 'primary', style:{marginRight:'6px', padding:'4px 8px'}, onClick:()=>setLogScale(false)},'Linear'),
       e('button',{className: logScale ? 'primary' : 'secondary', style:{padding:'4px 8px'}, onClick:()=>setLogScale(true)},'Semi-Log')
@@ -1592,11 +1704,11 @@ function App(){
     e('div',{style:{marginTop:'10px'}},renderPlot(activeRun)),
     e('div',{className:'row toolbar', style:{marginTop:'4px', fontSize:'12px', color:'#94a3b8'}},[
      e('span',{},'── Blue Line: Calculated PK Simulation'),
-     e('span',{},'● Red Dots: Experimental Observed Points')
+     e('span',{},'● Red Dots: Route-Matched Experimental Points')
     ]),
     e('div',{className:'grid ivive-output-grid', style:{marginTop:'12px'}},[
      e('div',{className:'card pk-nca-card'},[
-      e('span',{},'Cmax / C0'),
+      e('span',{},'Cmax'),
       e('strong',{className:'mono'},activeRun.output_metrics?.cmax_ng_ml+' ng/mL')
      ]),
      e('div',{className:'card pk-nca-card'},[
@@ -1608,16 +1720,24 @@ function App(){
       e('strong',{className:'mono'},activeRun.output_metrics?.auc_inf_analytical_ng_h_ml+' ng·h/mL')
      ]),
      e('div',{className:'card pk-nca-card'},[
-      e('span',{},'AUC Numerical Cross-Check'),
-      e('strong',{className:'mono'},activeRun.output_metrics?.auc_inf_numerical_ng_h_ml+' ng·h/mL ('+activeRun.output_metrics?.auc_agreement_pct+'% match)')
+      e('span',{},'AUC Numerical Match'),
+      e('strong',{className:'mono'},activeRun.output_metrics?.auc_inf_numerical_ng_h_ml+' ng·h/mL ('+activeRun.output_metrics?.auc_agreement_pct+'%)')
      ]),
      e('div',{className:'card pk-nca-card'},[
       e('span',{},'Terminal Half-Life'),
       e('strong',{className:'mono'},activeRun.output_metrics?.half_life_hours+' h')
+     ]),
+     activeRun.steady_state_metrics?.accumulation_ratio!=null && e('div',{className:'card pk-nca-card'},[
+      e('span',{},'Accumulation Ratio (R_acc)'),
+      e('strong',{className:'mono'},activeRun.steady_state_metrics.accumulation_ratio+'x')
+     ]),
+     activeRun.steady_state_metrics?.css_avg_ng_ml!=null && e('div',{className:'card pk-nca-card'},[
+      e('span',{},'Css,avg (Steady State)'),
+      e('strong',{className:'mono'},activeRun.steady_state_metrics.css_avg_ng_ml+' ng/mL')
      ])
     ]),
     activeRun.residuals && activeRun.residuals.length > 0 && e('div',{style:{marginTop:'16px'}},[
-     e('h4',{},'Experimental Observation Overlay & Residual Analysis'),
+     e('h4',{},'Observed vs Simulated Residual Analysis ('+activeRun.route+' Route)'),
      e('table',{className:'table', style:{marginTop:'6px'}},[
       e('thead',{},e('tr',{},[
        e('th',{},'Time (h)'),
@@ -1647,6 +1767,7 @@ function App(){
    ])
   ]);
  }
+
 
  function ScientificValidationSection(){
   const [configs, setConfigs] = React.useState(null);

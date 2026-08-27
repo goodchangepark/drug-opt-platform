@@ -1,0 +1,45 @@
+{
+  "stage": "5B-2",
+  "run_id": "20260827-091336",
+  "base_url": "http://127.0.0.1:8765",
+  "checks": [
+    {
+      "name": "IV and PO PK NCA Seeding",
+      "status": "PASS"
+    },
+    {
+      "name": "PK Parameter Set Assembly",
+      "status": "PASS"
+    },
+    {
+      "name": "Compound Detail & PK Tab Navigation",
+      "status": "PASS"
+    },
+    {
+      "name": "Extravascular PK Simulation DOM Render",
+      "status": "PASS"
+    },
+    {
+      "name": "PO Route Parameter Hierarchy Verification",
+      "status": "PASS"
+    },
+    {
+      "name": "PO Single Dose Simulation & Experimental Overlay",
+      "status": "PASS"
+    },
+    {
+      "name": "Cross-Route Switcher (PO, SC, IP, IV)",
+      "status": "PASS"
+    },
+    {
+      "name": "Repeated Dosing Superposition & Accumulation Render",
+      "status": "PASS"
+    },
+    {
+      "name": "Zero Uncaught JS Errors Check",
+      "status": "PASS"
+    }
+  ],
+  "screenshot": "/home/xavier/chem/drug-opt-platform/validation/stage5b2_browser_e2e.png",
+  "status": "PASS"
+}

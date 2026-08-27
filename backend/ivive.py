@@ -1243,8 +1243,8 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
         peff = 10.0 ** (0.68 * math.log10(max(0.01, papp)) - 0.42)
         fa_calc = 1.0 - math.exp(-0.4 * peff)
         fa_val = round(max(0.01, min(1.0, fa_calc)), 3)
-        fa_status = "ESTIMATED"
-        fa_message = f"Fa estimated from {caco2_source} Caco-2 permeability ({papp} {caco2_unit}) with {ion_class} GI transit context."
+        fa_status = "MECHANISTIC / EMPIRICAL Fa ESTIMATE"
+        fa_message = f"MECHANISTIC / EMPIRICAL Fa ESTIMATE derived from {caco2_source} Caco-2 permeability ({papp} {caco2_unit}) with {ion_class} GI transit context (Peff = 10^(0.68*log10(Papp)-0.42))."
 
     # 3. Fg (Intestinal first-pass availability)
     fg_val = None
@@ -1362,6 +1362,14 @@ def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, spe
 
     # 3. Absorption Assembly
     abs_info = estimate_absorption_components(db, project_id, version_id, species_clean)
+    # Matched experimental bioavailability across any route
+    ba_res = calculate_bioavailability_for_version(version_id, db)
+    matched_exp_f = None
+    if ba_res.get("bioavailability"):
+        matched = [b for b in ba_res["bioavailability"] if b.get("species") == species_clean and b.get("route") == route_clean and b.get("status") == "MATCHED"]
+        if matched and matched[0].get("bioavailability_pct") is not None:
+            matched_exp_f = float(matched[0]["bioavailability_pct"])
+
     if route_clean == "IV":
         fa_val = 1.0
         fa_status = "NOT_REQUIRED"
@@ -1377,7 +1385,7 @@ def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, spe
         fg_status = abs_info.get("fg_status", "MODEL_UNAVAILABLE")
         fh_route = fh_val
         f_pred = abs_info.get("f_predicted")
-        f_exp = abs_info.get("f_experimental")
+        f_exp = matched_exp_f if matched_exp_f is not None else abs_info.get("f_experimental")
     else:
         # SC, IP
         fa_val = None
@@ -1386,7 +1394,7 @@ def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, spe
         fg_status = "MODEL_UNAVAILABLE"
         fh_route = fh_val
         f_pred = None
-        f_exp = None
+        f_exp = matched_exp_f
 
     # 4. Plasma & Blood Binding
     candidates = gather_ivive_candidates(db, project_id, version_id, species_clean)

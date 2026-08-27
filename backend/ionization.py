@@ -409,29 +409,32 @@ def analyze_ionization(
     rep_pka: float | None = None
     rep_type: str | None = None
     rep_source: str = "NONE"
+    rep_evidence_type: str = "MODEL_UNAVAILABLE"
 
     if experimental_pka_records:
         exp_rec = experimental_pka_records[0]
         rep_pka = float(exp_rec["value"])
         rep_type = exp_rec.get("type", "ACID" if ionization_class == IonizationClass.ACID else "BASE")
         rep_source = f"EXPERIMENTAL ({exp_rec.get('source', 'User Entry')})"
+        rep_evidence_type = "EXPERIMENTAL"
     elif all_centers:
+        rep_evidence_type = "RULE_ESTIMATE"
         if ionization_class == IonizationClass.ACID:
             prim = min(acid_centers, key=lambda c: c["estimated_rule_pka"])
             rep_pka = prim["estimated_rule_pka"]
             rep_type = "ACID"
-            rep_source = f"RULE_BASED ({prim['motif_name']})"
+            rep_source = f"RULE_ESTIMATE ({prim['motif_name']})"
         elif ionization_class == IonizationClass.BASE:
             prim = max(base_centers, key=lambda c: c["estimated_rule_pka"])
             rep_pka = prim["estimated_rule_pka"]
             rep_type = "BASE"
-            rep_source = f"RULE_BASED ({prim['motif_name']})"
+            rep_source = f"RULE_ESTIMATE ({prim['motif_name']})"
         elif ionization_class in {IonizationClass.ZWITTERION_POSSIBLE, IonizationClass.AMPHOLYTE, IonizationClass.MULTIPLE_IONIZABLE_CENTERS}:
             prim_acid = min(acid_centers, key=lambda c: c["estimated_rule_pka"])
             prim_base = max(base_centers, key=lambda c: c["estimated_rule_pka"])
             rep_pka = prim_acid["estimated_rule_pka"]  # Reference acid
             rep_type = "AMPHOLYTE"
-            rep_source = f"RULE_BASED (Acid: {prim_acid['motif_name']} ~{prim_acid['estimated_rule_pka']}, Base: {prim_base['motif_name']} ~{prim_base['estimated_rule_pka']})"
+            rep_source = f"RULE_ESTIMATE (Acid: {prim_acid['motif_name']} ~{prim_acid['estimated_rule_pka']}, Base: {prim_base['motif_name']} ~{prim_base['estimated_rule_pka']})"
 
     # 6. Calculate pH-Dependent Profiles
     target_ph_list = [1.2, 2.0, 4.5, 6.5, 7.4]
@@ -448,21 +451,24 @@ def analyze_ionization(
             f_ionized = 0.0
             dom_state = "Predominantly neutral"
             est_logd = clogp
-            logd_note = "cLogP ≈ logD (neutral non-electrolyte across all pH)"
+            logd_note = "DERIVED logD ESTIMATE (cLogP ≈ logD for neutral non-electrolyte across all pH)"
+            logd_evidence = "DERIVED_ESTIMATE"
         elif ionization_class == IonizationClass.ACID:
             fracs = calculate_monoprotic_fractions(rep_pka, ph, "ACID")
             f_neutral = fracs["fraction_neutral"]
             f_ionized = fracs["fraction_ionized"]
             dom_state = "Predominantly ionized (anion)" if f_ionized >= 0.80 else ("Predominantly neutral" if f_neutral >= 0.80 else "Mixed ionization")
             est_logd = estimate_logd_from_pka_and_clogp(clogp, rep_pka, ph, "ACID")
-            logd_note = f"Estimated logD from Henderson-Hasselbalch (pKa={rep_pka}, cLogP={clogp})"
+            logd_note = f"DERIVED logD ESTIMATE from Henderson-Hasselbalch (pKa={rep_pka}, cLogP={clogp})"
+            logd_evidence = "DERIVED_ESTIMATE"
         elif ionization_class == IonizationClass.BASE:
             fracs = calculate_monoprotic_fractions(rep_pka, ph, "BASE")
             f_neutral = fracs["fraction_neutral"]
             f_ionized = fracs["fraction_ionized"]
             dom_state = "Predominantly protonated (cation)" if f_ionized >= 0.80 else ("Predominantly neutral (free base)" if f_neutral >= 0.80 else "Mixed ionization")
             est_logd = estimate_logd_from_pka_and_clogp(clogp, rep_pka, ph, "BASE")
-            logd_note = f"Estimated logD from Henderson-Hasselbalch (pKa={rep_pka}, cLogP={clogp})"
+            logd_note = f"DERIVED logD ESTIMATE from Henderson-Hasselbalch (pKa={rep_pka}, cLogP={clogp})"
+            logd_evidence = "DERIVED_ESTIMATE"
         elif ionization_class == IonizationClass.ZWITTERION_POSSIBLE:
             prim_acid = min(acid_centers, key=lambda c: c["estimated_rule_pka"])
             prim_base = max(base_centers, key=lambda c: c["estimated_rule_pka"])
@@ -476,13 +482,15 @@ def analyze_ionization(
             f_ionized = round(1.0 - f_neutral, 4)
             dom_state = "Predominantly zwitterion (+/-)" if f_zwitter >= 0.50 else ("Predominantly cation (+)" if f_cation >= 0.50 else ("Predominantly anion (-)" if f_anion >= 0.50 else "Mixed ionization species"))
             est_logd = round(clogp - 2.5, 3) if f_zwitter >= 0.50 else estimate_logd_from_pka_and_clogp(clogp, prim_acid["estimated_rule_pka"], ph, "ACID")
-            logd_note = "Zwitterionic partition estimate (significant reduction vs non-zwitterionic cLogP)"
+            logd_note = "Simplified pH-dependent ionization estimate: Zwitterionic partition estimate (significant reduction vs non-zwitterionic cLogP)"
+            logd_evidence = "DERIVED_ESTIMATE"
         else:  # AMPHOLYTE / MULTIPLE_IONIZABLE_CENTERS
             f_neutral = 0.5
             f_ionized = 0.5
             dom_state = "Complex polyprotic / multiple species"
             est_logd = clogp
-            logd_note = "Complex polyprotic species; simplified logD estimate unavailable without micro-pKa network."
+            logd_note = "Simplified pH-dependent ionization estimate: Complex polyprotic species; simplified logD estimate unavailable without micro-pKa network."
+            logd_evidence = "DERIVED_ESTIMATE"
 
         ph_profiles.append({
             "ph": ph,
@@ -491,7 +499,9 @@ def analyze_ionization(
             "fraction_ionized": f_ionized,
             "estimated_logd": est_logd,
             "logd_note": logd_note,
+            "logd_evidence_type": logd_evidence,
             "evidence_source": rep_source,
+            "evidence_type": rep_evidence_type,
         })
 
     # Find physiological profile at pH 7.4
@@ -520,12 +530,15 @@ def analyze_ionization(
         "primary_pka": rep_pka,
         "primary_pka_type": rep_type,
         "primary_pka_source": rep_source,
+        "primary_pka_evidence_type": rep_evidence_type,
         "ph_profiles": ph_profiles,
         "physiological_state_7_4": {
             "dominant_state": ph74_profile["dominant_state"],
             "fraction_neutral": ph74_profile["fraction_neutral"],
             "fraction_ionized": ph74_profile["fraction_ionized"],
             "estimated_logd74": ph74_profile["estimated_logd"],
+            "logd74_evidence_type": "DERIVED_ESTIMATE",
+            "logd74_label": "DERIVED logD ESTIMATE",
         },
         "admet_context": admet_context,
         "model_provenance": {
@@ -534,7 +547,8 @@ def analyze_ionization(
             "standardizer": "CHEM_STANDARDIZER_V1",
             "rule_base": "Curated SMARTS Pattern Base (35+ motifs)",
             "conformal_status": "NOT_APPLICABLE_FOR_DETERMINISTIC_RULES",
-            "limitations": "Rule-based structural pKa estimates represent typical functional group values; macroscopic titration or experimental measurement is required for exact resonance-shifted or steric polyprotic micro-equilibria.",
+            "evidence_hierarchy": "EXPERIMENTAL > PREDICTED_MODEL > RULE_ESTIMATE > DERIVED_ESTIMATE > MODEL_UNAVAILABLE",
+            "limitations": "Simplified pH-dependent ionization estimate. Rule-based structural pKa estimates represent typical functional group values; macroscopic titration or experimental measurement is required for exact resonance-shifted or steric polyprotic micro-equilibria.",
         },
     }
 
