@@ -519,6 +519,23 @@ function App(){
   return()=>clearTimeout(timer);
  },[addCompoundOpen,project?.molecule_type,compoundForm.smiles]);
 
+ useEffect(()=>{
+  if(!addCompoundOpen||project?.molecule_type!=='Small Molecule')return;
+  const sm=(compoundForm.smiles||'').trim();
+  if(!sm){setPreview(null);return}
+  const timer=setTimeout(async()=>{
+   try{
+    const result=await api.post('/structure/validate',{smiles:sm});
+    if(result&&result.valid){
+     setPreview(result);
+    }
+   }catch(_){
+    /* invalid or typing in progress */
+   }
+  },250);
+  return ()=>clearTimeout(timer);
+ },[addCompoundOpen,project?.molecule_type,compoundForm.smiles]);
+
  const loadSmilesIntoEditor=async()=>{
   if(!compoundForm.smiles.trim())return;
   try{
@@ -3750,10 +3767,27 @@ function App(){
      e('iframe',{key:'frame',id:'ketcher-editor',className:'ketcher-frame'+(editorReady?'':' loading'),title:'Ketcher Chemical Structure Editor',src:'/static/ketcher/standalone/index.html'}),
      !editorReady&&e('div',{className:'structure-editor-loading',key:'loading'},[e('strong',{},'Structure Editor is loading…'),e('span',{},'Drawing tools and the linked SMILES field will appear here.')])
     ]),
-    e('h3',{key:'smiles-title',style:{marginTop:'20px'}},'Or Enter SMILES'),e('div',{className:'row',key:'smiles'},[e('div',{style:{flex:1}},Field({label:'SMILES',value:compoundForm.smiles,onChange:value=>{setCompoundForm(current=>({...current,smiles:value}));setPreview(null)},placeholder:'Paste SMILES or draw above'})),e('button',{className:'secondary',disabled:!compoundForm.smiles,onClick:loadSmilesIntoEditor},'Load in Editor'),e('button',{className:'secondary',disabled:!compoundForm.smiles,onClick:validate},'Validate Structure')])
+    e('h3',{key:'smiles-title',style:{marginTop:'20px'}},'Or Enter SMILES'),e('div',{className:'row',key:'smiles'},[e('div',{style:{flex:1}},Field({label:'SMILES',value:compoundForm.smiles,onChange:value=>setCompoundForm(current=>({...current,smiles:value})),placeholder:'Paste SMILES or draw above'})),e('button',{className:'secondary',disabled:!compoundForm.smiles,onClick:loadSmilesIntoEditor},'Load in Editor'),e('button',{className:'secondary',disabled:!compoundForm.smiles,onClick:validate},'Validate Structure')])
    ]):e('div',{className:'empty-state',key:'peptide'},[StatusBadge({type:'Not applicable'}),e('h3',{},'Peptide project'),e('p',{},'This model currently supports small molecules only. Save the compound as a draft; peptide-specific calculations are not run.')]),
    e('div',{style:{marginTop:'16px'},key:'notes'},Field({label:'Description / Notes',value:compoundForm.notes,onChange:value=>setCompoundForm(current=>({...current,notes:value})),type:'textarea'})),
-   preview&&e('div',{className:'structure-validation',key:'preview'},[StatusBadge({type:'Calculated'}),e('span',{},' Valid structure · '+preview.identity.canonical_smiles)]),
+   preview&&preview.svg&&e('div',{className:'card structure-live-preview',key:'live-preview',style:{marginTop:'16px',background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'14px',display:'flex',gap:'16px',alignItems:'center'}},[
+    e('div',{style:{width:'140px',height:'140px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:'6px',padding:'4px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}},
+     Svg({src:preview.svg})
+    ),
+    e('div',{style:{flex:1}},[
+     e('div',{className:'row',style:{justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}},[
+      e('strong',{style:{fontSize:'14px',color:'#0f172a'}},(compoundForm.name||'Compound Structure')+' · 2D Chemical Structure'),
+      StatusBadge({type:'STRUCTURE_READY'})
+     ]),
+     preview.properties&&e('div',{className:'row small',style:{gap:'12px',color:'#334155',flexWrap:'wrap',marginTop:'4px'}},[
+      e('span',{},'MW: '+Number(preview.properties.molecular_weight||0).toFixed(1)+' g/mol'),
+      e('span',{},'Formula: '+(preview.properties.formula||preview.properties.molecular_formula||'—')),
+      e('span',{},'cLogP: '+Number(preview.properties.clogp||0).toFixed(2)),
+      e('span',{},'TPSA: '+Number(preview.properties.tpsa||0).toFixed(1)+' Å²')
+     ]),
+     e('p',{className:'small mono',style:{marginTop:'6px',color:'#64748b',wordBreak:'break-all'}},preview.identity?.canonical_smiles||compoundForm.smiles)
+    ])
+   ]),
    e('div',{className:'row modal-actions',key:'actions'},[e('button',{disabled:admetBusy||!compoundForm.name.trim(),onClick:()=>saveCompound(false)},'Save'),e('button',{className:'secondary',disabled:admetBusy||!compoundForm.name.trim()||!compoundForm.smiles.trim()||!smallMolecule,onClick:()=>saveCompound(true)},admetBusy?'Saving & predicting…':'Save & Predict'),e('span',{className:'small'},'Save creates compound and opens Overview. Predict can be run anytime from Overview. Activity is intentionally excluded from automatic predictions.')])
   ]));
  }
