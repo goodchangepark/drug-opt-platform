@@ -469,27 +469,63 @@ def analyze_ionization(
             est_logd = estimate_logd_from_pka_and_clogp(clogp, rep_pka, ph, "BASE")
             logd_note = f"DERIVED logD ESTIMATE from Henderson-Hasselbalch (pKa={rep_pka}, cLogP={clogp})"
             logd_evidence = "DERIVED_ESTIMATE"
-        elif ionization_class == IonizationClass.ZWITTERION_POSSIBLE:
-            prim_acid = min(acid_centers, key=lambda c: c["estimated_rule_pka"])
-            prim_base = max(base_centers, key=lambda c: c["estimated_rule_pka"])
-            acid_fracs = calculate_monoprotic_fractions(prim_acid["estimated_rule_pka"], ph, "ACID")
-            base_fracs = calculate_monoprotic_fractions(prim_base["estimated_rule_pka"], ph, "BASE")
-            f_zwitter = round(acid_fracs["fraction_ionized"] * base_fracs["fraction_ionized"], 4)
-            f_neutral_uncharged = round(acid_fracs["fraction_neutral"] * base_fracs["fraction_neutral"], 4)
-            f_cation = round(acid_fracs["fraction_neutral"] * base_fracs["fraction_ionized"], 4)
-            f_anion = round(acid_fracs["fraction_ionized"] * base_fracs["fraction_neutral"], 4)
-            f_neutral = f_neutral_uncharged
-            f_ionized = round(1.0 - f_neutral, 4)
-            dom_state = "Predominantly zwitterion (+/-)" if f_zwitter >= 0.50 else ("Predominantly cation (+)" if f_cation >= 0.50 else ("Predominantly anion (-)" if f_anion >= 0.50 else "Mixed ionization species"))
-            est_logd = round(clogp - 2.5, 3) if f_zwitter >= 0.50 else estimate_logd_from_pka_and_clogp(clogp, prim_acid["estimated_rule_pka"], ph, "ACID")
-            logd_note = "Simplified pH-dependent ionization estimate: Zwitterionic partition estimate (significant reduction vs non-zwitterionic cLogP)"
-            logd_evidence = "DERIVED_ESTIMATE"
-        else:  # AMPHOLYTE / MULTIPLE_IONIZABLE_CENTERS
-            f_neutral = 0.5
-            f_ionized = 0.5
-            dom_state = "Complex polyprotic / multiple species"
+        elif ionization_class in {IonizationClass.ZWITTERION_POSSIBLE, IonizationClass.AMPHOLYTE, IonizationClass.MULTIPLE_IONIZABLE_CENTERS}:
+            if acid_centers and base_centers:
+                prim_acid = min(acid_centers, key=lambda c: c["estimated_rule_pka"])
+                prim_base = max(base_centers, key=lambda c: c["estimated_rule_pka"])
+                acid_fracs = calculate_monoprotic_fractions(prim_acid["estimated_rule_pka"], ph, "ACID")
+                base_fracs = calculate_monoprotic_fractions(prim_base["estimated_rule_pka"], ph, "BASE")
+                f_zwitter = round(acid_fracs["fraction_ionized"] * base_fracs["fraction_ionized"], 4)
+                f_neutral_uncharged = round(acid_fracs["fraction_neutral"] * base_fracs["fraction_neutral"], 4)
+                f_cation = round(acid_fracs["fraction_neutral"] * base_fracs["fraction_ionized"], 4)
+                f_anion = round(acid_fracs["fraction_ionized"] * base_fracs["fraction_neutral"], 4)
+                f_neutral = f_neutral_uncharged
+                f_ionized = round(1.0 - f_neutral, 4)
+                if f_zwitter >= 0.50:
+                    dom_state = "Predominantly zwitterion (+/-)"
+                    est_logd = round(clogp - 2.5, 3)
+                elif f_cation >= 0.50:
+                    dom_state = "Predominantly cation (+)"
+                    est_logd = estimate_logd_from_pka_and_clogp(clogp, prim_base["estimated_rule_pka"], ph, "BASE")
+                elif f_anion >= 0.50:
+                    dom_state = "Predominantly anion (-)"
+                    est_logd = estimate_logd_from_pka_and_clogp(clogp, prim_acid["estimated_rule_pka"], ph, "ACID")
+                else:
+                    dom_state = "Mixed ionization species"
+                    est_logd = estimate_logd_from_pka_and_clogp(clogp, prim_acid["estimated_rule_pka"], ph, "ACID")
+                logd_note = f"Simplified ampholyte pH estimate (Acid: {prim_acid['motif_name']} ~{prim_acid['estimated_rule_pka']}, Base: {prim_base['motif_name']} ~{prim_base['estimated_rule_pka']})"
+                logd_evidence = "DERIVED_ESTIMATE"
+            elif acid_centers:
+                prim_acid = min(acid_centers, key=lambda c: c["estimated_rule_pka"])
+                fracs = calculate_monoprotic_fractions(prim_acid["estimated_rule_pka"], ph, "ACID")
+                f_neutral = fracs["fraction_neutral"]
+                f_ionized = fracs["fraction_ionized"]
+                dom_state = "Predominantly ionized (anion)" if f_ionized >= 0.80 else ("Predominantly neutral" if f_neutral >= 0.80 else "Mixed ionization")
+                est_logd = estimate_logd_from_pka_and_clogp(clogp, prim_acid["estimated_rule_pka"], ph, "ACID")
+                logd_note = f"DERIVED logD ESTIMATE from polyacid strongest center ({prim_acid['motif_name']} ~{prim_acid['estimated_rule_pka']})"
+                logd_evidence = "DERIVED_ESTIMATE"
+            elif base_centers:
+                prim_base = max(base_centers, key=lambda c: c["estimated_rule_pka"])
+                fracs = calculate_monoprotic_fractions(prim_base["estimated_rule_pka"], ph, "BASE")
+                f_neutral = fracs["fraction_neutral"]
+                f_ionized = fracs["fraction_ionized"]
+                dom_state = "Predominantly protonated (cation)" if f_ionized >= 0.80 else ("Predominantly neutral (free base)" if f_neutral >= 0.80 else "Mixed ionization")
+                est_logd = estimate_logd_from_pka_and_clogp(clogp, prim_base["estimated_rule_pka"], ph, "BASE")
+                logd_note = f"DERIVED logD ESTIMATE from polybase strongest center ({prim_base['motif_name']} ~{prim_base['estimated_rule_pka']})"
+                logd_evidence = "DERIVED_ESTIMATE"
+            else:
+                f_neutral = 1.0
+                f_ionized = 0.0
+                dom_state = "Predominantly neutral"
+                est_logd = clogp
+                logd_note = "Neutral species"
+                logd_evidence = "DERIVED_ESTIMATE"
+        else:
+            f_neutral = 1.0
+            f_ionized = 0.0
+            dom_state = "Predominantly neutral"
             est_logd = clogp
-            logd_note = "Simplified pH-dependent ionization estimate: Complex polyprotic species; simplified logD estimate unavailable without micro-pKa network."
+            logd_note = "Neutral non-electrolyte across all pH"
             logd_evidence = "DERIVED_ESTIMATE"
 
         ph_profiles.append({

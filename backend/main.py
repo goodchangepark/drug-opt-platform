@@ -77,8 +77,10 @@ from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, 
 from .translational import PKTranslationalSnapshot, ensure_translational_schema, register_translational_routes
 from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, register_human_pk_routes
 from .capabilities import build_capability_summary
+from .interpretation import get_interpretation_registry_summary, interpret_property
 from .platform_info import (APP_VERSION, GLOSSARY, LIMITATIONS, build_version,
-                            package_inventory, structure_modules)
+                            latest_release_date, package_inventory, structure_modules,
+                            version_history)
 
 
 CURRENT_STAGE = "5B-4"
@@ -124,7 +126,12 @@ def _project_out(db: Session, project: Project):
 @app.get("/api/health")
 def health():
     return {"status": "ok", "stage": "5B", "step": CURRENT_STAGE, "version": APP_VERSION,
-            "engine": ENGINE, "engine_version": ENGINE_VERSION}
+            "updated": latest_release_date(), "engine": ENGINE, "engine_version": ENGINE_VERSION}
+
+
+@app.get("/api/interpretation/rules")
+def get_interpretation_rules():
+    return get_interpretation_registry_summary()
 
 
 @app.post("/api/structure/validate")
@@ -298,7 +305,7 @@ def help_registry(db: Session = Depends(get_db)):
     return {
         "application": {
             "name": "Drug-OPT", "version": APP_VERSION, "current_stage": CURRENT_STAGE,
-            "build_version": build_version(), "standardizer": STANDARDIZER_NAME,
+            "updated": latest_release_date(), "build_version": build_version(), "standardizer": STANDARDIZER_NAME,
             "standardizer_version": STANDARDIZER_VERSION, "rdkit_version": RDKIT_VERSION,
         },
         "package_inventory": inventory,
@@ -306,9 +313,11 @@ def help_registry(db: Session = Depends(get_db)):
         "models": models,
         "capability_summary": capabilities,
         "pk_method_registry": pk_methods,
+        "version_history": version_history(),
         "glossary": [{"term": term, "definition": definition} for term, definition in GLOSSARY],
         "limitations": list(LIMITATIONS),
-        "source": "RUNTIME_PACKAGE_INVENTORY + ADMET_MODEL_REGISTRY + PK_METHOD_REGISTRY + CAPABILITY_REGISTRY",
+        "interpretation_registry": get_interpretation_registry_summary(),
+        "source": "RUNTIME_PACKAGE_INVENTORY + ADMET_MODEL_REGISTRY + PK_METHOD_REGISTRY + CAPABILITY_REGISTRY + VERSION_HISTORY",
     }
 
 
