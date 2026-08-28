@@ -1,5 +1,6 @@
 import hashlib
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -32,6 +33,7 @@ from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimenta
                               metabolic_stability_assessment, model_files_available, predict_endpoint)
 from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
                         DataProvenance)
+from .endpoint_contracts import get_endpoint_contract
 from .database import Base, SessionLocal, engine, get_db
 from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
                                   ENGINE_NAME as METABOLISM_ENGINE,
@@ -1154,9 +1156,15 @@ def _consensus_out(row: ADMETConsensusPrediction):
     return {
         "id": row.id, "run_id": row.run_id, "version_id": row.version_id,
         "endpoint_id": row.endpoint_id, "endpoint": row.endpoint.name,
+        "consensus_version": getattr(row, "consensus_version", "stage4d1-static-v1"),
+        "consensus_mode": getattr(row, "consensus_mode", "SHADOW"),
         "combined_value": row.combined_value, "unit": row.unit,
         "classification": row.classification, "confidence": row.confidence,
-        "applicability_domain": row.applicability_domain, "models": row.weights_json or [],
+        "applicability_domain": row.applicability_domain,
+        "model_agreement": getattr(row, "model_agreement", "SINGLE_MODEL"),
+        "dispersion": getattr(row, "dispersion_json", {}),
+        "vote_pattern": getattr(row, "vote_pattern", ""),
+        "models": row.weights_json or [],
         "provenance": row.provenance_json or {}, "created_at": row.created_at.isoformat(),
         "type": "Consensus Prediction",
     }
@@ -1305,12 +1313,44 @@ def _store_consensus_predictions(db: Session, version: CompoundVersion, project_
         out_weight = sum(row["weight"] for row in weight_rows if row["domain"] == "OUT_OF_DOMAIN")
         domain = "IN_DOMAIN" if in_weight >= .6 else ("OUT_OF_DOMAIN" if out_weight >= .5 else "BORDERLINE")
         confidence = "HIGH" if domain == "IN_DOMAIN" and len(items) > 1 else ("MEDIUM" if domain != "OUT_OF_DOMAIN" else "LOW")
+        # Compute dispersion and agreement
+        if len(items) > 1:
+            values = [float(item.predicted_value) for item in items if item.predicted_value is not None]
+            weighted_std = math.sqrt(max(0.0, sum(row["weight"] * (row["value"] - value)**2 for row in weight_rows)))
+            dispersion = {
+                "model_disagreement_std": round(weighted_std, 4),
+                "min": round(min(values), 4),
+                "max": round(max(values), 4),
+                "range": round(max(values) - min(values), 4),
+                "interpretation": "MODEL DISAGREEMENT (weighted standard deviation; not a confidence interval)",
+            }
+            if spec.get("prediction_type") == "binary_classification":
+                classes = [spec.get("positive_label", "POSITIVE") if row["value"] >= spec.get("decision_threshold", .5) else spec.get("negative_label", "NEGATIVE") for row in weight_rows]
+                pos_count = sum(1 for c in classes if c == spec.get("positive_label", "POSITIVE"))
+                agreement = "HIGH_AGREEMENT" if pos_count == 0 or pos_count == len(classes) else "MODERATE_AGREEMENT"
+                vote_pattern = ", ".join(f"{row['model_name']}:{c}" for row, c in zip(weight_rows, classes))
+            else:
+                agreement = "HIGH_AGREEMENT" if weighted_std <= 0.30 else ("MODERATE_AGREEMENT" if weighted_std <= 0.60 else "LOW_AGREEMENT")
+                vote_pattern = ""
+        else:
+            dispersion = {"model_disagreement_std": 0.0, "min": round(value, 4), "max": round(value, 4), "range": 0.0}
+            agreement = "SINGLE_MODEL"
+            vote_pattern = ""
+
         row = ADMETConsensusPrediction(
             run_id=max(items, key=lambda item: item.created_at).run_id, endpoint_id=endpoint_id,
-            version_id=version.id, combined_value=value, unit=unit, classification=classification,
-            confidence=confidence, applicability_domain=domain, weights_json=weight_rows,
+            version_id=version.id,
+            consensus_version="stage4d1-static-v1",
+            consensus_mode="SHADOW",
+            combined_value=value, unit=unit, classification=classification,
+            confidence=confidence, applicability_domain=domain,
+            model_agreement=agreement,
+            dispersion_json=dispersion,
+            vote_pattern=vote_pattern,
+            weights_json=weight_rows,
             provenance_json={"record_type": "Consensus Prediction", "compound_version_id": version.id,
                 "endpoint": items[0].model.endpoint_name, "prediction_ids": prediction_ids,
+                "consensus_mode": "SHADOW",
                 "weighting_policy": "model priority × applicability domain × confidence × conservative project performance",
                 "performance_thresholds": {"project_blend": 10, "strong_project_blend": 30},
                 "reasons": sorted(set(reasons)), "timestamp": datetime.now(timezone.utc).isoformat()},
@@ -1550,6 +1590,62 @@ def get_compound_version_admet(version_id: int, db: Session = Depends(get_db)):
     return _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)})
 
 
+@app.get("/api/compound-versions/{version_id}/multimodel-provenance")
+def get_compound_version_multimodel_provenance(version_id: int, db: Session = Depends(get_db)):
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    project = db.get(Project, compound.project_id)
+
+    predictions = list(db.scalars(
+        select(ADMETPrediction).join(ADMETModelRegistry)
+        .where(ADMETPrediction.version_id == version_id)
+        .order_by(ADMETModelRegistry.endpoint_name, ADMETPrediction.created_at.desc())
+    ).all())
+
+    consensuses = list(db.scalars(
+        select(ADMETConsensusPrediction)
+        .where(ADMETConsensusPrediction.version_id == version_id)
+        .order_by(ADMETConsensusPrediction.created_at.desc())
+    ).all())
+    consensus_by_endpoint = {c.endpoint_id: c for c in consensuses}
+
+    measurements = list(db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version_id)).all())
+    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
+    )}
+
+    grouped = {}
+    for pred in predictions:
+        ep_name = pred.model.endpoint_name
+        grouped.setdefault(ep_name, []).append(_admet_prediction_out(pred, measurements, endpoint_names))
+
+    endpoint_provenance = []
+    for ep_name, model_preds in grouped.items():
+        ep_obj = db.scalar(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id, ADMETEndpoint.name == ep_name))
+        cons_record = consensus_by_endpoint.get(ep_obj.id) if ep_obj else None
+        contract = get_endpoint_contract(ep_name)
+        endpoint_provenance.append({
+            "endpoint_name": ep_name,
+            "endpoint_id": contract.endpoint_id if contract else ep_name,
+            "canonical_unit": contract.canonical_unit if contract else (model_preds[0]["unit"] if model_preds else ""),
+            "consensus": _consensus_out(cons_record) if cons_record else None,
+            "models": model_preds,
+            "model_count": len(model_preds),
+        })
+
+    return {
+        "compound_version_id": version_id,
+        "compound_id": compound.compound_id,
+        "version_number": version.version_number,
+        "canonical_smiles": version.canonical_smiles,
+        "consensus_mode": "SHADOW",
+        "endpoints": endpoint_provenance,
+        "total_endpoints": len(endpoint_provenance),
+    }
+
+
 @app.post("/api/projects/{project_id}/admet/measurements", status_code=201)
 def create_admet_measurement(project_id: int, payload: dict, db: Session = Depends(get_db)):
     project = db.get(Project, project_id)
@@ -1724,6 +1820,11 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             output["calibrated_uncertainty"] = result["calibrated_uncertainty"]
         prediction = ADMETPrediction(
             run_id=run.id, endpoint_id=endpoint.id, version_id=row_id, model_id=model.id,
+            model_version=model.model_version,
+            execution_status="SUCCESS",
+            standardizer_version="CHEM_STANDARDIZER_V1",
+            canonical_smiles=version.canonical_smiles,
+            runtime_ms=float(result.get("runtime_ms", 0.0)),
             predicted_value=result["predicted_value"], unit=result["unit"],
             confidence=result["confidence"], applicability_domain=domain["classification"],
             uncertainty=result["uncertainty"], outputs_json=output,

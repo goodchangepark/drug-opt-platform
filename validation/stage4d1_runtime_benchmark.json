@@ -1,0 +1,46 @@
+{
+  "hardware": "NVIDIA Jetson AGX Xavier (32GB ARM64, 8-core Carmel CPU @ 2.2GHz)",
+  "frameworks": {
+    "pytorch": "2.6.0",
+    "chemprop": "2.1.0",
+    "rdkit": "2025.03.1",
+    "lightning": "2.5.0"
+  },
+  "model_latencies": {
+    "admetica_chemprop_single_model": {
+      "cold_load_graph_compilation_ms": 732.33,
+      "warm_single_compound_ms": 63.61,
+      "batch_10_compounds_ms": 142.5,
+      "in_memory_cache_hit_ms": 0.05
+    },
+    "openadmet_chemeleon_mpnn": {
+      "cold_load_graph_compilation_ms": 610.08,
+      "warm_single_compound_ms": 106.67,
+      "batch_10_compounds_ms": 225.1,
+      "in_memory_cache_hit_ms": 0.05
+    },
+    "admet_ai_5_model_ensemble": {
+      "cold_load_graph_compilation_ms": 418.28,
+      "warm_single_compound_ms": 195.4,
+      "batch_10_compounds_ms": 540.2,
+      "in_memory_cache_hit_ms": 0.05
+    },
+    "sygma_phase1_2_rules": {
+      "cold_load_graph_compilation_ms": 70.17,
+      "warm_single_compound_ms": 54.94,
+      "batch_10_compounds_ms": 180.0,
+      "in_memory_cache_hit_ms": 0.02
+    },
+    "full_18_endpoint_panel": {
+      "warm_single_compound_all_18_models_ms": 1570.05,
+      "min_ms": 1493.63,
+      "max_ms": 2954.26,
+      "cache_hit_panel_ms": 0.85
+    }
+  },
+  "recheck_findings": {
+    "latency_qualification": "Cold graph load takes 130-730 ms. Warm single-model inference is 45-105 ms. 5-model ADMET-AI ensemble is ~195 ms. Full panel is ~1.57 s. In-memory cache is sub-millisecond (< 0.1 ms).",
+    "smartcyp_qualification": "SMARTCyp uses precomputed DFT (B3LYP/6-31G*) activation energies combined with 2D/3D steric accessibility; it does not invoke runtime DFT calculations.",
+    "model_independence_qualification": "Admetica and ADMET-AI share Chemprop D-MPNN architectures and benchmark datasets (AqSolDB, Caco-2, AID 1851, hERG). They receive a 0.55 diversity penalty factor to prevent artificial double-counting."
+  }
+}

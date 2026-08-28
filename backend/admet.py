@@ -114,9 +114,30 @@ def ensure_admet_schema(engine):
             "model_priority": "INTEGER NOT NULL DEFAULT 100", "ensemble_eligible": "BOOLEAN NOT NULL DEFAULT 1",
             "species": "VARCHAR(100) NOT NULL DEFAULT ''", "output_type": "VARCHAR(60) NOT NULL DEFAULT ''",
         }
-        for column, definition in registry_additions.items():
-            if column not in registry_columns:
-                connection.execute(text(f"ALTER TABLE admet_model_registry ADD COLUMN {column} {definition}"))
+        prediction_columns = {row["name"] for row in inspect(engine).get_columns("admet_predictions")}
+        prediction_additions = {
+            "model_version": "VARCHAR(60) NOT NULL DEFAULT '0'",
+            "execution_status": "VARCHAR(40) NOT NULL DEFAULT 'SUCCESS'",
+            "standardizer_version": "VARCHAR(40) NOT NULL DEFAULT 'CHEM_STANDARDIZER_V1'",
+            "canonical_smiles": "TEXT NOT NULL DEFAULT ''",
+            "runtime_ms": "FLOAT NOT NULL DEFAULT 0.0",
+        }
+        for column, definition in prediction_additions.items():
+            if column not in prediction_columns:
+                connection.execute(text(f"ALTER TABLE admet_predictions ADD COLUMN {column} {definition}"))
+
+        consensus_columns = {row["name"] for row in inspect(engine).get_columns("admet_consensus_predictions")}
+        consensus_additions = {
+            "consensus_version": "VARCHAR(60) NOT NULL DEFAULT 'stage4d1-static-v1'",
+            "consensus_mode": "VARCHAR(30) NOT NULL DEFAULT 'SHADOW'",
+            "model_agreement": "VARCHAR(40) NOT NULL DEFAULT 'HIGH_AGREEMENT'",
+            "dispersion_json": "JSON NOT NULL DEFAULT '{}'",
+            "vote_pattern": "VARCHAR(120) NOT NULL DEFAULT ''",
+        }
+        for column, definition in consensus_additions.items():
+            if column not in consensus_columns:
+                connection.execute(text(f"ALTER TABLE admet_consensus_predictions ADD COLUMN {column} {definition}"))
+
         registered = set(connection.execute(select(ADMETModelRegistry.endpoint_name)).scalars())
         registry_names = list(MODEL_SPECS) + [
             "Microsomal clearance", "Dog liver microsomal intrinsic clearance",
@@ -267,6 +288,11 @@ class ADMETPrediction(Base):
     endpoint_id: Mapped[int] = mapped_column(ForeignKey("admet_endpoints.id", ondelete="CASCADE"), index=True)
     version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
     model_id: Mapped[int] = mapped_column(ForeignKey("admet_model_registry.id", ondelete="RESTRICT"))
+    model_version: Mapped[str] = mapped_column(String(60), default="0")
+    execution_status: Mapped[str] = mapped_column(String(40), default="SUCCESS")
+    standardizer_version: Mapped[str] = mapped_column(String(40), default="CHEM_STANDARDIZER_V1")
+    canonical_smiles: Mapped[str] = mapped_column(Text, default="")
+    runtime_ms: Mapped[float] = mapped_column(Float, default=0.0)
     predicted_value: Mapped[float | None] = mapped_column(Float, nullable=True)
     unit: Mapped[str] = mapped_column(String(40))
     confidence: Mapped[str] = mapped_column(String(30), default="NOT_AVAILABLE")
@@ -300,11 +326,16 @@ class ADMETConsensusPrediction(Base):
     run_id: Mapped[int] = mapped_column(ForeignKey("admet_prediction_runs.id", ondelete="CASCADE"), index=True)
     endpoint_id: Mapped[int] = mapped_column(ForeignKey("admet_endpoints.id", ondelete="CASCADE"), index=True)
     version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    consensus_version: Mapped[str] = mapped_column(String(60), default="stage4d1-static-v1")
+    consensus_mode: Mapped[str] = mapped_column(String(30), default="SHADOW")
     combined_value: Mapped[float | None] = mapped_column(Float, nullable=True)
     unit: Mapped[str] = mapped_column(String(40), default="")
     classification: Mapped[str] = mapped_column(String(120), default="")
     confidence: Mapped[str] = mapped_column(String(30), default="UNKNOWN")
     applicability_domain: Mapped[str] = mapped_column(String(40), default="UNKNOWN")
+    model_agreement: Mapped[str] = mapped_column(String(40), default="HIGH_AGREEMENT")
+    dispersion_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    vote_pattern: Mapped[str] = mapped_column(String(120), default="")
     weights_json: Mapped[list] = mapped_column(JSON, default=list)
     provenance_json: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

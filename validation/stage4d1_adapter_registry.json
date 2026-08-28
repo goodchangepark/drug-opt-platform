@@ -1,0 +1,290 @@
+{
+  "adapters": [
+    {
+      "model_id": "admetica_solubility",
+      "model_name": "Admetica Chemprop Solubility",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "supported_endpoints": [
+        "Solubility"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_caco2",
+      "model_name": "Admetica Chemprop Caco-2",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "supported_endpoints": [
+        "Permeability"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_ppbr",
+      "model_name": "Admetica Chemprop Human PPB",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "supported_endpoints": [
+        "Plasma protein binding"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp1a2-inhibitor",
+      "model_name": "Admetica Chemprop CYP1A2 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP1A2 inhibitor"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2c9-inhibitor",
+      "model_name": "Admetica Chemprop CYP2C9 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2C9 inhibitor"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2c19-inhibitor",
+      "model_name": "Admetica Chemprop CYP2C19 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2C19 inhibitor"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2d6-inhibitor",
+      "model_name": "Admetica Chemprop CYP2D6 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2D6 inhibitor"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp3a4-inhibitor",
+      "model_name": "Admetica Chemprop CYP3A4 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP3A4 inhibitor"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2c9-substrate",
+      "model_name": "Admetica Chemprop CYP2C9 substrate",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2C9 substrate"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2d6-substrate",
+      "model_name": "Admetica Chemprop CYP2D6 substrate",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2D6 substrate"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_cyp_cyp3a4-substrate",
+      "model_name": "Admetica Chemprop CYP3A4 substrate",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP3A4 substrate"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_transporter_pgp-inhibitor",
+      "model_name": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+      "supported_endpoints": [
+        "P-gp inhibitor"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admetica_safety_herg",
+      "model_name": "Admetica Chemprop human hERG blocker liability",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+      "supported_endpoints": [
+        "hERG liability"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "openadmet_hlm",
+      "model_name": "OpenADMET CheMeleon HLM intrinsic clearance",
+      "model_family": "openadmet_clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "supported_endpoints": [
+        "HLM intrinsic clearance"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED_CC_BY_4.0"
+    },
+    {
+      "model_id": "openadmet_rlm",
+      "model_name": "OpenADMET CheMeleon RLM intrinsic clearance",
+      "model_family": "openadmet_clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "supported_endpoints": [
+        "RLM intrinsic clearance"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED_CC_BY_4.0"
+    },
+    {
+      "model_id": "openadmet_mlm",
+      "model_name": "OpenADMET CheMeleon MLM intrinsic clearance",
+      "model_family": "openadmet_clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "supported_endpoints": [
+        "MLM intrinsic clearance"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED_CC_BY_4.0"
+    },
+    {
+      "model_id": "admet_ai_ames",
+      "model_name": "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+      "model_family": "admet_ai_ensemble",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "supported_endpoints": [
+        "Ames mutagenicity"
+      ],
+      "execution_tier": "TIER_2_LOCAL_HEAVY",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "admet_ai_dili",
+      "model_name": "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+      "model_family": "admet_ai_ensemble",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "supported_endpoints": [
+        "DILI clinical liability"
+      ],
+      "execution_tier": "TIER_2_LOCAL_HEAVY",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    },
+    {
+      "model_id": "sygma_phase1_2",
+      "model_name": "SyGMa Phase I & II Rule Engine",
+      "model_family": "rule_based_smarts",
+      "model_version": "sygma-v1.1.0",
+      "supported_endpoints": [
+        "Metabolic soft spots"
+      ],
+      "execution_tier": "TIER_1_LOCAL_FAST",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "is_available": true,
+      "availability_reason": "",
+      "license_status": "APPROVED"
+    }
+  ],
+  "total_registered": 19
+}
