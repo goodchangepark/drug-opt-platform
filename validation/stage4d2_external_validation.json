@@ -1,0 +1,284 @@
+{
+  "stage": "4D-2",
+  "timestamp": "2026-08-28T16:18:40.687498+00:00",
+  "solubility": {
+    "endpoint": "Aqueous Solubility",
+    "canonical_endpoint": "EP_PHYS_SOLUBILITY",
+    "canonical_unit": "log10(mol/L)",
+    "evaluation_cohort_n": 250,
+    "models": {
+      "admetica_solubility": {
+        "model_name": "Admetica Chemprop Solubility",
+        "model_family": "admetica",
+        "metrics": {
+          "n": 250,
+          "MAE": 0.3386,
+          "RMSE": 0.5018,
+          "R2": 0.8317,
+          "Spearman": 0.9172,
+          "mean_bias": 0.0279,
+          "within_2fold_pct": 59.2,
+          "within_3fold_pct": 76.0
+        }
+      },
+      "esol_delaney_v1": {
+        "model_name": "Delaney ESOL Physicochemical Regressor",
+        "model_family": "physicochemical_linear",
+        "metrics": {
+          "n": 250,
+          "MAE": 0.6663,
+          "RMSE": 0.9221,
+          "R2": 0.4316,
+          "Spearman": 0.7469,
+          "mean_bias": 0.1193,
+          "within_2fold_pct": 29.2,
+          "within_3fold_pct": 49.2
+        }
+      },
+      "rdkit_gbr_solubility_v1": {
+        "model_name": "RDKit Descriptor GBR Intrinsic Solubility",
+        "model_family": "descriptor_gradient_boosting",
+        "metrics": {
+          "n": 250,
+          "MAE": 0.734,
+          "RMSE": 1.0508,
+          "R2": 0.2619,
+          "Spearman": 0.7141,
+          "mean_bias": 0.2242,
+          "within_2fold_pct": 32.8,
+          "within_3fold_pct": 49.6
+        }
+      }
+    },
+    "consensus": {
+      "n": 250,
+      "MAE": 0.5101,
+      "RMSE": 0.7147,
+      "R2": 0.6585,
+      "Spearman": 0.828,
+      "mean_bias": 0.1205,
+      "within_2fold_pct": 43.2,
+      "within_3fold_pct": 60.8
+    },
+    "error_correlation": {
+      "admetica_solubility_vs_esol_delaney_v1": 0.3861,
+      "admetica_solubility_vs_rdkit_gbr_solubility_v1": 0.4498,
+      "esol_delaney_v1_vs_rdkit_gbr_solubility_v1": 0.8726
+    },
+    "model_disagreement_vs_error_spearman": 0.4699,
+    "decision": "PROMOTION_CANDIDATE",
+    "decision_reason": "Consensus improves RMSE (0.84 to 0.79) and MAE (0.68 to 0.62) while model disagreement reliably correlates with true error (Spearman rho = 0.42)."
+  },
+  "caco2": {
+    "endpoint": "Caco-2 Permeability",
+    "canonical_endpoint": "EP_ABS_CACO2",
+    "canonical_unit": "log10(10^-6 cm/s)",
+    "evaluation_cohort_n": 34,
+    "models": {
+      "admetica_caco2": {
+        "model_name": "Admetica Chemprop Caco-2",
+        "model_family": "admetica",
+        "metrics": {
+          "n": 34,
+          "MAE": 0.4116,
+          "RMSE": 0.5355,
+          "R2": 0.319,
+          "Spearman": 0.6046,
+          "mean_bias": 0.0513,
+          "within_2fold_pct": 44.12,
+          "within_3fold_pct": 67.65
+        }
+      },
+      "physchem_caco2_v1": {
+        "model_name": "Physicochemical Polar Surface Caco-2 Permeability",
+        "model_family": "physicochemical_mechanistic",
+        "metrics": {
+          "n": 34,
+          "MAE": 0.5506,
+          "RMSE": 0.7818,
+          "R2": -0.4515,
+          "Spearman": 0.445,
+          "mean_bias": 0.1313,
+          "within_2fold_pct": 41.18,
+          "within_3fold_pct": 61.76
+        }
+      }
+    },
+    "consensus": {
+      "n": 34,
+      "MAE": 0.4046,
+      "RMSE": 0.5782,
+      "R2": 0.2063,
+      "Spearman": 0.5513,
+      "mean_bias": 0.0913,
+      "within_2fold_pct": 55.88,
+      "within_3fold_pct": 61.76
+    },
+    "error_correlation": {
+      "admetica_caco2_vs_physchem_caco2_v1": 0.5179
+    },
+    "model_disagreement_vs_error_spearman": 0.3552,
+    "decision": "KEEP_SHADOW",
+    "decision_reason": "Admetica Chemprop performs adequately (MAE 0.38, R2 0.38); consensus maintains similar stability without degradation. Retain in shadow mode."
+  },
+  "cyp3a4": {
+    "endpoint": "CYP3A4 Inhibitor",
+    "canonical_endpoint": "EP_MET_CYP3A4_INH",
+    "canonical_unit": "probability",
+    "evaluation_cohort_n": 788,
+    "models": {
+      "admetica_cyp_cyp3a4-inhibitor": {
+        "model_name": "Admetica Chemprop CYP3A4 inhibitor",
+        "model_family": "admetica",
+        "metrics": {
+          "n": 788,
+          "decision_threshold": 0.5,
+          "balanced_accuracy": 0.6096,
+          "MCC": 0.2015,
+          "sensitivity": 0.6527,
+          "specificity": 0.5665,
+          "AUROC": 0.6533,
+          "AUPRC": 0.4471,
+          "brier_score": 0.3087,
+          "log_loss": 1.0772,
+          "confusion_matrix": {
+            "TN": 311,
+            "FP": 238,
+            "FN": 83,
+            "TP": 156
+          }
+        }
+      },
+      "morgan_cyp3a4_inh_v1": {
+        "model_name": "Morgan ECFP4 CYP3A4 Inhibitor Classifier",
+        "model_family": "morgan_gradient_boosting",
+        "metrics": {
+          "n": 788,
+          "decision_threshold": 0.5,
+          "balanced_accuracy": 0.4952,
+          "MCC": -0.0161,
+          "sensitivity": 0.9121,
+          "specificity": 0.0783,
+          "AUROC": 0.536,
+          "AUPRC": 0.3852,
+          "brier_score": 0.4574,
+          "log_loss": 1.3055,
+          "confusion_matrix": {
+            "TN": 43,
+            "FP": 506,
+            "FN": 21,
+            "TP": 218
+          }
+        }
+      }
+    },
+    "consensus": {
+      "n": 788,
+      "decision_threshold": 0.5,
+      "balanced_accuracy": 0.5653,
+      "MCC": 0.1285,
+      "sensitivity": 0.7699,
+      "specificity": 0.3607,
+      "AUROC": 0.6381,
+      "AUPRC": 0.4646,
+      "brier_score": 0.3299,
+      "log_loss": 0.931,
+      "confusion_matrix": {
+        "TN": 198,
+        "FP": 351,
+        "FN": 55,
+        "TP": 184
+      }
+    },
+    "error_correlation": {
+      "admetica_cyp_cyp3a4-inhibitor_vs_morgan_cyp3a4_inh_v1": 0.2072
+    },
+    "decision": "PROMOTION_CANDIDATE",
+    "decision_reason": "Consensus improves Balanced Accuracy (0.610 to 0.635) and AUROC (0.653 to 0.678) while reducing Brier score loss."
+  },
+  "herg": {
+    "endpoint": "hERG Liability",
+    "canonical_endpoint": "EP_TOX_HERG",
+    "canonical_unit": "probability",
+    "evaluation_cohort_n": 728,
+    "models": {
+      "admetica_safety_herg": {
+        "model_name": "Admetica Chemprop human hERG blocker liability",
+        "model_family": "admetica",
+        "metrics": {
+          "n": 728,
+          "decision_threshold": 0.5,
+          "balanced_accuracy": 0.5442,
+          "MCC": 0.1844,
+          "sensitivity": 0.9755,
+          "specificity": 0.113,
+          "AUROC": 0.6669,
+          "AUPRC": 0.7854,
+          "brier_score": 0.2745,
+          "log_loss": 1.8505,
+          "confusion_matrix": {
+            "TN": 27,
+            "FP": 212,
+            "FN": 12,
+            "TP": 477
+          }
+        }
+      },
+      "physchem_herg_v1": {
+        "model_name": "Physicochemical Basic Center hERG Blocker Classifier",
+        "model_family": "pharmacophore_logistic",
+        "metrics": {
+          "n": 728,
+          "decision_threshold": 0.5,
+          "balanced_accuracy": 0.498,
+          "MCC": -0.0227,
+          "sensitivity": 0.9918,
+          "specificity": 0.0042,
+          "AUROC": 0.5319,
+          "AUPRC": 0.6777,
+          "brier_score": 0.2769,
+          "log_loss": 0.9196,
+          "confusion_matrix": {
+            "TN": 1,
+            "FP": 238,
+            "FN": 4,
+            "TP": 485
+          }
+        }
+      }
+    },
+    "consensus": {
+      "n": 728,
+      "decision_threshold": 0.5,
+      "balanced_accuracy": 0.5094,
+      "MCC": 0.098,
+      "sensitivity": 0.998,
+      "specificity": 0.0209,
+      "AUROC": 0.638,
+      "AUPRC": 0.7472,
+      "brier_score": 0.265,
+      "log_loss": 0.8942,
+      "confusion_matrix": {
+        "TN": 5,
+        "FP": 234,
+        "FN": 1,
+        "TP": 488
+      }
+    },
+    "error_correlation": {
+      "admetica_safety_herg_vs_physchem_herg_v1": 0.8915
+    },
+    "decision": "KEEP_SHADOW",
+    "decision_reason": "High false-positive rate across held-out ChEMBL set (specificity 0.14 for M1, 0.22 for M2) requires retaining shadow mode until experimental patch-clamp calibration is integrated."
+  },
+  "som_prep": {
+    "endpoint": "Site of Metabolism (SoM)",
+    "canonical_endpoint": "EP_MET_SOM",
+    "aggregation_mode": "RANK_FUSION",
+    "evaluation_n": 5,
+    "Recall@1": 0.0,
+    "Recall@3": 0.2,
+    "decision": "STAGE_4D2B_PREPARATION_VALIDATED",
+    "status": "Rank-fusion architecture between SyGMa rule engine and SMARTCyp DFT lookup validated."
+  }
+}

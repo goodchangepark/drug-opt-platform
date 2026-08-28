@@ -1,0 +1,47 @@
+{
+  "stage": "4D-2",
+  "timestamp": "2026-08-28T16:18:40.687530+00:00",
+  "decisions": {
+    "Solubility": {
+      "decision": "PROMOTION_CANDIDATE",
+      "active_models": [
+        "admetica_solubility",
+        "esol_delaney_v1",
+        "rdkit_gbr_solubility_v1"
+      ],
+      "justification": "Consensus improves RMSE (0.84 to 0.79) and MAE (0.68 to 0.62) with reliable uncertainty calibration from model disagreement."
+    },
+    "Permeability": {
+      "decision": "KEEP_SHADOW",
+      "active_models": [
+        "admetica_caco2",
+        "physchem_caco2_v1"
+      ],
+      "justification": "Admetica Chemprop performs adequately (MAE 0.38, R2 0.38); consensus maintains stability without significant gain. Keep shadow mode."
+    },
+    "CYP3A4 inhibitor": {
+      "decision": "PROMOTION_CANDIDATE",
+      "active_models": [
+        "admetica_cyp_cyp3a4-inhibitor",
+        "morgan_cyp3a4_inh_v1"
+      ],
+      "justification": "Consensus improves Balanced Accuracy (0.610 to 0.635) and AUROC (0.653 to 0.678) while reducing Brier score (0.218 to 0.198)."
+    },
+    "hERG liability": {
+      "decision": "KEEP_SHADOW",
+      "active_models": [
+        "admetica_safety_herg",
+        "physchem_herg_v1"
+      ],
+      "justification": "High false-positive rate on held-out ChEMBL set requires shadow mode retention until experimental patch-clamp calibration."
+    },
+    "Metabolic soft spots": {
+      "decision": "STAGE_4D2B_PREPARATION_VALIDATED",
+      "active_models": [
+        "sygma_phase1_2",
+        "smartcyp_dft_v1"
+      ],
+      "justification": "Rank fusion architecture verified; proceed to prospective evaluation in Stage 4D-2B."
+    }
+  }
+}

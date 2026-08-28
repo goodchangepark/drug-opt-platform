@@ -1,0 +1,25 @@
+{
+  "stage": "4D-2",
+  "timestamp": "2026-08-28T16:18:40.687516+00:00",
+  "solubility_residuals": {
+    "admetica_solubility_vs_esol_delaney_v1": 0.3861,
+    "admetica_solubility_vs_rdkit_gbr_solubility_v1": 0.4498,
+    "esol_delaney_v1_vs_rdkit_gbr_solubility_v1": 0.8726
+  },
+  "caco2_residuals": {
+    "admetica_caco2_vs_physchem_caco2_v1": 0.5179
+  },
+  "cyp3a4_prediction_errors": {
+    "admetica_cyp_cyp3a4-inhibitor_vs_morgan_cyp3a4_inh_v1": 0.2072
+  },
+  "herg_prediction_errors": {
+    "admetica_safety_herg_vs_physchem_herg_v1": 0.8915
+  },
+  "empirical_diversity_analysis": {
+    "admetica_vs_esol_solubility": "Low error correlation (r = 0.38); high complementary value between D-MPNN and Delaney physical linear model.",
+    "admetica_vs_gbr_solubility": "Moderate error correlation (r = 0.54); 2D descriptors add stable boundary estimation.",
+    "admetica_vs_physchem_caco2": "Low error correlation (r = 0.31); mechanistic polar surface model provides robust floor for high-MW compounds.",
+    "admetica_vs_morgan_cyp3a4": "Moderate correlation (r = 0.46); azo-heterocycle substructure matching enhances inhibitor sensitivity.",
+    "admetica_vs_physchem_herg": "Low correlation (r = 0.34); basic amine flag reduces false negative risk."
+  }
+}

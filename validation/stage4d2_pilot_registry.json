@@ -1,0 +1,289 @@
+{
+  "stage": "4D-2",
+  "timestamp": "2026-08-28T16:18:40.687233+00:00",
+  "total_registered_adapters": 25,
+  "pilot_endpoints": [
+    "Solubility",
+    "Permeability",
+    "CYP3A4 inhibitor",
+    "hERG liability",
+    "Metabolic soft spots"
+  ],
+  "registered_adapters": [
+    {
+      "model_id": "admetica_solubility",
+      "model_name": "Admetica Chemprop Solubility",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "supported_endpoints": [
+        "Solubility"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_caco2",
+      "model_name": "Admetica Chemprop Caco-2",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "supported_endpoints": [
+        "Permeability"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_ppbr",
+      "model_name": "Admetica Chemprop Human PPB",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "supported_endpoints": [
+        "Plasma protein binding"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp1a2-inhibitor",
+      "model_name": "Admetica Chemprop CYP1A2 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP1A2 inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2c9-inhibitor",
+      "model_name": "Admetica Chemprop CYP2C9 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2C9 inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2c19-inhibitor",
+      "model_name": "Admetica Chemprop CYP2C19 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2C19 inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2d6-inhibitor",
+      "model_name": "Admetica Chemprop CYP2D6 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2D6 inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp3a4-inhibitor",
+      "model_name": "Admetica Chemprop CYP3A4 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP3A4 inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2c9-substrate",
+      "model_name": "Admetica Chemprop CYP2C9 substrate",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2C9 substrate"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp2d6-substrate",
+      "model_name": "Admetica Chemprop CYP2D6 substrate",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP2D6 substrate"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_cyp_cyp3a4-substrate",
+      "model_name": "Admetica Chemprop CYP3A4 substrate",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "supported_endpoints": [
+        "CYP3A4 substrate"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_transporter_pgp-inhibitor",
+      "model_name": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+      "supported_endpoints": [
+        "P-gp inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admetica_safety_herg",
+      "model_name": "Admetica Chemprop human hERG blocker liability",
+      "model_family": "admetica",
+      "model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+      "supported_endpoints": [
+        "hERG liability"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "openadmet_hlm",
+      "model_name": "OpenADMET CheMeleon HLM intrinsic clearance",
+      "model_family": "openadmet_clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "supported_endpoints": [
+        "HLM intrinsic clearance"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "openadmet_rlm",
+      "model_name": "OpenADMET CheMeleon RLM intrinsic clearance",
+      "model_family": "openadmet_clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "supported_endpoints": [
+        "RLM intrinsic clearance"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "openadmet_mlm",
+      "model_name": "OpenADMET CheMeleon MLM intrinsic clearance",
+      "model_family": "openadmet_clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "supported_endpoints": [
+        "MLM intrinsic clearance"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "admet_ai_ames",
+      "model_name": "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+      "model_family": "admet_ai_ensemble",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "supported_endpoints": [
+        "Ames mutagenicity"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_2_LOCAL_HEAVY"
+    },
+    {
+      "model_id": "admet_ai_dili",
+      "model_name": "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+      "model_family": "admet_ai_ensemble",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "supported_endpoints": [
+        "DILI clinical liability"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_2_LOCAL_HEAVY"
+    },
+    {
+      "model_id": "sygma_phase1_2",
+      "model_name": "SyGMa Phase I & II Rule Engine",
+      "model_family": "rule_based_smarts",
+      "model_version": "sygma-v1.1.0",
+      "supported_endpoints": [
+        "Metabolic soft spots"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "esol_delaney_v1",
+      "model_name": "Delaney ESOL Physicochemical Regressor",
+      "model_family": "physicochemical_linear",
+      "model_version": "esol-delaney-2004-v1.0",
+      "supported_endpoints": [
+        "Solubility"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "rdkit_gbr_solubility_v1",
+      "model_name": "RDKit Descriptor GBR Intrinsic Solubility",
+      "model_family": "descriptor_gradient_boosting",
+      "model_version": "rdkit-gbr-sol-v1.0",
+      "supported_endpoints": [
+        "Solubility"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "physchem_caco2_v1",
+      "model_name": "Physicochemical Polar Surface Caco-2 Permeability",
+      "model_family": "physicochemical_mechanistic",
+      "model_version": "physchem-caco2-v1.0",
+      "supported_endpoints": [
+        "Permeability"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "morgan_cyp3a4_inh_v1",
+      "model_name": "Morgan ECFP4 CYP3A4 Inhibitor Classifier",
+      "model_family": "morgan_gradient_boosting",
+      "model_version": "morgan-cyp3a4-v1.0",
+      "supported_endpoints": [
+        "CYP3A4 inhibitor"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "physchem_herg_v1",
+      "model_name": "Physicochemical Basic Center hERG Blocker Classifier",
+      "model_family": "pharmacophore_logistic",
+      "model_version": "physchem-herg-v1.0",
+      "supported_endpoints": [
+        "hERG liability"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    },
+    {
+      "model_id": "smartcyp_dft_v1",
+      "model_name": "SMARTCyp Transition State Energy Engine",
+      "model_family": "dft_fragment_lookup",
+      "model_version": "smartcyp-v3.0",
+      "supported_endpoints": [
+        "Metabolic soft spots"
+      ],
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "execution_tier": "TIER_1_LOCAL_FAST"
+    }
+  ]
+}

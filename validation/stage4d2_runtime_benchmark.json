@@ -1,0 +1,10 @@
+{
+  "hardware_platform": "NVIDIA Jetson Xavier ARM64 (8-core Carmel CPU)",
+  "total_active_pilot_models": 9,
+  "cold_first_compound_ms": 1495.03,
+  "warm_single_compound_ms": 429.98,
+  "batch_10_compounds_ms": 3453.83,
+  "cache_hit_lookup_ms": 0.1037,
+  "peak_ram_mb": 1427.44,
+  "safe_execution_policy": "Sequential PyTorch inference with controlled CPU thread pools prevents memory spikes and thermal throttling."
+}

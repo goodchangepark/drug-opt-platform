@@ -89,10 +89,23 @@ ENDPOINT_AGGREGATION_MAP: Dict[str, AggregationType] = {
     "PK Bioavailability": AggregationType.NO_CONSENSUS,
 }
 
-# Known architecture/dataset overlap pairs receiving diversity penalty
+# Empirical architecture/dataset error correlation diversity penalties (Stage 4D-2 Evidence)
+# Penalty Factor = max(0.10, 1.0 - r_error^2)
 DIVERSITY_PENALTY_PAIRS: Dict[Tuple[str, str], float] = {
     ("admetica", "admet_ai"): 0.55,
     ("admet_ai", "admetica"): 0.55,
+    ("admetica_solubility", "esol_delaney_v1"): 0.85,
+    ("esol_delaney_v1", "admetica_solubility"): 0.85,
+    ("admetica_solubility", "rdkit_gbr_solubility_v1"): 0.80,
+    ("rdkit_gbr_solubility_v1", "admetica_solubility"): 0.80,
+    ("esol_delaney_v1", "rdkit_gbr_solubility_v1"): 0.25,
+    ("rdkit_gbr_solubility_v1", "esol_delaney_v1"): 0.25,
+    ("admetica_caco2", "physchem_caco2_v1"): 0.73,
+    ("physchem_caco2_v1", "admetica_caco2"): 0.73,
+    ("admetica_cyp_cyp3a4-inhibitor", "morgan_cyp3a4_inh_v1"): 0.95,
+    ("morgan_cyp3a4_inh_v1", "admetica_cyp_cyp3a4-inhibitor"): 0.95,
+    ("admetica_safety_herg", "physchem_herg_v1"): 0.20,
+    ("physchem_herg_v1", "admetica_safety_herg"): 0.20,
 }
 
 
@@ -175,9 +188,12 @@ def calculate_static_model_weight(
     diversity_factor = 1.0
     for other in other_payloads:
         if other.model_id != payload.model_id and other.execution_status == ExecutionStatus.SUCCESS:
-            pair = (payload.model_family, other.model_family)
-            if pair in DIVERSITY_PENALTY_PAIRS:
-                diversity_factor = min(diversity_factor, DIVERSITY_PENALTY_PAIRS[pair])
+            id_pair = (payload.model_id, other.model_id)
+            fam_pair = (payload.model_family, other.model_family)
+            if id_pair in DIVERSITY_PENALTY_PAIRS:
+                diversity_factor = min(diversity_factor, DIVERSITY_PENALTY_PAIRS[id_pair])
+            elif fam_pair in DIVERSITY_PENALTY_PAIRS:
+                diversity_factor = min(diversity_factor, DIVERSITY_PENALTY_PAIRS[fam_pair])
 
     base_weight = 1.0
     weight = base_weight * ad_factor * conf_factor * diversity_factor
