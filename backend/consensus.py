@@ -57,6 +57,24 @@ class AgreementStatus(str, enum.Enum):
     NO_CONSENSUS = "NO_CONSENSUS"
 
 
+class PromotionDecisionStatus(str, enum.Enum):
+    """Authoritative scientific promotion and ensemble decision status."""
+    PRODUCTION_PROMOTION_CANDIDATE = "PRODUCTION_PROMOTION_CANDIDATE"
+    ADAPTIVE_WEIGHTING_RESEARCH_CANDIDATE = "ADAPTIVE_WEIGHTING_RESEARCH_CANDIDATE"
+    KEEP_SHADOW = "KEEP_SHADOW"
+    EXCLUDE_MODEL_FROM_CONSENSUS = "EXCLUDE_MODEL_FROM_CONSENSUS"
+    INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+    REJECT_ENSEMBLE = "REJECT_ENSEMBLE"
+
+
+class EnsembleContributionStatus(str, enum.Enum):
+    """Scientific contribution classification of an individual qualified model."""
+    CORE = "CORE"
+    SUPPORTING = "SUPPORTING"
+    SHADOW_ONLY = "SHADOW_ONLY"
+    EXCLUDED_FROM_CONSENSUS = "EXCLUDED_FROM_CONSENSUS"
+
+
 # Endpoint aggregation type mapping
 ENDPOINT_AGGREGATION_MAP: Dict[str, AggregationType] = {
     # Physicochemical & Absorption & Distribution

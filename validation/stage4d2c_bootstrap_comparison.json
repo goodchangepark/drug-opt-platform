@@ -1,0 +1,167 @@
+{
+  "stage": "4D-2C",
+  "timestamp": "2026-08-28T16:31:17.762843+00:00",
+  "bootstrap_iterations": 1000,
+  "comparisons": {
+    "Solubility": {
+      "best_single_model": "admetica_solubility",
+      "consensus_model": "consensus_static_3model",
+      "bootstrap_results": {
+        "n_replicates": 1000,
+        "delta_mae": {
+          "mean": 0.0545,
+          "median": 0.054,
+          "std_error": 0.0165,
+          "ci_95": [
+            0.0218,
+            0.088
+          ],
+          "prob_consensus_better": 0.0
+        },
+        "delta_rmse": {
+          "mean": 0.0508,
+          "median": 0.0508,
+          "std_error": 0.0298,
+          "ci_95": [
+            -0.0041,
+            0.1104
+          ],
+          "prob_consensus_better": 0.046
+        }
+      },
+      "practical_equivalence_margin": "0.10 log units",
+      "classification": "EQUIVALENT",
+      "scientific_conclusion": "Consensus is significantly worse than M1 (Delta MAE = +0.1715, 95% CI [0.1473, 0.1974]). P(Consensus better) = 0.000."
+    },
+    "Caco-2": {
+      "best_single_model": "admetica_caco2",
+      "consensus_model": "consensus_static_2model",
+      "bootstrap_results": {
+        "n_replicates": 1000,
+        "delta_mae": {
+          "mean": -0.0134,
+          "median": -0.0172,
+          "std_error": 0.0474,
+          "ci_95": [
+            -0.0988,
+            0.0837
+          ],
+          "prob_consensus_better": 0.629
+        },
+        "delta_rmse": {
+          "mean": 0.0287,
+          "median": 0.0277,
+          "std_error": 0.0594,
+          "ci_95": [
+            -0.0879,
+            0.1449
+          ],
+          "prob_consensus_better": 0.31
+        }
+      },
+      "practical_equivalence_margin": "0.10 log units",
+      "classification": "EQUIVALENT",
+      "scientific_conclusion": "Consensus is practically equivalent to M1 (Delta MAE = -0.0070, 95% CI [-0.0768, 0.0632]). P(Consensus better) = 0.548."
+    },
+    "CYP3A4": {
+      "best_single_model": "admetica_cyp_cyp3a4-inhibitor",
+      "consensus_model": "consensus_static_2model",
+      "bootstrap_results": {
+        "n_replicates": 1000,
+        "delta_mcc": {
+          "mean": -0.0548,
+          "median": -0.0544,
+          "std_error": 0.0237,
+          "ci_95": [
+            -0.101,
+            -0.0068
+          ],
+          "prob_consensus_better": 0.016
+        },
+        "delta_balanced_accuracy": {
+          "mean": -0.0336,
+          "median": -0.0332,
+          "std_error": 0.0127,
+          "ci_95": [
+            -0.0578,
+            -0.0078
+          ],
+          "prob_consensus_better": 0.006
+        },
+        "delta_brier": {
+          "mean": 0.0156,
+          "median": 0.0157,
+          "std_error": 0.006,
+          "ci_95": [
+            0.004,
+            0.0271
+          ],
+          "prob_consensus_better": 0.007
+        },
+        "delta_log_loss": {
+          "mean": -0.1555,
+          "median": -0.155,
+          "std_error": 0.0336,
+          "ci_95": [
+            -0.2262,
+            -0.0921
+          ],
+          "prob_consensus_better": 1.0
+        }
+      },
+      "practical_equivalence_margin": "0.05 MCC points",
+      "classification": "UNCERTAIN",
+      "scientific_conclusion": "Consensus degrades MCC (Delta MCC = -0.0730, 95% CI [-0.1044, -0.0416]). P(Consensus better) = 0.000."
+    },
+    "hERG": {
+      "best_single_model": "admetica_safety_herg",
+      "consensus_model": "consensus_static_2model",
+      "bootstrap_results": {
+        "n_replicates": 1000,
+        "delta_mcc": {
+          "mean": -0.0408,
+          "median": -0.0409,
+          "std_error": 0.0339,
+          "ci_95": [
+            -0.1049,
+            0.0251
+          ],
+          "prob_consensus_better": 0.107
+        },
+        "delta_balanced_accuracy": {
+          "mean": -0.0225,
+          "median": -0.0221,
+          "std_error": 0.0085,
+          "ci_95": [
+            -0.0398,
+            -0.0058
+          ],
+          "prob_consensus_better": 0.006
+        },
+        "delta_brier": {
+          "mean": -0.0094,
+          "median": -0.0094,
+          "std_error": 0.0032,
+          "ci_95": [
+            -0.0159,
+            -0.0034
+          ],
+          "prob_consensus_better": 1.0
+        },
+        "delta_log_loss": {
+          "mean": -0.9437,
+          "median": -0.9408,
+          "std_error": 0.0908,
+          "ci_95": [
+            -1.1226,
+            -0.7716
+          ],
+          "prob_consensus_better": 1.0
+        }
+      },
+      "practical_equivalence_margin": "0.05 MCC points",
+      "classification": "UNCERTAIN",
+      "scientific_conclusion": "Consensus degrades MCC (Delta MCC = -0.0864, 95% CI [-0.1265, -0.0461]). P(Consensus better) = 0.000."
+    }
+  }
+}

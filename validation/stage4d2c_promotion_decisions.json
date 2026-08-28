@@ -1,0 +1,31 @@
+{
+  "stage": "4D-2C",
+  "timestamp": "2026-08-28T16:31:17.762843+00:00",
+  "recalibrated_decisions": {
+    "Solubility": {
+      "decision": "ADAPTIVE_WEIGHTING_RESEARCH_CANDIDATE",
+      "previous_stage4d2_decision": "PROMOTION_CANDIDATE",
+      "audit_justification": "Static consensus is significantly worse than M1 Admetica (Delta MAE = +0.1715, P(better)=0.000). Not eligible for production promotion. However, high model diversity (r_err = 0.386) makes it an ideal research candidate for series-level adaptive weighting in Stage 4D-3."
+    },
+    "Permeability": {
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "previous_stage4d2_decision": "KEEP_SHADOW",
+      "audit_justification": "N=34 is insufficient to establish statistically significant superiority or inferiority (Delta MAE 95% CI spans [-0.0768, 0.0632]). Retain in shadow mode."
+    },
+    "CYP3A4 inhibitor": {
+      "decision": "ADAPTIVE_WEIGHTING_RESEARCH_CANDIDATE",
+      "previous_stage4d2_decision": "PROMOTION_CANDIDATE",
+      "audit_justification": "Static probability blending with weak classifier M2 degrades MCC from 0.2015 to 0.1285 and specificity from 0.5665 to 0.3607. Reclassified from production candidate to adaptive weighting research candidate."
+    },
+    "hERG liability": {
+      "decision": "KEEP_SHADOW",
+      "previous_stage4d2_decision": "KEEP_SHADOW",
+      "audit_justification": "Extreme false-positive rate across held-out sets requires shadow mode retention until experimental patch-clamp calibration is integrated."
+    },
+    "Metabolic soft spots": {
+      "decision": "STAGE_4D2B_PREPARATION_VALIDATED",
+      "previous_stage4d2_decision": "STAGE_4D2B_PREPARATION_VALIDATED",
+      "audit_justification": "Reciprocal Rank Fusion architecture validated."
+    }
+  }
+}

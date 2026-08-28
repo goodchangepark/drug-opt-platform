@@ -1,0 +1,205 @@
+{
+  "stage": "4D-2C",
+  "timestamp": "2026-08-28T16:31:17.762843+00:00",
+  "validation_policy": "Strict numerical reproduction from frozen external datasets and model checkpoints",
+  "reproduced_endpoints": {
+    "Solubility": {
+      "cohort_n": 250,
+      "canonical_unit": "log10(mol/L)",
+      "M1_admetica": {
+        "n": 250,
+        "MAE": 0.3386,
+        "RMSE": 0.5018,
+        "R2": 0.8317,
+        "Spearman": 0.9172,
+        "mean_bias": 0.0279,
+        "within_2fold_pct": 59.2,
+        "within_3fold_pct": 76.0
+      },
+      "M2_esol": {
+        "n": 250,
+        "MAE": 0.6663,
+        "RMSE": 0.9221,
+        "R2": 0.4316,
+        "Spearman": 0.7469,
+        "mean_bias": 0.1193,
+        "within_2fold_pct": 29.2,
+        "within_3fold_pct": 49.2
+      },
+      "M3_rdkit_gbr": {
+        "n": 250,
+        "MAE": 0.734,
+        "RMSE": 1.0508,
+        "R2": 0.2619,
+        "Spearman": 0.7141,
+        "mean_bias": 0.2242,
+        "within_2fold_pct": 32.8,
+        "within_3fold_pct": 49.6
+      },
+      "consensus_static": {
+        "n": 250,
+        "MAE": 0.3931,
+        "RMSE": 0.5513,
+        "R2": 0.7968,
+        "Spearman": 0.89,
+        "mean_bias": 0.0746,
+        "within_2fold_pct": 50.0,
+        "within_3fold_pct": 74.4
+      },
+      "numerical_equality_verified": true
+    },
+    "Caco-2": {
+      "cohort_n": 34,
+      "canonical_unit": "log10(cm/s)",
+      "M1_admetica": {
+        "n": 34,
+        "MAE": 0.4116,
+        "RMSE": 0.5355,
+        "R2": 0.319,
+        "Spearman": 0.6046,
+        "mean_bias": 0.0513,
+        "within_2fold_pct": 44.12,
+        "within_3fold_pct": 67.65
+      },
+      "M2_physchem": {
+        "n": 34,
+        "MAE": 0.5506,
+        "RMSE": 0.7818,
+        "R2": -0.4515,
+        "Spearman": 0.445,
+        "mean_bias": 0.1313,
+        "within_2fold_pct": 41.18,
+        "within_3fold_pct": 61.76
+      },
+      "consensus_static": {
+        "n": 34,
+        "MAE": 0.3976,
+        "RMSE": 0.5674,
+        "R2": 0.2357,
+        "Spearman": 0.5574,
+        "mean_bias": 0.0881,
+        "within_2fold_pct": 55.88,
+        "within_3fold_pct": 61.76
+      },
+      "numerical_equality_verified": true
+    },
+    "CYP3A4": {
+      "cohort_n": 788,
+      "canonical_unit": "probability",
+      "M1_admetica": {
+        "n": 788,
+        "decision_threshold": 0.5,
+        "balanced_accuracy": 0.6096,
+        "MCC": 0.2015,
+        "sensitivity": 0.6527,
+        "specificity": 0.5665,
+        "AUROC": 0.6533,
+        "AUPRC": 0.4471,
+        "brier_score": 0.3087,
+        "log_loss": 1.0772,
+        "confusion_matrix": {
+          "TN": 311,
+          "FP": 238,
+          "FN": 83,
+          "TP": 156
+        }
+      },
+      "M2_morgan": {
+        "n": 788,
+        "decision_threshold": 0.5,
+        "balanced_accuracy": 0.4952,
+        "MCC": -0.0161,
+        "sensitivity": 0.9121,
+        "specificity": 0.0783,
+        "AUROC": 0.536,
+        "AUPRC": 0.3852,
+        "brier_score": 0.4574,
+        "log_loss": 1.3055,
+        "confusion_matrix": {
+          "TN": 43,
+          "FP": 506,
+          "FN": 21,
+          "TP": 218
+        }
+      },
+      "consensus_static": {
+        "n": 788,
+        "decision_threshold": 0.5,
+        "balanced_accuracy": 0.5763,
+        "MCC": 0.1472,
+        "sensitivity": 0.7573,
+        "specificity": 0.3953,
+        "AUROC": 0.6396,
+        "AUPRC": 0.4636,
+        "brier_score": 0.3243,
+        "log_loss": 0.9225,
+        "confusion_matrix": {
+          "TN": 217,
+          "FP": 332,
+          "FN": 58,
+          "TP": 181
+        }
+      },
+      "numerical_equality_verified": true
+    },
+    "hERG": {
+      "cohort_n": 728,
+      "canonical_unit": "probability",
+      "M1_admetica": {
+        "n": 728,
+        "decision_threshold": 0.5,
+        "balanced_accuracy": 0.5442,
+        "MCC": 0.1844,
+        "sensitivity": 0.9755,
+        "specificity": 0.113,
+        "AUROC": 0.6669,
+        "AUPRC": 0.7854,
+        "brier_score": 0.2745,
+        "log_loss": 1.8647,
+        "confusion_matrix": {
+          "TN": 27,
+          "FP": 212,
+          "FN": 12,
+          "TP": 477
+        }
+      },
+      "M2_physchem": {
+        "n": 728,
+        "decision_threshold": 0.5,
+        "balanced_accuracy": 0.498,
+        "MCC": -0.0227,
+        "sensitivity": 0.9918,
+        "specificity": 0.0042,
+        "AUROC": 0.5319,
+        "AUPRC": 0.6777,
+        "brier_score": 0.2769,
+        "log_loss": 0.9196,
+        "confusion_matrix": {
+          "TN": 1,
+          "FP": 238,
+          "FN": 4,
+          "TP": 485
+        }
+      },
+      "consensus_static": {
+        "n": 728,
+        "decision_threshold": 0.5,
+        "balanced_accuracy": 0.522,
+        "MCC": 0.1457,
+        "sensitivity": 0.9939,
+        "specificity": 0.0502,
+        "AUROC": 0.6448,
+        "AUPRC": 0.7511,
+        "brier_score": 0.2649,
+        "log_loss": 0.9199,
+        "confusion_matrix": {
+          "TN": 12,
+          "FP": 227,
+          "FN": 3,
+          "TP": 486
+        }
+      },
+      "numerical_equality_verified": true
+    }
+  }
+}
