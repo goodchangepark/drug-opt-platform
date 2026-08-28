@@ -63,7 +63,7 @@ from .models import (Compound, CompoundVersion, PredictionRun, Project,
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
 from .ivive import (IVIVEInputSet, IVIVEMethodRegistry, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
                     ensure_ivive_schema, register_ivive_routes, get_multi_species_pk_profile,
-                    get_pk_foundation_profile)
+                    get_pk_foundation_profile, refresh_pk_and_ivive_for_version)
 from .simulation import PKSimulationRun, ensure_simulation_schema, register_simulation_routes
 from .standardizer import GLOBAL_DESCRIPTOR_CONFIG, GLOBAL_FINGERPRINT_CONFIG, RDKIT_VERSION, STANDARDIZER_NAME, STANDARDIZER_VERSION, standardize_molecule
 from .golden_set import run_golden_gate_test
@@ -1556,7 +1556,9 @@ def create_admet_measurement(project_id: int, payload: dict, db: Session = Depen
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     result = add_admet_measurement(db, project_id, payload)
-    _refresh_model_feedback(db, project_id, [int(payload["version_id"])])
+    version_id = int(payload["version_id"])
+    _refresh_model_feedback(db, project_id, [version_id])
+    refresh_pk_and_ivive_for_version(db, version_id, force=True)
     db.commit()
     return result
 
@@ -1592,12 +1594,16 @@ def admet_import(project_id: int, payload: dict, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail={"message": "Import validation failed", "errors": preview["errors"]})
     labels = {compound.compound_id: compound for compound in db.scalars(select(Compound).where(Compound.project_id == project_id))}
     created = []
+    version_ids = set()
     for item in preview["rows"]:
         compound = labels[str(item["compound_id"]).strip()]
         version_number = int(item.get("version_number") or compound.current_version)
         version = next(version for version in compound.versions if version.version_number == version_number)
         created.append(add_admet_measurement(db, project_id, {**item, "version_id": version.id}))
+        version_ids.add(version.id)
     _refresh_model_feedback(db, project_id)
+    for vid in version_ids:
+        refresh_pk_and_ivive_for_version(db, vid, force=True)
     db.commit()
     return {"imported": len(created), "measurements": created}
 

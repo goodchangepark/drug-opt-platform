@@ -840,6 +840,11 @@ def register_pk_routes(app):
         db.add(study)
         db.commit()
         db.refresh(study)
+        try:
+            from .ivive import refresh_pk_and_ivive_for_version
+            refresh_pk_and_ivive_for_version(db, study.version_id, force=True)
+        except Exception:
+            pass
         return serialize_study(study)
 
     @app.get("/api/compounds/{row_id}/pk-studies")
@@ -924,8 +929,14 @@ def register_pk_routes(app):
         study = db.get(PKStudy, study_id)
         if not study:
             raise HTTPException(status_code=404, detail="PK study not found")
+        v_id = study.version_id
         db.delete(study)
         db.commit()
+        try:
+            from .ivive import refresh_pk_and_ivive_for_version
+            refresh_pk_and_ivive_for_version(db, v_id, force=True)
+        except Exception:
+            pass
 
     @app.post("/api/pk-studies/{study_id}/observations")
     def add_pk_observations_endpoint(study_id: int, payload: list[PKObservationCreate], db: Session = Depends(get_db)):
@@ -1040,6 +1051,11 @@ def register_pk_routes(app):
             db.add(obs)
             added.append(obs)
         db.commit()
+        try:
+            from .ivive import refresh_pk_and_ivive_for_version
+            refresh_pk_and_ivive_for_version(db, study.version_id, force=True)
+        except Exception:
+            pass
         return {"imported_count": len(added), "errors": errors, "pk_study_id": study.id}
 
     @app.post("/api/pk-studies/{study_id}/run-nca")
@@ -1142,6 +1158,11 @@ def register_pk_routes(app):
         db.add(nca_record)
         db.commit()
         db.refresh(nca_record)
+        try:
+            from .ivive import refresh_pk_and_ivive_for_version
+            refresh_pk_and_ivive_for_version(db, study.version_id, force=True)
+        except Exception:
+            pass
         return serialize_nca(nca_record)
 
     @app.get("/api/compounds/{row_id}/bioavailability")

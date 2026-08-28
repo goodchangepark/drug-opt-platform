@@ -1017,6 +1017,10 @@ def register_ivive_routes(app):
                              "project_id": compound.project_id, "source_type": source_type},
         )
         db.add(row); db.commit(); db.refresh(row)
+        try:
+            refresh_pk_and_ivive_for_version(db, version.id, force=True)
+        except Exception:
+            pass
         return {"id": row.id, "version_id": row.version_id, "species": row.species,
                 "endpoint": row.input_endpoint, "value": row.input_value, "unit": row.unit,
                 "input_type": row.input_type, "source_type": row.source_type,
@@ -1051,6 +1055,7 @@ def register_ivive_routes(app):
         version, _ = _version_and_compound(db, version_id)
         try:
             run = calculate_ivive(db, version, payload.species, payload.method_key)
+            refresh_pk_and_ivive_for_version(db, version.id, force=True)
         except (ValueError, IVIVEUnitError) as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         return _serialize_run(run)
@@ -1544,19 +1549,80 @@ def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, spe
     return param_set
 
 
-def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat") -> dict:
+def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat", force_refresh: bool = False) -> dict:
     """
     Returns integrated Stage 5A-2B profile data object.
+    Uses cached database records when available for fast loading (<1ms).
     """
     version, compound = _version_and_compound(db, version_id)
     species_clean = normalize_species(species)
+
+    cached_sets = list(db.scalars(select(PKParameterSet).where(
+        PKParameterSet.version_id == version_id,
+        PKParameterSet.species == species_clean
+    )).all())
+    cached_by_route = {p.route: p for p in cached_sets}
+
+    if not force_refresh and all(r in cached_by_route for r in ["IV", "PO", "SC", "IP"]):
+        routes_assembled = {}
+        for r in ["IV", "PO", "SC", "IP"]:
+            pset = cached_by_route[r]
+            routes_assembled[r] = {
+                "id": pset.id,
+                "route": pset.route,
+                "dose_value": pset.dose_value,
+                "dose_unit": pset.dose_unit,
+                "cl_value": pset.cl_value,
+                "cl_unit": pset.cl_unit,
+                "cl_source_type": pset.cl_source_type,
+                "clh_value": pset.clh_value,
+                "v_value": pset.v_value,
+                "v_unit": pset.v_unit,
+                "v_source_type": pset.v_source_type,
+                "v_type": pset.v_type,
+                "fh_value": pset.fh_value,
+                "fa_value": pset.fa_value,
+                "fa_status": pset.fa_status,
+                "fg_value": pset.fg_value,
+                "fg_status": pset.fg_status,
+                "f_predicted": pset.f_predicted,
+                "f_experimental": pset.f_experimental,
+                "ka_value": pset.ka_value,
+                "ka_source_type": pset.ka_source_type,
+                "fu_p": pset.fu_p,
+                "fu_b": pset.fu_b,
+                "bp_ratio": pset.bp_ratio,
+                "confidence": pset.confidence,
+                "assumptions": pset.assumptions_json,
+                "provenance": pset.provenance_json,
+            }
+        iv_pset = cached_by_route.get("IV")
+        po_pset = cached_by_route.get("PO")
+        vd_info = (iv_pset.provenance_json or {}).get("vd_info") if iv_pset else None
+        abs_info = (po_pset.provenance_json or {}).get("absorption_info") if po_pset else None
+        if not vd_info:
+            vd_info = estimate_volume_of_distribution(db, compound.project_id, version_id, species_clean)
+        if not abs_info:
+            abs_info = estimate_absorption_components(db, compound.project_id, version_id, species_clean)
+
+        return {
+            "scope": {
+                "project_id": compound.project_id,
+                "compound_id": compound.id,
+                "version_id": version.id,
+                "species": species_clean,
+            },
+            "distribution": vd_info,
+            "absorption": abs_info,
+            "route_parameter_sets": routes_assembled,
+        }
 
     vd_info = estimate_volume_of_distribution(db, compound.project_id, version_id, species_clean)
     abs_info = estimate_absorption_components(db, compound.project_id, version_id, species_clean)
 
     routes_assembled = {}
     for r in ["IV", "PO", "SC", "IP"]:
-        pset = assemble_pk_parameter_set(db, compound.project_id, version_id, species_clean, r)
+        pset = assemble_pk_parameter_set(db, compound.project_id, version_id, species_clean, r, force_refresh=force_refresh)
         routes_assembled[r] = {
             "id": pset.id,
             "route": pset.route,
@@ -1600,7 +1666,7 @@ def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat"
     }
 
 
-def get_multi_species_pk_profile(db: Session, version_id: int) -> dict[str, Any]:
+def get_multi_species_pk_profile(db: Session, version_id: int, force_refresh: bool = False) -> dict[str, Any]:
     """
     Returns multi-species PK parameter foundation across all 5 standard species:
     Mouse, Rat, Dog, Monkey, Human.
@@ -1610,7 +1676,7 @@ def get_multi_species_pk_profile(db: Session, version_id: int) -> dict[str, Any]
     species_profiles = {}
     for sp in species_list:
         try:
-            prof = get_pk_foundation_profile(db, version_id, sp)
+            prof = get_pk_foundation_profile(db, version_id, sp, force_refresh=force_refresh)
             iv_set = prof.get("route_parameter_sets", {}).get("IV", {})
             po_set = prof.get("route_parameter_sets", {}).get("PO", {})
             dist = prof.get("distribution", {})
@@ -1636,16 +1702,24 @@ def get_multi_species_pk_profile(db: Session, version_id: int) -> dict[str, Any]
             
             readiness = "READY" if (cl is not None and v is not None) else ("PARTIAL" if (cl is not None or v is not None) else "NOT_READY")
             
+            is_exp_cl = "EXPERIMENTAL" in str(iv_set.get("cl_source_type", ""))
+            is_exp_v = "EXPERIMENTAL" in str(dist.get("v_source_type", ""))
+            is_exp_f = po_set.get("f_experimental") is not None
+            has_exp = is_exp_cl or is_exp_v or is_exp_f
+            
             species_profiles[sp] = {
                 "species": sp,
                 "readiness": readiness,
                 "confidence": iv_set.get("confidence", "MODEL_UNAVAILABLE"),
-                "cl": {"value": cl, "unit": "mL/min/kg", "source": iv_set.get("cl_source_type", "UNAVAILABLE")},
-                "v": {"value": v, "unit": "L/kg", "type": dist.get("v_type", "UNAVAILABLE"), "source": dist.get("v_source_type", "UNAVAILABLE")},
+                "is_experimental": has_exp,
+                "experimental_notes": "실험값 반영 (In Vivo NCA / In Vitro Data)" if has_exp else None,
+                "cl": {"value": cl, "unit": "mL/min/kg", "source": iv_set.get("cl_source_type", "UNAVAILABLE"), "is_experimental": is_exp_cl},
+                "v": {"value": v, "unit": "L/kg", "type": dist.get("v_type", "UNAVAILABLE"), "source": dist.get("v_source_type", "UNAVAILABLE"), "is_experimental": is_exp_v},
                 "t_half_hours": t_half,
                 "fh_pct": round(po_set.get("fh_value") * 100.0, 1) if po_set.get("fh_value") is not None else None,
                 "f_pct": f_val,
                 "f_source": f_src,
+                "f_is_experimental": is_exp_f,
                 "ka": {"value": po_set.get("ka_value"), "unit": "1/h", "source": po_set.get("ka_source_type", "UNAVAILABLE")},
                 "normalized_1mpk_iv": {
                     "dose": 1.0, "dose_unit": "mg/kg", "route": "IV",
@@ -1679,4 +1753,48 @@ def get_multi_species_pk_profile(db: Session, version_id: int) -> dict[str, Any]
         "species_profiles": species_profiles,
         "normalized_dose_standard": "1.0 mg/kg (Simulation & Comparison Normalization)",
     }
+
+
+def refresh_pk_and_ivive_for_version(db: Session, version_id: int, force: bool = True) -> None:
+    """
+    Re-calculates and caches IVIVE runs, PK Parameter Sets, multi-species profiles,
+    and Human PK whenever new experimental data, NCA results, or input overrides are added.
+    """
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        return
+    compound = db.get(Compound, version.compound_row_id)
+    if not compound:
+        return
+
+    # 1. Re-calculate IVIVE for standard species
+    for sp in ["Mouse", "Rat", "Human"]:
+        try:
+            calculate_ivive(db, version, sp)
+        except Exception:
+            pass
+
+    # 2. Re-assemble PK Parameter sets for all 5 species and 4 routes
+    for sp in ["Mouse", "Rat", "Dog", "Monkey", "Human"]:
+        for r in ["IV", "PO", "SC", "IP"]:
+            try:
+                assemble_pk_parameter_set(db, compound.project_id, version.id, sp, r, force_refresh=force)
+            except Exception:
+                pass
+
+    # 3. Build Multi-Species PK profile
+    try:
+        get_multi_species_pk_profile(db, version.id, force_refresh=force)
+    except Exception:
+        pass
+
+    # 4. Assemble Human PK profile
+    try:
+        from .human_pk import assemble_human_pk_profile
+        assemble_human_pk_profile(db, version.id, force_refresh=force)
+    except Exception:
+        pass
+
+    db.commit()
+
 

@@ -1948,6 +1948,8 @@ function App(){
      e('span',{},'Mechanistic Decomposition: Fa = '+(mechComp.fa!=null?(mechComp.fa*100).toFixed(1)+'%':'—')+', Fg = '+(mechComp.fg!=null?(mechComp.fg*100).toFixed(1)+'%':'—')+', Fh = '+(mechComp.fh!=null?(mechComp.fh*100).toFixed(1)+'%':'—'))
     ]),
 
+    e('div',{style:{marginTop:'10px',padding:'8px 12px',background:(preview?.clearance?.evidence_type==='EXPERIMENTAL'||preview?.volume?.evidence_type==='EXPERIMENTAL'||preview?.bioavailability?.evidence_type==='EXPERIMENTAL'||preview?.absorption_rate?.evidence_type==='EXPERIMENTAL')?'#ecfdf5':'rgba(255,255,255,0.03)',border:'1px solid '+((preview?.clearance?.evidence_type==='EXPERIMENTAL'||preview?.volume?.evidence_type==='EXPERIMENTAL')?'#a7f3d0':'rgba(255,255,255,0.08)'),borderRadius:'6px',fontSize:'12px',color:(preview?.clearance?.evidence_type==='EXPERIMENTAL'||preview?.volume?.evidence_type==='EXPERIMENTAL')?'#047857':'#94a3b8'}},(preview?.clearance?.evidence_type==='EXPERIMENTAL'||preview?.volume?.evidence_type==='EXPERIMENTAL'||preview?.bioavailability?.evidence_type==='EXPERIMENTAL'||preview?.absorption_rate?.evidence_type==='EXPERIMENTAL')?'✓ 실험값 우선 적용 (Experimental Precedence): 등록된 실험 데이터(NCA/측정값)가 시뮬레이션 기본 파라미터(Default)로 자동 적용되었습니다.':'기본 예측 모델(IVIVE / Lombardo Vd / Permeability) 파라미터가 적용되었습니다. 실험값이 입력되면 자동으로 실험값이 기본값(Default)으로 우선 적용됩니다.'),
+
     // Advanced Manual Overrides
     e('details',{style:{marginTop:'10px'}},[
      e('summary',{style:{cursor:'pointer', fontSize:'13px', color:'#38bdf8'}},'Manual Parameter Overrides (Optional)'),
@@ -3417,15 +3419,25 @@ function App(){
   }
 
   function MultiSpeciesPkSummaryTable({versionId,studies,iviveData}){
-   const [multiPk,setMultiPk]=React.useState(null);
-   const [loading,setLoading]=React.useState(false);
+   window.__pkMultiCache = window.__pkMultiCache || {};
+   const cached = versionId ? window.__pkMultiCache[versionId] : null;
+   const [multiPk,setMultiPk]=React.useState(cached);
+   const [loading,setLoading]=React.useState(!cached);
    const species=['Mouse','Rat','Dog','Monkey','Human'];
 
    React.useEffect(()=>{
     if(versionId){
-     setLoading(true);
+     if(window.__pkMultiCache[versionId]){
+      setMultiPk(window.__pkMultiCache[versionId]);
+      setLoading(false);
+     }else{
+      setLoading(true);
+     }
      api.get('/compound-versions/'+versionId+'/pk-multi-species')
-      .then(res=>setMultiPk(res))
+      .then(res=>{
+       window.__pkMultiCache[versionId]=res;
+       setMultiPk(res);
+      })
       .catch(err=>console.error('[MultiSpeciesPkSummaryTable] error:', err))
       .finally(()=>setLoading(false));
     }
@@ -3435,10 +3447,20 @@ function App(){
    (studies||[]).forEach(s=>{if(!studiesBySpecies.has(s.species))studiesBySpecies.set(s.species,s)});
    const spMap=multiPk?.species_profiles||{};
 
+   const hasAnyExp = species.some(sp => {
+    const s = studiesBySpecies.get(sp);
+    const prof = spMap[sp];
+    return Boolean(s?.latest_nca || prof?.is_experimental || prof?.cl?.is_experimental || prof?.v?.is_experimental || prof?.f_is_experimental);
+   });
+
    return e('div',{className:'card',key:'multispecies-summary'},[
     e('div',{className:'eyebrow'},'MULTI-SPECIES PK SUMMARY & TRANSLATIONAL PROFILE'),
     e('h3',{},'Multi-Species Pharmacokinetics & In Vivo Profile'),
     e('p',{className:'small'},'Comparative pharmacokinetic parameters across all 5 pre-clinical species and human. Evidence retains explicit species-specific provenance (Experimental IV NCA > Species IVIVE > Unavailable).'),
+    hasAnyExp && e('div',{style:{background:'#ecfdf5',border:'1px solid #a7f3d0',color:'#065f46',padding:'10px 14px',borderRadius:'6px',marginBottom:'12px',fontSize:'12px',display:'flex',alignItems:'center',gap:'8px'}},[
+     e('strong',{},'✓ 실험 데이터 반영 (Experimental Data Applied):'),
+     e('span',{},'등록된 생체 내(In Vivo PK NCA) 및 시험관 내(In Vitro) 실험 측정값이 예측값보다 우선하여 파라미터 및 시뮬레이션 기본값(Default)으로 자동 계산되었습니다.')
+    ]),
     (loading && !multiPk)?e('div',{className:'empty-state',style:{padding:'24px 0'}},[
      e('p',{className:'small'},'Loading multi-species pharmacokinetic profile across 5 species…')
     ]):e('div',{className:'table-scroll'},[
@@ -3461,7 +3483,8 @@ function App(){
          const prof=spMap[sp];
          const val=expVal!=null?expVal:prof?.cl?.value;
          const unit=expVal!=null?'mL/min/kg':(prof?.cl?.unit||'mL/min/kg');
-         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(2)+' '+unit:'—');
+         const tag=expVal!=null?' (실험값 NCA)':'';
+         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(2)+' '+unit+tag:'—');
         })
        ]),
        e('tr',{key:'vd'},[
@@ -3472,7 +3495,8 @@ function App(){
          const prof=spMap[sp];
          const val=expVal!=null?expVal:prof?.v?.value;
          const vType=expVal!=null?(s?.route==='IV'?'Vz':'Vz/F'):(prof?.v?.type||'Vd');
-         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(2)+' L/kg ('+vType+')':'—');
+         const tag=expVal!=null?' (실험값)':'';
+         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(2)+' L/kg ('+vType+')'+tag:'—');
         })
        ]),
        e('tr',{key:'t12'},[
@@ -3482,7 +3506,8 @@ function App(){
          const expVal=s?.latest_nca?.terminal_half_life;
          const prof=spMap[sp];
          const val=expVal!=null?expVal:prof?.t_half_hours;
-         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(2)+' h':'—');
+         const tag=expVal!=null?' (실험값)':'';
+         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(2)+' h'+tag:'—');
         })
        ]),
        e('tr',{key:'f'},[
@@ -3490,7 +3515,8 @@ function App(){
         ...species.map(sp=>{
          const prof=spMap[sp];
          const val=prof?.f_pct;
-         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(1)+'% ('+(prof.f_source||'')+')':'—');
+         const tag=prof?.f_is_experimental?' (실험값 Matched)':(' ('+(prof?.f_source||'')+')');
+         return e('td',{key:sp,className:'mono'},val!=null?Number(val).toFixed(1)+'%'+tag:'—');
         })
        ]),
        e('tr',{key:'norm-auc'},[
@@ -3513,8 +3539,8 @@ function App(){
      ])
     ]),
     e('div',{className:'model-notes'},[
-     e('strong',{},'Provenance Hierarchy: '),
-     e('span',{},'Experimental IV NCA > Species Hepatic IVIVE (Well-Stirred) > Allometry/Translation > MODEL_UNAVAILABLE. Dog and Monkey liver microsomal models are currently unavailable and reported explicitly without fabrication.')
+     e('strong',{},'Provenance Hierarchy & Default Precedence: '),
+     e('span',{},'실험 데이터 우선 적용: Experimental In Vivo NCA > Species Hepatic IVIVE (Well-Stirred) > Allometry/Translation > MODEL_UNAVAILABLE. Dog and Monkey liver microsomal models are currently unavailable and reported explicitly without fabrication.')
     ])
    ]);
   }
@@ -3856,7 +3882,7 @@ function App(){
    detailTab==='pk'&&e('div',{key:'pk-tab'},[
     e('div',{className:'card row toolbar',key:'pk-toolbar'},[
      e('div',{},[e('h3',{},'Pharmacokinetics & Translational Profile'),e('p',{className:'small'},'In vivo PK studies, NCA analysis, mechanistic IVIVE, and multi-species translational projections.')]),
-     e('button',{className:'tab-repredict-btn',onClick:()=>{loadPkData(version.id);loadIviveData(version.id,iviveSpecies);setMessage('PK analysis updated')}},'↺ UPDATE PK ANALYSIS')
+     e('button',{className:'tab-repredict-btn',onClick:async()=>{if(window.__pkMultiCache)delete window.__pkMultiCache[version.id];await Promise.all([loadPkData(version.id),loadIviveData(version.id,iviveSpecies)]);setMessage('PK analysis updated');}},'↺ UPDATE PK ANALYSIS')
     ]),
     e(MultiSpeciesPkSummaryTable,{key:'multi-pk-summary',versionId:version.id,studies:pkData?.studies,iviveData}),
     pkProfile(version.id)
