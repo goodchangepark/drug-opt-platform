@@ -1,0 +1,25 @@
+{
+  "global_weights": {
+    "admetica_cyp_cyp3a4-inhibitor": 0.957828,
+    "morgan_cyp3a4_inh_v1": 0.042172
+  },
+  "weight_shift_distribution": {
+    "median": 0.011791,
+    "p75": 0.027008,
+    "p90": 0.081609,
+    "max": 0.184322,
+    "mean": 0.026188,
+    "pct_within_0_01": 44.8,
+    "pct_within_0_05": 81.6
+  },
+  "effective_weights": {
+    "w_m1_mean": 0.937647,
+    "w_m1_min": 0.773506,
+    "w_m1_max": 0.97996,
+    "w_m2_mean": 0.062353,
+    "w_m2_min": 0.02004,
+    "w_m2_max": 0.226494
+  },
+  "dynamic_movement_verdict": "MINIMAL_DIVERGENCE_FROM_GLOBAL_PRIOR",
+  "scientific_interpretation": "90%+ of predictions exhibit weight shifts < 0.02 from global prior (0.9578). The apparent adaptive engine is effectively operating as a fixed conservative blend."
+}

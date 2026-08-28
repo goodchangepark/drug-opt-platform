@@ -1,0 +1,121 @@
+{
+  "primary_challenge": "Full Adaptive (Target) vs Fixed Global Prior (Baseline)",
+  "n_boot": 1000,
+  "bootstrap_adaptive_vs_fixed_global": {
+    "n_boot": 1000,
+    "delta_brier": {
+      "mean": 0.0009,
+      "median": 0.0009,
+      "ci_95": [
+        0.0002,
+        0.0018
+      ],
+      "p_target_better": 0.006
+    },
+    "delta_log_loss": {
+      "mean": 0.0075,
+      "median": 0.0071,
+      "ci_95": [
+        0.0022,
+        0.0151
+      ],
+      "p_target_better": 0.004
+    },
+    "delta_mcc": {
+      "mean": -0.0074,
+      "median": -0.0075,
+      "ci_95": [
+        -0.0231,
+        0.0
+      ],
+      "p_target_better": 0.0
+    },
+    "delta_balanced_accuracy": {
+      "mean": -0.0038,
+      "median": -0.0038,
+      "ci_95": [
+        -0.0123,
+        0.0
+      ],
+      "p_target_better": 0.0
+    }
+  },
+  "bootstrap_adaptive_vs_m1_core": {
+    "n_boot": 1000,
+    "delta_brier": {
+      "mean": 0.001,
+      "median": 0.001,
+      "ci_95": [
+        -0.0006,
+        0.0024
+      ],
+      "p_target_better": 0.087
+    },
+    "delta_log_loss": {
+      "mean": -0.0104,
+      "median": -0.0089,
+      "ci_95": [
+        -0.057,
+        0.0155
+      ],
+      "p_target_better": 0.639
+    },
+    "delta_mcc": {
+      "mean": -0.0074,
+      "median": -0.0075,
+      "ci_95": [
+        -0.0231,
+        0.0
+      ],
+      "p_target_better": 0.0
+    },
+    "delta_balanced_accuracy": {
+      "mean": -0.0038,
+      "median": -0.0038,
+      "ci_95": [
+        -0.0123,
+        0.0
+      ],
+      "p_target_better": 0.0
+    }
+  },
+  "bootstrap_fixed_global_vs_m1_core": {
+    "n_boot": 1000,
+    "delta_brier": {
+      "mean": 0.0001,
+      "median": 0.0001,
+      "ci_95": [
+        -0.0012,
+        0.0011
+      ],
+      "p_target_better": 0.403
+    },
+    "delta_log_loss": {
+      "mean": -0.0179,
+      "median": -0.0169,
+      "ci_95": [
+        -0.0688,
+        0.0099
+      ],
+      "p_target_better": 0.658
+    },
+    "delta_mcc": {
+      "mean": 0.0,
+      "median": 0.0,
+      "ci_95": [
+        0.0,
+        0.0
+      ],
+      "p_target_better": 0.0
+    },
+    "delta_balanced_accuracy": {
+      "mean": 0.0,
+      "median": 0.0,
+      "ci_95": [
+        0.0,
+        0.0
+      ],
+      "p_target_better": 0.0
+    }
+  }
+}

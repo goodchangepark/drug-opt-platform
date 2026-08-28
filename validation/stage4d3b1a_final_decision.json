@@ -1,0 +1,52 @@
+{
+  "endpoint": "EP_MET_CYP3A4_INH",
+  "policy_version": "stage4d3b1a-cyp3a4-attribution-v1",
+  "scientific_decision": "FIXED_GLOBAL_BLEND_SUFFICIENT",
+  "m1_model": {
+    "model_id": "admetica_cyp_cyp3a4-inhibitor",
+    "role": "CORE",
+    "contribution_status": "CORE_PRIMARY"
+  },
+  "m2_model": {
+    "model_id": "morgan_cyp3a4_inh_v1",
+    "role": "SHADOW_ONLY",
+    "contribution_status": "CALIBRATION_SUPPORTING"
+  },
+  "fixed_global_weights": {
+    "admetica_cyp_cyp3a4-inhibitor": 0.957828,
+    "morgan_cyp3a4_inh_v1": 0.042172
+  },
+  "weight_movement_summary": {
+    "median_absolute_shift": 0.011791,
+    "p75_absolute_shift": 0.027008,
+    "p90_absolute_shift": 0.081609,
+    "max_absolute_shift": 0.184322,
+    "mean_effective_w_m1": 0.937647,
+    "mean_effective_w_m2": 0.062353
+  },
+  "comparison_adaptive_vs_fixed_global": {
+    "delta_brier_mean": 0.0009,
+    "delta_brier_ci95": [
+      0.0002,
+      0.0018
+    ],
+    "p_adaptive_better_brier": 0.006,
+    "delta_log_loss_mean": 0.0075,
+    "delta_log_loss_ci95": [
+      0.0022,
+      0.0151
+    ],
+    "p_adaptive_better_log_loss": 0.004,
+    "delta_mcc_mean": -0.0074,
+    "delta_bacc_mean": -0.0038
+  },
+  "subgroup_claim_correction": {
+    "previous_claim": "CONDITIONAL_ADAPTIVE_VALUE on Basic Amines and Neutral Heteroaromatics",
+    "re_audit_finding": "CLAIMS_NOT_SUPPORTED. Adaptive Brier is identical to or slightly higher than Fixed Global Prior across all chemical subgroups. The apparent gain in Stage 4D-3B1 was an artifact of comparing to unweighted static consensus or raw M1 without fixed blending.",
+    "status": "CORRECTED_IN_STAGE4D3B1A"
+  },
+  "consensus_mode": "SHADOW",
+  "herg_gate_recommendation": "GO_HERG_CALIBRATION_AUDIT_FIRST",
+  "herg_gate_rationale": "CYP3A4 attribution audit demonstrates that dynamic adaptive feedback does not improve classification accuracy or calibration over a conservative fixed global mixture (w1 \u2248 0.9578, w2 \u2248 0.0422). Because previous hERG validation showed severe specificity deficiencies in M2 models, extending adaptive ensembling directly to hERG without first auditing fixed calibration would provide false confidence. Recommended gate: GO_HERG_CALIBRATION_AUDIT_FIRST.",
+  "timestamp": "2026-08-28T23:22:16.774955+00:00"
+}

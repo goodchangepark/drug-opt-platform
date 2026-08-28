@@ -1,0 +1,183 @@
+{
+  "endpoint": "EP_MET_CYP3A4_INH",
+  "cohort_size": 250,
+  "strategies": {
+    "1_m1_core": {
+      "mcc": 0.8334,
+      "balanced_accuracy": 0.9166,
+      "brier_score": 0.0726,
+      "log_loss": 0.2646,
+      "auroc": 0.9572,
+      "auprc": 0.9217,
+      "sensitivity": 0.9426,
+      "specificity": 0.8906,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1094
+    },
+    "2_m2_shadow": {
+      "mcc": 0.4365,
+      "balanced_accuracy": 0.7043,
+      "brier_score": 0.2056,
+      "log_loss": 0.6076,
+      "auroc": 0.7627,
+      "auprc": 0.6983,
+      "sensitivity": 0.8852,
+      "specificity": 0.5234,
+      "false_negative_rate": 0.1148,
+      "false_positive_rate": 0.4766
+    },
+    "3_static_50_50_consensus": {
+      "mcc": 0.7974,
+      "balanced_accuracy": 0.8973,
+      "brier_score": 0.1046,
+      "log_loss": 0.3583,
+      "auroc": 0.9483,
+      "auprc": 0.9312,
+      "sensitivity": 0.9508,
+      "specificity": 0.8438,
+      "false_negative_rate": 0.0492,
+      "false_positive_rate": 0.1562
+    },
+    "4_fixed_global_prior": {
+      "mcc": 0.8334,
+      "balanced_accuracy": 0.9166,
+      "brier_score": 0.0726,
+      "log_loss": 0.246,
+      "auroc": 0.9594,
+      "auprc": 0.9483,
+      "sensitivity": 0.9426,
+      "specificity": 0.8906,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1094
+    },
+    "5_global_plus_project": {
+      "mcc": 0.8259,
+      "balanced_accuracy": 0.9127,
+      "brier_score": 0.0735,
+      "log_loss": 0.2532,
+      "auroc": 0.9576,
+      "auprc": 0.9416,
+      "sensitivity": 0.9426,
+      "specificity": 0.8828,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1172
+    },
+    "6_global_plus_project_series": {
+      "mcc": 0.8259,
+      "balanced_accuracy": 0.9127,
+      "brier_score": 0.0735,
+      "log_loss": 0.2533,
+      "auroc": 0.9576,
+      "auprc": 0.9416,
+      "sensitivity": 0.9426,
+      "specificity": 0.8828,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1172
+    },
+    "7_full_adaptive": {
+      "mcc": 0.8259,
+      "balanced_accuracy": 0.9127,
+      "brier_score": 0.0735,
+      "log_loss": 0.2535,
+      "auroc": 0.9575,
+      "auprc": 0.9411,
+      "sensitivity": 0.9426,
+      "specificity": 0.8828,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1172
+    }
+  },
+  "summary_table": [
+    {
+      "strategy": "1. M1 CORE",
+      "mcc": 0.8334,
+      "balanced_accuracy": 0.9166,
+      "brier_score": 0.0726,
+      "log_loss": 0.2646,
+      "auroc": 0.9572,
+      "auprc": 0.9217,
+      "sensitivity": 0.9426,
+      "specificity": 0.8906,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1094
+    },
+    {
+      "strategy": "2. M2 SHADOW",
+      "mcc": 0.4365,
+      "balanced_accuracy": 0.7043,
+      "brier_score": 0.2056,
+      "log_loss": 0.6076,
+      "auroc": 0.7627,
+      "auprc": 0.6983,
+      "sensitivity": 0.8852,
+      "specificity": 0.5234,
+      "false_negative_rate": 0.1148,
+      "false_positive_rate": 0.4766
+    },
+    {
+      "strategy": "3. 50/50 Static Consensus",
+      "mcc": 0.7974,
+      "balanced_accuracy": 0.8973,
+      "brier_score": 0.1046,
+      "log_loss": 0.3583,
+      "auroc": 0.9483,
+      "auprc": 0.9312,
+      "sensitivity": 0.9508,
+      "specificity": 0.8438,
+      "false_negative_rate": 0.0492,
+      "false_positive_rate": 0.1562
+    },
+    {
+      "strategy": "4. Fixed Global Prior",
+      "mcc": 0.8334,
+      "balanced_accuracy": 0.9166,
+      "brier_score": 0.0726,
+      "log_loss": 0.246,
+      "auroc": 0.9594,
+      "auprc": 0.9483,
+      "sensitivity": 0.9426,
+      "specificity": 0.8906,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1094
+    },
+    {
+      "strategy": "5. Global + Project",
+      "mcc": 0.8259,
+      "balanced_accuracy": 0.9127,
+      "brier_score": 0.0735,
+      "log_loss": 0.2532,
+      "auroc": 0.9576,
+      "auprc": 0.9416,
+      "sensitivity": 0.9426,
+      "specificity": 0.8828,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1172
+    },
+    {
+      "strategy": "6. Global + Project + Series",
+      "mcc": 0.8259,
+      "balanced_accuracy": 0.9127,
+      "brier_score": 0.0735,
+      "log_loss": 0.2533,
+      "auroc": 0.9576,
+      "auprc": 0.9416,
+      "sensitivity": 0.9426,
+      "specificity": 0.8828,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1172
+    },
+    {
+      "strategy": "7. Full Adaptive",
+      "mcc": 0.8259,
+      "balanced_accuracy": 0.9127,
+      "brier_score": 0.0735,
+      "log_loss": 0.2535,
+      "auroc": 0.9575,
+      "auprc": 0.9411,
+      "sensitivity": 0.9426,
+      "specificity": 0.8828,
+      "false_negative_rate": 0.0574,
+      "false_positive_rate": 0.1172
+    }
+  ]
+}
