@@ -1,0 +1,869 @@
+{
+  "Solubility": {
+    "endpoint_id": "solubility_aqueous_logs",
+    "display_name": "Aqueous Solubility (LogS)",
+    "category": "PHYSICOCHEMICAL",
+    "scientific_definition": "Aqueous solubility expressed as LogS = log10(S [mol/L]). Represents room-temperature aggregate aqueous solubility across neutral/buffered media, not a pH-dependent micro-state or intrinsic solubility S0.",
+    "species": "Chemical / In Vitro",
+    "assay_type": "Aggregate Aqueous Shake-Flask / Nephelometric / Potentiometric",
+    "raw_unit": "log10(mol/L)",
+    "canonical_unit": "log10(mol/L)",
+    "transformation": "Identity (already in log10 mol/L)",
+    "output_type": "REGRESSION",
+    "directionality": "HIGHER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": {
+      "high_solubility_min": -2.0,
+      "moderate_solubility_min": -4.0,
+      "low_solubility_max": -4.0,
+      "poor_solubility_max": -6.0
+    },
+    "required_metadata": [
+      "temperature_celsius",
+      "solvent_system"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_experimental_types": [
+        "Thermodynamic aqueous solubility",
+        "Kinetic aqueous solubility (low DMSO <1%)"
+      ],
+      "incompatible_types": [
+        "Organic solvent solubility",
+        "Mass solubility without MW",
+        "High DMSO cosolvent (>5%)"
+      ],
+      "conversion_from_mass": "log10(S_mg_per_mL / (MW * 1e-3))"
+    },
+    "comparison_rules": {
+      "max_compatible_ph_difference": 1.0
+    },
+    "ensemble_compatibility_rules": {
+      "required_species": "Chemical / In Vitro",
+      "required_canonical_unit": "log10(mol/L)",
+      "forbidden_mix_types": [
+        "intrinsic_s0_without_pka",
+        "kinetic_dmso_turbidity_raw"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "Permeability": {
+    "endpoint_id": "permeability_caco2_logpapp",
+    "display_name": "Caco-2 Apparent Permeability (LogPapp)",
+    "category": "ABSORPTION",
+    "scientific_definition": "Apparent membrane permeability measured in human colon carcinoma (Caco-2) monolayers, expressed as LogPapp = log10(Papp [cm/s]). Represents overall apical-to-basolateral (A->B) transcellular and paracellular flux.",
+    "species": "Human Caco-2 Cell Line",
+    "assay_type": "Transwell Monolayer Permeability (pH 7.4/7.4 or pH 6.5/7.4)",
+    "raw_unit": "log10(cm/s)",
+    "canonical_unit": "log10(cm/s)",
+    "transformation": "Identity (log10 cm/s)",
+    "output_type": "REGRESSION",
+    "directionality": "HIGHER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": {
+      "high_permeability_min": -5.0,
+      "moderate_permeability_min": -6.0,
+      "low_permeability_max": -6.0
+    },
+    "required_metadata": [
+      "direction",
+      "ph_apical",
+      "ph_basolateral"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_experimental_types": [
+        "Caco-2 A->B apparent permeability",
+        "Caco-2 Papp"
+      ],
+      "incompatible_types": [
+        "PAMPA",
+        "MDCK-WT",
+        "MDCK-MDR1",
+        "RBE4 BBB permeability",
+        "Efflux Ratio (B->A / A->B)"
+      ],
+      "unit_conversions": {
+        "10^-6 cm/s": "log10(val * 1e-6)",
+        "nm/s": "log10(val * 1e-7)",
+        "um/s": "log10(val * 1e-4)"
+      }
+    },
+    "comparison_rules": {
+      "direction_must_match": true,
+      "strict_assay_isolation": true
+    },
+    "ensemble_compatibility_rules": {
+      "required_species": "Human Caco-2 Cell Line",
+      "required_canonical_unit": "log10(cm/s)",
+      "forbidden_mix_types": [
+        "pampa_artificial_membrane",
+        "mdck_canine_cells",
+        "efflux_ratio"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "Plasma protein binding": {
+    "endpoint_id": "ppb_human_percent_bound",
+    "display_name": "Human Plasma Protein Binding (% Bound)",
+    "category": "DISTRIBUTION",
+    "scientific_definition": "Percent of compound bound to plasma proteins in pooled human plasma at equilibrium. Fraction unbound fu is derived strictly as fu = (100 - % bound) / 100.",
+    "species": "Human",
+    "assay_type": "Equilibrium Dialysis / Rapid Equilibrium Dialysis (RED) / Ultrafiltration",
+    "raw_unit": "% bound",
+    "canonical_unit": "% bound",
+    "transformation": "Identity (% bound, range [0.0, 100.0])",
+    "output_type": "REGRESSION",
+    "directionality": "NEUTRAL",
+    "classification_semantics": null,
+    "cutoff_definition": {
+      "low_binding_max": 80.0,
+      "moderate_binding_min": 80.0,
+      "moderate_binding_max": 95.0,
+      "high_binding_min": 95.0,
+      "high_binding_max": 99.0,
+      "very_high_binding_min": 99.0
+    },
+    "required_metadata": [
+      "matrix",
+      "species",
+      "protein_concentration_g_per_L"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_experimental_types": [
+        "Human plasma equilibrium dialysis % bound",
+        "Human plasma RED % bound",
+        "Human plasma ultrafiltration % bound"
+      ],
+      "incompatible_types": [
+        "Bovine Serum Albumin (BSA) binding",
+        "Alpha-1-acid glycoprotein (AAG) isolated binding",
+        "Rat/Mouse plasma binding"
+      ],
+      "unit_conversions": {
+        "fraction_bound": "val * 100.0",
+        "fraction_unbound_fu": "(1.0 - val) * 100.0",
+        "%_unbound": "100.0 - val"
+      }
+    },
+    "comparison_rules": {
+      "species_must_match": "Human",
+      "matrix_must_match": "Plasma"
+    },
+    "ensemble_compatibility_rules": {
+      "required_species": "Human",
+      "required_canonical_unit": "% bound",
+      "derived_fu_formula": "fu = max(0.0001, (100.0 - percent_bound) / 100.0)",
+      "forbidden_mix_types": [
+        "animal_plasma_ppb",
+        "isolated_albumin_binding"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "HLM intrinsic clearance": {
+    "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+    "display_name": "Human Liver Microsomal Clearance (HLM Clint)",
+    "category": "METABOLISM",
+    "scientific_definition": "Human liver microsomal intrinsic clearance scaled to in vivo body weight clearance and expressed in log10(mL/min/kg). Represents Phase I oxidative/hydrolytic metabolic rate under pooled human hepatic microsomes.",
+    "species": "Human",
+    "assay_type": "Pooled Human Liver Microsomes (HLM) Substrate Depletion + NADPH",
+    "raw_unit": "log10(mL/min/kg)",
+    "canonical_unit": "log10(mL/min/kg)",
+    "transformation": "Identity (log10 mL/min/kg)",
+    "output_type": "REGRESSION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": {
+      "stable_max": 0.90309,
+      "moderate_max": 1.741998,
+      "unstable_min": 1.741998
+    },
+    "required_metadata": [
+      "species",
+      "matrix",
+      "mppgl_mg_per_g",
+      "liver_weight_g_per_kg"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_experimental_types": [
+        "HLM in vitro substrate depletion Clint (scaled)"
+      ],
+      "incompatible_types": [
+        "Cryopreserved Human Hepatocyte Clint (without hepatocyte scaling)",
+        "Rat/Mouse liver microsomes",
+        "Recombinant CYP isoform Clint"
+      ],
+      "scaling_from_raw_in_vitro": "Clint_scaled_mL_min_kg = Clint_uL_min_mg * MPPGL(45.0) * LiverWeight(25.7) / 1000.0"
+    },
+    "comparison_rules": {
+      "species_must_match": "Human",
+      "matrix_must_match": "Microsomes"
+    },
+    "ensemble_compatibility_rules": {
+      "required_species": "Human",
+      "required_canonical_unit": "log10(mL/min/kg)",
+      "forbidden_mix_types": [
+        "raw_uL_min_mg_unscaled",
+        "microsomal_half_life_min",
+        "hepatocyte_clearance"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "RLM intrinsic clearance": {
+    "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+    "display_name": "Rat Liver Microsomal Clearance (RLM Clint)",
+    "category": "METABOLISM",
+    "scientific_definition": "Rat liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled Sprague-Dawley rat liver microsomes.",
+    "species": "Rat",
+    "assay_type": "Pooled Rat Liver Microsomes (RLM) Substrate Depletion + NADPH",
+    "raw_unit": "log10(mL/min/kg)",
+    "canonical_unit": "log10(mL/min/kg)",
+    "transformation": "Identity (log10 mL/min/kg)",
+    "output_type": "REGRESSION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": {
+      "stable_max": 1.30103,
+      "moderate_max": 2.17136,
+      "unstable_min": 2.17136
+    },
+    "required_metadata": [
+      "species",
+      "matrix",
+      "mppgl_mg_per_g",
+      "liver_weight_g_per_kg"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_experimental_types": [
+        "RLM in vitro substrate depletion Clint (scaled)"
+      ],
+      "incompatible_types": [
+        "Human/Mouse microsomes",
+        "In vivo rat PK clearance without IVIVE"
+      ],
+      "scaling_from_raw_in_vitro": "Clint_scaled_mL_min_kg = Clint_uL_min_mg * MPPGL(45.0) * LiverWeight(40.0) / 1000.0"
+    },
+    "comparison_rules": {
+      "species_must_match": "Rat",
+      "matrix_must_match": "Microsomes"
+    },
+    "ensemble_compatibility_rules": {
+      "required_species": "Rat",
+      "required_canonical_unit": "log10(mL/min/kg)",
+      "forbidden_mix_types": [
+        "human_hlm",
+        "mouse_mlm",
+        "unscaled_half_life"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "MLM intrinsic clearance": {
+    "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+    "display_name": "Mouse Liver Microsomal Clearance (MLM Clint)",
+    "category": "METABOLISM",
+    "scientific_definition": "Mouse liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled CD-1 mouse liver microsomes.",
+    "species": "Mouse",
+    "assay_type": "Pooled Mouse Liver Microsomes (MLM) Substrate Depletion + NADPH",
+    "raw_unit": "log10(mL/min/kg)",
+    "canonical_unit": "log10(mL/min/kg)",
+    "transformation": "Identity (log10 mL/min/kg)",
+    "output_type": "REGRESSION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": {
+      "stable_max": 1.930057,
+      "moderate_max": 2.818209,
+      "unstable_min": 2.818209
+    },
+    "required_metadata": [
+      "species",
+      "matrix",
+      "mppgl_mg_per_g",
+      "liver_weight_g_per_kg"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_experimental_types": [
+        "MLM in vitro substrate depletion Clint (scaled)"
+      ],
+      "incompatible_types": [
+        "Human/Rat microsomes"
+      ],
+      "scaling_from_raw_in_vitro": "Clint_scaled_mL_min_kg = Clint_uL_min_mg * MPPGL(45.0) * LiverWeight(87.5) / 1000.0"
+    },
+    "comparison_rules": {
+      "species_must_match": "Mouse",
+      "matrix_must_match": "Microsomes"
+    },
+    "ensemble_compatibility_rules": {
+      "required_species": "Mouse",
+      "required_canonical_unit": "log10(mL/min/kg)",
+      "forbidden_mix_types": [
+        "human_hlm",
+        "rat_rlm"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "CYP1A2 inhibitor": {
+    "endpoint_id": "cyp1a2_inhibitor_prob",
+    "display_name": "CYP1A2 Inhibition Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Calibrated binary probability of inhibiting human CYP1A2 at AC50 <= 10 uM in recombinant fluorogenic/luminescent dealkylation assay (PubChem AID 1851 protocol).",
+    "species": "Human",
+    "assay_type": "Recombinant Human CYP1A2 Functional Dealkylation Assay",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "INHIBITOR",
+      "negative_class": "NON_INHIBITOR",
+      "decision_threshold": 0.5,
+      "potency_threshold_um": 10.0
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP1A2",
+      "role_must_match": "INHIBITOR"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP1A2",
+      "required_role": "INHIBITOR"
+    },
+    "version": "1.0.0"
+  },
+  "CYP2C9 inhibitor": {
+    "endpoint_id": "cyp2c9_inhibitor_prob",
+    "display_name": "CYP2C9 Inhibition Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Calibrated binary probability of inhibiting human CYP2C9 at AC50 <= 10 uM in recombinant fluorogenic/luminescent assay.",
+    "species": "Human",
+    "assay_type": "Recombinant Human CYP2C9 Functional Assay",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "INHIBITOR",
+      "negative_class": "NON_INHIBITOR",
+      "decision_threshold": 0.5,
+      "potency_threshold_um": 10.0
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP2C9",
+      "role_must_match": "INHIBITOR"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP2C9",
+      "required_role": "INHIBITOR"
+    },
+    "version": "1.0.0"
+  },
+  "CYP2C19 inhibitor": {
+    "endpoint_id": "cyp2c19_inhibitor_prob",
+    "display_name": "CYP2C19 Inhibition Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Calibrated binary probability of inhibiting human CYP2C19 at AC50 <= 10 uM in recombinant assay.",
+    "species": "Human",
+    "assay_type": "Recombinant Human CYP2C19 Functional Assay",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "INHIBITOR",
+      "negative_class": "NON_INHIBITOR",
+      "decision_threshold": 0.5,
+      "potency_threshold_um": 10.0
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP2C19",
+      "role_must_match": "INHIBITOR"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP2C19",
+      "required_role": "INHIBITOR"
+    },
+    "version": "1.0.0"
+  },
+  "CYP2D6 inhibitor": {
+    "endpoint_id": "cyp2d6_inhibitor_prob",
+    "display_name": "CYP2D6 Inhibition Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Calibrated binary probability of inhibiting human CYP2D6 at AC50 <= 10 uM in recombinant assay.",
+    "species": "Human",
+    "assay_type": "Recombinant Human CYP2D6 Functional Assay",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "INHIBITOR",
+      "negative_class": "NON_INHIBITOR",
+      "decision_threshold": 0.5,
+      "potency_threshold_um": 10.0
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP2D6",
+      "role_must_match": "INHIBITOR"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP2D6",
+      "required_role": "INHIBITOR"
+    },
+    "version": "1.0.0"
+  },
+  "CYP3A4 inhibitor": {
+    "endpoint_id": "cyp3a4_inhibitor_prob",
+    "display_name": "CYP3A4 Inhibition Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Calibrated binary probability of inhibiting human CYP3A4 at AC50 <= 10 uM in recombinant assay.",
+    "species": "Human",
+    "assay_type": "Recombinant Human CYP3A4 Functional Assay",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "INHIBITOR",
+      "negative_class": "NON_INHIBITOR",
+      "decision_threshold": 0.5,
+      "potency_threshold_um": 10.0
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP3A4",
+      "role_must_match": "INHIBITOR"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP3A4",
+      "required_role": "INHIBITOR"
+    },
+    "version": "1.0.0"
+  },
+  "CYP2C9 substrate": {
+    "endpoint_id": "cyp2c9_substrate_prob",
+    "display_name": "CYP2C9 Substrate Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2C9.",
+    "species": "Human",
+    "assay_type": "Literature In Vitro CYP2C9 Turnover Annotation",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "NEUTRAL",
+    "classification_semantics": {
+      "positive_class": "SUBSTRATE",
+      "negative_class": "NON_SUBSTRATE",
+      "decision_threshold": 0.5
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP2C9",
+      "role_must_match": "SUBSTRATE"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP2C9",
+      "required_role": "SUBSTRATE"
+    },
+    "version": "1.0.0"
+  },
+  "CYP2D6 substrate": {
+    "endpoint_id": "cyp2d6_substrate_prob",
+    "display_name": "CYP2D6 Substrate Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2D6.",
+    "species": "Human",
+    "assay_type": "Literature In Vitro CYP2D6 Turnover Annotation",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "NEUTRAL",
+    "classification_semantics": {
+      "positive_class": "SUBSTRATE",
+      "negative_class": "NON_SUBSTRATE",
+      "decision_threshold": 0.5
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP2D6",
+      "role_must_match": "SUBSTRATE"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP2D6",
+      "required_role": "SUBSTRATE"
+    },
+    "version": "1.0.0"
+  },
+  "CYP3A4 substrate": {
+    "endpoint_id": "cyp3a4_substrate_prob",
+    "display_name": "CYP3A4 Substrate Probability",
+    "category": "CYP_PANEL",
+    "scientific_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP3A4.",
+    "species": "Human",
+    "assay_type": "Literature In Vitro CYP3A4 Turnover Annotation",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "NEUTRAL",
+    "classification_semantics": {
+      "positive_class": "SUBSTRATE",
+      "negative_class": "NON_SUBSTRATE",
+      "decision_threshold": 0.5
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "isoform",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "isoform_must_match": "CYP3A4",
+      "role_must_match": "SUBSTRATE"
+    },
+    "ensemble_compatibility_rules": {
+      "required_isoform": "CYP3A4",
+      "required_role": "SUBSTRATE"
+    },
+    "version": "1.0.0"
+  },
+  "P-gp inhibitor": {
+    "endpoint_id": "transporter_pgp_inhibitor_prob",
+    "display_name": "P-glycoprotein (P-gp/ABCB1) Inhibitor Probability",
+    "category": "TRANSPORTER",
+    "scientific_definition": "Binary probability of inhibiting human P-glycoprotein (P-gp/ABCB1) efflux activity (IC50 <= 15 uM or >25% transport inhibition in calcein-AM / rhodamine-123 dye efflux assays).",
+    "species": "Human",
+    "assay_type": "Heterogeneous Human P-gp Transwell / Fluorescent Dye Efflux Assays",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "INHIBITOR",
+      "negative_class": "NON_INHIBITOR",
+      "decision_threshold": 0.5
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "transporter",
+      "role"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "transporter_must_match": "P-gp",
+      "role_must_match": "INHIBITOR"
+    },
+    "ensemble_compatibility_rules": {
+      "required_transporter": "P-gp / ABCB1",
+      "required_role": "INHIBITOR"
+    },
+    "version": "1.0.0"
+  },
+  "hERG liability": {
+    "endpoint_id": "safety_herg_blocker_prob",
+    "display_name": "hERG Cardiac Blocker Liability Probability",
+    "category": "SAFETY",
+    "scientific_definition": "Binary probability of exhibiting human ether-a-go-go-related gene (hERG / Kv11.1 / KCNH2) potassium channel blocker liability (screening threshold IC50 <= 10 uM or pIC50 >= 5.0).",
+    "species": "Human",
+    "assay_type": "Heterogeneous Patch-Clamp & Radioligand Binding ([3H]-dofetilide / [3H]-astemizole)",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "BLOCKER",
+      "negative_class": "NON_BLOCKER",
+      "decision_threshold": 0.5,
+      "potency_threshold_um": 10.0
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "target",
+      "species"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "target_must_match": "hERG",
+      "species_must_match": "Human"
+    },
+    "ensemble_compatibility_rules": {
+      "required_target": "hERG / KCNH2",
+      "required_canonical_unit": "probability",
+      "forbidden_mix_types": [
+        "patch_clamp_ic50_regression_without_thresholding",
+        "qt_prolongation_clinical"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "Ames mutagenicity": {
+    "endpoint_id": "safety_ames_mutagenicity_prob",
+    "display_name": "Ames Bacterial Reverse Mutation Mutagenicity",
+    "category": "SAFETY",
+    "scientific_definition": "Binary probability of inducing bacterial reverse mutation in Salmonella typhimurium strains (TA98, TA100, TA1535, TA1537, TA102) with or without S9 metabolic activation.",
+    "species": "Salmonella typhimurium",
+    "assay_type": "Bacterial Reverse Mutation Test (Ames Assay / OECD 471)",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "MUTAGENIC",
+      "negative_class": "NON_MUTAGENIC",
+      "decision_threshold": 0.5
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "strains",
+      "s9_activation"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "assay_family_must_match": "Ames"
+    },
+    "ensemble_compatibility_rules": {
+      "required_assay": "Ames Reverse Mutation",
+      "required_canonical_unit": "probability",
+      "forbidden_mix_types": [
+        "mammalian_micronucleus",
+        "chromosomal_aberration"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "DILI clinical liability": {
+    "endpoint_id": "safety_dili_clinical_prob",
+    "display_name": "Drug-Induced Liver Injury (DILI) Clinical Concern",
+    "category": "SAFETY",
+    "scientific_definition": "Binary probability of clinical drug-induced liver injury (DILI) concern based on FDA-NCTR Liver Toxicity Knowledge Base (LTKB) annotations. Represents human clinical post-marketing liver injury risk.",
+    "species": "Human",
+    "assay_type": "Clinical Post-Marketing Pharmacovigilance & Physician Assessment (FDA-NCTR LTKB)",
+    "raw_unit": "probability",
+    "canonical_unit": "probability",
+    "transformation": "Identity (probability in [0.0, 1.0])",
+    "output_type": "BINARY_CLASSIFICATION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": {
+      "positive_class": "DILI_CONCERN",
+      "negative_class": "NO_DILI_CONCERN",
+      "decision_threshold": 0.5
+    },
+    "cutoff_definition": null,
+    "required_metadata": [
+      "annotation_source",
+      "clinical_severity"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "clinical_scope_must_match": "Human Drug-Level DILI"
+    },
+    "ensemble_compatibility_rules": {
+      "required_scope": "Clinical DILI",
+      "required_canonical_unit": "probability",
+      "forbidden_mix_types": [
+        "in_vitro_cytotoxicity",
+        "isolated_mitochondrial_toxicity",
+        "bsep_inhibition"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "Metabolic soft spots": {
+    "endpoint_id": "som_metabolic_soft_spots",
+    "display_name": "Metabolic Site-of-Metabolism (SoM) Ranking",
+    "category": "METABOLISM",
+    "scientific_definition": "Atom-level ranking of vulnerability to Phase I (oxidation, dealkylation, hydrolysis) and Phase II (glucuronidation, sulfation) metabolic transformations.",
+    "species": "Human",
+    "assay_type": "Rule-Based SMARTS Reaction Library / Atom Reactivity Ranking (SyGMa)",
+    "raw_unit": "atom_rank_and_score",
+    "canonical_unit": "atom_index_ranking",
+    "transformation": "Rank-ordered atom indices with reaction pathway metadata",
+    "output_type": "RANKING",
+    "directionality": "NEUTRAL",
+    "classification_semantics": null,
+    "cutoff_definition": null,
+    "required_metadata": [
+      "phase_1_reactions",
+      "phase_2_reactions",
+      "atom_indices"
+    ],
+    "experimental_compatibility_rules": {},
+    "comparison_rules": {
+      "atom_mapping_must_match": true
+    },
+    "ensemble_compatibility_rules": {
+      "ensemble_aggregation_method": "Reciprocal Rank Fusion (RRF) / Borda Count",
+      "forbidden_mix_types": [
+        "numeric_average_of_uncalibrated_scores"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "PK Systemic Clearance": {
+    "endpoint_id": "pk_clearance_systemic",
+    "display_name": "Systemic In Vivo Clearance (CL)",
+    "category": "PHARMACOKINETICS",
+    "scientific_definition": "Total systemic in vivo clearance of drug from circulating plasma, in mL/min/kg.",
+    "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+    "assay_type": "In Vivo Intravenous PK Non-Compartmental Analysis (NCA)",
+    "raw_unit": "mL/min/kg",
+    "canonical_unit": "mL/min/kg",
+    "transformation": "Identity (mL/min/kg)",
+    "output_type": "REGRESSION",
+    "directionality": "LOWER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": null,
+    "required_metadata": [
+      "species",
+      "route",
+      "matrix",
+      "dose_mg_per_kg"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_types": [
+        "In Vivo IV NCA Clearance CL"
+      ],
+      "incompatible_types": [
+        "Apparent Oral Clearance CL/F (unless normalized by F)",
+        "In Vitro Clint (requires IVIVE scaling)"
+      ]
+    },
+    "comparison_rules": {
+      "species_must_match": true,
+      "route_must_match": "IV"
+    },
+    "ensemble_compatibility_rules": {
+      "hierarchy": "EXPERIMENTAL_NCA > HEPATIC_IVIVE > ALLOMETRIC_SCALING > QSAR_PREDICTION",
+      "forbidden_mix_types": [
+        "apparent_oral_cl_f_as_iv_cl"
+      ]
+    },
+    "version": "1.0.0"
+  },
+  "PK Volume of Distribution": {
+    "endpoint_id": "pk_volume_distribution_vss",
+    "display_name": "Steady-State Volume of Distribution (Vss)",
+    "category": "PHARMACOKINETICS",
+    "scientific_definition": "Apparent steady-state volume of distribution reflecting the extent of tissue partitioning, in L/kg.",
+    "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+    "assay_type": "In Vivo Intravenous PK NCA / Mechanistic Tissue Ionization Model",
+    "raw_unit": "L/kg",
+    "canonical_unit": "L/kg",
+    "transformation": "Identity (L/kg)",
+    "output_type": "REGRESSION",
+    "directionality": "NEUTRAL",
+    "classification_semantics": null,
+    "cutoff_definition": null,
+    "required_metadata": [
+      "species",
+      "route",
+      "matrix",
+      "ionization_class"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_types": [
+        "In Vivo IV NCA Vss",
+        "In Vivo IV NCA Vz"
+      ],
+      "incompatible_types": [
+        "Oral Vz/F (unadjusted for F)"
+      ]
+    },
+    "comparison_rules": {
+      "species_must_match": true
+    },
+    "ensemble_compatibility_rules": {
+      "hierarchy": "EXPERIMENTAL_VSS > EXPERIMENTAL_VZ > LOMBARDO_IONIZATION_VD > QSAR_PREDICTION"
+    },
+    "version": "1.0.0"
+  },
+  "PK Bioavailability": {
+    "endpoint_id": "pk_bioavailability_fraction",
+    "display_name": "Oral Absolute Bioavailability (F)",
+    "category": "PHARMACOKINETICS",
+    "scientific_definition": "Fraction of an orally administered dose that reaches the systemic circulation intact, expressed as % (0-100%).",
+    "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+    "assay_type": "Matched IV and PO In Vivo PK Study AUC Normalization",
+    "raw_unit": "%",
+    "canonical_unit": "%",
+    "transformation": "F (%) = (AUC_PO * Dose_IV) / (AUC_IV * Dose_PO) * 100",
+    "output_type": "REGRESSION",
+    "directionality": "HIGHER_BETTER",
+    "classification_semantics": null,
+    "cutoff_definition": null,
+    "required_metadata": [
+      "species",
+      "dose_iv",
+      "dose_po",
+      "auc_iv",
+      "auc_po"
+    ],
+    "experimental_compatibility_rules": {
+      "compatible_types": [
+        "Matched IV/PO in vivo experimental F"
+      ],
+      "incompatible_types": [
+        "Unmatched single-dose oral AUC"
+      ]
+    },
+    "comparison_rules": {
+      "species_must_match": true
+    },
+    "ensemble_compatibility_rules": {
+      "hierarchy": "MATCHED_EXPERIMENTAL_F > MECHANISTIC_DECOMPOSITION (F = Fa * Fg * Fh) > UNAVAILABLE"
+    },
+    "version": "1.0.0"
+  }
+}

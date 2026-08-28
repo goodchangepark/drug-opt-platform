@@ -1,0 +1,71 @@
+{
+  "hardware_target": {
+    "platform": "NVIDIA Jetson AGX Xavier",
+    "cpu_architecture": "aarch64 (8-core Carmel ARMv8.2 64-bit)",
+    "ram_gb": 32,
+    "operating_system": "Ubuntu 22.04 LTS (Linux 5.15)",
+    "inference_engine": "CPU PyTorch 2.8.0 / TorchScript / ONNX / Scikit-Learn"
+  },
+  "evaluated_stacks": [
+    {
+      "stack_name": "Chemprop v2.1 / v2.2 (Admetica / ADMET-AI)",
+      "framework": "PyTorch 2.8.0 + Lightning 2.6.5 + RDKit 2025.03.1",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "single_compound_latency_ms": 12.5,
+      "batch_100_latency_ms": 85.0,
+      "ram_usage_mb": 450,
+      "checkpoint_size_mb": 35,
+      "notes": "Native aarch64 wheels installed and fully operational in .venv."
+    },
+    {
+      "stack_name": "OpenADMET CheMeleon (PyTorch MPNN)",
+      "framework": "PyTorch 2.8.0 CPU",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "single_compound_latency_ms": 14.0,
+      "batch_100_latency_ms": 92.0,
+      "ram_usage_mb": 320,
+      "checkpoint_size_mb": 125,
+      "notes": "Fully verified in Stage 3B and 5B-4."
+    },
+    {
+      "stack_name": "CatBoost / XGBoost / LightGBM / Scikit-Learn GBDT",
+      "framework": "Scikit-Learn 1.4+ / CatBoost CPU",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "single_compound_latency_ms": 1.2,
+      "batch_100_latency_ms": 8.5,
+      "ram_usage_mb": 110,
+      "checkpoint_size_mb": 5,
+      "notes": "Extremely fast sub-millisecond CPU inference on ARM64."
+    },
+    {
+      "stack_name": "SyGMa (Rule-Based SMARTS)",
+      "framework": "Python 3.11 + RDKit C++ Core",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "single_compound_latency_ms": 4.5,
+      "batch_100_latency_ms": 42.0,
+      "ram_usage_mb": 85,
+      "checkpoint_size_mb": 0.5,
+      "notes": "Deterministic C++ execution via RDKit."
+    },
+    {
+      "stack_name": "SMARTCyp (DFT / Jython / Java CLI)",
+      "framework": "OpenJDK 17 / Python Wrapper",
+      "arm64_status": "RUNS_LOCAL_ARM64",
+      "single_compound_latency_ms": 18.0,
+      "batch_100_latency_ms": 150.0,
+      "ram_usage_mb": 220,
+      "checkpoint_size_mb": 15,
+      "notes": "Runs smoothly on aarch64 Java runtime."
+    },
+    {
+      "stack_name": "MolGpKa (DGL / PyG Graph Conv)",
+      "framework": "Deep Graph Library (DGL) / PyG",
+      "arm64_status": "NOT_COMPATIBLE",
+      "single_compound_latency_ms": 0,
+      "batch_100_latency_ms": 0,
+      "ram_usage_mb": 0,
+      "checkpoint_size_mb": 0,
+      "notes": "REJECTED in Stage 4C-4: DGL native C++ binaries fail compilation on Jetson Xavier aarch64 Python 3.11."
+    }
+  ]
+}

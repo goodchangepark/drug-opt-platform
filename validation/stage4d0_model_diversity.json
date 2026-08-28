@@ -1,0 +1,40 @@
+{
+  "diversity_matrix": [
+    {
+      "pair": "Admetica Chemprop vs ADMET-AI Chemprop Ensemble",
+      "endpoint": "Solubility / Caco-2 / PPB / CYP / hERG",
+      "architectural_diversity": "LOW",
+      "representation_diversity": "LOW_TO_MEDIUM (Both use Chemprop D-MPNN graphs; ADMET-AI adds 200 RDKit 2D features)",
+      "training_dataset_overlap": "HIGH (90-100% overlap on AqSolDB, Wang Caco-2, AID 1851)",
+      "error_correlation_estimate": 0.82,
+      "ensemble_recommendation": "Limited diversity benefit; primary value is 5-model ensemble variance uncertainty, not independent scientific evidence."
+    },
+    {
+      "pair": "Admetica Chemprop vs GBDT / CatBoost Descriptor Model",
+      "endpoint": "Solubility / Caco-2 / CYP3A4 / hERG",
+      "architectural_diversity": "HIGH (Message Passing Neural Network vs Gradient Boosted Decision Trees)",
+      "representation_diversity": "HIGH (Learned graph convolutions vs Fixed 2D physicochemical descriptors + ECFP4 fingerprints)",
+      "training_dataset_overlap": "MEDIUM_TO_HIGH (Same benchmark dataset but completely orthogonal feature extraction)",
+      "error_correlation_estimate": 0.54,
+      "ensemble_recommendation": "HIGH VALUE ENSEMBLE: Trees and GNNs have distinct inductive biases and fail on different chemical scaffolds."
+    },
+    {
+      "pair": "SyGMa SMARTS Rules vs SMARTCyp DFT Activation Energies",
+      "endpoint": "Metabolic soft spots",
+      "architectural_diversity": "VERY_HIGH (Expert Rule Engine vs Quantum Mechanical Reaction Barrier Physics)",
+      "representation_diversity": "VERY_HIGH (Substructure SMARTS matching vs DFT B3LYP activation energy lookup tables)",
+      "training_dataset_overlap": "NONE (Empirical reaction literature vs Quantum chemical calculation)",
+      "error_correlation_estimate": 0.38,
+      "ensemble_recommendation": "EXCELLENT MULTI-METHOD ENSEMBLE: Combine via Reciprocal Rank Fusion (RRF) for robust Site-of-Metabolism consensus."
+    },
+    {
+      "pair": "Admetica PPB vs Lombardo Mechanistic fu,p",
+      "endpoint": "Plasma protein binding",
+      "architectural_diversity": "VERY_HIGH (Deep Learning MPNN vs Mechanistic Ionization & Albumin Binding Equation)",
+      "representation_diversity": "HIGH (Graph neural features vs pKa + cLogP + PSA)",
+      "training_dataset_overlap": "LOW",
+      "error_correlation_estimate": 0.45,
+      "ensemble_recommendation": "HIGH VALUE GUARDRAIL: Mechanistic model prevents ML over-confidence in out-of-domain extreme lipophilic bases."
+    }
+  ]
+}

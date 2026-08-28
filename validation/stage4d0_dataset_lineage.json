@@ -1,0 +1,90 @@
+{
+  "datasets": [
+    {
+      "dataset_name": "AqSolDB",
+      "origin": "Sorkun et al. 2019 (Nature Scientific Data)",
+      "records": 9982,
+      "curation": "Merged from 9 public repositories (e-ChemPortal, Physprop, Water, ESOL, Huuskonen, etc.), standardized SMILES, average logS for replicates",
+      "associated_models": [
+        "Admetica Chemprop Solubility",
+        "ADMET-AI Solubility",
+        "AqSolPred GBDT",
+        "TDC Solubility"
+      ],
+      "lineage_risk": "HIGH_LINEAGE_OVERLAP: Any models claiming independence while trained on AqSolDB share 100% of underlying experimental labels.",
+      "held_out_policy": "Biogen prospective ADME set (3,521 compounds) or strictly non-AqSolDB ChEMBL releases must be used for true independent validation."
+    },
+    {
+      "dataset_name": "Wang Caco-2 Permeability Compilation",
+      "origin": "Wang et al. 2016 (J. Chem. Inf. Model.)",
+      "records": 910,
+      "curation": "Aggregated from literature publications with LogPapp values",
+      "associated_models": [
+        "Admetica Chemprop Caco-2",
+        "ADMET-AI Caco-2",
+        "TDC Caco-2"
+      ],
+      "lineage_risk": "HIGH_LINEAGE_OVERLAP: Both Admetica and ADMET-AI use the identical 910-compound Wang set.",
+      "held_out_policy": "Admetica External 34-compound benchmark or new ChEMBL 36 Caco-2 sets must be used."
+    },
+    {
+      "dataset_name": "AstraZeneca ChEMBL 3301361 Human PPB",
+      "origin": "AstraZeneca public release / ChEMBL 3301361",
+      "records": 2790,
+      "curation": "Standardized human plasma equilibrium dialysis % bound",
+      "associated_models": [
+        "Admetica Chemprop Human PPB",
+        "ADMET-AI PPBR (subset 1,614)"
+      ],
+      "lineage_risk": "HIGH_LINEAGE_OVERLAP: Derived from the same AstraZeneca corporate screening dataset.",
+      "held_out_policy": "Biogen prospective public ADME PPB set (185 non-overlapping compounds) provides true independent benchmark."
+    },
+    {
+      "dataset_name": "PubChem AID 1851 Human CYP Panel",
+      "origin": "NIH NCGC / Veith et al. 2009",
+      "records": 17143,
+      "curation": "Quantitative HTS recombinant human CYP 1A2, 2C9, 2C19, 2D6, 3A4 dealkylation assays with 10 uM AC50 active threshold",
+      "associated_models": [
+        "Admetica CYP Panel (5 models)",
+        "ADMET-AI CYP Panel (5 models)",
+        "TDC CYP Panel"
+      ],
+      "lineage_risk": "HIGH_LINEAGE_OVERLAP: Over 90% of public CYP inhibitor classification models originate from AID 1851.",
+      "held_out_policy": "ChEMBL 30 prospective inhibitor datasets with exact canonical SMILES overlap excluded."
+    },
+    {
+      "dataset_name": "Wang et al. hERG Blocker Compilation",
+      "origin": "Wang et al. 2015 (Chem. Res. Toxicol.)",
+      "records": 22249,
+      "curation": "Aggregated literature bioassays (patch-clamp, dofetilide displacement, fluorescence)",
+      "associated_models": [
+        "Admetica Chemprop hERG",
+        "ADMET-AI hERG (subset 648)"
+      ],
+      "lineage_risk": "HIGH_LINEAGE_OVERLAP between Admetica and TDC subsets.",
+      "held_out_policy": "ChEMBL 37 patch-clamp validated IC50 aggregate (7,249 exact overlaps excluded) used in Stage 3F."
+    },
+    {
+      "dataset_name": "OpenADMET Microsomal Clearance Dataset",
+      "origin": "OpenADMET consortium / ASAP-Polaris / ExpansionRx / ChEMBL 35",
+      "records": 10842,
+      "curation": "Standardized HLM (5,086), RLM (670), MLM (5,086) scaled clearance in log10(mL/min/kg)",
+      "associated_models": [
+        "OpenADMET CheMeleon Microsomal Clearance"
+      ],
+      "lineage_risk": "LOW_LINEAGE_OVERLAP with other public datasets: uniquely scaled in vivo clearance log10(mL/min/kg).",
+      "held_out_policy": "Biogen prospective public ADME (3,078 HLM and 3,045 RLM compounds) provides independent test set."
+    },
+    {
+      "dataset_name": "Biogen Public ADME Prospective Benchmark",
+      "origin": "Biogen / Feinberg et al. 2020",
+      "records": 3521,
+      "curation": "Internal corporate drug discovery chemical series with HLM, RLM, PPB, and Solubility measurements",
+      "associated_models": [
+        "HELD_OUT_VALIDATION_ONLY (NEVER USED FOR MODEL TRAINING)"
+      ],
+      "lineage_risk": "ZERO_LEAKAGE: Explicitly quarantined as an independent benchmark in Drug-OPT.",
+      "held_out_policy": "Quarantine maintained across all future ensemble training."
+    }
+  ]
+}
