@@ -250,7 +250,7 @@ def test_main_dashboard_contract_and_responsive_layout():
     for phrase in (
         "PLATFORM OVERVIEW", "Drug Optimization Platform", "Available Scientific Modules",
         "Create New Project", "Typical Workflow", "Default Workspace Settings",
-        "Current Project Status", "Compound Status", "WORKFLOW STATUS", "Continue Current Project", "Open Project",
+        "Current Project Status", "Compound Status", "WORKFLOW STATUS", "Continue Current Project",
     ):
         assert phrase in source
     for phrase in ("Structure & Chemistry", "Activity & SAR", "CYP & Transporters", "Safety / Toxicology", "PK / DMPK"):

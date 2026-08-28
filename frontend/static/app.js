@@ -4310,7 +4310,6 @@ function App(){
         e('div',{className:'small'},'Experimental: '+String((item.experimental_activity_count||0)+(item.experimental_admet_count||0))+' · Optimization: '+String(item.optimization_run_count||0))
        ]),
        e('td',{className:'project-actions-cell'},[
-        e('button',{className:'secondary',onClick:()=>openProject(item.id)},'Open Project'),
         e('button',{className:'secondary project-delete-secondary',onClick:event=>openDeleteDialog([item],event)},'Delete…')
        ])
       ])))
