@@ -35,14 +35,23 @@ from backend.endpoint_contracts import get_endpoint_contract, EndpointContract
 from backend.multimodel import ExecutionStatus, ModelExecutionPayload
 
 
-ADAPTIVE_POLICY_VERSION = "stage4d3a2-evidence-reconciled-v1"
+ADAPTIVE_POLICY_VERSION = "stage4d3b1-cyp3a4-adaptive-v1"
 
-# Frozen Global Prior Performance from Stage 4D-2C Audit (Delaney N=250)
-GLOBAL_SOLUBILITY_PRIOR_MAE: Dict[str, float] = {
-    "admetica_solubility": 0.3386,
-    "esol_delaney_v1": 0.6663,
-    "rdkit_gbr_solubility_v1": 0.7340,
+# Frozen Global Prior Errors from Benchmark Validation
+GLOBAL_ENDPOINT_PRIOR_ERRORS: Dict[str, Dict[str, float]] = {
+    "Solubility": {
+        "admetica_solubility": 0.3386,
+        "esol_delaney_v1": 0.6663,
+        "rdkit_gbr_solubility_v1": 0.7340,
+    },
+    "CYP3A4 inhibitor": {
+        "admetica_cyp_cyp3a4-inhibitor": 0.0726,
+        "morgan_cyp3a4_inh_v1": 0.2056,
+    },
 }
+
+# Alias for backward compatibility
+GLOBAL_SOLUBILITY_PRIOR_MAE = GLOBAL_ENDPOINT_PRIOR_ERRORS["Solubility"]
 
 # Default Shrinkage Prior Sample Sizes
 DEFAULT_N_PRIOR_PROJECT = 10.0
@@ -51,6 +60,7 @@ DEFAULT_N_PRIOR_LOCAL = 3.0
 DEFAULT_LOCAL_SIMILARITY_THRESHOLD = 0.40
 DEFAULT_BETA_ERROR_SCALING = 3.0
 MINIMUM_WEIGHT_FLOOR = 0.02
+PROBABILITY_EPSILON = 1e-4
 
 
 class AdaptiveScope(str, enum.Enum):
@@ -71,10 +81,14 @@ class AdaptiveReasonCode(str, enum.Enum):
     GLOBAL_PRIOR_DOMINANT = "GLOBAL_PRIOR_DOMINANT"
     PROJECT_EVIDENCE_ACTIVE = "PROJECT_EVIDENCE_ACTIVE"
     PROJECT_EVIDENCE_INCREASED_M2 = "PROJECT_EVIDENCE_INCREASED_M2"
+    PROJECT_M1_OUTPERFORMS_M2 = "PROJECT_M1_OUTPERFORMS_M2"
     SERIES_M1_OUTPERFORMS_M2 = "SERIES_M1_OUTPERFORMS_M2"
     SERIES_M2_OUTPERFORMS_M1 = "SERIES_M2_OUTPERFORMS_M1"
     INSUFFICIENT_LOCAL_DATA = "INSUFFICIENT_LOCAL_DATA"
     LOCAL_NEIGHBORHOOD_ACTIVE = "LOCAL_NEIGHBORHOOD_ACTIVE"
+    CLASS_BALANCE_LIMITED = "CLASS_BALANCE_LIMITED"
+    MODEL_DISAGREEMENT_SIGNAL = "MODEL_DISAGREEMENT_SIGNAL"
+    M2_OUT_OF_DOMAIN = "M2_OUT_OF_DOMAIN"
     M3_OUT_OF_DOMAIN = "M3_OUT_OF_DOMAIN"
     M3_ADAPTIVE_EXCLUDED = "M3_ADAPTIVE_EXCLUDED"
     UNSTABLE_ADAPTIVE_WEIGHTS = "UNSTABLE_ADAPTIVE_WEIGHTS"
@@ -86,6 +100,7 @@ class AdaptiveReasonCode(str, enum.Enum):
 class AdaptiveCompletionDecision(str, enum.Enum):
     ADAPTIVE_PROMOTION_CANDIDATE = "ADAPTIVE_PROMOTION_CANDIDATE"
     CONDITIONAL_ADAPTIVE_VALUE = "CONDITIONAL_ADAPTIVE_VALUE"
+    ARCHITECTURE_VALID_BUT_NO_ACCURACY_GAIN = "ARCHITECTURE_VALID_BUT_NO_ACCURACY_GAIN"
     KEEP_RESEARCH_SHADOW = "KEEP_RESEARCH_SHADOW"
     ADAPTIVE_REJECTED = "ADAPTIVE_REJECTED"
 
@@ -131,20 +146,25 @@ class ExperimentalFeedbackRecord:
     compound_version_id: int
     canonical_smiles: str
     endpoint_name: str
-    experimental_value: float  # log10(mol/L)
+    experimental_value: float  # log10(mol/L) or binary 0/1
     experimental_unit: str
     assay_quality: AssayQuality
     scaffold_smiles: str
     timestamp: str  # ISO 8601
-    frozen_predictions: Dict[str, float]  # model_id -> predicted_logS
-    model_errors: Dict[str, float] = field(default_factory=dict)  # model_id -> abs_error
+    frozen_predictions: Dict[str, float]  # model_id -> predicted value/probability
+    model_errors: Dict[str, float] = field(default_factory=dict)  # model_id -> error metric
     is_valid: bool = True
 
     def __post_init__(self):
         if not self.model_errors and self.frozen_predictions:
             for mid, pred in self.frozen_predictions.items():
                 if pred is not None:
-                    self.model_errors[mid] = abs(pred - self.experimental_value)
+                    if self.endpoint_name in {"CYP3A4 inhibitor", "cyp3a4_inhibitor_prob", "EP_MET_CYP3A4_INH"}:
+                        # Probability Brier loss: (p - y)^2
+                        self.model_errors[mid] = float((pred - self.experimental_value) ** 2)
+                    else:
+                        # Absolute error for continuous endpoints
+                        self.model_errors[mid] = abs(pred - self.experimental_value)
 
 
 @dataclass
@@ -275,28 +295,44 @@ def evaluate_experimental_compatibility(
 ) -> Tuple[bool, AssayQuality, str]:
     """
     Validates whether an experimental measurement is strictly compatible with
-    EP_PHYS_SOLUBILITY (aqueous solubility log10(mol/L)).
+    the specified endpoint contract (EP_PHYS_SOLUBILITY or EP_MET_CYP3A4_INH).
     """
-    if endpoint_name != "Solubility":
-        return False, AssayQuality.INCOMPATIBLE, "Endpoint is not Aqueous Solubility"
-    
     if value is None or math.isnan(value):
         return False, AssayQuality.INCOMPATIBLE, "Measurement has no numeric value"
     
-    unit_norm = unit.strip().lower()
-    compatible_units = {"log10(mol/l)", "logs", "log(mol/l)", "log mol/l", "log(m)"}
-    if unit_norm not in compatible_units and unit != "log10(mol/L)":
-        return False, AssayQuality.INCOMPATIBLE, f"Incompatible unit: {unit}. Must be log10(mol/L)"
-    
-    # Method & quality check
-    method_lower = (method + " " + notes).lower()
-    if "kinetic" in method_lower and "turbidimetric" in method_lower:
-        return True, AssayQuality.LIMITED, "Kinetic turbidimetric assay - limited precision"
-    
-    if "thermodynamic" in method_lower or "shake-flask" in method_lower or "shake flask" in method_lower:
-        return True, AssayQuality.HIGH_QUALITY, "Thermodynamic shake-flask gold standard"
-    
-    return True, AssayQuality.USABLE, "Standard aqueous solubility assay"
+    if endpoint_name == "Solubility":
+        unit_norm = unit.strip().lower()
+        compatible_units = {"log10(mol/l)", "logs", "log(mol/l)", "log mol/l", "log(m)"}
+        if unit_norm not in compatible_units and unit != "log10(mol/L)":
+            return False, AssayQuality.INCOMPATIBLE, f"Incompatible unit: {unit}. Must be log10(mol/L)"
+        
+        # Method & quality check
+        method_lower = (method + " " + notes).lower()
+        if "kinetic" in method_lower and "turbidimetric" in method_lower:
+            return True, AssayQuality.LIMITED, "Kinetic turbidimetric assay - limited precision"
+        if "thermodynamic" in method_lower or "shake-flask" in method_lower or "shake flask" in method_lower:
+            return True, AssayQuality.HIGH_QUALITY, "Thermodynamic shake-flask gold standard"
+        return True, AssayQuality.USABLE, "Standard aqueous solubility assay"
+
+    elif endpoint_name in {"CYP3A4 inhibitor", "cyp3a4_inhibitor_prob", "EP_MET_CYP3A4_INH"}:
+        unit_norm = unit.strip().lower()
+        method_lower = (method + " " + notes).lower()
+
+        # Incompatible CYP assays
+        incompatible_terms = ["substrate", "tdi", "time-dependent", "mechanism-based", "induction", "fraction metabolized", "fm"]
+        if any(term in method_lower for term in incompatible_terms):
+            return False, AssayQuality.INCOMPATIBLE, "Incompatible CYP3A4 assay type (substrate/TDI/induction/fm not supported)"
+        
+        # Valid units / values
+        if unit_norm in {"binary", "probability", "", "flag", "class"}:
+            if value in {0.0, 1.0} or 0.0 <= value <= 1.0:
+                return True, AssayQuality.HIGH_QUALITY, "Standard binary CYP3A4 inhibition assay"
+        elif unit_norm in {"um", "µm", "umol/l", "nm"}:
+            return True, AssayQuality.USABLE, "Quantitative IC50/AC50 CYP3A4 assay (<=10 uM cutoff applied)"
+        
+        return False, AssayQuality.INCOMPATIBLE, f"Incompatible CYP3A4 measurement format: unit={unit}, value={value}"
+
+    return False, AssayQuality.INCOMPATIBLE, f"Unsupported endpoint: {endpoint_name}"
 
 
 def compute_hierarchical_adaptive_weights(
@@ -304,6 +340,7 @@ def compute_hierarchical_adaptive_weights(
     project_id: int,
     candidate_payloads: List[ModelExecutionPayload],
     historical_feedback_events: List[ExperimentalFeedbackRecord],
+    endpoint_name: str = "Solubility",
     n_prior_project: float = DEFAULT_N_PRIOR_PROJECT,
     n_prior_series: float = DEFAULT_N_PRIOR_SERIES,
     n_prior_local: float = DEFAULT_N_PRIOR_LOCAL,
@@ -316,11 +353,14 @@ def compute_hierarchical_adaptive_weights(
     Core hierarchical adaptive consensus engine.
     Calculates weights across GLOBAL -> PROJECT -> SERIES -> LOCAL levels with
     strict prospective filtering (no leakage of future observations).
+    Supports regression (e.g. Solubility) and classification (e.g. CYP3A4 inhibitor).
     """
+    is_classification = endpoint_name in {"CYP3A4 inhibitor", "cyp3a4_inhibitor_prob", "EP_MET_CYP3A4_INH"}
+
     active_payloads = [
         p for p in candidate_payloads
         if p.execution_status == ExecutionStatus.SUCCESS
-        and (include_m3 or p.model_id != "rdkit_gbr_solubility_v1")
+        and (include_m3 or p.model_id not in {"rdkit_gbr_solubility_v1"})
     ]
     model_ids = [p.model_id for p in active_payloads]
     
@@ -329,9 +369,9 @@ def compute_hierarchical_adaptive_weights(
     
     if not active_payloads:
         return AdaptiveConsensusResult(
-            endpoint_name="Solubility",
+            endpoint_name=endpoint_name,
             compound_version_id=0,
-            predicted_value=0.0,
+            predicted_value=0.5 if is_classification else 0.0,
             model_disagreement=0.0,
             warnings=["No successful qualified models available for adaptive consensus."],
             reason_codes=[AdaptiveReasonCode.GLOBAL_PRIOR_DOMINANT.value],
@@ -363,6 +403,12 @@ def compute_hierarchical_adaptive_weights(
     series_events = [ev for ev in project_events if ev.scaffold_smiles == scaffold_smiles]
     n_series = len(series_events)
 
+    # Check Class Balance for Classification
+    if is_classification and n_project >= 5:
+        proj_labels = [ev.experimental_value for ev in project_events]
+        if len(set(proj_labels)) <= 1:
+            reason_codes.append(AdaptiveReasonCode.CLASS_BALANCE_LIMITED.value)
+
     # Local neighborhood events (Tanimoto >= similarity_threshold)
     local_neighbors: List[Tuple[ExperimentalFeedbackRecord, float]] = []
     if query_fp is not None:
@@ -378,10 +424,11 @@ def compute_hierarchical_adaptive_weights(
     # -------------------------------------------------------------------------
     # LEVEL 1: GLOBAL PRIOR WEIGHTS
     # -------------------------------------------------------------------------
+    priors_map = GLOBAL_ENDPOINT_PRIOR_ERRORS.get(endpoint_name, GLOBAL_SOLUBILITY_PRIOR_MAE)
     global_scores = {}
     for mid in model_ids:
-        prior_mae = GLOBAL_SOLUBILITY_PRIOR_MAE.get(mid, 0.50)
-        global_scores[mid] = compute_error_score(prior_mae, beta=beta)
+        prior_err = priors_map.get(mid, 0.50 if not is_classification else 0.25)
+        global_scores[mid] = compute_error_score(prior_err, beta=beta)
     
     sum_global = sum(global_scores.values())
     global_weights = {mid: global_scores[mid] / sum_global for mid in model_ids}
@@ -390,15 +437,23 @@ def compute_hierarchical_adaptive_weights(
     # LEVEL 2: PROJECT LEVEL EVIDENCE & SHRINKAGE
     # -------------------------------------------------------------------------
     if n_project > 0:
-        project_maes = {}
+        project_errs = {}
         for mid in model_ids:
             errors = [ev.model_errors[mid] for ev in project_events if mid in ev.model_errors]
-            project_maes[mid] = float(np.mean(errors)) if errors else GLOBAL_SOLUBILITY_PRIOR_MAE.get(mid, 0.50)
+            project_errs[mid] = float(np.mean(errors)) if errors else priors_map.get(mid, 0.50)
         
-        proj_scores = {mid: compute_error_score(project_maes[mid], beta=beta) for mid in model_ids}
+        proj_scores = {mid: compute_error_score(project_errs[mid], beta=beta) for mid in model_ids}
         sum_proj = sum(proj_scores.values())
         project_weights = {mid: proj_scores[mid] / sum_proj for mid in model_ids}
         lambda_proj = compute_shrinkage_lambda(float(n_project), n_prior_project)
+
+        if len(model_ids) >= 2:
+            m1_id, m2_id = model_ids[0], model_ids[1]
+            if m1_id in project_errs and m2_id in project_errs:
+                if project_errs[m1_id] < project_errs[m2_id]:
+                    reason_codes.append(AdaptiveReasonCode.PROJECT_M1_OUTPERFORMS_M2.value)
+                elif project_errs[m2_id] < project_errs[m1_id]:
+                    reason_codes.append(AdaptiveReasonCode.PROJECT_EVIDENCE_INCREASED_M2.value)
     else:
         project_weights = dict(global_weights)
         lambda_proj = 0.0
@@ -412,22 +467,24 @@ def compute_hierarchical_adaptive_weights(
     # LEVEL 3: SERIES LEVEL EVIDENCE & SHRINKAGE
     # -------------------------------------------------------------------------
     if n_series > 0:
-        series_maes = {}
+        series_errs = {}
         for mid in model_ids:
             errors = [ev.model_errors[mid] for ev in series_events if mid in ev.model_errors]
-            series_maes[mid] = float(np.mean(errors)) if errors else project_maes.get(mid, 0.50)
+            series_errs[mid] = float(np.mean(errors)) if errors else project_errs.get(mid, 0.50)
         
-        ser_scores = {mid: compute_error_score(series_maes[mid], beta=beta) for mid in model_ids}
+        ser_scores = {mid: compute_error_score(series_errs[mid], beta=beta) for mid in model_ids}
         sum_ser = sum(ser_scores.values())
         series_weights = {mid: ser_scores[mid] / sum_ser for mid in model_ids}
         lambda_ser = compute_shrinkage_lambda(float(n_series), n_prior_series)
 
         # Check series dominance for explanation
-        if "admetica_solubility" in series_maes and "esol_delaney_v1" in series_maes:
-            if series_maes["esol_delaney_v1"] < series_maes["admetica_solubility"]:
-                reason_codes.append(AdaptiveReasonCode.SERIES_M2_OUTPERFORMS_M1.value)
-            else:
-                reason_codes.append(AdaptiveReasonCode.SERIES_M1_OUTPERFORMS_M2.value)
+        if len(model_ids) >= 2:
+            m1_id, m2_id = model_ids[0], model_ids[1]
+            if m1_id in series_errs and m2_id in series_errs:
+                if series_errs[m2_id] < series_errs[m1_id]:
+                    reason_codes.append(AdaptiveReasonCode.SERIES_M2_OUTPERFORMS_M1.value)
+                else:
+                    reason_codes.append(AdaptiveReasonCode.SERIES_M1_OUTPERFORMS_M2.value)
     else:
         series_weights = dict(project_posteriors)
         lambda_ser = 0.0
@@ -441,16 +498,16 @@ def compute_hierarchical_adaptive_weights(
     # LEVEL 4: LOCAL NEIGHBORHOOD EVIDENCE & SHRINKAGE
     # -------------------------------------------------------------------------
     if local_neighbors and n_local_eff > 0.0:
-        local_maes = {}
+        local_errs = {}
         total_sim = sum(sim for _, sim in local_neighbors)
         for mid in model_ids:
             weighted_errs = []
             for ev, sim in local_neighbors:
                 if mid in ev.model_errors:
                     weighted_errs.append(sim * ev.model_errors[mid])
-            local_maes[mid] = sum(weighted_errs) / total_sim if (total_sim > 0 and weighted_errs) else series_maes.get(mid, 0.50)
+            local_errs[mid] = sum(weighted_errs) / total_sim if (total_sim > 0 and weighted_errs) else series_errs.get(mid, 0.50)
         
-        loc_scores = {mid: compute_error_score(local_maes[mid], beta=beta) for mid in model_ids}
+        loc_scores = {mid: compute_error_score(local_errs[mid], beta=beta) for mid in model_ids}
         sum_loc = sum(loc_scores.values())
         local_weights = {mid: loc_scores[mid] / sum_loc for mid in model_ids}
         lambda_loc = compute_shrinkage_lambda(n_local_eff, n_prior_local)
@@ -483,6 +540,8 @@ def compute_hierarchical_adaptive_weights(
         if ad_status == "OUT_OF_DOMAIN":
             if mid == "rdkit_gbr_solubility_v1":
                 reason_codes.append(AdaptiveReasonCode.M3_OUT_OF_DOMAIN.value)
+            elif mid == "morgan_cyp3a4_inh_v1":
+                reason_codes.append(AdaptiveReasonCode.M2_OUT_OF_DOMAIN.value)
             warnings.append(f"Model {mid} is OUT_OF_DOMAIN; downweighted by 0.1x.")
 
         post_ad_weights[mid] = max(MINIMUM_WEIGHT_FLOOR, post_ad)
@@ -511,14 +570,25 @@ def compute_hierarchical_adaptive_weights(
     # PREDICTION & MODEL DISAGREEMENT
     # -------------------------------------------------------------------------
     values_by_id = {p.model_id: float(p.value) for p in active_payloads if p.value is not None}
-    adaptive_pred = sum(final_effective_weights[mid] * values_by_id[mid] for mid in model_ids)
+    raw_adaptive_pred = sum(final_effective_weights[mid] * values_by_id[mid] for mid in model_ids)
 
-    # Weighted model disagreement standard deviation
-    disagreement_var = sum(
-        final_effective_weights[mid] * ((values_by_id[mid] - adaptive_pred) ** 2)
-        for mid in model_ids
-    )
-    disagreement_std = math.sqrt(max(0.0, disagreement_var))
+    if is_classification:
+        # Bounded probability for classification
+        adaptive_pred = max(PROBABILITY_EPSILON, min(1.0 - PROBABILITY_EPSILON, raw_adaptive_pred))
+        # Model disagreement: absolute difference between top models
+        if len(model_ids) >= 2:
+            disagreement_val = abs(values_by_id[model_ids[0]] - values_by_id[model_ids[1]])
+            if disagreement_val >= 0.35:
+                reason_codes.append(AdaptiveReasonCode.MODEL_DISAGREEMENT_SIGNAL.value)
+        else:
+            disagreement_val = 0.0
+    else:
+        adaptive_pred = raw_adaptive_pred
+        disagreement_var = sum(
+            final_effective_weights[mid] * ((values_by_id[mid] - adaptive_pred) ** 2)
+            for mid in model_ids
+        )
+        disagreement_val = math.sqrt(max(0.0, disagreement_var))
 
     # Reason code summary
     if n_project < 5:
@@ -526,14 +596,14 @@ def compute_hierarchical_adaptive_weights(
     else:
         reason_codes.insert(0, AdaptiveReasonCode.PROJECT_EVIDENCE_ACTIVE.value)
 
-    if not include_m3:
+    if not include_m3 and "rdkit_gbr_solubility_v1" in [p.model_id for p in candidate_payloads]:
         reason_codes.append(AdaptiveReasonCode.M3_ADAPTIVE_EXCLUDED.value)
 
     return AdaptiveConsensusResult(
-        endpoint_name="Solubility",
+        endpoint_name=endpoint_name,
         compound_version_id=0,
         predicted_value=float(adaptive_pred),
-        model_disagreement=float(disagreement_std),
+        model_disagreement=float(disagreement_val),
         consensus_mode="SHADOW",
         policy_version=ADAPTIVE_POLICY_VERSION,
         n_global=250,

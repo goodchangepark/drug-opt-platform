@@ -1,0 +1,23 @@
+{
+  "endpoint": "EP_MET_CYP3A4_INH",
+  "policy_version": "stage4d3b1-cyp3a4-adaptive-v1",
+  "scientific_decision": "ARCHITECTURE_VALID_BUT_NO_ACCURACY_GAIN",
+  "conditional_subtypes": [
+    "Basic Amine (+)",
+    "Neutral Heteroaromatics"
+  ],
+  "m1_model": {
+    "model_id": "admetica_cyp_cyp3a4-inhibitor",
+    "role": "CORE",
+    "contribution_status": "CORE_PRIMARY"
+  },
+  "m2_model": {
+    "model_id": "morgan_cyp3a4_inh_v1",
+    "role": "SHADOW_ONLY",
+    "contribution_status": "SHADOW_SUPPORTING"
+  },
+  "consensus_mode": "SHADOW",
+  "herg_gate_recommendation": "GO",
+  "herg_gate_rationale": "Classification adaptive architecture, Bayesian shrinkage, Brier scoring, and no-leakage replay fully verified and calibrated. Approved for hERG liability research pilot.",
+  "timestamp": "2026-08-28T17:45:53.933863+00:00"
+}

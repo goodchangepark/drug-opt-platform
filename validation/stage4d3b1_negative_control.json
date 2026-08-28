@@ -1,0 +1,6 @@
+{
+  "real_adaptive_brier": 0.0728,
+  "shuffled_adaptive_brier": 0.1232,
+  "delta_brier": 0.0504,
+  "negative_control_passed": true
+}

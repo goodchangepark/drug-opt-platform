@@ -1,0 +1,97 @@
+{
+  "cohort_size": 250,
+  "m1_metrics": {
+    "mcc": 0.8334,
+    "balanced_accuracy": 0.9166,
+    "brier_score": 0.0726,
+    "log_loss": 0.2646,
+    "auroc": 0.9572,
+    "auprc": 0.9217,
+    "sensitivity": 0.9426,
+    "specificity": 0.8906,
+    "false_negative_rate": 0.0574,
+    "false_positive_rate": 0.1094
+  },
+  "m2_metrics": {
+    "mcc": 0.4365,
+    "balanced_accuracy": 0.7043,
+    "brier_score": 0.2056,
+    "log_loss": 0.6076,
+    "auroc": 0.7627,
+    "auprc": 0.6983,
+    "sensitivity": 0.8852,
+    "specificity": 0.5234,
+    "false_negative_rate": 0.1148,
+    "false_positive_rate": 0.4766
+  },
+  "static_consensus_metrics": {
+    "mcc": 0.7974,
+    "balanced_accuracy": 0.8973,
+    "brier_score": 0.1046,
+    "log_loss": 0.3583,
+    "auroc": 0.9483,
+    "auprc": 0.9312,
+    "sensitivity": 0.9508,
+    "specificity": 0.8438,
+    "false_negative_rate": 0.0492,
+    "false_positive_rate": 0.1562
+  },
+  "adaptive_consensus_metrics": {
+    "mcc": 0.8334,
+    "balanced_accuracy": 0.9166,
+    "brier_score": 0.0728,
+    "log_loss": 0.2465,
+    "auroc": 0.9597,
+    "auprc": 0.9493,
+    "sensitivity": 0.9426,
+    "specificity": 0.8906,
+    "false_negative_rate": 0.0574,
+    "false_positive_rate": 0.1094
+  },
+  "base_rate_metrics": {
+    "mcc": 0.0,
+    "balanced_accuracy": 0.5,
+    "brier_score": 0.2499,
+    "log_loss": 0.6929,
+    "auroc": 0.5,
+    "auprc": 0.488,
+    "sensitivity": 0.0,
+    "specificity": 1.0,
+    "false_negative_rate": 1.0,
+    "false_positive_rate": 0.0
+  },
+  "bootstrap_adaptive_vs_m1": {
+    "delta_mcc": {
+      "mean": 0.0,
+      "ci_95": [
+        0.0,
+        0.0
+      ],
+      "p_adaptive_better": 0.0
+    },
+    "delta_balanced_accuracy": {
+      "mean": 0.0,
+      "ci_95": [
+        0.0,
+        0.0
+      ],
+      "p_adaptive_better": 0.0
+    },
+    "delta_brier": {
+      "mean": 0.0002,
+      "ci_95": [
+        -0.0012,
+        0.0014
+      ],
+      "p_adaptive_better": 0.305
+    },
+    "delta_log_loss": {
+      "mean": -0.0173,
+      "ci_95": [
+        -0.0714,
+        0.0116
+      ],
+      "p_adaptive_better": 0.639
+    }
+  }
+}

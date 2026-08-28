@@ -1,0 +1,17 @@
+{
+  "policy_version": "stage4d3b1-cyp3a4-adaptive-v1",
+  "endpoint": "EP_MET_CYP3A4_INH",
+  "prior_errors": {
+    "admetica_cyp_cyp3a4-inhibitor": 0.0726,
+    "morgan_cyp3a4_inh_v1": 0.2056
+  },
+  "shrinkage_parameters": {
+    "n_prior_project": 10.0,
+    "n_prior_series": 5.0,
+    "n_prior_local": 3.0,
+    "similarity_threshold": 0.4,
+    "beta": 3.0,
+    "minimum_weight_floor": 0.02,
+    "epsilon": 0.0001
+  }
+}

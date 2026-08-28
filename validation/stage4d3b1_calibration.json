@@ -1,0 +1,31 @@
+{
+  "m1_brier": 0.0726,
+  "m2_brier": 0.2056,
+  "static_brier": 0.1046,
+  "adaptive_brier": 0.0728,
+  "m1_log_loss": 0.2646,
+  "m2_log_loss": 0.6076,
+  "static_log_loss": 0.3583,
+  "adaptive_log_loss": 0.2465,
+  "disagreement_error_correlation": {
+    "corr_m1_err": 0.0028,
+    "corr_ad_err": -0.002,
+    "binned_error_rates": {
+      "Low (<0.20)": {
+        "n": 96,
+        "m1_error_rate": 0.0864,
+        "adaptive_error_rate": 0.0867
+      },
+      "Medium (0.20-0.40)": {
+        "n": 71,
+        "m1_error_rate": 0.0537,
+        "adaptive_error_rate": 0.0537
+      },
+      "High (>=0.40)": {
+        "n": 83,
+        "m1_error_rate": 0.0727,
+        "adaptive_error_rate": 0.073
+      }
+    }
+  }
+}

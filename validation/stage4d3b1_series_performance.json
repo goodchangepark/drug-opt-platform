@@ -1,0 +1,456 @@
+{
+  "scaffold_series": {
+    "c1ccccc1": {
+      "n_samples": 11,
+      "positive_fraction": 0.091,
+      "m1_brier": 0.021,
+      "m2_brier": 0.1867,
+      "adaptive_brier": 0.0222,
+      "m1_mcc": 1.0,
+      "adaptive_mcc": 1.0,
+      "verdict": "EQUIVALENT"
+    }
+  },
+  "subgroups": {
+    "Neutral": {
+      "n_samples": 231,
+      "positive_fraction": 0.502,
+      "m1": {
+        "mcc": 0.837,
+        "balanced_accuracy": 0.9176,
+        "brier_score": 0.0683,
+        "log_loss": 0.2548,
+        "auroc": 0.959,
+        "auprc": 0.9247,
+        "sensitivity": 0.9483,
+        "specificity": 0.887,
+        "false_negative_rate": 0.0517,
+        "false_positive_rate": 0.113
+      },
+      "m2": {
+        "mcc": 0.4406,
+        "balanced_accuracy": 0.7048,
+        "brier_score": 0.2018,
+        "log_loss": 0.5966,
+        "auroc": 0.7673,
+        "auprc": 0.7146,
+        "sensitivity": 0.8879,
+        "specificity": 0.5217,
+        "false_negative_rate": 0.1121,
+        "false_positive_rate": 0.4783
+      },
+      "adaptive": {
+        "mcc": 0.837,
+        "balanced_accuracy": 0.9176,
+        "brier_score": 0.0687,
+        "log_loss": 0.2357,
+        "auroc": 0.9621,
+        "auprc": 0.954,
+        "sensitivity": 0.9483,
+        "specificity": 0.887,
+        "false_negative_rate": 0.0517,
+        "false_positive_rate": 0.113
+      }
+    },
+    "MW < 300": {
+      "n_samples": 82,
+      "positive_fraction": 0.232,
+      "m1": {
+        "mcc": 0.8599,
+        "balanced_accuracy": 0.9131,
+        "brier_score": 0.0431,
+        "log_loss": 0.2108,
+        "auroc": 0.9808,
+        "auprc": 0.8536,
+        "sensitivity": 0.8421,
+        "specificity": 0.9841,
+        "false_negative_rate": 0.1579,
+        "false_positive_rate": 0.0159
+      },
+      "m2": {
+        "mcc": 0.3745,
+        "balanced_accuracy": 0.7176,
+        "brier_score": 0.1876,
+        "log_loss": 0.5476,
+        "auroc": 0.7861,
+        "auprc": 0.5207,
+        "sensitivity": 0.7368,
+        "specificity": 0.6984,
+        "false_negative_rate": 0.2632,
+        "false_positive_rate": 0.3016
+      },
+      "adaptive": {
+        "mcc": 0.8599,
+        "balanced_accuracy": 0.9131,
+        "brier_score": 0.042,
+        "log_loss": 0.1451,
+        "auroc": 0.9875,
+        "auprc": 0.9499,
+        "sensitivity": 0.8421,
+        "specificity": 0.9841,
+        "false_negative_rate": 0.1579,
+        "false_positive_rate": 0.0159
+      }
+    },
+    "MW 300-500": {
+      "n_samples": 154,
+      "positive_fraction": 0.591,
+      "m1": {
+        "mcc": 0.7856,
+        "balanced_accuracy": 0.8828,
+        "brier_score": 0.0917,
+        "log_loss": 0.3067,
+        "auroc": 0.9313,
+        "auprc": 0.9421,
+        "sensitivity": 0.956,
+        "specificity": 0.8095,
+        "false_negative_rate": 0.044,
+        "false_positive_rate": 0.1905
+      },
+      "m2": {
+        "mcc": 0.3399,
+        "balanced_accuracy": 0.6386,
+        "brier_score": 0.2165,
+        "log_loss": 0.6425,
+        "auroc": 0.6822,
+        "auprc": 0.6922,
+        "sensitivity": 0.9121,
+        "specificity": 0.3651,
+        "false_negative_rate": 0.0879,
+        "false_positive_rate": 0.6349
+      },
+      "adaptive": {
+        "mcc": 0.7856,
+        "balanced_accuracy": 0.8828,
+        "brier_score": 0.0926,
+        "log_loss": 0.3111,
+        "auroc": 0.9295,
+        "auprc": 0.9398,
+        "sensitivity": 0.956,
+        "specificity": 0.8095,
+        "false_negative_rate": 0.044,
+        "false_positive_rate": 0.1905
+      }
+    },
+    "MW > 500": {
+      "n_samples": 14,
+      "positive_fraction": 0.857,
+      "m1": {
+        "mcc": 0.6794,
+        "balanced_accuracy": 0.75,
+        "brier_score": 0.0342,
+        "log_loss": 0.1162,
+        "auroc": 1.0,
+        "auprc": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 0.5,
+        "false_negative_rate": 0.0,
+        "false_positive_rate": 0.5
+      },
+      "m2": {
+        "mcc": -0.1132,
+        "balanced_accuracy": 0.4583,
+        "brier_score": 0.1902,
+        "log_loss": 0.5757,
+        "auroc": 0.4167,
+        "auprc": 0.8767,
+        "sensitivity": 0.9167,
+        "specificity": 0.0,
+        "false_negative_rate": 0.0833,
+        "false_positive_rate": 1.0
+      },
+      "adaptive": {
+        "mcc": 0.6794,
+        "balanced_accuracy": 0.75,
+        "brier_score": 0.0359,
+        "log_loss": 0.129,
+        "auroc": 1.0,
+        "auprc": 1.0,
+        "sensitivity": 1.0,
+        "specificity": 0.5,
+        "false_negative_rate": 0.0,
+        "false_positive_rate": 0.5
+      }
+    },
+    "cLogP < 2": {
+      "n_samples": 78,
+      "positive_fraction": 0.179,
+      "m1": {
+        "mcc": 0.9207,
+        "balanced_accuracy": 0.9844,
+        "brier_score": 0.0417,
+        "log_loss": 0.2205,
+        "auroc": 0.9766,
+        "auprc": 0.7985,
+        "sensitivity": 1.0,
+        "specificity": 0.9688,
+        "false_negative_rate": 0.0,
+        "false_positive_rate": 0.0312
+      },
+      "m2": {
+        "mcc": 0.1956,
+        "balanced_accuracy": 0.6004,
+        "brier_score": 0.159,
+        "log_loss": 0.4803,
+        "auroc": 0.7188,
+        "auprc": 0.3297,
+        "sensitivity": 0.3571,
+        "specificity": 0.8438,
+        "false_negative_rate": 0.6429,
+        "false_positive_rate": 0.1562
+      },
+      "adaptive": {
+        "mcc": 0.9207,
+        "balanced_accuracy": 0.9844,
+        "brier_score": 0.0415,
+        "log_loss": 0.1509,
+        "auroc": 0.9788,
+        "auprc": 0.858,
+        "sensitivity": 1.0,
+        "specificity": 0.9688,
+        "false_negative_rate": 0.0,
+        "false_positive_rate": 0.0312
+      }
+    },
+    "cLogP 2-4": {
+      "n_samples": 115,
+      "positive_fraction": 0.548,
+      "m1": {
+        "mcc": 0.8067,
+        "balanced_accuracy": 0.9026,
+        "brier_score": 0.0832,
+        "log_loss": 0.2759,
+        "auroc": 0.9515,
+        "auprc": 0.9533,
+        "sensitivity": 0.9206,
+        "specificity": 0.8846,
+        "false_negative_rate": 0.0794,
+        "false_positive_rate": 0.1154
+      },
+      "m2": {
+        "mcc": 0.2337,
+        "balanced_accuracy": 0.5853,
+        "brier_score": 0.2453,
+        "log_loss": 0.6889,
+        "auroc": 0.6255,
+        "auprc": 0.6673,
+        "sensitivity": 0.9206,
+        "specificity": 0.25,
+        "false_negative_rate": 0.0794,
+        "false_positive_rate": 0.75
+      },
+      "adaptive": {
+        "mcc": 0.8067,
+        "balanced_accuracy": 0.9026,
+        "brier_score": 0.0835,
+        "log_loss": 0.2816,
+        "auroc": 0.9509,
+        "auprc": 0.9526,
+        "sensitivity": 0.9206,
+        "specificity": 0.8846,
+        "false_negative_rate": 0.0794,
+        "false_positive_rate": 0.1154
+      }
+    },
+    "cLogP > 4": {
+      "n_samples": 57,
+      "positive_fraction": 0.789,
+      "m1": {
+        "mcc": 0.5347,
+        "balanced_accuracy": 0.7278,
+        "brier_score": 0.0934,
+        "log_loss": 0.3021,
+        "auroc": 0.8796,
+        "auprc": 0.9628,
+        "sensitivity": 0.9556,
+        "specificity": 0.5,
+        "false_negative_rate": 0.0444,
+        "false_positive_rate": 0.5
+      },
+      "m2": {
+        "mcc": 0.0,
+        "balanced_accuracy": 0.5,
+        "brier_score": 0.1891,
+        "log_loss": 0.6178,
+        "auroc": 0.3167,
+        "auprc": 0.74,
+        "sensitivity": 1.0,
+        "specificity": 0.0,
+        "false_negative_rate": 0.0,
+        "false_positive_rate": 1.0
+      },
+      "adaptive": {
+        "mcc": 0.5347,
+        "balanced_accuracy": 0.7278,
+        "brier_score": 0.0939,
+        "log_loss": 0.3064,
+        "auroc": 0.8852,
+        "auprc": 0.9656,
+        "sensitivity": 0.9556,
+        "specificity": 0.5,
+        "false_negative_rate": 0.0444,
+        "false_positive_rate": 0.5
+      }
+    },
+    "Basic Amine (+)": {
+      "n_samples": 106,
+      "positive_fraction": 0.519,
+      "m1": {
+        "mcc": 0.8689,
+        "balanced_accuracy": 0.9328,
+        "brier_score": 0.0672,
+        "log_loss": 0.2899,
+        "auroc": 0.9533,
+        "auprc": 0.9055,
+        "sensitivity": 0.9636,
+        "specificity": 0.902,
+        "false_negative_rate": 0.0364,
+        "false_positive_rate": 0.098
+      },
+      "m2": {
+        "mcc": 0.5923,
+        "balanced_accuracy": 0.7766,
+        "brier_score": 0.1783,
+        "log_loss": 0.5384,
+        "auroc": 0.8203,
+        "auprc": 0.7906,
+        "sensitivity": 0.9455,
+        "specificity": 0.6078,
+        "false_negative_rate": 0.0545,
+        "false_positive_rate": 0.3922
+      },
+      "adaptive": {
+        "mcc": 0.8689,
+        "balanced_accuracy": 0.9328,
+        "brier_score": 0.0668,
+        "log_loss": 0.2356,
+        "auroc": 0.9643,
+        "auprc": 0.9602,
+        "sensitivity": 0.9636,
+        "specificity": 0.902,
+        "false_negative_rate": 0.0364,
+        "false_positive_rate": 0.098
+      }
+    },
+    "Basic Amine (-)": {
+      "n_samples": 144,
+      "positive_fraction": 0.465,
+      "m1": {
+        "mcc": 0.8066,
+        "balanced_accuracy": 0.9042,
+        "brier_score": 0.0765,
+        "log_loss": 0.2459,
+        "auroc": 0.9575,
+        "auprc": 0.9466,
+        "sensitivity": 0.9254,
+        "specificity": 0.8831,
+        "false_negative_rate": 0.0746,
+        "false_positive_rate": 0.1169
+      },
+      "m2": {
+        "mcc": 0.3227,
+        "balanced_accuracy": 0.6517,
+        "brier_score": 0.2257,
+        "log_loss": 0.6585,
+        "auroc": 0.7269,
+        "auprc": 0.6446,
+        "sensitivity": 0.8358,
+        "specificity": 0.4675,
+        "false_negative_rate": 0.1642,
+        "false_positive_rate": 0.5325
+      },
+      "adaptive": {
+        "mcc": 0.8066,
+        "balanced_accuracy": 0.9042,
+        "brier_score": 0.0772,
+        "log_loss": 0.2545,
+        "auroc": 0.9568,
+        "auprc": 0.9444,
+        "sensitivity": 0.9254,
+        "specificity": 0.8831,
+        "false_negative_rate": 0.0746,
+        "false_positive_rate": 0.1169
+      }
+    },
+    "Heteroaromatic (+)": {
+      "n_samples": 158,
+      "positive_fraction": 0.601,
+      "m1": {
+        "mcc": 0.8144,
+        "balanced_accuracy": 0.9023,
+        "brier_score": 0.0755,
+        "log_loss": 0.2496,
+        "auroc": 0.9544,
+        "auprc": 0.965,
+        "sensitivity": 0.9474,
+        "specificity": 0.8571,
+        "false_negative_rate": 0.0526,
+        "false_positive_rate": 0.1429
+      },
+      "m2": {
+        "mcc": 0.3766,
+        "balanced_accuracy": 0.6563,
+        "brier_score": 0.1962,
+        "log_loss": 0.5873,
+        "auroc": 0.7434,
+        "auprc": 0.7727,
+        "sensitivity": 0.9158,
+        "specificity": 0.3968,
+        "false_negative_rate": 0.0842,
+        "false_positive_rate": 0.6032
+      },
+      "adaptive": {
+        "mcc": 0.8144,
+        "balanced_accuracy": 0.9023,
+        "brier_score": 0.076,
+        "log_loss": 0.2551,
+        "auroc": 0.9534,
+        "auprc": 0.964,
+        "sensitivity": 0.9474,
+        "specificity": 0.8571,
+        "false_negative_rate": 0.0526,
+        "false_positive_rate": 0.1429
+      }
+    },
+    "Heteroaromatic (-)": {
+      "n_samples": 92,
+      "positive_fraction": 0.293,
+      "m1": {
+        "mcc": 0.8247,
+        "balanced_accuracy": 0.9245,
+        "brier_score": 0.0674,
+        "log_loss": 0.2903,
+        "auroc": 0.9587,
+        "auprc": 0.8208,
+        "sensitivity": 0.9259,
+        "specificity": 0.9231,
+        "false_negative_rate": 0.0741,
+        "false_positive_rate": 0.0769
+      },
+      "m2": {
+        "mcc": 0.3864,
+        "balanced_accuracy": 0.712,
+        "brier_score": 0.2216,
+        "log_loss": 0.6426,
+        "auroc": 0.7311,
+        "auprc": 0.4506,
+        "sensitivity": 0.7778,
+        "specificity": 0.6462,
+        "false_negative_rate": 0.2222,
+        "false_positive_rate": 0.3538
+      },
+      "adaptive": {
+        "mcc": 0.8247,
+        "balanced_accuracy": 0.9245,
+        "brier_score": 0.0673,
+        "log_loss": 0.2317,
+        "auroc": 0.9607,
+        "auprc": 0.8655,
+        "sensitivity": 0.9259,
+        "specificity": 0.9231,
+        "false_negative_rate": 0.0741,
+        "false_positive_rate": 0.0769
+      }
+    }
+  }
+}
