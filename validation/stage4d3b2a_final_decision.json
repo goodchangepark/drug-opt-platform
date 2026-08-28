@@ -1,0 +1,60 @@
+{
+  "endpoint": "safety_herg_blocker_prob",
+  "policy_version": "stage4d3b2a-herg-audit-v1",
+  "m1_model": {
+    "model_id": "admetica_safety_herg",
+    "role": "CORE",
+    "contribution_status": "CORE_PRIMARY"
+  },
+  "m2_model": {
+    "model_id": "physchem_herg_v1",
+    "role": "SHADOW_ONLY",
+    "contribution_status": "CALIBRATION_SUPPORTING"
+  },
+  "full_cohort_metrics_at_production_threshold": {
+    "n": 728,
+    "n_pos": 489,
+    "n_neg": 239,
+    "prevalence": 0.6717,
+    "threshold": 0.5,
+    "tp": 477,
+    "tn": 27,
+    "fp": 212,
+    "fn": 12,
+    "sensitivity": 0.9755,
+    "specificity": 0.113,
+    "balanced_accuracy": 0.5442,
+    "mcc": 0.1844,
+    "auroc": 0.6669,
+    "auprc": 0.7865,
+    "brier_score": 0.2745,
+    "log_loss": 1.6901,
+    "ece": 0.2651
+  },
+  "root_cause_analysis": {
+    "causes": [
+      "THRESHOLD",
+      "CALIBRATION",
+      "BASE_MODEL_DISCRIMINATION",
+      "CLASS_IMBALANCE",
+      "LABEL_BOUNDARY_UNCERTAINTY"
+    ],
+    "primary_cause": "THRESHOLD + CALIBRATION + BASE_MODEL_DISCRIMINATION + CLASS_IMBALANCE + LABEL_BOUNDARY_UNCERTAINTY",
+    "threshold_verdict": "UNCERTAIN",
+    "auroc_m1": 0.6669,
+    "specificity_at_0.5": 0.113,
+    "best_specificity_achievable_calibration": 0.5801,
+    "m2_rescue_rate": 0.0536,
+    "m2_series_wins": 1,
+    "training_vs_eval_prevalence_shift": 0.1882,
+    "borderline_ic50_fraction": 0.7294
+  },
+  "scientific_decision": "HERG_FIXED_BLEND_CANDIDATE",
+  "consensus_mode": "SHADOW",
+  "production_threshold": 0.5,
+  "threshold_recommendation": "KEEP_CURRENT_THRESHOLD",
+  "adaptive_weighting_gate": "NO_GO",
+  "adaptive_weighting_gate_reason": "M2 rescue rate 0.054 and series wins 1 insufficient to justify adaptive complexity",
+  "assay_heterogeneity": "ASSAY_HETEROGENEITY_PRESENT",
+  "assay_heterogeneity_detail": "Training labels pool patch-clamp and radioligand binding assays (Wang et al.). Assay type field not retained per row. Labels must be treated as heterogeneous screening liability, not a single standardized functional assay."
+}

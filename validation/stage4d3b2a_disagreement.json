@@ -1,0 +1,23 @@
+{
+  "endpoint": "safety_herg_blocker_prob",
+  "model_complementarity": {
+    "both_correct": 474,
+    "both_wrong": 212,
+    "m1_only_correct": 30,
+    "m2_only_correct": 12,
+    "m1_error_n": 224,
+    "m2_rescues_of_m1_errors": 12,
+    "m2_rescue_rate": 0.0536,
+    "high_disagree_n": 65,
+    "high_disagree_m1_brier": 0.2084,
+    "agree_m1_brier": 0.281,
+    "disagreement_percentiles": {
+      "p25": 0.0431,
+      "p50": 0.0798,
+      "p75": 0.1363,
+      "p90": 0.2648
+    }
+  },
+  "m2_rescue_rate": 0.0536,
+  "m2_role_assessment": "CALIBRATION_SUPPORTING"
+}
