@@ -1,0 +1,47 @@
+{
+  "stage": "4D-3A2",
+  "simulation_protocol": "20 independent pseudo-project trials per campaign size with strict cross-project isolation",
+  "campaign_evaluations": [
+    {
+      "campaign_size_n": 3,
+      "simulated_trials": 20,
+      "mean_m1_mae": 0.3754,
+      "mean_adaptive_mae": 0.3886,
+      "delta_mae": 0.0132,
+      "cross_project_isolation_verified": true
+    },
+    {
+      "campaign_size_n": 5,
+      "simulated_trials": 20,
+      "mean_m1_mae": 0.3928,
+      "mean_adaptive_mae": 0.3826,
+      "delta_mae": -0.0101,
+      "cross_project_isolation_verified": true
+    },
+    {
+      "campaign_size_n": 10,
+      "simulated_trials": 20,
+      "mean_m1_mae": 0.4977,
+      "mean_adaptive_mae": 0.5141,
+      "delta_mae": 0.0164,
+      "cross_project_isolation_verified": true
+    },
+    {
+      "campaign_size_n": 20,
+      "simulated_trials": 20,
+      "mean_m1_mae": 0.4087,
+      "mean_adaptive_mae": 0.4207,
+      "delta_mae": 0.012,
+      "cross_project_isolation_verified": true
+    },
+    {
+      "campaign_size_n": 30,
+      "simulated_trials": 20,
+      "mean_m1_mae": 0.3798,
+      "mean_adaptive_mae": 0.3881,
+      "delta_mae": 0.0083,
+      "cross_project_isolation_verified": true
+    }
+  ],
+  "isolation_verified": true
+}

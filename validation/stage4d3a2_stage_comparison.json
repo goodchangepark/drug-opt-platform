@@ -1,0 +1,36 @@
+{
+  "stage": "4D-3A2",
+  "audit_objective": "Reconciliation of Stage 4D-2C, Stage 4D-3A, and Stage 4D-3A2 metrics",
+  "model_identity_audit": {
+    "M1": {
+      "model_id": "admetica_solubility",
+      "version": "admetica-d4f7056-chemprop-v2.1",
+      "status": "IDENTICAL_ACROSS_ALL_STAGES"
+    },
+    "M2": {
+      "model_id": "esol_delaney_v1",
+      "version": "esol-delaney-2004-v1.0",
+      "status": "IDENTICAL_ACROSS_ALL_STAGES"
+    },
+    "M3": {
+      "model_id": "rdkit_gbr_solubility_v1",
+      "version": "rdkit-gbr-sol-v1.0",
+      "status": "IDENTICAL_ACROSS_ALL_STAGES"
+    }
+  },
+  "cohort_explanation": {
+    "Stage_4D_2C": {
+      "cohort_sampling": "Delaney training.csv first 250 rows (df.iloc[:250])",
+      "chemical_composition": "Clustered / 100% simple benzene and aryl derivatives",
+      "m1_mae": 0.3386,
+      "m2_mae": 0.6663
+    },
+    "Stage_4D_3A": {
+      "cohort_sampling": "Delaney training.csv random 250 sample (df.sample(n=250, random_state=42))",
+      "chemical_composition": "Broad chemotype diversity spanning 114 distinct scaffolds and acyclic clusters",
+      "m1_mae": 0.4159,
+      "m2_mae": 1.0992
+    },
+    "root_cause_summary": "Both stages use 100% identical deterministic models, standardizers, equations, and units (log10(mol/L)). The metric shift from 0.3386 to 0.4159 is entirely explained by dataset subset sampling (homogeneous aryl cluster vs representative full-spectrum diversity)."
+  }
+}

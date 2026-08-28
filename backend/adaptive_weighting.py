@@ -35,7 +35,7 @@ from backend.endpoint_contracts import get_endpoint_contract, EndpointContract
 from backend.multimodel import ExecutionStatus, ModelExecutionPayload
 
 
-ADAPTIVE_POLICY_VERSION = "stage4d3a-hierarchical-shrinkage-v1"
+ADAPTIVE_POLICY_VERSION = "stage4d3a2-evidence-reconciled-v1"
 
 # Frozen Global Prior Performance from Stage 4D-2C Audit (Delaney N=250)
 GLOBAL_SOLUBILITY_PRIOR_MAE: Dict[str, float] = {
@@ -49,7 +49,7 @@ DEFAULT_N_PRIOR_PROJECT = 10.0
 DEFAULT_N_PRIOR_SERIES = 5.0
 DEFAULT_N_PRIOR_LOCAL = 3.0
 DEFAULT_LOCAL_SIMILARITY_THRESHOLD = 0.40
-DEFAULT_BETA_ERROR_SCALING = 2.0
+DEFAULT_BETA_ERROR_SCALING = 3.0
 MINIMUM_WEIGHT_FLOOR = 0.02
 
 
@@ -200,13 +200,36 @@ _FP_GENERATOR = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
 
 @functools.lru_cache(maxsize=16384)
 def get_bemis_murcko_scaffold(smiles: str) -> str:
-    """Computes canonical Bemis-Murcko scaffold. Returns '[acyclic]' if no rings exist."""
+    """
+    Computes canonical Bemis-Murcko scaffold for ring-containing molecules.
+    For acyclic molecules (scaffold-less), partitions into deterministic
+    functional group chemical clusters to prevent artificial pooling.
+    """
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return "[unknown]"
         scaff = MurckoScaffold.MurckoScaffoldSmiles(mol=mol, includeChirality=False)
-        return scaff if scaff else "[acyclic]"
+        if scaff:
+            return scaff
+        
+        # Deterministic functional group chemical clustering for acyclic molecules
+        p_acid = Chem.MolFromSmarts("C(=O)[OH]")
+        p_ester = Chem.MolFromSmarts("C(=O)OC")
+        p_amide = Chem.MolFromSmarts("C(=O)N")
+        p_amine = Chem.MolFromSmarts("[NX3;H2,H1]")
+        p_alcohol = Chem.MolFromSmarts("[OX2H]")
+        p_halogen = Chem.MolFromSmarts("[F,Cl,Br,I]")
+
+        tags = []
+        if p_acid and mol.HasSubstructMatch(p_acid): tags.append("Acid")
+        if p_ester and mol.HasSubstructMatch(p_ester): tags.append("Ester")
+        if p_amide and mol.HasSubstructMatch(p_amide): tags.append("Amide")
+        if p_amine and mol.HasSubstructMatch(p_amine) and "Amide" not in tags: tags.append("Amine")
+        if p_alcohol and mol.HasSubstructMatch(p_alcohol) and "Acid" not in tags: tags.append("Alcohol")
+        if p_halogen and mol.HasSubstructMatch(p_halogen): tags.append("Halogenated")
+
+        return f"[acyclic_{'_'.join(tags) if tags else 'hydrocarbon'}]"
     except Exception:
         return "[unknown]"
 
@@ -231,8 +254,9 @@ def compute_tanimoto_similarity(fp1, fp2) -> float:
 
 
 def compute_error_score(mae: float, beta: float = DEFAULT_BETA_ERROR_SCALING) -> float:
-    """Transforms mean absolute error to bounded performance score: exp(-beta * MAE)."""
-    return float(math.exp(-beta * max(0.0, mae)))
+    """Transforms mean absolute error to bounded performance score: (1.0 / max(0.05, mae)) ** beta."""
+    safe_mae = max(0.05, float(mae))
+    return float((1.0 / safe_mae) ** beta)
 
 
 def compute_shrinkage_lambda(n_eff: float, n_prior: float) -> float:

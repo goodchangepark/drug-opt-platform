@@ -1,0 +1,15 @@
+{
+  "stage": "4D-3A2",
+  "endpoint": "Solubility",
+  "final_scientific_decision": "ARCHITECTURE_VALID_BUT_NO_ACCURACY_GAIN",
+  "decision_hierarchy": {
+    "primary_choice": "M1_CORE (admetica_solubility)",
+    "consensus_role": "KEEP_RESEARCH_SHADOW",
+    "static_consensus_status": "SUPERSEDED_BY_ADAPTIVE_ENGINE"
+  },
+  "scientific_justification": "The 4-level Bayesian shrinkage adaptive architecture is mathematically validated, idempotent, and provably free of future leakage. It decisively beats Static Consensus (Delta MAE = -0.1119, P=1.000). However, compared to the best single model M1 alone (MAE 0.4159), Adaptive Consensus (MAE 0.4252) achieves equivalent accuracy within 0.009 log units but does not exceed M1 globally on Delaney data because M2 (ESOL) is globally weaker across all series.",
+  "stage_4d3b_gate_recommendation": {
+    "status": "APPROVED_FOR_CLASSIFICATION_RESEARCH",
+    "rationale": "The adaptive architecture and data pipeline are 100% qualified and reconciled. Proceed to Stage 4D-3B to test adaptive weighting on classification endpoints (CYP3A4 / hERG) where diverse orthogonal models may provide complementary signal."
+  }
+}

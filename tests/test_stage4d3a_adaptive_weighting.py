@@ -60,13 +60,13 @@ def client():
 def test_global_prior_calculation():
     """Verify global error score calculation and normalization."""
     # Admetica (0.3386) vs ESOL (0.6663)
-    s1 = compute_error_score(0.3386, beta=2.0)
-    s2 = compute_error_score(0.6663, beta=2.0)
+    s1 = compute_error_score(0.3386, beta=3.0)
+    s2 = compute_error_score(0.6663, beta=3.0)
     assert s1 > s2
     w1 = s1 / (s1 + s2)
     w2 = s2 / (s1 + s2)
-    assert 0.60 < w1 < 0.70
-    assert 0.30 < w2 < 0.40
+    assert 0.85 < w1 < 0.92
+    assert 0.08 < w2 < 0.15
     assert abs((w1 + w2) - 1.0) < 1e-6
 
 
@@ -124,8 +124,8 @@ def test_zero_data_fallback():
 
     w1 = res.effective_weights["admetica_solubility"]
     w2 = res.effective_weights["esol_delaney_v1"]
-    assert 0.60 < w1 < 0.70
-    assert 0.30 < w2 < 0.40
+    assert 0.85 < w1 < 0.92
+    assert 0.08 < w2 < 0.15
 
 
 def test_scaffold_series_extraction():
@@ -134,7 +134,7 @@ def test_scaffold_series_extraction():
     assert scaff_asp == "c1ccccc1"
 
     scaff_acyclic = get_bemis_murcko_scaffold("CCCCCC(=O)O")
-    assert scaff_acyclic == "[acyclic]"
+    assert scaff_acyclic == "[acyclic_Acid]"
 
     scaff_biphenyl = get_bemis_murcko_scaffold("c1ccc(-c2ccccc2)cc1")
     assert "c1ccc" in scaff_biphenyl
