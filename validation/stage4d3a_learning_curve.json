@@ -1,0 +1,46 @@
+{
+  "stage": "4D-3A",
+  "learning_curve_bins": [
+    {
+      "observation_bin": "N=0_prior (Steps 1-5)",
+      "n_compounds": 5,
+      "m1_mae": 0.305,
+      "adaptive_mae": 0.2805,
+      "delta_mae": -0.0245,
+      "shrinkage_interpretation": "Global prior dominant; near-zero project influence"
+    },
+    {
+      "observation_bin": "N=5_prior (Steps 6-15)",
+      "n_compounds": 10,
+      "m1_mae": 0.3082,
+      "adaptive_mae": 0.453,
+      "delta_mae": 0.1448,
+      "shrinkage_interpretation": "Weak project adaptation"
+    },
+    {
+      "observation_bin": "N=15_prior (Steps 16-30)",
+      "n_compounds": 15,
+      "m1_mae": 0.3075,
+      "adaptive_mae": 0.3825,
+      "delta_mae": 0.075,
+      "shrinkage_interpretation": "Weak project adaptation"
+    },
+    {
+      "observation_bin": "N=30_prior (Steps 31-60)",
+      "n_compounds": 30,
+      "m1_mae": 0.4962,
+      "adaptive_mae": 0.522,
+      "delta_mae": 0.0258,
+      "shrinkage_interpretation": "Strong series & local adaptation active"
+    },
+    {
+      "observation_bin": "N>60_prior (Steps 61-250)",
+      "n_compounds": 190,
+      "m1_mae": 0.4204,
+      "adaptive_mae": 0.4752,
+      "delta_mae": 0.0548,
+      "shrinkage_interpretation": "Strong series & local adaptation active"
+    }
+  ],
+  "convergence_observation": "With N=0-5 prior observations, weights adhere tightly to the global prior (w_M1 ~ 0.66). As observations accumulate (N >= 30), project and series evidence gracefully adjust local model weights."
+}

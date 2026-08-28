@@ -1,0 +1,37 @@
+{
+  "stage": "4D-3A",
+  "policy_version": "stage4d3a-hierarchical-shrinkage-v1",
+  "endpoint": "EP_PHYS_SOLUBILITY",
+  "canonical_unit": "log10(mol/L)",
+  "models": {
+    "M1": {
+      "model_id": "admetica_solubility",
+      "role": "CORE",
+      "global_prior_mae": 0.3386
+    },
+    "M2": {
+      "model_id": "esol_delaney_v1",
+      "role": "SHADOW_ONLY",
+      "global_prior_mae": 0.6663
+    },
+    "M3": {
+      "model_id": "rdkit_gbr_solubility_v1",
+      "role": "ADAPTIVE_RESEARCH",
+      "global_prior_mae": 0.734
+    }
+  },
+  "shrinkage_parameters": {
+    "n_prior_project": 10.0,
+    "n_prior_series": 5.0,
+    "n_prior_local": 3.0,
+    "similarity_threshold": 0.4,
+    "beta_error_scaling": 2.0,
+    "minimum_weight_floor": 0.02
+  },
+  "applicability_domain_scaling": {
+    "IN_DOMAIN": 1.0,
+    "BORDERLINE": 0.5,
+    "OUT_OF_DOMAIN": 0.1
+  },
+  "consensus_mode": "SHADOW"
+}

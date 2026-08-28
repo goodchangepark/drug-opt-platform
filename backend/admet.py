@@ -101,6 +101,7 @@ def ensure_admet_schema(engine):
             ADMETEndpoint.__table__, ADMETAssayDefinition.__table__, ADMETMeasurement.__table__,
             ADMETModelRegistry.__table__, ADMETPredictionRun.__table__, ADMETPrediction.__table__,
             ADMETConsensusPrediction.__table__, ADMETModelComparison.__table__, ADMETModelPerformance.__table__,
+            ADMETExperimentalFeedbackEvent.__table__, ADMETAdaptivePrediction.__table__,
         ],
     )
     with engine.begin() as connection:
@@ -379,6 +380,47 @@ class ADMETModelPerformance(Base):
     performance_factor: Mapped[float] = mapped_column(Float, default=1.0)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     __table_args__ = (UniqueConstraint("scope_key", "model_id", name="uq_admet_model_performance_scope"),)
+
+
+class ADMETExperimentalFeedbackEvent(Base):
+    """Immutable experimental feedback event for prospective adaptive weighting."""
+    __tablename__ = "admet_experimental_feedback_events"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    event_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    endpoint_name: Mapped[str] = mapped_column(String(120), index=True)
+    experiment_id: Mapped[int | None] = mapped_column(ForeignKey("admet_measurements.id", ondelete="SET NULL"), nullable=True, index=True)
+    experimental_value: Mapped[float] = mapped_column(Float)
+    experimental_unit: Mapped[str] = mapped_column(String(40), default="log10(mol/L)")
+    assay_quality: Mapped[str] = mapped_column(String(40), default="USABLE")
+    scaffold_smiles: Mapped[str] = mapped_column(Text, default="")
+    frozen_predictions_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    model_errors_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    is_valid: Mapped[bool] = mapped_column(default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    version = relationship("CompoundVersion")
+
+
+class ADMETAdaptivePrediction(Base):
+    """Shadow adaptive consensus prediction with complete hierarchical provenance."""
+    __tablename__ = "admet_adaptive_predictions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    endpoint_name: Mapped[str] = mapped_column(String(120), index=True)
+    policy_version: Mapped[str] = mapped_column(String(60), default="stage4d3a-hierarchical-shrinkage-v1")
+    consensus_mode: Mapped[str] = mapped_column(String(30), default="SHADOW")
+    predicted_value: Mapped[float] = mapped_column(Float)
+    model_disagreement: Mapped[float] = mapped_column(Float, default=0.0)
+    effective_weights_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    weights_breakdown_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    sample_counts_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    series_info_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    reason_codes_json: Mapped[list] = mapped_column(JSON, default=list)
+    warnings_json: Mapped[list] = mapped_column(JSON, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    version = relationship("CompoundVersion")
+    __table_args__ = (UniqueConstraint("version_id", "endpoint_name", "policy_version", name="uq_admet_adaptive_prediction_version"),)
 
 
 def measurement_out(row: ADMETMeasurement):

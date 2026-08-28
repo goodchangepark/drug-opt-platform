@@ -1,0 +1,58 @@
+{
+  "stage": "4D-3A",
+  "evaluated_scaffolds": [
+    {
+      "scaffold_smiles": "[acyclic]",
+      "scaffold_label": "Acyclic",
+      "n_compounds": 73,
+      "m1_mae": 0.5297,
+      "m2_mae": 1.4654,
+      "m3_mae": 1.5938,
+      "adaptive_mae": 0.599,
+      "adaptive_3m_mae": 0.6863,
+      "delta_mae_vs_m1": 0.0693,
+      "dominant_model": "M1 (Admetica)",
+      "m3_added_value": false
+    },
+    {
+      "scaffold_smiles": "c1ccccc1",
+      "scaffold_label": "Benzene / Simple Aryl",
+      "n_compounds": 48,
+      "m1_mae": 0.315,
+      "m2_mae": 0.5875,
+      "m3_mae": 0.6327,
+      "adaptive_mae": 0.355,
+      "adaptive_3m_mae": 0.4047,
+      "delta_mae_vs_m1": 0.0399,
+      "dominant_model": "M1 (Admetica)",
+      "m3_added_value": false
+    },
+    {
+      "scaffold_smiles": "c1ccc(-c2ccccc2)cc1",
+      "scaffold_label": "Scaffold_c1ccc(-c2ccc",
+      "n_compounds": 6,
+      "m1_mae": 0.2257,
+      "m2_mae": 1.1212,
+      "m3_mae": 0.8189,
+      "adaptive_mae": 0.3911,
+      "adaptive_3m_mae": 0.4633,
+      "delta_mae_vs_m1": 0.1654,
+      "dominant_model": "M1 (Admetica)",
+      "m3_added_value": false
+    },
+    {
+      "scaffold_smiles": "c1ccc(Oc2ccccc2)cc1",
+      "scaffold_label": "Scaffold_c1ccc(Oc2ccc",
+      "n_compounds": 5,
+      "m1_mae": 0.1013,
+      "m2_mae": 0.985,
+      "m3_mae": 0.6278,
+      "adaptive_mae": 0.1967,
+      "adaptive_3m_mae": 0.2513,
+      "delta_mae_vs_m1": 0.0954,
+      "dominant_model": "M1 (Admetica)",
+      "m3_added_value": false
+    }
+  ],
+  "m3_conclusion": "M3 (RDKit GBR) did not provide statistically significant improvement in any evaluated series over M1+M2. M3 is classified as ADAPTIVE_EXCLUDED for production adaptation."
+}

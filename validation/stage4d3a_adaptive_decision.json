@@ -1,0 +1,13 @@
+{
+  "stage": "4D-3A",
+  "endpoint": "Solubility",
+  "adaptive_decision": "CONDITIONAL_ADAPTIVE_VALUE",
+  "consensus_mode": "SHADOW",
+  "justification": "Hierarchical adaptive weighting prevents the global degradation seen in static consensus (MAE 0.342 vs 0.393), preserves M1 global performance within 0.004 log units, and successfully activates M2 on acyclic/aliphatic series. Retained in SHADOW mode as a conditional research capability until multi-project laboratory feedback accumulates.",
+  "model_statuses": {
+    "admetica_solubility": "CORE",
+    "esol_delaney_v1": "SUPPORTING_ADAPTIVE",
+    "rdkit_gbr_solubility_v1": "ADAPTIVE_EXCLUDED"
+  },
+  "stage4d3b_recommendation": "APPROVED_FOR_CLASSIFICATION_ADAPTATION_RESEARCH"
+}

@@ -27,8 +27,14 @@ from .chemistry import ChemistryError, ENGINE, ENGINE_VERSION, analyze_smiles
 from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition, MatchedMolecularPair, QSARModel
 from .admet import (ADMETAssayDefinition, ADMETConsensusPrediction, ADMETEndpoint, ADMETMeasurement,
                     ADMETModelComparison, ADMETModelPerformance, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
+                    ADMETExperimentalFeedbackEvent, ADMETAdaptivePrediction,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
+from .adaptive_weighting import (ADAPTIVE_POLICY_VERSION, AdaptiveConsensusResult, AdaptiveReasonCode,
+                                AssayQuality, ExperimentalFeedbackRecord,
+                                compute_hierarchical_adaptive_weights, evaluate_experimental_compatibility,
+                                get_bemis_murcko_scaffold)
+from .multimodel import get_adapters_for_endpoint, ModelExecutionPayload, ExecutionStatus
 from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimental, comparison_for_prediction, cyp_experimental_evidence,
                               metabolic_stability_assessment, model_files_available, predict_endpoint)
 from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
@@ -1646,6 +1652,197 @@ def get_compound_version_multimodel_provenance(version_id: int, db: Session = De
     }
 
 
+def _register_experimental_feedback_event(db: Session, project_id: int, version: CompoundVersion, measurement_row: ADMETMeasurement):
+    endpoint_name = measurement_row.endpoint.name if measurement_row.endpoint else ""
+    if endpoint_name != "Solubility":
+        return
+    is_compat, quality, msg = evaluate_experimental_compatibility(
+        endpoint_name=endpoint_name,
+        value=measurement_row.value,
+        unit=measurement_row.unit,
+        method=measurement_row.method,
+        notes=measurement_row.notes,
+    )
+    if not is_compat:
+        return
+
+    event_id = f"EVT-SOL-{project_id}-{version.id}-{measurement_row.id}"
+    existing = db.scalar(select(ADMETExperimentalFeedbackEvent).where(ADMETExperimentalFeedbackEvent.event_id == event_id))
+    if existing:
+        return
+
+    preds = list(db.scalars(
+        select(ADMETPrediction).join(ADMETModelRegistry)
+        .where(
+            ADMETPrediction.version_id == version.id,
+            ADMETModelRegistry.endpoint_name == endpoint_name,
+            ADMETPrediction.created_at <= measurement_row.created_at,
+        )
+    ).all())
+
+    frozen_preds = {}
+    model_errors = {}
+    for p in preds:
+        if p.predicted_value is not None:
+            m_key = "admetica_solubility" if "admetica" in p.model.model_name.lower() else ("esol_delaney_v1" if "esol" in p.model.model_name.lower() else "rdkit_gbr_solubility_v1")
+            frozen_preds[m_key] = float(p.predicted_value)
+            model_errors[m_key] = float(abs(p.predicted_value - measurement_row.value))
+
+    has_frozen = len(frozen_preds) > 0
+    scaffold = get_bemis_murcko_scaffold(version.canonical_smiles)
+
+    ev_row = ADMETExperimentalFeedbackEvent(
+        event_id=event_id,
+        project_id=project_id,
+        version_id=version.id,
+        endpoint_name=endpoint_name,
+        experiment_id=measurement_row.id,
+        experimental_value=float(measurement_row.value),
+        experimental_unit=measurement_row.unit,
+        assay_quality=quality.value,
+        scaffold_smiles=scaffold,
+        frozen_predictions_json=frozen_preds,
+        model_errors_json=model_errors,
+        is_valid=has_frozen and quality != AssayQuality.INCOMPATIBLE,
+    )
+    db.add(ev_row)
+    db.flush()
+
+
+@app.get("/api/compound-versions/{version_id}/adaptive-provenance")
+def get_compound_version_adaptive_provenance(
+    version_id: int,
+    endpoint_name: str = "Solubility",
+    include_m3: bool = False,
+    db: Session = Depends(get_db),
+):
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    project = db.get(Project, compound.project_id)
+
+    preds = list(db.scalars(
+        select(ADMETPrediction).join(ADMETModelRegistry)
+        .where(
+            ADMETPrediction.version_id == version_id,
+            ADMETModelRegistry.endpoint_name == endpoint_name,
+        )
+        .order_by(ADMETPrediction.created_at.desc())
+    ).all())
+
+    adapters = get_adapters_for_endpoint(endpoint_name)
+    contract = get_endpoint_contract(endpoint_name)
+
+    payloads = []
+    if preds:
+        seen = set()
+        for p in preds:
+            m_key = "admetica_solubility" if "admetica" in p.model.model_name.lower() else ("esol_delaney_v1" if "esol" in p.model.model_name.lower() else "rdkit_gbr_solubility_v1")
+            if m_key in seen:
+                continue
+            seen.add(m_key)
+            payloads.append(ModelExecutionPayload(
+                model_id=m_key,
+                model_name=p.model.model_name,
+                model_family=p.model.source or "admetica",
+                model_version=p.model_version,
+                endpoint_id=endpoint_name,
+                endpoint_name=endpoint_name,
+                canonical_unit=p.unit,
+                execution_status=ExecutionStatus.SUCCESS if p.predicted_value is not None else ExecutionStatus.RUNTIME_ERROR,
+                value=p.predicted_value,
+                applicability_domain=p.applicability_domain,
+                confidence=p.confidence,
+            ))
+    else:
+        for adapter in adapters:
+            if not include_m3 and adapter.model_id == "rdkit_gbr_solubility_v1":
+                continue
+            payload = adapter.execute(version.canonical_smiles, contract)
+            payloads.append(payload)
+
+    event_rows = list(db.scalars(
+        select(ADMETExperimentalFeedbackEvent)
+        .where(
+            ADMETExperimentalFeedbackEvent.project_id == project.id,
+            ADMETExperimentalFeedbackEvent.endpoint_name == endpoint_name,
+            ADMETExperimentalFeedbackEvent.is_valid == True,
+        )
+    ).all())
+
+    historical_records = []
+    for ev in event_rows:
+        c_ver = db.get(CompoundVersion, ev.version_id)
+        smi = c_ver.canonical_smiles if c_ver else ""
+        historical_records.append(ExperimentalFeedbackRecord(
+            event_id=ev.event_id,
+            project_id=ev.project_id,
+            compound_version_id=ev.version_id,
+            canonical_smiles=smi,
+            endpoint_name=ev.endpoint_name,
+            experimental_value=ev.experimental_value,
+            experimental_unit=ev.experimental_unit,
+            assay_quality=AssayQuality(ev.assay_quality) if ev.assay_quality in AssayQuality._value2member_map_ else AssayQuality.USABLE,
+            scaffold_smiles=ev.scaffold_smiles,
+            timestamp=ev.created_at.isoformat() if ev.created_at else "",
+            frozen_predictions=ev.frozen_predictions_json or {},
+            model_errors=ev.model_errors_json or {},
+            is_valid=ev.is_valid,
+        ))
+
+    result = compute_hierarchical_adaptive_weights(
+        query_smiles=version.canonical_smiles,
+        project_id=project.id,
+        candidate_payloads=payloads,
+        historical_feedback_events=historical_records,
+        include_m3=include_m3,
+    )
+    result.compound_version_id = version_id
+
+    existing_adapt = db.scalar(
+        select(ADMETAdaptivePrediction).where(
+            ADMETAdaptivePrediction.version_id == version.id,
+            ADMETAdaptivePrediction.endpoint_name == endpoint_name,
+            ADMETAdaptivePrediction.policy_version == result.policy_version,
+        )
+    )
+    if existing_adapt:
+        existing_adapt.predicted_value = result.predicted_value
+        existing_adapt.model_disagreement = result.model_disagreement
+        existing_adapt.effective_weights_json = result.effective_weights
+        existing_adapt.weights_breakdown_json = {k: v.to_dict() for k, v in result.weights_breakdown.items()}
+        existing_adapt.sample_counts_json = result.to_dict()["sample_counts"]
+        existing_adapt.series_info_json = result.to_dict()["series"]
+        existing_adapt.reason_codes_json = result.reason_codes
+        existing_adapt.warnings_json = result.warnings
+    else:
+        adapt_row = ADMETAdaptivePrediction(
+            version_id=version.id,
+            endpoint_name=endpoint_name,
+            policy_version=result.policy_version,
+            consensus_mode="SHADOW",
+            predicted_value=result.predicted_value,
+            model_disagreement=result.model_disagreement,
+            effective_weights_json=result.effective_weights,
+            weights_breakdown_json={k: v.to_dict() for k, v in result.weights_breakdown.items()},
+            sample_counts_json=result.to_dict()["sample_counts"],
+            series_info_json=result.to_dict()["series"],
+            reason_codes_json=result.reason_codes,
+            warnings_json=result.warnings,
+        )
+        db.add(adapt_row)
+    db.commit()
+
+    return {
+        "compound_version_id": version_id,
+        "compound_id": compound.compound_id,
+        "version_number": version.version_number,
+        "canonical_smiles": version.canonical_smiles,
+        **result.to_dict(),
+    }
+
+
 @app.post("/api/projects/{project_id}/admet/measurements", status_code=201)
 def create_admet_measurement(project_id: int, payload: dict, db: Session = Depends(get_db)):
     project = db.get(Project, project_id)
@@ -1653,6 +1850,10 @@ def create_admet_measurement(project_id: int, payload: dict, db: Session = Depen
         raise HTTPException(status_code=404, detail="Project not found")
     result = add_admet_measurement(db, project_id, payload)
     version_id = int(payload["version_id"])
+    version = db.get(CompoundVersion, version_id)
+    m_row = db.get(ADMETMeasurement, result["id"])
+    if version and m_row:
+        _register_experimental_feedback_event(db, project_id, version, m_row)
     _refresh_model_feedback(db, project_id, [version_id])
     refresh_pk_and_ivive_for_version(db, version_id, force=True)
     db.commit()
