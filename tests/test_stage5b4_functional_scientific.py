@@ -105,33 +105,72 @@ def test_pk_simulation_normalized_dose_and_routes():
 def test_two_compound_comparison_api_expanded_fields():
     """Verify two-compound comparison API includes ADME, Metabolism, and PK metrics."""
     with SessionLocal() as db:
-        proj = db.query(Project).first()
-        compounds = db.query(Compound).filter(Compound.project_id == proj.id).all()
-        assert len(compounds) >= 2, "Project must have at least 2 compounds for comparison test"
-        c1, c2 = compounds[0], compounds[1]
+        proj = Project(name="Comparison Test Project Dedicated", target="EGFR", molecule_type="Small Molecule")
+        db.add(proj)
+        db.commit()
+        db.refresh(proj)
+        
+        c1 = Compound(project_id=proj.id, compound_id="CMPD_COMP_1", name="Gefitinib", status="STRUCTURE_READY")
+        c2 = Compound(project_id=proj.id, compound_id="CMPD_COMP_2", name="Erlotinib", status="STRUCTURE_READY")
+        db.add_all([c1, c2])
+        db.commit()
+        
+        v1 = CompoundVersion(
+            compound_row_id=c1.id,
+            version_number=1,
+            original_smiles="COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1",
+            canonical_smiles="COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1",
+            isomeric_smiles="COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1",
+            inchi="InChI=1S/C22H24ClFN4O3",
+            inchikey="XGALLCVXEZPNRV-UHFFFAOYSA-N"
+        )
+        v2 = CompoundVersion(
+            compound_row_id=c2.id,
+            version_number=1,
+            original_smiles="COCCOc1cc2c(cc1OCCOC)ncnc2Nc1cccc(c1)C#C",
+            canonical_smiles="COCCOc1cc2c(cc1OCCOC)ncnc2Nc1cccc(c1)C#C",
+            isomeric_smiles="COCCOc1cc2c(cc1OCCOC)ncnc2Nc1cccc(c1)C#C",
+            inchi="InChI=1S/C22H23N3O4",
+            inchikey="AAHAUSGZVGZGBF-UHFFFAOYSA-N"
+        )
+        db.add_all([v1, v2])
+        db.commit()
+        
+        from backend.main import run_compound_prediction_workflow
+        run_compound_prediction_workflow(c1.id, db)
+        run_compound_prediction_workflow(c2.id, db)
+        
+        c1_id, c2_id, proj_id = c1.id, c2.id, proj.id
 
-    resp = client.get(f"/api/projects/{proj.id}/compare?ids={c1.id},{c2.id}")
-    assert resp.status_code == 200
-    data = resp.json()
+    try:
+        resp = client.get(f"/api/projects/{proj_id}/compare?ids={c1_id},{c2_id}")
+        assert resp.status_code == 200
+        data = resp.json()
 
-    # Check metrics
-    metrics = data["metrics"]
-    # Properties
-    assert "MW" in metrics and "cLogP" in metrics and "TPSA" in metrics and "QED" in metrics
-    # ADME
-    assert "Solubility" in metrics and "Caco-2" in metrics and "PPB" in metrics and "fu" in metrics
-    # Metabolism
-    assert "HLM" in metrics and "RLM" in metrics and "MLM" in metrics and "DLM" in metrics and "CyLM" in metrics
-    assert "CYP3A4 Inh" in metrics and "Soft Spots" in metrics
-    # PK
-    assert "Mouse CL (IV)" in metrics and "Rat CL (IV)" in metrics and "Human CL (IVIVE)" in metrics
-    assert "Human Vd (pred)" in metrics and "Human t1/2 (pred)" in metrics and "Human AUC (1mg/kg IV)" in metrics
+        # Check metrics
+        metrics = data["metrics"]
+        # Properties
+        assert "MW" in metrics and "cLogP" in metrics and "TPSA" in metrics and "QED" in metrics
+        # ADME
+        assert "Solubility" in metrics and "Caco-2" in metrics and "PPB" in metrics and "fu" in metrics
+        # Metabolism
+        assert "HLM" in metrics and "RLM" in metrics and "MLM" in metrics and "DLM" in metrics and "CyLM" in metrics
+        assert "CYP3A4 Inh" in metrics and "Soft Spots" in metrics
+        # PK
+        assert "Mouse CL (IV)" in metrics and "Rat CL (IV)" in metrics and "Human CL (IVIVE)" in metrics
+        assert "Human Vd (pred)" in metrics and "Human t1/2 (pred)" in metrics and "Human AUC (1mg/kg IV)" in metrics
 
-    # Check compound entries
-    for cmpd in data["compounds"]:
-        assert cmpd["MW"] is not None
-        assert cmpd["cLogP"] is not None
-        assert cmpd["sources"]["DLM"] == "MODEL_UNAVAILABLE"
-        assert cmpd["sources"]["CyLM"] == "MODEL_UNAVAILABLE"
-        assert cmpd["Rat CL (IV)"] is not None
-        assert cmpd["Human CL (IVIVE)"] is not None
+        # Check compound entries
+        for cmpd in data["compounds"]:
+            assert cmpd["MW"] is not None
+            assert cmpd["cLogP"] is not None
+            assert cmpd["sources"]["DLM"] == "MODEL_UNAVAILABLE"
+            assert cmpd["sources"]["CyLM"] == "MODEL_UNAVAILABLE"
+            assert cmpd["Rat CL (IV)"] is not None
+            assert cmpd["Human CL (IVIVE)"] is not None
+    finally:
+        with SessionLocal() as db:
+            p_del = db.get(Project, proj_id)
+            if p_del:
+                db.delete(p_del)
+                db.commit()

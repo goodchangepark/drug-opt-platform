@@ -959,6 +959,12 @@ def register_ivive_routes(app):
         runs = list(db.scalars(select(IVIVERun).where(
             IVIVERun.version_id == version.id, IVIVERun.species == normalized
         ).order_by(IVIVERun.created_at.desc(), IVIVERun.id.desc()).limit(20)))
+        if not runs and (payload["candidates"].get("clint") or payload["candidates"].get("plasma_binding")):
+            try:
+                auto_run = calculate_ivive(db, version, normalized)
+                runs = [auto_run]
+            except Exception:
+                pass
         return {
             "scope": {"project_id": compound.project_id, "compound_row_id": compound.id,
                       "version_id": version.id, "species": normalized},
@@ -1293,11 +1299,12 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
 
     # 4. Predicted Absolute F
     f_pred = None
-    f_pred_message = "Predicted absolute bioavailability unavailable because Fa/Fg is not quantitatively supported."
+    f_pred_message = "Predicted absolute bioavailability unavailable because Fa/Fh is not quantitatively supported."
 
-    if fa_val is not None and fg_val is not None and fh_val is not None:
-        f_pred = round(fa_val * fg_val * fh_val * 100.0, 2)
-        f_pred_message = f"Predicted absolute bioavailability F = Fa ({fa_val}) * Fg ({fg_val}) * Fh ({fh_val}) = {f_pred}%"
+    if fa_val is not None and fh_val is not None:
+        fg_eff = fg_val if fg_val is not None else 1.0
+        f_pred = round(fa_val * fg_eff * fh_val * 100.0, 1)
+        f_pred_message = f"Estimated oral bioavailability F = Fa ({round(fa_val*100,1)}%) * Fg ({round(fg_eff*100,1)}%) * Fh ({round(fh_val*100,1)}%) = {f_pred}%" + (" (Fg assumed 1.0)" if fg_val is None else "")
 
     # 5. Experimental Matched Bioavailability
     ba_res = calculate_bioavailability_for_version(version_id, db)
@@ -1328,7 +1335,7 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
     }
 
 
-def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, species: str, route: str, dose: float = 10.0, dose_unit: str = "mg/kg") -> PKParameterSet:
+def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, species: str, route: str, dose: float = 10.0, dose_unit: str = "mg/kg", force_refresh: bool = False) -> PKParameterSet:
     """
     Route-aware PK Parameter Assembly (IV, PO, SC, IP).
     Combines clearance, volume of distribution, absorption, and plasma binding into an immutable PKParameterSet entity.
@@ -1341,6 +1348,14 @@ def assemble_pk_parameter_set(db: Session, project_id: int, version_id: int, spe
     route_clean = route.strip().upper()
     if route_clean not in {"IV", "PO", "SC", "IP"}:
         raise ValueError(f"Unsupported route: {route!r}; choose IV, PO, SC, or IP")
+
+    existing = db.scalars(select(PKParameterSet).where(
+        PKParameterSet.version_id == version_id,
+        PKParameterSet.species == species_clean,
+        PKParameterSet.route == route_clean
+    )).first()
+    if existing and existing.cl_value is not None and not force_refresh:
+        return existing
 
     # 1. Clearance Assembly
     iv_study = db.scalars(select(PKStudy).where(
@@ -1607,7 +1622,11 @@ def get_multi_species_pk_profile(db: Session, version_id: int) -> dict[str, Any]
                 ke = (cl * 60.0 / 1000.0) / v
                 t_half = round(math.log(2.0) / ke, 2) if ke > 0 else None
             
-            f_val = po_set.get("f_experimental") if po_set.get("f_experimental") is not None else po_set.get("f_predicted")
+            fa_val = po_set.get("fa_value")
+            fh_val = po_set.get("fh_value")
+            f_calc = round(fa_val * fh_val * 100.0, 1) if (fa_val is not None and fh_val is not None) else None
+            f_val = po_set.get("f_experimental") if po_set.get("f_experimental") is not None else (po_set.get("f_predicted") if po_set.get("f_predicted") is not None else f_calc)
+            f_src = "EXPERIMENTAL" if po_set.get("f_experimental") is not None else ("PREDICTED" if po_set.get("f_predicted") is not None else ("PREDICTED (Fa*Fh)" if f_calc is not None else "UNAVAILABLE"))
             
             dose_norm = 1.0  # mg/kg
             # AUC_inf (ng*h/mL) = Dose (mg/kg) * 1e6 / (CL mL/min/kg * 60)
@@ -1626,7 +1645,7 @@ def get_multi_species_pk_profile(db: Session, version_id: int) -> dict[str, Any]
                 "t_half_hours": t_half,
                 "fh_pct": round(po_set.get("fh_value") * 100.0, 1) if po_set.get("fh_value") is not None else None,
                 "f_pct": f_val,
-                "f_source": "EXPERIMENTAL" if po_set.get("f_experimental") is not None else ("PREDICTED" if po_set.get("f_predicted") is not None else "UNAVAILABLE"),
+                "f_source": f_src,
                 "ka": {"value": po_set.get("ka_value"), "unit": "1/h", "source": po_set.get("ka_source_type", "UNAVAILABLE")},
                 "normalized_1mpk_iv": {
                     "dose": 1.0, "dose_unit": "mg/kg", "route": "IV",

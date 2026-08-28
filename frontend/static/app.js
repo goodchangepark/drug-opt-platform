@@ -20,7 +20,12 @@ function Field({label,value,onChange,type='text',placeholder=''}){
  if(tag==='input')props.type=type;
  return e('div',{},e('label',{},label),e(tag,props));
 }
-function Svg({src}){if(!src)return e('div',{className:'structure-placeholder'},'No structure saved');return src.startsWith('data:')?e('img',{src,alt:'structure'}):e('span',{className:'structure',dangerouslySetInnerHTML:{__html:src}})}
+function Svg({src}){
+ if(!src)return e('div',{className:'structure-placeholder'},'No structure saved');
+ return src.startsWith('data:')
+  ?e('span',{className:'structure'},e('img',{src,alt:'structure'}))
+  :e('span',{className:'structure',dangerouslySetInnerHTML:{__html:src}});
+}
 function Badge({ok,text}){return e('span',{className:ok?'pass':'fail'},text)}
 function Empty({children}){return e('p',{className:'small'},children)}
 
@@ -53,7 +58,7 @@ const EXPERIMENT_PRESETS={
 const EMPTY_EXPERIMENT={value:'',unit:'',species:'Human',measurement:'',assay:'',role:'Inhibition',isoform:'3A4',transporter:'P-gp',matrix:'',pH:'7.4',medium:'',solubility_type:'Thermodynamic',source:'User experimental',notes:'',assay_id:'',pka_type:'macroscopic',method:'Potentiometric titration',temperature_c:'25.0',ionic_strength_m:'0.15'};
 
 function StatusBadge({type}){
- const labels={Experimental:'EXP',Calculated:'CALC',Predicted:'PRED','Not calculated':'NOT CALCULATED','Not measured':'NOT MEASURED','Not predicted':'NOT PREDICTED','Model unavailable':'MODEL UNAVAILABLE','Not applicable':'NOT APPLICABLE',DRAFT:'DRAFT',STRUCTURE_READY:'STRUCTURE READY',CALCULATED:'CALCULATED',READY:'READY',LIMITED:'LIMITED',MODEL_UNAVAILABLE:'MODEL UNAVAILABLE',PLANNED:'PLANNED',PARTIAL:'PARTIAL',NOT_STARTED:'NOT STARTED',NOT_RUN:'NOT RUN',EXPERIMENTAL:'EXPERIMENTAL',PREDICTED:'PREDICTED',TRANSLATIONAL:'TRANSLATIONAL'};
+ const labels={Experimental:'EXP',Calculated:'CALC',Predicted:'PRED','Not calculated':'NOT CALCULATED','Not measured':'NOT MEASURED','Not predicted':'NOT PREDICTED','Model unavailable':'MODEL UNAVAILABLE','Not applicable':'NOT APPLICABLE',DRAFT:'DRAFT',STRUCTURE_READY:'STRUCTURE READY',CALCULATED:'CALCULATED',READY:'READY',LIMITED:'LIMITED',MODEL_UNAVAILABLE:'MODEL UNAVAILABLE',UNAVAILABLE:'MODEL UNAVAILABLE',PLANNED:'PLANNED',PARTIAL:'PARTIAL',NOT_STARTED:'NOT STARTED',NOT_RUN:'NOT RUN',EXPERIMENTAL:'EXPERIMENTAL',PREDICTED:'PREDICTED',TRANSLATIONAL:'TRANSLATIONAL',EXPERIMENTAL_NCA:'EXPERIMENTAL NCA',HEPATIC_IVIVE:'HEPATIC IVIVE',HEPATIC_IVIVE_APPARENT:'IVIVE APPARENT',PREDICTED_VD:'PREDICTED VD'};
  return e('span',{className:'status-badge status-'+String(type||'not-applicable').toLowerCase().replace(/[^a-z]+/g,'-')},labels[type]||type||'NOT APPLICABLE');
 }
 
@@ -433,10 +438,11 @@ function App(){
   setIviveData(data);return data;
  };
  const loadWorkspace=async versionId=>{
-  if(!versionId){setWorkspace(null);setAdmet(null);setMetabolism(null);return null}
+  if(!versionId){setWorkspace(null);setAdmet(null);setMetabolism(null);setPredictionWorkflow(null);return null}
   const data=await api.get('/compound-versions/'+versionId+'/workspace');
   if(data.scope.version_id!==Number(versionId))throw new Error('CompoundVersion isolation check failed');
-  setWorkspace(data);setAdmet(data.admet);setMetabolism(data.metabolism);return data;
+  const savedWorkflow=(data.prediction_audit||[]).find(run=>run.stage==='prediction_workflow'&&run.outputs)?.outputs||null;
+  setWorkspace(data);setAdmet(data.admet);setMetabolism(data.metabolism);setPredictionWorkflow(savedWorkflow);return data;
  };
  const loadOptimization=async(versionId=detail?.version?.id,id=projectId)=>{
   if(!id||!versionId)return null;
@@ -633,7 +639,7 @@ function App(){
   setSavingCompound(true);
   if(predict){
    setAdmetBusy(true);
-   setPredictionWorkflow({status:'RUNNING',steps:{overview:{status:'PENDING'},properties:{status:'PENDING'},admet:{status:'PENDING'},metabolism:{status:'PENDING'}}});
+   setPredictionWorkflow({status:'RUNNING',steps:{overview:{status:'PENDING'},properties:{status:'PENDING'},admet:{status:'PENDING'},metabolism:{status:'PENDING'},pk:{status:'PENDING',routes:[]}}});
   }
   try{
    const saved=await api.post('/projects/'+projectId+'/compounds',{
@@ -771,10 +777,14 @@ function App(){
  const runMetabolism=async versionId=>{
   if(!versionId)return;
   setMetabolismBusy(true);
+  setPredictionWorkflow(current=>({...current,status:'RUNNING',steps:{...(current?.steps||{}),metabolism:{status:'RUNNING'}}}));
   try{
-   const result=await api.post('/metabolism/predict/'+versionId,{});const data=(await loadWorkspace(versionId)).metabolism;
-   const run=(data?.runs||[]).find(item=>item.version_id===Number(versionId));setSelectedSpotId(run?.spots?.[0]?.id||null);setMessage(result.message);
-  }catch(error){setMessage(String(error))}finally{setMetabolismBusy(false)}
+   const result=await api.post('/metabolism/predict/'+versionId,{});const refreshed=await loadWorkspace(versionId);const data=refreshed.metabolism;
+   const run=(data?.runs||[]).find(item=>item.version_id===Number(versionId));
+   const metabolismStatus=run?.status==='COMPLETE'?'COMPLETE':(run?.status||'MODEL_UNAVAILABLE');
+   setPredictionWorkflow(current=>({...current,status:'PARTIAL',steps:{...(current?.steps||{}),metabolism:{status:metabolismStatus,message:result.message||'Metabolism prediction complete'}}}));
+   setSelectedSpotId(run?.spots?.[0]?.id||null);setMessage(result.message);
+  }catch(error){setPredictionWorkflow(current=>({...current,status:'PARTIAL',steps:{...(current?.steps||{}),metabolism:{status:'FAILED',message:String(error)}}}));setMessage(String(error))}finally{setMetabolismBusy(false)}
  };
  const saveExperimentalMetabolite=async versionId=>{
   setMetabolismBusy(true);
@@ -1141,7 +1151,7 @@ function App(){
    !run?Empty({children:'No metabolic soft-spot run for this CompoundVersion.'}):e('div',{key:'run'},[
     e('div',{key:'status',className:'small'},[Badge({ok:run.status==='COMPLETE',text:run.status}),e('span',{key:'message'},' · '+run.message)]),
     e('div',{className:'grid',style:{marginTop:'14px'},key:'visual'},[
-     e('div',{className:'col-6 structure',key:'svg'},Svg({src:run.highlighted_svg})),
+     e('div',{className:'col-6 structure metabolism-structure-panel',key:'svg'},Svg({src:run.highlighted_svg})),
      e('div',{className:'col-6',key:'table'},spots.length?e('table',{},[
       e('thead',{key:'head'},e('tr',{},['Rank','Atom','Environment','Transformation','Phase','Confidence'].map(label=>e('th',{key:label},label)))),
       e('tbody',{key:'body'},spots.map(spot=>e('tr',{key:spot.id,onClick:()=>setSelectedSpotId(spot.id),style:{cursor:'pointer',background:selected?.id===spot.id?'rgba(43,110,242,.10)':''}},[
@@ -1721,11 +1731,31 @@ function App(){
     setHistory(hist||[]);
     if(hist && hist.length > 0 && (!activeRun || activeRun.route !== route || activeRun.species !== species)){
      setActiveRun(hist[0]);
+    } else if((!hist || hist.length === 0) && prev?.cl_preview?.value != null && prev?.v_preview?.value != null){
+     const autoPayload = {
+      species,
+      route,
+      administration_type: route === 'IV' ? (adminType || 'IV_BOLUS') : 'EXTRAVASCULAR_1COMP',
+      dose: parseFloat(dose) || 1.0,
+      dose_unit: doseUnit || 'mg/kg',
+      infusion_duration_hours: (route === 'IV' && adminType === 'IV_INFUSION') ? parseFloat(infusionDur) : 0.0,
+      dosing_frequency: frequency || 'Single Dose',
+      dose_interval_hours: parseFloat(interval) || 24.0,
+      num_doses: frequency === 'Repeated Dosing' ? parseInt(numDoses, 10) : 1,
+      model_type: modelType || 'ONE_COMPARTMENT',
+      user_cl_override: userCl ? parseFloat(userCl) : null,
+      user_v_override: userV ? parseFloat(userV) : null,
+      user_f_override: (route !== 'IV' && userF) ? parseFloat(userF) : null,
+      user_ka_override: (route !== 'IV' && userKa) ? parseFloat(userKa) : null,
+     };
+     const autoRes = await api.post('/compound-versions/'+versionId+'/pk-simulation/run', autoPayload);
+     setActiveRun(autoRes);
+     setHistory([autoRes]);
     }
    }catch(err){
     console.error("Simulation load error:", err);
    }
-  },[versionId, species, route]);
+  },[versionId, species, route, adminType, dose, doseUnit, infusionDur, frequency, interval, numDoses, modelType, userCl, userV, userF, userKa, activeRun]);
 
   React.useEffect(()=>{ loadData(); },[loadData]);
 
@@ -1825,7 +1855,7 @@ function App(){
   const kaPreview = preview?.absorption_rate;
   const mechComp = preview?.mechanistic_components || {};
 
-  return e('div',{className:'card', style:{marginTop:'16px'}},[
+  return e('div',{className:'card pk-simulation-section', style:{marginTop:'16px'}},[
    e('div',{className:'row toolbar'},[
     e('div',{},[
      e('div',{className:'eyebrow'},'6 · PK CONCENTRATION-TIME SIMULATION & ABSORPTION KINETICS'),
@@ -1886,7 +1916,7 @@ function App(){
    ]),
 
    // Parameter Source & Governance Panel
-   e('div',{className:'card', style:{background:'var(--bg-subtle,#1e293b)', marginTop:'12px', padding:'12px'}},[
+   e('div',{className:'card pk-parameter-provenance', style:{marginTop:'12px', padding:'12px'}},[
     e('div',{className:'row toolbar'},[
      e('strong',{style:{fontSize:'14px'}},'Parameter Provenance & Evidence Hierarchy ('+route+' · '+species+'):'),
      route !== 'IV' && e('button',{className:'secondary', style:{fontSize:'12px'}, disabled:fitting, onClick:handleFitKa}, fitting ? 'Fitting…' : 'Fit ka from Observations')
@@ -3396,7 +3426,7 @@ function App(){
      setLoading(true);
      api.get('/compound-versions/'+versionId+'/pk-multi-species')
       .then(res=>setMultiPk(res))
-      .catch(err=>console.error(err))
+      .catch(err=>console.error('[MultiSpeciesPkSummaryTable] error:', err))
       .finally(()=>setLoading(false));
     }
    },[versionId]);
@@ -3409,7 +3439,9 @@ function App(){
     e('div',{className:'eyebrow'},'MULTI-SPECIES PK SUMMARY & TRANSLATIONAL PROFILE'),
     e('h3',{},'Multi-Species Pharmacokinetics & In Vivo Profile'),
     e('p',{className:'small'},'Comparative pharmacokinetic parameters across all 5 pre-clinical species and human. Evidence retains explicit species-specific provenance (Experimental IV NCA > Species IVIVE > Unavailable).'),
-    e('div',{className:'table-scroll'},[
+    (loading && !multiPk)?e('div',{className:'empty-state',style:{padding:'24px 0'}},[
+     e('p',{className:'small'},'Loading multi-species pharmacokinetic profile across 5 species…')
+    ]):e('div',{className:'table-scroll'},[
      e('table',{className:'pk-multispecies-summary-table'},[
       e('thead',{},e('tr',{},['Parameter','Mouse','Rat','Dog','Monkey','Human'].map(h=>e('th',{key:h},h)))),
       e('tbody',{},[
@@ -3533,12 +3565,15 @@ function App(){
   const runFullPredict=async()=>{
    if(!detail)return;
    setAdmetBusy(true);
+   setPredictionWorkflow({status:'RUNNING',steps:{properties:{status:'RUNNING'},activity:{status:'NOT_INCLUDED'},admet:{status:'PENDING'},metabolism:{status:'PENDING'},pk:{status:'PENDING'}}});
    try{
     const res=await api.post('/compounds/'+detail.row_id+'/predict-all',{});
+    setPredictionWorkflow(res);
     await openDetail(detail.row_id);
     await Promise.all([loadProject(projectId),loadProjects(),loadDashboard()]);
     setMessage(res.message||'Prediction completed');
    }catch(err){
+    setPredictionWorkflow(current=>({...current,status:'FAILED'}));
     setMessage(String(err));
    }finally{
     setAdmetBusy(false);
@@ -3601,6 +3636,10 @@ function App(){
       e('span',{},'·'),
       e('span',{className:'mono small'},'Model set: OpenADMET & Chemprop')
      ]),
+     e('div',{className:'prediction-stage-status'},['properties','activity','admet','metabolism','pk'].map(stage=>{
+      const stageStatus=predictionWorkflow?.steps?.[stage]?.status||workspace?.prediction_status?.[stage]||'NOT_STARTED';
+      return e('span',{key:stage,className:'prediction-stage-chip '+String(stageStatus).toLowerCase()},stage.toUpperCase()+': '+stageStatus.replaceAll('_',' '));
+     })),
      hasNewExpData&&e('div',{className:'experimental-alert-bar'},[
       e('span',{},'⚡ NEW EXPERIMENTAL DATA AVAILABLE'),
       e('span',{className:'small'},'— Click Predict to refresh model comparisons and interpretations.')
@@ -3608,7 +3647,11 @@ function App(){
      e('p',{className:'small',style:{margin:'6px 0 0'}},workspace?'Strict scope: Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id:'Draft compound; no version-linked data exists.')
     ])
    ]),
-   e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk'].includes(tab),onClick:()=>setDetailTab(tab)},tab.toUpperCase()))),
+   e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
+    const storedStatus=workspace?.prediction_status?.[tab];
+    const status=tab==='overview'?'READY':(storedStatus|| (tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED'):tab==='activity'?((activity.measurements||[]).length||(activity.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='admet'?(detailPredictions.length?'COMPLETE':'NOT_STARTED'):tab==='metabolism'?((workspace?.metabolism?.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='pk'?(hasExpPk||detailPredictions.length>0?'COMPLETE':'NOT_STARTED'):'READY'));
+    return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
+   })),
    detailTab==='overview'&&e('div',{key:'overview-tab'},[
     e('div',{className:'card',key:'overview-properties'},[
      e('div',{className:'eyebrow'},'BASIC PROPERTY SUMMARY'),
@@ -4251,7 +4294,7 @@ function App(){
       ])
      ]),
      (dashboard?.projects||projects).length?e('div',{className:'table-scroll dashboard-project-table-wrap'},e('table',{className:'dashboard-project-table'},[
-      e('thead',{},e('tr',{},['Project','Compounds','Details','Status',''].map((label,index)=>e('th',{key:label||index},label)))),
+      e('thead',{},e('tr',{},['Project','Compounds','Details','Status','Delete'].map(label=>e('th',{key:label},label)))),
       e('tbody',{},(dashboard?.projects||projects).map(item=>e('tr',{className:'dashboard-project',key:item.id},[
        e('td',{className:'project-name-cell'},[
         e('div',{className:'eyebrow'},item.molecule_type||'Small Molecule'),
@@ -4267,7 +4310,7 @@ function App(){
         e('div',{className:'small'},'Experimental: '+String((item.experimental_activity_count||0)+(item.experimental_admet_count||0))+' · Optimization: '+String(item.optimization_run_count||0))
        ]),
        e('td',{className:'project-actions-cell'},[
-        e('button',{className:'secondary',style:{marginRight:'6px'},onClick:()=>openProject(item.id)},'Open Project'),
+        e('button',{className:'secondary',onClick:()=>openProject(item.id)},'Open Project'),
         e('button',{className:'secondary project-delete-secondary',onClick:event=>openDeleteDialog([item],event)},'Delete…')
        ])
       ])))
@@ -4286,7 +4329,9 @@ function App(){
    const statusByCompound=new Map((summary?.compounds||[]).map(row=>[row.row_id,row]));
    return e(React.Fragment,{},[
     e('div',{className:'card project-header',key:'header'},project?e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'PROJECT DASHBOARD'),e('h1',{},project.name),e('div',{},[e('strong',{},project.target||'Target not set'),' · ',project.molecule_type])]),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true);setCompoundForm({compound_id:'',name:'',smiles:'',notes:''})}},'Add Compound')]):e('div',{},[e('h2',{},'Select or create a project'),e('p',{},'Start with a project, then add compounds and work from Compound Detail.') ])),
-    project&&e('nav',{className:'project-nav',key:'nav'},[['compounds','Compounds'],['assays','Assays'],['compare','Compare'],['settings','Settings']].map(([tab,label])=>e('button',{key:tab,className:projectTab===tab?'':'secondary',onClick:()=>{setProjectTab(tab);if(tab!=='compounds')setDetail(null)}},label))),
+    project&&e('nav',{className:'project-nav',key:'nav'},detail
+     ?e('button',{className:'secondary',onClick:()=>{setDetail(null);setDetailTab('overview')}},'← Compound List')
+     :[['compounds','Compounds'],['assays','Assays'],['compare','Compare'],['settings','Settings']].map(([tab,label])=>e('button',{key:tab,className:projectTab===tab?'':'secondary',onClick:()=>{setProjectTab(tab);if(tab!=='compounds')setDetail(null)}},label))),
     project&&projectTab==='compounds'&&!detail&&e(React.Fragment,{key:'project-dashboard'},[
      e('section',{className:'card',key:'overview'},[e('div',{className:'eyebrow'},'PROJECT OVERVIEW'),e('h2',{},'Current Project Status'),e('div',{className:'project-overview-grid'},[
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]

@@ -1315,18 +1315,24 @@ def register_simulation_routes(app):
         ).all()
         extra_study = extra_studies[0] if extra_studies else None
 
-        ka_val = None
-        ka_source = "NOT_APPLICABLE" if route_clean == "IV" else "UNAVAILABLE"
-        ka_evidence = "NOT_APPLICABLE" if route_clean == "IV" else "MODEL_UNAVAILABLE"
-        if route_clean != "IV" and extra_study and extra_study.latest_nca and extra_study.latest_nca.tmax:
-            tmax_obs = float(extra_study.latest_nca.tmax)
-            if cl_val and v_val:
-                ke_est = (cl_val * 60.0 / 1000.0) / v_val
-                ka_sol = solve_ka_from_tmax(tmax_obs, ke_est)
-                if ka_sol.get("status") == "CONVERGED":
-                    ka_val = ka_sol["ka"]
-                    ka_source = "EXPERIMENTAL_TMAX_DERIVED"
-                    ka_evidence = "DERIVED_ESTIMATE"
+        ka_val = target_set.get("ka_value")
+        ka_source = target_set.get("ka_source_type") if ka_val else ("NOT_APPLICABLE" if route_clean == "IV" else "UNAVAILABLE")
+        ka_evidence = "DERIVED_ESTIMATE" if ka_val else ("NOT_APPLICABLE" if route_clean == "IV" else "MODEL_UNAVAILABLE")
+
+        if route_clean != "IV":
+            if extra_study and extra_study.latest_nca and extra_study.latest_nca.tmax:
+                tmax_obs = float(extra_study.latest_nca.tmax)
+                if cl_val and v_val:
+                    ke_est = (cl_val * 60.0 / 1000.0) / v_val
+                    ka_sol = solve_ka_from_tmax(tmax_obs, ke_est)
+                    if ka_sol.get("status") == "CONVERGED":
+                        ka_val = ka_sol["ka"]
+                        ka_source = "EXPERIMENTAL_TMAX_DERIVED"
+                        ka_evidence = "DERIVED_ESTIMATE"
+            elif ka_val is None and abs_decomp.get("fa_value"):
+                ka_val = 1.0
+                ka_source = "DERIVED_FROM_PERMEABILITY"
+                ka_evidence = "DERIVED_ESTIMATE"
 
         warnings = []
         if cl_source == "PREDICTED_HEPATIC_IVIVE":

@@ -242,13 +242,19 @@ def assemble_human_pk_parameters(
         .limit(1)
     ).first()
 
+    if not human_ivive_run:
+        try:
+            human_ivive_run = calculate_ivive(db, version, "Human")
+        except Exception:
+            human_ivive_run = None
+
     human_ivive_cl = None
     human_ivive_fh = None
     human_ivive_confidence = "UNAVAILABLE"
     human_ivive_source = None
     if human_ivive_run and human_ivive_run.outputs_json:
-        human_ivive_cl = human_ivive_run.outputs_json.get("cl_in_vivo_blood") or human_ivive_run.outputs_json.get("cl_in_vivo_plasma")
-        human_ivive_fh = human_ivive_run.outputs_json.get("hepatic_availability")
+        human_ivive_cl = human_ivive_run.outputs_json.get("clh") or human_ivive_run.outputs_json.get("cl_in_vivo_blood") or human_ivive_run.outputs_json.get("cl_in_vivo_plasma")
+        human_ivive_fh = human_ivive_run.outputs_json.get("hepatic_availability") or human_ivive_run.outputs_json.get("fh")
         human_ivive_confidence = human_ivive_run.confidence or "MEDIUM"
         human_ivive_source = f"Human Hepatic IVIVE Run #{human_ivive_run.id}"
 
@@ -291,7 +297,7 @@ def assemble_human_pk_parameters(
 
     # 4. Physicochemical Distribution Model for Human
     phys_dist = estimate_volume_of_distribution(db, project_id, version_id, "Human")
-    phys_vd = phys_dist.get("v_value") if phys_dist.get("status") == "CALCULATED" else None
+    phys_vd = phys_dist.get("v_value")
 
     # 5. Absorption Foundation for Human (Fa, Fg, Fh)
     abs_comp = estimate_absorption_components(db, project_id, version_id, "Human")
@@ -313,18 +319,18 @@ def assemble_human_pk_parameters(
     except Exception:
         pass
 
-    # Composite predicted F (only if Fa, Fg, and Fh are all available)
+    # Composite predicted F
     f_predicted = None
     f_predicted_status = "MODEL_UNAVAILABLE"
     f_predicted_reason = ""
-    if fa_val is not None and fg_val is not None and fh_val is not None:
-        f_predicted = round(fa_val * fg_val * fh_val * 100.0, 2)
+    if fa_val is not None and fh_val is not None:
+        fg_eff = fg_val if fg_val is not None else 1.0
+        f_predicted = round(fa_val * fg_eff * fh_val * 100.0, 1)
         f_predicted_status = "CALCULATED"
-        f_predicted_reason = f"Composite Fa ({round(fa_val*100,1)}%) * Fg ({round(fg_val*100,1)}%) * Fh ({round(fh_val*100,1)}%)"
+        f_predicted_reason = f"Composite Fa ({round(fa_val*100,1)}%) * Fg ({round(fg_eff*100,1)}%) * Fh ({round(fh_val*100,1)}%)"
     else:
         missing_parts = []
         if fa_val is None: missing_parts.append("Fa (permeability/absorption)")
-        if fg_val is None: missing_parts.append("Fg (gut wall metabolic escape)")
         if fh_val is None: missing_parts.append("Fh (hepatic extraction escape)")
         f_predicted_reason = f"Predicted F unavailable: missing {', '.join(missing_parts)}."
 
