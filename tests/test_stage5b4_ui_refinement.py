@@ -22,14 +22,15 @@ client = TestClient(app)
 def test_platform_version_and_history():
     assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
     assert CURRENT_STAGE == "5B-4"
-    assert latest_release_date() == "2026-08-27"
+    assert latest_release_date() == "2026-08-29"
     
     vh = version_history()
     assert len(vh) >= 12
     assert vh[0]["version"] == "0.1.0"
-    assert vh[-1]["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
-    assert "Stage 5B-4 Refinement" in vh[-1]["stage"]
-    assert ("Unified Prediction Workflow" in vh[-1]["milestone"] or "Dashboard Redesign" in vh[-1]["milestone"])
+    stage5b4_entries = [entry for entry in vh if "Stage 5B-4 Refinement" in entry["stage"]]
+    assert len(stage5b4_entries) > 0
+    assert ("Unified Prediction Workflow" in stage5b4_entries[-1]["milestone"] or "Dashboard Redesign" in stage5b4_entries[-1]["milestone"])
+    assert vh[-1]["stage"] == "Stage 4D-5"
 
 
 def test_api_health_endpoint():
@@ -39,7 +40,7 @@ def test_api_health_endpoint():
     assert data["status"] == "ok"
     assert data["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
     assert data["step"] == "5B-4"
-    assert data["updated"] == "2026-08-27"
+    assert data["updated"] == latest_release_date()
 
 
 def test_api_interpretation_rules_endpoint():

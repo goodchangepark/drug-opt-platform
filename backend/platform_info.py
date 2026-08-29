@@ -163,6 +163,27 @@ VERSION_HISTORY = [
         "milestone": "Dashboard Redesign & Compound Save Workflow Restoration",
         "improvements": "Clean 3-column scientific workspace dashboard, streamlined single-card platform overview, restored robust compound save and initial versioning workflow with instant property calculation.",
     },
+    {
+        "version": "0.6.4-stage4d3b2a",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4D-3B2A",
+        "milestone": "hERG Calibration & Model Quality Audit",
+        "improvements": "Independent external evaluation, threshold and Platt calibration research candidate audit; identified secondary model limitations while keeping production hERG single-core strategy strictly unchanged.",
+    },
+    {
+        "version": "0.6.5-stage4d4",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4D-4",
+        "milestone": "Endpoint-Specific Prediction Strategy Governance",
+        "improvements": "Finalized 49 endpoint-specific prediction policies across 22 endpoint contracts and 40 runtime endpoints; codified single-core, rank-fusion, rule/derived estimates, and mechanistic PK isolation without modifying production predictions.",
+    },
+    {
+        "version": "0.6.6-stage4d5",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4D-5",
+        "milestone": "Production Qualification & Prospective Validation Governance",
+        "improvements": "Prospective qualification lifecycle (SHADOW -> VALIDATED -> PRODUCTION_CANDIDATE -> ACTIVE -> ROLLBACK), promotion gates, drift review policy, immutable qualification evidence, strategy cards, and verified scientific readiness (READY_FOR_INTERNAL_VALIDATION).",
+    },
 ]
 
 
@@ -223,4 +244,4 @@ def latest_release_date() -> str:
     """Return the release date of the latest product version."""
     if VERSION_HISTORY:
         return VERSION_HISTORY[-1]["release_date"]
-    return "2026-08-27"
+    return "2026-08-29"

@@ -34,9 +34,10 @@ def test_app_version_0_6_3():
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
     assert len(vh) >= 13
-    assert vh[-1]["version"] == "0.6.3-stage5b4-ui"
-    assert vh[-1]["stage"] == "Stage 5B-4 Refinement 3"
-    assert "Dashboard Redesign & Compound Save" in vh[-1]["milestone"]
+    v063 = next(entry for entry in vh if entry["version"] == "0.6.3-stage5b4-ui")
+    assert v063["stage"] == "Stage 5B-4 Refinement 3"
+    assert "Dashboard Redesign & Compound Save" in v063["milestone"]
+    assert vh[-1]["stage"] == "Stage 4D-5"
 
 
 def test_api_health():

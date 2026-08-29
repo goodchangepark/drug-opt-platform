@@ -35,13 +35,19 @@ def test_app_version():
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
     assert len(vh) >= 12
-    assert vh[-1]["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
+    assert any(entry["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui") for entry in vh)
+    assert vh[-1]["stage"] == "Stage 4D-5"
 
 
 
 def test_predict_all_endpoint_orchestration():
     # Create isolated small molecule test compound in a temporary project
     with SessionLocal() as db:
+        from backend.main import _delete_project_tree_rows
+        existing = db.scalars(select(Project).where(Project.name == "E2E Temp Predict Test")).all()
+        if existing:
+            _delete_project_tree_rows(db, [p.id for p in existing])
+            db.commit()
         proj = Project(name="E2E Temp Predict Test", target="EGFR", molecule_type="Small Molecule", description="Temp")
         db.add(proj)
         db.commit()
