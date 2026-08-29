@@ -1337,7 +1337,7 @@ function App(){
     e('h3',{key:'title'},'Step 3 — Select Optimization Goal'),
     e('p',{key:'parent',className:'small'},'Parent: '+(detail?.compound_id||'Compound')+' v'+(detail?.current_version||'1')+' · CompoundVersion #'+versionId),
     e('div',{className:'grid',key:'top'},[
-     e('div',{className:'col-4',key:'assay'},[e('label',{},'Selected assay'),e('select',{value:optimizationForm?.assay_id||'',onChange:event=>setOptimizationForm(current=>({...current,assay_id:event.target.value}))},[e('option',{key:'none',value:''},'No assay selected'),...assays.map(assay=>e('option',{key:assay.id,value:assay.id},assay.name+' · '+(assay.measurement_type||'')))])]),
+     e('div',{className:'col-4 optimization-assay-field',key:'assay'},[e('label',{},'Selected assay'),e('select',{value:optimizationForm?.assay_id||'',onChange:event=>setOptimizationForm(current=>({...current,assay_id:event.target.value}))},[e('option',{key:'none',value:''},'No assay selected'),...assays.map(assay=>e('option',{key:assay.id,value:assay.id},assay.name+' · '+(assay.measurement_type||'')))])]),
      e('div',{className:'col-8',key:'objectives'},[e('label',{},'Optimization objective(s)'),e('div',{className:'objective-grid'},(config.objectives||[]).map(name=>e('label',{key:name,className:'check-option'},[e('input',{key:'input',type:'checkbox',checked:(optimizationForm?.objectives||[]).includes(name),onChange:()=>toggleObjective(name)}),e('span',{key:'label'},name)])))])
     ]),
     (optimizationForm?.objectives||[]).includes('Custom')&&e('div',{key:'custom',style:{marginTop:'10px'}},Field({label:'Custom objective',value:optimizationForm?.custom_objective||'',onChange:value=>setOptimizationForm(current=>({...current,custom_objective:value}))})),
@@ -3607,8 +3607,8 @@ function App(){
   };
 
   let clDisplay='—',clSub='No CL data';
-  if(latestNca?.cl_obs!=null){
-   clDisplay=Number(latestNca.cl_obs).toFixed(2)+' mL/min/kg';
+  if(latestNca?.cl!=null){
+   clDisplay=Number(latestNca.cl).toFixed(2)+' '+(latestNca.cl_unit||'');
    clSub='Experimental '+(studies[0]?.species||'in vivo');
   }else if(iviveRun?.calculated_clearance?.cl_blood!=null){
    clDisplay=Number(iviveRun.calculated_clearance.cl_blood).toFixed(2)+' mL/min/kg';
@@ -3616,8 +3616,8 @@ function App(){
   }
 
   let vdDisplay='—',vdSub='No Vd data';
-  if(latestNca?.vss_obs!=null){
-   vdDisplay=Number(latestNca.vss_obs).toFixed(2)+' L/kg';
+  if(latestNca?.vz!=null){
+   vdDisplay=Number(latestNca.vz).toFixed(2)+' '+(latestNca.vz_unit||'');
    vdSub='Experimental '+(studies[0]?.species||'in vivo');
   }else if(latestNca?.vz_obs!=null){
    vdDisplay=Number(latestNca.vz_obs).toFixed(2)+' L/kg';
