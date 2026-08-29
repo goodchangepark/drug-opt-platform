@@ -30,14 +30,14 @@ client = TestClient(app)
 
 
 def test_app_version_0_6_3():
-    assert APP_VERSION == "0.6.3-stage5b4-ui"
+    assert APP_VERSION == "0.8.0-engine-v1"
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
     assert len(vh) >= 13
     v063 = next(entry for entry in vh if entry["version"] == "0.6.3-stage5b4-ui")
     assert v063["stage"] == "Stage 5B-4 Refinement 3"
     assert "Dashboard Redesign & Compound Save" in v063["milestone"]
-    assert vh[-1]["stage"] == "Stage 4E-1"
+    assert vh[-1]["stage"] == "Stage 4E-4"
 
 
 def test_api_health():
@@ -45,7 +45,7 @@ def test_api_health():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.6.3-stage5b4-ui"
+    assert data["version"] == "0.8.0-engine-v1"
     assert data["step"] == "5B-4"
 
 
@@ -53,7 +53,7 @@ def test_api_help_registry():
     response = client.get("/api/help/registry")
     assert response.status_code == 200
     data = response.json()
-    assert data["application"]["version"] == "0.6.3-stage5b4-ui"
+    assert data["application"]["version"] == "0.8.0-engine-v1"
     assert "capability_summary" in data
     assert "pk_method_registry" in data
 

@@ -20,7 +20,7 @@ client = TestClient(app)
 
 
 def test_platform_version_and_history():
-    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
+    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
     assert CURRENT_STAGE == "5B-4"
     assert latest_release_date() == "2026-08-29"
     
@@ -30,7 +30,7 @@ def test_platform_version_and_history():
     stage5b4_entries = [entry for entry in vh if "Stage 5B-4 Refinement" in entry["stage"]]
     assert len(stage5b4_entries) > 0
     assert ("Unified Prediction Workflow" in stage5b4_entries[-1]["milestone"] or "Dashboard Redesign" in stage5b4_entries[-1]["milestone"])
-    assert vh[-1]["stage"] == "Stage 4E-1"
+    assert vh[-1]["stage"] == "Stage 4E-4"
 
 
 def test_api_health_endpoint():
@@ -38,7 +38,7 @@ def test_api_health_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
+    assert data["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
     assert data["step"] == "5B-4"
     assert data["updated"] == latest_release_date()
 
@@ -60,7 +60,7 @@ def test_api_help_registry_includes_history_and_rules():
     response = client.get("/api/help/registry")
     assert response.status_code == 200
     data = response.json()
-    assert data["application"]["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui")
+    assert data["application"]["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
     assert "version_history" in data
     assert len(data["version_history"]) >= 12
     assert "interpretation_registry" in data
