@@ -1,0 +1,42 @@
+{
+  "artifact": "STAGE4E3D_CLEARANCE_PROTOCOL",
+  "version": "stage4e3d-v1",
+  "status": "FROZEN",
+  "species": {
+    "hlm_intrinsic_clearance_scaled_log10": {
+      "model_id": "openadmet_hlm",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "unit": "log10(mL/min/kg)",
+      "strategy": "SINGLE_CORE_MODEL",
+      "assay": "Pooled Human Liver Microsomes (HLM) Substrate Depletion + NADPH",
+      "ad": "Morgan radius 2, 2048-bit Tanimoto k-NN to 5,086 HLM training compounds"
+    },
+    "rlm_intrinsic_clearance_scaled_log10": {
+      "model_id": "openadmet_rlm",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "unit": "log10(mL/min/kg)",
+      "strategy": "SINGLE_CORE_MODEL",
+      "assay": "Pooled Rat Liver Microsomes (RLM) Substrate Depletion + NADPH",
+      "ad": "Morgan radius 2, 2048-bit Tanimoto k-NN to 670 RLM training compounds"
+    },
+    "mlm_intrinsic_clearance_scaled_log10": {
+      "model_id": "openadmet_mlm",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "unit": "log10(mL/min/kg)",
+      "strategy": "SINGLE_CORE_MODEL",
+      "assay": "Pooled Mouse Liver Microsomes (MLM) Substrate Depletion + NADPH",
+      "ad": "Morgan radius 2, 2048-bit Tanimoto k-NN to 5,086 MLM training compounds"
+    }
+  },
+  "rules": {
+    "species_isolation": true,
+    "no_bias_fit": true,
+    "no_species_average": true,
+    "positive_only_log_transform": true,
+    "censored_not_exact": true,
+    "bootstrap": {
+      "replicates": 1000,
+      "seed": 20260829
+    }
+  }
+}

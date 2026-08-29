@@ -1,0 +1,14 @@
+{
+  "status": "NOT_ASSESSED_ON_RAW_DATA",
+  "species": {
+    "hlm_intrinsic_clearance_scaled_log10": {
+      "decision": "BIAS_PRESENT_BUT_CORRECTION_NOT_QUALIFIED"
+    },
+    "rlm_intrinsic_clearance_scaled_log10": {
+      "decision": "BIAS_PRESENT_BUT_CORRECTION_NOT_QUALIFIED"
+    },
+    "mlm_intrinsic_clearance_scaled_log10": {
+      "decision": "BIAS_PRESENT_BUT_CORRECTION_NOT_QUALIFIED"
+    }
+  }
+}

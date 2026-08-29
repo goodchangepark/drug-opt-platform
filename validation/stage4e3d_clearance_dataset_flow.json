@@ -1,0 +1,22 @@
+{
+  "status": "NO_DEFENSIBLE_INDEPENDENT_RAW_BENCHMARK",
+  "expansionrx": {
+    "raw_rows": 7618,
+    "numeric_counts": {
+      "HLM": 4542,
+      "RLM": 553,
+      "MLM": 5693
+    },
+    "positive_counts": {
+      "HLM": 4363,
+      "RLM": 550,
+      "MLM": 5537
+    },
+    "role": "descriptive contaminated audit only"
+  },
+  "biogen": {
+    "raw_access": false,
+    "primary_benchmark": false
+  },
+  "processed_counts": "NOT_PERFORMED"
+}

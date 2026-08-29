@@ -262,6 +262,13 @@ VERSION_HISTORY = [
         "milestone": "hERG Final Qualification & Closure",
         "improvements": "Reviewed raw hERG M1 and the historical leakage-safe Platt holdout, separated calibration from discrimination, and completed the final secondary-model acquisition attempt. No qualified replacement or production calibration was found; raw M1 at threshold 0.50 remains frozen for Engine-v1.",
     },
+    {
+        "version": "0.7.5-stage4e3d",
+        "date": "2026-08-29",
+        "stage": "Stage 4E-3D",
+        "title": "Clearance Final Qualification & Closure",
+        "changes": "HLM/RLM/MLM contracts and external evidence audited; species-specific Engine-v1 limitations frozen; production unchanged.",
+    },
 ]
 
 

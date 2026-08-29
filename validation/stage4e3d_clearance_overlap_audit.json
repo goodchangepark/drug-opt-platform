@@ -1,0 +1,17 @@
+{
+  "status": "RESIDUAL_TRAINING_OVERLAP_UNKNOWN",
+  "species": {
+    "hlm_intrinsic_clearance_scaled_log10": {
+      "known_exact_overlap_removed": null,
+      "residual_training_overlap": "UNKNOWN"
+    },
+    "rlm_intrinsic_clearance_scaled_log10": {
+      "known_exact_overlap_removed": null,
+      "residual_training_overlap": "UNKNOWN"
+    },
+    "mlm_intrinsic_clearance_scaled_log10": {
+      "known_exact_overlap_removed": null,
+      "residual_training_overlap": "UNKNOWN"
+    }
+  }
+}

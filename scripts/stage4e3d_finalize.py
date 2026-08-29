@@ -1,0 +1,17 @@
+import json
+from pathlib import Path
+root=Path(__file__).resolve().parents[1]; v=root/'validation'
+base=json.loads((v/'stage4e1_current_model_baseline.json').read_text())
+ids=['hlm_intrinsic_clearance_scaled_log10','rlm_intrinsic_clearance_scaled_log10','mlm_intrinsic_clearance_scaled_log10']
+eps={e['endpoint_id']:e for e in base['endpoints'] if e['endpoint_id'] in ids}
+def put(name,obj): (v/name).write_text(json.dumps(obj,indent=2)+'\n')
+put('stage4e3d_clearance_protocol.json',{'artifact':'STAGE4E3D_CLEARANCE_PROTOCOL','version':'stage4e3d-v1','status':'FROZEN','species':{i:{'model_id':eps[i]['current_production_model'][0],'model_version':eps[i]['model_version'][0],'unit':eps[i]['unit'],'strategy':eps[i]['current_strategy'],'assay':eps[i]['assay_definition'],'ad':eps[i]['ad_status']} for i in ids},'rules':{'species_isolation':True,'no_bias_fit':True,'no_species_average':True,'positive_only_log_transform':True,'censored_not_exact':True,'bootstrap':{'replicates':1000,'seed':20260829}}})
+put('stage4e3d_clearance_dataset_manifest.json',{'artifact':'STAGE4E3D_CLEARANCE_DATASET_MANIFEST','datasets':[{'dataset_id':'DATA_OPENADMET_EXPANSIONRX_CLEARANCE','revision':'6b898ccc43d10d25b230fb09e22a6e30c30022b5','sha256':'f674ec74cca1146bc386f832a32d4b8d921d3c312f92cb436cc005901c724a3c','license':'CC-BY-4.0','status':'NOT_INDEPENDENT_FOR_CLEARANCE','reason':'Current checkpoint trained on ExpansionRx.'},{'dataset_id':'DATA_BIOGEN_PROSPECTIVE','status':'NO_GO_DATA_ACCESS'}]})
+put('stage4e3d_clearance_dataset_flow.json',{'status':'NO_DEFENSIBLE_INDEPENDENT_RAW_BENCHMARK','expansionrx':{'raw_rows':7618,'numeric_counts':{'HLM':4542,'RLM':553,'MLM':5693},'positive_counts':{'HLM':4363,'RLM':550,'MLM':5537},'role':'descriptive contaminated audit only'},'biogen':{'raw_access':False,'primary_benchmark':False},'processed_counts':'NOT_PERFORMED'})
+put('stage4e3d_clearance_overlap_audit.json',{'status':'RESIDUAL_TRAINING_OVERLAP_UNKNOWN','species':{i:{'known_exact_overlap_removed':None,'residual_training_overlap':'UNKNOWN'} for i in ids}})
+m={'artifact':'STAGE4E3D_CLEARANCE_METRICS','status':'HISTORICAL_REPORTED_NOT_REPRODUCIBLE','species':{}}
+for i,e in eps.items():
+ x=e.get('independent_validation',{}); m['species'][i]={'n':x.get('n'),'MAE':x.get('MAE'),'RMSE':x.get('RMSE'),'bias':'NOT_REPRODUCIBLE','Spearman':x.get('Spearman'),'R2':x.get('R2'),'within_2_fold':'NOT_AVAILABLE','within_3_fold':'NOT_AVAILABLE'}
+put('stage4e3d_clearance_metrics.json',m)
+for n,o in [('bootstrap',{'status':'NOT_PERFORMED','reason':'No qualified independent raw cohort'}),('ad_analysis',{'status':'NOT_REPRODUCIBLE','ad_logic_preserved':True}),('scaffold_analysis',{'status':'NOT_PERFORMED'}),('bias_analysis',{'status':'NOT_ASSESSED_ON_RAW_DATA','species':{i:{'decision':'BIAS_PRESENT_BUT_CORRECTION_NOT_QUALIFIED'} for i in ids}}),('predictions.json',{'status':'NO_ROWS_WRITTEN','production_db_untouched':True})]: put('stage4e3d_clearance_'+n+'.json' if not n.endswith('.json') else 'stage4e3d_clearance_'+n,o)
+put('stage4e3d_clearance_final_decisions.json',{'engine_v1_status':'CLOSED','species':{i:{'decision':'CLEARANCE_EXTERNAL_VALIDATION_INSUFFICIENT_CORE_RETAINED','reliability':'LOW-MEDIUM' if i!='mlm_intrinsic_clearance_scaled_log10' else 'INSUFFICIENT_EVIDENCE','limitations':['independent raw benchmark unavailable','residual training overlap unknown']} for i in ids},'dog':'MODEL_UNAVAILABLE','monkey':'MODEL_UNAVAILABLE','generic':'MODEL_UNAVAILABLE'})

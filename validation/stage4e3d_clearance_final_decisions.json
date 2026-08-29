@@ -1,0 +1,32 @@
+{
+  "engine_v1_status": "CLOSED",
+  "species": {
+    "hlm_intrinsic_clearance_scaled_log10": {
+      "decision": "CLEARANCE_EXTERNAL_VALIDATION_INSUFFICIENT_CORE_RETAINED",
+      "reliability": "LOW-MEDIUM",
+      "limitations": [
+        "independent raw benchmark unavailable",
+        "residual training overlap unknown"
+      ]
+    },
+    "rlm_intrinsic_clearance_scaled_log10": {
+      "decision": "CLEARANCE_EXTERNAL_VALIDATION_INSUFFICIENT_CORE_RETAINED",
+      "reliability": "LOW-MEDIUM",
+      "limitations": [
+        "independent raw benchmark unavailable",
+        "residual training overlap unknown"
+      ]
+    },
+    "mlm_intrinsic_clearance_scaled_log10": {
+      "decision": "CLEARANCE_EXTERNAL_VALIDATION_INSUFFICIENT_CORE_RETAINED",
+      "reliability": "INSUFFICIENT_EVIDENCE",
+      "limitations": [
+        "independent raw benchmark unavailable",
+        "residual training overlap unknown"
+      ]
+    }
+  },
+  "dog": "MODEL_UNAVAILABLE",
+  "monkey": "MODEL_UNAVAILABLE",
+  "generic": "MODEL_UNAVAILABLE"
+}

@@ -1,0 +1,36 @@
+{
+  "artifact": "STAGE4E3D_CLEARANCE_METRICS",
+  "status": "HISTORICAL_REPORTED_NOT_REPRODUCIBLE",
+  "species": {
+    "hlm_intrinsic_clearance_scaled_log10": {
+      "n": 3078,
+      "MAE": 0.6259,
+      "RMSE": 0.7616,
+      "bias": "NOT_REPRODUCIBLE",
+      "Spearman": 0.37,
+      "R2": -0.4911,
+      "within_2_fold": "NOT_AVAILABLE",
+      "within_3_fold": "NOT_AVAILABLE"
+    },
+    "mlm_intrinsic_clearance_scaled_log10": {
+      "n": null,
+      "MAE": null,
+      "RMSE": null,
+      "bias": "NOT_REPRODUCIBLE",
+      "Spearman": null,
+      "R2": null,
+      "within_2_fold": "NOT_AVAILABLE",
+      "within_3_fold": "NOT_AVAILABLE"
+    },
+    "rlm_intrinsic_clearance_scaled_log10": {
+      "n": 3045,
+      "MAE": 0.6263,
+      "RMSE": 0.7716,
+      "bias": "NOT_REPRODUCIBLE",
+      "Spearman": 0.4248,
+      "R2": -0.0577,
+      "within_2_fold": "NOT_AVAILABLE",
+      "within_3_fold": "NOT_AVAILABLE"
+    }
+  }
+}

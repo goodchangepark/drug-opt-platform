@@ -1,0 +1,17 @@
+{
+  "artifact": "STAGE4E3D_CLEARANCE_DATASET_MANIFEST",
+  "datasets": [
+    {
+      "dataset_id": "DATA_OPENADMET_EXPANSIONRX_CLEARANCE",
+      "revision": "6b898ccc43d10d25b230fb09e22a6e30c30022b5",
+      "sha256": "f674ec74cca1146bc386f832a32d4b8d921d3c312f92cb436cc005901c724a3c",
+      "license": "CC-BY-4.0",
+      "status": "NOT_INDEPENDENT_FOR_CLEARANCE",
+      "reason": "Current checkpoint trained on ExpansionRx."
+    },
+    {
+      "dataset_id": "DATA_BIOGEN_PROSPECTIVE",
+      "status": "NO_GO_DATA_ACCESS"
+    }
+  ]
+}
