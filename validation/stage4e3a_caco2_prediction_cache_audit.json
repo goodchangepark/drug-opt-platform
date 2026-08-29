@@ -1,0 +1,26 @@
+{
+  "cache_matches_expected_target_set": true,
+  "cache_note": "No prior valid model-output cache existed before the one fixed-model run; this analysis only reads that cache.",
+  "cached_row_count": 3498,
+  "cached_unique_structure_hash_count": 3498,
+  "core": {
+    "missing": 0,
+    "model_id": "admetica_caco2",
+    "model_version": "admetica-d4f7056-chemprop-v2.1",
+    "nan_or_inf": 0,
+    "success": 3498
+  },
+  "duplicate_structure_hash_count": 0,
+  "expected_unique_target_count": 3498,
+  "inference_reused": false,
+  "production_database_records_created": false,
+  "production_runtime_or_registry_mutation": false,
+  "runtime_failure_or_status_count": 0,
+  "shadow": {
+    "missing": 0,
+    "model_id": "physchem_caco2_v1",
+    "model_version": "physchem-caco2-v1.0",
+    "nan_or_inf": 0,
+    "success": 3498
+  }
+}

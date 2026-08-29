@@ -1,0 +1,6 @@
+{
+  "known_exact_overlap_removed": 0,
+  "known_reference_structures_available": false,
+  "residual_training_overlap_unknown": true,
+  "note": "Admetica/Wang/Stage4D training structures are not available locally; no zero-overlap claim."
+}

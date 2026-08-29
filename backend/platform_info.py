@@ -241,6 +241,13 @@ VERSION_HISTORY = [
         "milestone": "Model Acquisition Blocker Resolution",
         "improvements": "Re-evaluated blocked candidates, acquired a pinned licensed Caco-2 external benchmark, and documented unresolved model gates; production prediction engine unchanged.",
     },
+    {
+        "version": "0.7.2-stage4e3a",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-3A",
+        "milestone": "Caco-2 Independent Scientific Benchmark",
+        "improvements": "Benchmarked the existing Caco-2 CORE and authorized SHADOW on the pinned ExpansionRx Papp A→B cohort without refitting; completed overlap, censor, duplicate, AD, scaffold, disagreement, and complementarity analyses. No numeric consensus existed or was created, and production policy remains unchanged.",
+    },
 ]
 
 

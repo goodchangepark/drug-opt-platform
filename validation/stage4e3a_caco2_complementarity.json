@@ -1,0 +1,25 @@
+{
+  "by_core_ad": {
+    "BORDERLINE": {
+      "N": 1859,
+      "core_materially_better_fraction": 0.4970414201183432,
+      "shadow_materially_better_fraction": 0.33028509951586876
+    },
+    "IN_DOMAIN": {
+      "N": 67,
+      "core_materially_better_fraction": 0.5223880597014925,
+      "shadow_materially_better_fraction": 0.34328358208955223
+    },
+    "OUT_OF_DOMAIN": {
+      "N": 1572,
+      "core_materially_better_fraction": 0.5019083969465649,
+      "shadow_materially_better_fraction": 0.294529262086514
+    }
+  },
+  "conclusion": "SHADOW_HAS_CASE_LEVEL_WINS_BUT_NOT_SUFFICIENT_NUMERIC_VALUE_FOR_PROMOTION",
+  "core_bad_shadow_materially_better_fraction": 0.4580970384373031,
+  "core_materially_better_fraction": 0.4997141223556318,
+  "error_spearman": 0.41847974437360924,
+  "material_error_margin_log10_cm_s": 0.1,
+  "shadow_materially_better_fraction": 0.31446540880503143
+}

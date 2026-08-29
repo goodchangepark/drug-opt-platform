@@ -1,0 +1,217 @@
+{
+  "no_floor_epsilon_imputation_or_replacement": true,
+  "non_positive_papp_excluded": [
+    {
+      "category": "NON_POSITIVE_PAPP_EXCLUDED",
+      "raw_value": "0",
+      "reason": "Numeric non-positive Papp has no valid log10(cm/s) transform; source did not define it as censored.",
+      "source_row_id": 3134
+    },
+    {
+      "category": "NON_POSITIVE_PAPP_EXCLUDED",
+      "raw_value": "0",
+      "reason": "Numeric non-positive Papp has no valid log10(cm/s) transform; source did not define it as censored.",
+      "source_row_id": 7574
+    }
+  ],
+  "source_censored": [
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 26.27",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 343
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 16.49",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 344
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 2.72",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 407
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 3.69",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 456
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 2.91",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 462
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 4.81",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 512
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.37",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 640
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.23",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 679
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 1478
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 1862
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 2101
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7419
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7422
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7447
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7459
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7463
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7470
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.01",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7471
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7472
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.04",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7481
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7486
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.01",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7489
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.04",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7490
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.01",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7510
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.01",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7511
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7532
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.00",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7541
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.00",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7554
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7557
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.01",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7558
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.03",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7563
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7564
+    },
+    {
+      "category": "SOURCE_CENSORED",
+      "raw_value": "< 0.02",
+      "reason": "Source value is nonnumeric/censored and cannot be treated as an exact log10 regression target.",
+      "source_row_id": 7569
+    }
+  ]
+}

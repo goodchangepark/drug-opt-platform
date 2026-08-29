@@ -1,0 +1,7 @@
+{
+  "directional_analysis": "NOT_RUN: source-censored rows were intentionally outside the fixed numeric inference cohort; no bounds were imputed and no additional inference was launched.",
+  "non_positive_papp_excluded": 2,
+  "provenance_examples_not_exported": true,
+  "source_censored_observations": 33,
+  "source_censored_prediction_cache_count": 0
+}

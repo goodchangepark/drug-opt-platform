@@ -1,0 +1,45 @@
+{
+  "absolute_difference": "abs(CORE - SHADOW) in log10(cm/s)",
+  "conclusion": "NO_MEANINGFUL_CORE_ERROR_SIGNAL",
+  "median_disagreement": 0.4123666324615476,
+  "quantile_bins": {
+    "Q1_low": {
+      "CORE_MAE": 0.6010993866729599,
+      "N": 875,
+      "SHADOW_MAE": 0.6045567072947108,
+      "range": [
+        1.5523529052430263e-05,
+        0.19533947925567596
+      ]
+    },
+    "Q2": {
+      "CORE_MAE": 0.5680860318833044,
+      "N": 874,
+      "SHADOW_MAE": 0.618075121408827,
+      "range": [
+        0.19533947925567596,
+        0.4123666324615476
+      ]
+    },
+    "Q3": {
+      "CORE_MAE": 0.5193038375420738,
+      "N": 874,
+      "SHADOW_MAE": 0.6568131554723513,
+      "range": [
+        0.4123666324615476,
+        0.6981243940353392
+      ]
+    },
+    "Q4_high": {
+      "CORE_MAE": 0.5893399870196262,
+      "N": 875,
+      "SHADOW_MAE": 0.9390726918741227,
+      "range": [
+        0.6981243940353392,
+        1.7861524482727051
+      ]
+    }
+  },
+  "spearman_disagreement_vs_core_absolute_error": 0.02204879654343015,
+  "spearman_disagreement_vs_shadow_absolute_error": 0.20588272524568807
+}

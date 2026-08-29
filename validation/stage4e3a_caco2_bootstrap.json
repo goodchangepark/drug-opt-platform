@@ -1,0 +1,55 @@
+{
+  "comparison": "SHADOW_MINUS_CORE",
+  "delta_bias_magnitude": {
+    "ci95": [
+      0.35726728190814655,
+      0.3876942410978336
+    ],
+    "p_shadow_better": 0.0,
+    "point_estimate": 0.3725617504772013
+  },
+  "delta_mae": {
+    "ci95": [
+      0.11828575374594893,
+      0.15126667323407533
+    ],
+    "p_shadow_better": 0.0,
+    "point_estimate": 0.13519579199773757
+  },
+  "delta_rmse": {
+    "ci95": [
+      0.1555588043680153,
+      0.1925551884949688
+    ],
+    "p_shadow_better": 0.0,
+    "point_estimate": 0.17454640735949178
+  },
+  "delta_spearman": {
+    "ci95": [
+      0.09784436861023021,
+      0.18665131564211848
+    ],
+    "p_shadow_better": 1.0,
+    "point_estimate": 0.1412738770177917
+  },
+  "delta_within_2_fold": {
+    "ci95": [
+      -0.050028587764436805,
+      -0.01057032590051455
+    ],
+    "p_shadow_better": 0.003,
+    "point_estimate": -0.03058890794739849
+  },
+  "delta_within_3_fold": {
+    "ci95": [
+      -0.09349628359062323,
+      -0.053709262435677606
+    ],
+    "p_shadow_better": 0.0,
+    "point_estimate": -0.07318467695826186
+  },
+  "noninferiority_margin": "NOT_CONFIGURED",
+  "replicates": 1000,
+  "seed": 20260829,
+  "unique_molecule_level": true
+}

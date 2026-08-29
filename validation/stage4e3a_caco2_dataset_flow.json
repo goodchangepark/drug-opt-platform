@@ -1,0 +1,29 @@
+{
+  "cohort_membership_comparison": {
+    "canonical_smiles_sets_identical": true,
+    "comparison_basis": "frozen positive-numeric target rule; no earlier valid prediction cache existed",
+    "inference_action": "NO_INCREMENTAL_INFERENCE_REQUIRED; completed fixed-model cache retained",
+    "previous_core_target_count": 3498,
+    "previous_shadow_target_count": 3498,
+    "rebuilt_core_target_count": 3498,
+    "rebuilt_shadow_target_count": 3498,
+    "semantic_correction": "METADATA_ONLY_NO_INFERENCE_CHANGE",
+    "structure_hash_sets_identical": true
+  },
+  "duplicate_canonical_rows": 273,
+  "known_overlaps_removed": 0,
+  "missing_or_blank_papp_observations": 3812,
+  "non_positive_papp_excluded": 2,
+  "non_positive_papp_exclusion_label": "NON_POSITIVE_PAPP_EXCLUDED / NON_QUANTITATIVE_ZERO",
+  "numeric_positive_uncensored_observations": 3771,
+  "numeric_zero_excluded_non_quantitative": 2,
+  "paired_model_cohort": 3498,
+  "prediction_cache_audit": "validation/stage4e3a_caco2_prediction_cache_audit.json",
+  "primary_observations": 3498,
+  "raw_rows": 7618,
+  "residual_training_overlap": "UNKNOWN",
+  "source_censored_label": "SOURCE_CENSORED",
+  "source_censored_observations": 33,
+  "unique_molecules": 3498,
+  "valid_structures": 7618
+}

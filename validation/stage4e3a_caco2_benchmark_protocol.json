@@ -1,0 +1,52 @@
+{
+  "ad_strata": "existing production applicability_domain labels, unchanged",
+  "bootstrap": {
+    "replicates": 1000,
+    "seed": 20260829
+  },
+  "canonical_unit": "log10(cm/s)",
+  "censor_policy": "exclude from quantitative primary",
+  "consensus": "NO_NUMERIC_CONSENSUS_DEFINED_BY_CURRENT_POLICY",
+  "core": "admetica_caco2/admetica-d4f7056-chemprop-v2.1",
+  "dataset_id": "DATA_OPENADMET_EXPANSIONRX_CACO2_PAPP_AB",
+  "decision_framework": [
+    "CURRENT_CORE_CONFIRMED",
+    "SHADOW_COMPLEMENTARITY_CONFIRMED_BUT_NO_NUMERIC_GAIN",
+    "CURRENT_MODELS_DATA_LIMITED_OR_INADEQUATE",
+    "BENCHMARK_INCONCLUSIVE"
+  ],
+  "duplicate_policy": "median raw Papp per canonical molecule",
+  "endpoint_contract": "permeability_caco2_logpapp",
+  "model_identity": {
+    "core": {
+      "model_id": "admetica_caco2",
+      "model_version": "admetica-d4f7056-chemprop-v2.1"
+    },
+    "shadow": {
+      "model_id": "physchem_caco2_v1",
+      "model_version": "physchem-caco2-v1.0"
+    }
+  },
+  "no_fitting": true,
+  "non_positive_papp_policy": "NON_POSITIVE_PAPP_EXCLUDED / NON_QUANTITATIVE_ZERO; no floor, epsilon, imputation, or replacement before log10.",
+  "numerical_consensus": "NONE; no averaging, weights, selector, calibration, or threshold fitting permitted",
+  "overlap_policy": "Exclude known exact canonical overlaps if reference structures are available; report residual training overlap as unknown otherwise.",
+  "primary_metrics": [
+    "MAE",
+    "RMSE",
+    "Bias",
+    "Median_AE",
+    "Spearman",
+    "Pearson_secondary",
+    "Within_2_fold",
+    "Within_3_fold"
+  ],
+  "protocol_status": "FROZEN_BEFORE_COMPARATIVE_INTERPRETATION",
+  "raw_unit": "10^-6 cm/s",
+  "revision": "6b898ccc43d10d25b230fb09e22a6e30c30022b5",
+  "scaffold_methodology": "Murcko groups; acyclic structures use fixed descriptor signatures, not one mega-scaffold",
+  "sha256": "f674ec74cca1146bc386f832a32d4b8d921d3c312f92cb436cc005901c724a3c",
+  "shadow": "physchem_caco2_v1/physchem-caco2-v1.0",
+  "source_censored_policy": "SOURCE_CENSORED excluded from numeric primary metrics; no imputation or bound substitution.",
+  "transformation": "log10(Papp_raw * 1e-6), after unique-molecule median"
+}

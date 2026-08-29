@@ -1,0 +1,19 @@
+{
+  "benchmark_use_provenance": "ExpansionRx is now used for Stage 4E-3A evaluation; future models fitted/tuned against it must not call it untouched independent validation.",
+  "caco2_next_step": "CACO2_MODEL_EXPANSION_REQUIRED",
+  "decision": "CURRENT_CORE_CONFIRMED",
+  "limitations": [
+    "RESIDUAL_TRAINING_OVERLAP_UNKNOWN",
+    "Assay protocol metadata limited",
+    "No numeric Caco-2 consensus defined by authoritative policy"
+  ],
+  "numeric_consensus": "NONE",
+  "production_decision": "UNCHANGED",
+  "promotion": "NONE",
+  "rationale": [
+    "CORE lower MAE and RMSE on the full paired external cohort.",
+    "Paired bootstrap 95% CI for SHADOW minus CORE MAE remains above zero.",
+    "Scaffold-clustered bootstrap does not reverse the direction.",
+    "Disagreement does not meaningfully predict CORE absolute error."
+  ]
+}
