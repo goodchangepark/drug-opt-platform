@@ -1,0 +1,17 @@
+{
+  "implementation": "IonizationEngine_v1 SMARTS structural rules",
+  "evidence_class": "RULE_ESTIMATE",
+  "model_id": "ionization_smarts_rules_v1",
+  "version": "stage4c4-ionization-v1",
+  "semantics": [
+    "acidic/basic centers",
+    "atom indices",
+    "multiple centers",
+    "ampholyte/zwitterion classification"
+  ],
+  "limitations": [
+    "not quantitatively ML validated",
+    "typical accuracy \u00b11\u20132 pKa units",
+    "polyprotic and complex systems high uncertainty"
+  ]
+}

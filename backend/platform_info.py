@@ -269,6 +269,13 @@ VERSION_HISTORY = [
         "milestone": "Clearance Final Qualification & Closure",
         "improvements": "HLM/RLM/MLM contracts and external evidence audited; species-specific Engine-v1 limitations frozen; production unchanged.",
     },
+    {
+        "version": "0.7.6-stage4e3e",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-3E",
+        "milestone": "pKa / logD Final Qualification & Closure",
+        "improvements": "Quantitative pKa/logD candidates reviewed with strict checkpoint and endpoint gates; rule/derived Engine-v1 limitations frozen; production unchanged.",
+    },
 ]
 
 

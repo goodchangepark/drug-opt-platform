@@ -1,0 +1,12 @@
+{
+  "engine_v1_status": "CLOSED",
+  "pka": {
+    "decision": "PKA_NO_REPRODUCIBLE_QUANTITATIVE_MODEL_RULE_ESTIMATE_FROZEN",
+    "reliability": "LOW-MEDIUM"
+  },
+  "logd": {
+    "decision": "LOGD_NO_QUALIFIED_QUANTITATIVE_MODEL_DERIVED_ESTIMATE_FROZEN",
+    "reliability": "LOW-MEDIUM"
+  },
+  "production": "UNCHANGED"
+}

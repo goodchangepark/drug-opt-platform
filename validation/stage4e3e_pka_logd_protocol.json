@@ -1,0 +1,21 @@
+{
+  "artifact": "STAGE4E3E_PKA_LOGD_PROTOCOL",
+  "version": "stage4e3e-v1",
+  "status": "FROZEN",
+  "candidate_limits": {
+    "pka": 2,
+    "logd": 2
+  },
+  "current": {
+    "pka": "RULE_ESTIMATE",
+    "logd": "DERIVED_ESTIMATE"
+  },
+  "rules": [
+    "strict checkpoint loading",
+    "no retraining or fitting",
+    "site/micro/macro semantics preserved",
+    "logP is not logD",
+    "pH-specific data required",
+    "production unchanged"
+  ]
+}

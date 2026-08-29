@@ -1,0 +1,11 @@
+{
+  "pkasolver_lite": {
+    "environment": "isolated ARM64 Python3.11 torch 2.8 CPU PyG 2.8.0.post1",
+    "build": "successful",
+    "load": "failed strict",
+    "decision": "NO_GO_REPRODUCIBILITY"
+  },
+  "pkaLearn": {
+    "decision": "NOT_TESTED_UNRESOLVED_CHECKPOINT"
+  }
+}

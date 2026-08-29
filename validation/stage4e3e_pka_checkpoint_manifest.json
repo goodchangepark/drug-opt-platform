@@ -1,0 +1,10 @@
+{
+  "pkasolver_lite": {
+    "classification": "SOURCE_EMBEDDED_WEIGHTS",
+    "strict_load": "FAILED"
+  },
+  "pkaLearn": {
+    "classification": "NO_CHECKPOINT",
+    "hash": "NOT_AVAILABLE"
+  }
+}

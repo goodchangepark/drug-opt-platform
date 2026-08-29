@@ -1,0 +1,12 @@
+{
+  "implementation": "RDKit Crippen cLogP + rule/experimental pKa + simplified monoprotic Henderson-Hasselbalch",
+  "evidence_class": "DERIVED_ESTIMATE",
+  "endpoint": "logD pH 7.4",
+  "model_id": "henderson_hasselbalch_logd_v1",
+  "version": "stage4c4-ionization-v1",
+  "limitations": [
+    "not standalone quantitative ML",
+    "polyprotic/zwitterion uncertainty",
+    "cLogP never relabeled logD"
+  ]
+}

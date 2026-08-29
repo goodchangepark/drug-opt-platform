@@ -1,0 +1,18 @@
+{
+  "candidates": [
+    {
+      "id": "MODEL_PKASOLVER_LITE",
+      "license": "MIT source/weights",
+      "checkpoint": "SOURCE_EMBEDDED_WEIGHTS",
+      "strict_load": false,
+      "result": "NO_GO_REPRODUCIBILITY",
+      "reason": "legacy PyG state-dict incompatible; partial loading prohibited"
+    },
+    {
+      "id": "MODEL_PKALEARN_GNN",
+      "license": "code MIT; weights/data unresolved",
+      "checkpoint": "NO_CHECKPOINT_VERIFIED",
+      "result": "NO_GO_REPRODUCIBILITY"
+    }
+  ]
+}
