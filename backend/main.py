@@ -96,7 +96,8 @@ from .translational import PKTranslationalSnapshot, ensure_translational_schema,
 from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, register_human_pk_routes
 from .capabilities import build_capability_summary
 from .interpretation import get_interpretation_registry_summary, interpret_property
-from .platform_info import (APP_VERSION, GLOSSARY, LIMITATIONS, build_version,
+from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STATUS,
+                            CURRENT_STAGE_SUBSTATUS, GLOSSARY, LIMITATIONS, build_version,
                             latest_release_date, package_inventory, structure_modules,
                             version_history)
 
@@ -360,6 +361,9 @@ def help_registry(db: Session = Depends(get_db)):
     return {
         "application": {
             "name": "Drug-OPT", "version": APP_VERSION, "current_stage": CURRENT_STAGE,
+            "current_stage_label": CURRENT_STAGE_LABEL,
+            "current_stage_status": CURRENT_STAGE_STATUS,
+            "current_stage_substatus": CURRENT_STAGE_SUBSTATUS,
             "updated": latest_release_date(), "build_version": build_version(), "standardizer": STANDARDIZER_NAME,
             "standardizer_version": STANDARDIZER_VERSION, "rdkit_version": RDKIT_VERSION,
         },

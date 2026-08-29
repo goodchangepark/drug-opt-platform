@@ -4202,7 +4202,7 @@ function App(){
     e('p',{className:'small'},'Recommended 7-step sequence for compound evaluation and optimization from project registration to translational PK simulation.')
    ]),
    e('section',{className:'card help-section',id:'help-version',key:'version'},[e('h2',{},'Current Platform Version'),e('dl',{className:'help-version-grid'},[
-    ['Application version',appInfo.version],['Current Stage',appInfo.current_stage],['Git/build version',appInfo.build_version],['Standardizer',appInfo.standardizer+' '+appInfo.standardizer_version],['RDKit',appInfo.rdkit_version]
+    ['Application version',appInfo.version],['Current Stage',appInfo.current_stage_label||'Internal Validation'],['Git/build version',appInfo.build_version],['Standardizer',appInfo.standardizer+' '+appInfo.standardizer_version],['RDKit',appInfo.rdkit_version]
     ].map(([label,value])=>e('div',{key:label},[e('dt',{},label),e('dd',{className:'mono'},value||'Unavailable')])))]),
     e('section',{className:'card help-section',id:'help-version-history',key:'version-history'},[
      e('div',{className:'eyebrow'},'RELEASE HISTORY'),
@@ -4276,9 +4276,11 @@ function App(){
        e('span',{className:'stat-label'},'Compounds'),
        e('strong',{className:'stat-value'},String(dashboard?.totals?.compounds??projects.reduce((sum,row)=>sum+(row.compound_count||0),0)))
       ]),
-      e('div',{className:'dashboard-stat-card',key:'stage'},[
+    e('div',{className:'dashboard-stat-card',key:'stage'},[
        e('span',{className:'stat-label'},'Current Stage'),
-       e('strong',{className:'stat-value'},String(dashboard?.capability_summary?.stage||'5B-4'))
+       e('strong',{className:'stat-value'},'Internal Validation'),
+       e('span',{className:'small'},'Prediction Engine v1 Frozen'),
+       e('span',{className:'small'},'Experimental data collection active')
       ]),
       e('div',{className:'dashboard-stat-card',key:'models'},[
        e('span',{className:'stat-label'},'Model Endpoints'),

@@ -12,6 +12,11 @@ from typing import Any
 
 APP_VERSION = "1.0.0"
 CURRENT_STAGE = "5B-4"
+# Internal engineering stage is retained for provenance; this is the
+# researcher-facing operational milestone shown by the dashboard and Help.
+CURRENT_STAGE_LABEL = "Internal Validation"
+CURRENT_STAGE_STATUS = "Prediction Engine v1 Frozen"
+CURRENT_STAGE_SUBSTATUS = "Experimental data collection active"
 
 PACKAGE_SPECS = (
     ("Python", None, "Runtime for the backend and scientific services"),
