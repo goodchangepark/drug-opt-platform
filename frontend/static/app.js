@@ -4460,17 +4460,5 @@ function App(){
   ]));
   return e('div',{},[e('h4',{key:'title'},'Drug-likeness Filters'),...rows]);
  }
- function pairPlot(data,x,y){
-  const points=data.compounds.filter(compound=>compound[x]!=null&&compound[y]!=null);if(!points.length)return null;
-  const xs=points.map(compound=>compound[x]),ys=points.map(compound=>compound[y]);
-  const xMin=Math.min(...xs)*.95,xMax=Math.max(...xs)*1.05,yMin=Math.min(...ys)*.95,yMax=Math.max(...ys)*1.05;
-  const xRange=xMax-xMin||1,yRange=yMax-yMin||1;
-  return e('div',{className:'card'},[e('h4',{key:'title'},x+' vs '+y),e('div',{key:'plot',style:{height:'160px',position:'relative',borderBottom:'1px solid #ccc',borderLeft:'1px solid #ccc'}},points.map((compound,index)=>{const left=(compound[x]-xMin)/xRange*82+6,top=(yMax-compound[y])/yRange*70+8;return e('div',{key:index,title:compound.compound+' '+x+'='+compound[x]+' '+y+'='+compound[y],onClick:()=>openDetail(compound.row_id),style:{position:'absolute',left:left+'%',top:top+'%',width:'11px',height:'11px',background:'#1769aa',borderRadius:'50%',cursor:'pointer'}})})),e('div',{key:'legend',className:'small'},'Click a point to open the compound · ranges '+xMin.toFixed(1)+'–'+xMax.toFixed(1)+' / '+yMin.toFixed(1)+'–'+yMax.toFixed(1))]);
- }
- function qedHistogram(data){
-  const bins=[0,0,0,0,0];data.compounds.forEach(compound=>{if(compound.QED!=null)bins[Math.min(Math.floor(compound.QED/.2),4)]++});const maximum=Math.max(1,...bins);
-  return e('div',{className:'card'},[e('h4',{key:'title'},'QED distribution'),...bins.map((count,index)=>e('div',{key:index,style:{display:'flex',alignItems:'center',gap:'8px',margin:'7px 0'}},[e('div',{key:'label',className:'small',style:{width:'52px'}},(index*.2).toFixed(1)+'-'+((index+1)*.2).toFixed(1)),e('div',{key:'bar',style:{flex:1,background:'#e5edf5'}},e('div',{style:{width:(count/maximum*100)+'%',background:'#1769aa',height:'16px'}})),e('span',{key:'count',className:'small'},count)]))]);
- }
-
 ReactDOM.createRoot(document.getElementById('root')).render(e(App));
 })();
