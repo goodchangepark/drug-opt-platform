@@ -40,6 +40,7 @@ from .admet_predictor import (MODEL_SPECS, MODEL_VERSION, comparable_experimenta
 from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
                         DataProvenance)
 from .endpoint_contracts import get_endpoint_contract
+from .endpoint_strategy_registry import get_registry_api_response
 from .database import Base, SessionLocal, engine, get_db
 from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
                                   ENGINE_NAME as METABOLISM_ENGINE,
@@ -141,6 +142,12 @@ def health():
 @app.get("/api/interpretation/rules")
 def get_interpretation_rules():
     return get_interpretation_registry_summary()
+
+
+@app.get("/api/model-strategy-registry")
+def model_strategy_registry():
+    """Read-only scientific strategy policy; never executes or promotes a model."""
+    return get_registry_api_response()
 
 
 @app.post("/api/structure/validate")
