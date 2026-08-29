@@ -4400,8 +4400,8 @@ function App(){
    ]),
     e('div',{className:'sidebar-footer',key:'footer'},[
     e('div',{className:'sidebar-footer-brand'},'Drug Optimization Platform'),
-    e('div',{className:'sidebar-footer-version'},'Drug-OPT v1.0'),
-    e('div',{className:'sidebar-footer-date'},'Updated: 2026-08-27')
+    e('div',{className:'sidebar-footer-version'},'v1.0'),
+    e('div',{className:'sidebar-footer-date'},'Updated: 2026-08-30')
     ])
   ]);
   return e('div',{className:'shell'},[sidebar,e('main',{className:'content',key:'content'},[
