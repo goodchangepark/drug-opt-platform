@@ -60,6 +60,11 @@ from .endpoint_strategy_registry import (
     get_all_strategies,
     get_endpoint_strategy,
 )
+from .prediction_engine_v1_policy import (
+    ENGINE_V1_POLICY_ID,
+    ENGINE_V1_POLICY_VERSION,
+    policy_hash as engine_v1_policy_hash,
+)
 from .multimodel import (
     ExecutionStatus,
     ModelExecutionPayload,
@@ -75,7 +80,9 @@ initialize_default_adapters()
 # ---------------------------------------------------------------------------
 
 ORCHESTRATOR_VERSION = "stage4d6-prediction-orchestrator-v1"
-POLICY_VERSION = "stage4d4-endpoint-strategy-v1"
+# The Stage 4D registry remains executable authority; this identifies its
+# immutable Stage 4E-4 Engine-v1 snapshot in every new freeze.
+POLICY_VERSION = f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}"
 STANDARDIZER_VERSION = "CHEM_STANDARDIZER_V1"
 
 # ---------------------------------------------------------------------------
@@ -829,7 +836,9 @@ def _freeze_prediction(
 
     endpoint_id = plan.endpoint_id
     smiles_hash = _sha256(smiles)
-    frozen_id = f"FREEZE-{version_id}-{endpoint_id}-{smiles_hash[:12]}"
+    # Engine-v1 has a distinct namespace so a re-execution cannot collide with
+    # or mutate a historical Stage 4D freeze for the same compound.
+    frozen_id = f"FREEZE-V1-{version_id}-{endpoint_id}-{smiles_hash[:12]}"
 
     # Idempotency: don't duplicate
     existing = db.scalar(
@@ -884,6 +893,8 @@ def _freeze_prediction(
     provenance = {
         "orchestrator": ORCHESTRATOR_VERSION,
         "policy_version": POLICY_VERSION,
+        "engine_v1_policy_id": ENGINE_V1_POLICY_ID,
+        "engine_v1_policy_hash": engine_v1_policy_hash(),
         "production_strategy": plan.production_strategy,
         "smiles_hash": smiles_hash,
         "research_consensus": research_consensus,
@@ -916,6 +927,7 @@ def _freeze_prediction(
         "probability": ep_result.production_probability,
         "unit": ep_result.canonical_unit,
         "policy_version": POLICY_VERSION,
+        "engine_v1_policy_hash": engine_v1_policy_hash(),
         "standardizer_version": STANDARDIZER_VERSION,
         "applicability_domain": ep_result.production_ad,
         "provenance": provenance,
@@ -939,6 +951,7 @@ def _freeze_prediction(
             "production_strategy": plan.production_strategy,
             "models": model_identities,
             "policy_version": POLICY_VERSION,
+            "engine_v1_policy_hash": engine_v1_policy_hash(),
             "standardizer_version": STANDARDIZER_VERSION,
         }, sort_keys=True)),
         strategy=strategy_enum.value,

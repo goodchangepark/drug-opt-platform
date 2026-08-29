@@ -1,0 +1,495 @@
+{
+  "policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "policy_id": "drugopt-prediction-engine-v1",
+  "roles": [
+    {
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "model_id": "admetica_cyp_cyp1a2-inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "model_id": "admetica_cyp_cyp2c19-inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "model_id": "admetica_cyp_cyp2c9-inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "model_id": "admetica_cyp_cyp2c9-substrate",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "model_id": "admetica_cyp_cyp2d6-inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "model_id": "admetica_cyp_cyp2d6-substrate",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "model_id": "admetica_cyp_cyp3a4-inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "model_id": "morgan_cyp3a4_inh_v1",
+      "model_version": "morgan-cyp3a4-v1.0",
+      "production_eligible": false,
+      "rationale": "accuracy/complementarity monitoring",
+      "role": "RESEARCH_ONLY"
+    },
+    {
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "model_id": "admetica_cyp_cyp3a4-substrate",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "distribution_bbb_penetration",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "model_id": "openadmet_hlm",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "ionization_pka_estimated",
+      "model_id": "ionization_smarts_rules_v1",
+      "model_version": "stage4c4-ionization-v1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "RULE_BASED"
+    },
+    {
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "model_id": "sygma_phase1_2",
+      "model_version": "sygma-v1.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "RULE_BASED"
+    },
+    {
+      "endpoint_id": "microsomal_clearance_generic",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "model_id": "openadmet_mlm",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "permeability_caco2_logpapp",
+      "model_id": "admetica_caco2",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "permeability_caco2_logpapp",
+      "model_id": "physchem_caco2_v1",
+      "model_version": "physchem-caco2-v1.0",
+      "production_eligible": false,
+      "rationale": "accuracy/complementarity monitoring",
+      "role": "SHADOW"
+    },
+    {
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "model_id": "henderson_hasselbalch_logd_v1",
+      "model_version": "stage4c4-ionization-v1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "RULE_BASED"
+    },
+    {
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "model_id": "rdkit_2d_descriptors",
+      "model_version": "rdkit-2025.03.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "RULE_BASED"
+    },
+    {
+      "endpoint_id": "pk_bioavailability_fraction",
+      "model_id": "pk_nca",
+      "model_version": "5A-1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_bioavailability_fraction",
+      "model_id": "pk_ivive",
+      "model_version": "5A-2A.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_bioavailability_fraction",
+      "model_id": "pk_allometric_scaling",
+      "model_version": "5B-3.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_clearance_systemic",
+      "model_id": "pk_nca",
+      "model_version": "5A-1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_clearance_systemic",
+      "model_id": "pk_ivive",
+      "model_version": "5A-2A.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_clearance_systemic",
+      "model_id": "pk_allometric_scaling",
+      "model_version": "5B-3.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_concentration_time_simulation",
+      "model_id": "pk_simulation",
+      "model_version": "5B-2.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_volume_distribution_vss",
+      "model_id": "pk_nca",
+      "model_version": "5A-1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_volume_distribution_vss",
+      "model_id": "pk_ivive",
+      "model_version": "5A-2A.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "pk_volume_distribution_vss",
+      "model_id": "pk_allometric_scaling",
+      "model_version": "5B-3.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "MECHANISTIC"
+    },
+    {
+      "endpoint_id": "ppb_human_percent_bound",
+      "model_id": "admetica_ppbr",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "model_id": "openadmet_rlm",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "model_id": "admet_ai_ames",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "safety_cns_liability",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_dili_clinical_prob",
+      "model_id": "admet_ai_dili",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "safety_general_cytotoxicity",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_herg_blocker_prob",
+      "model_id": "admetica_safety_herg",
+      "model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "safety_herg_blocker_prob",
+      "model_id": "physchem_herg_v1",
+      "model_version": "physchem-herg-v1.0",
+      "production_eligible": false,
+      "rationale": "calibration support",
+      "role": "CALIBRATION_SUPPORTING"
+    },
+    {
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_skin_sensitization",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "solubility_aqueous_logs",
+      "model_id": "admetica_solubility",
+      "model_version": "admetica-d4f7056-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "solubility_aqueous_logs",
+      "model_id": "esol_delaney_v1",
+      "model_version": "esol-delaney-2004-v1.0",
+      "production_eligible": false,
+      "rationale": "accuracy/complementarity monitoring",
+      "role": "RESEARCH_ONLY"
+    },
+    {
+      "endpoint_id": "solubility_aqueous_logs",
+      "model_id": "rdkit_gbr_solubility_v1",
+      "model_version": "rdkit-gbr-sol-v1.0",
+      "production_eligible": false,
+      "rationale": "accuracy/complementarity monitoring",
+      "role": "EXCLUDED_FROM_CONSENSUS"
+    },
+    {
+      "endpoint_id": "som_metabolic_soft_spots",
+      "model_id": "sygma_phase1_2",
+      "model_version": "sygma-v1.1.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "RULE_BASED"
+    },
+    {
+      "endpoint_id": "som_metabolic_soft_spots",
+      "model_id": "smartcyp_dft_v1",
+      "model_version": "smartcyp-v3.0",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "RULE_BASED"
+    },
+    {
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "model_id": "admetica_transporter_pgp-inhibitor",
+      "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+      "production_eligible": true,
+      "rationale": "Endpoint policy production strategy.",
+      "role": "CORE"
+    },
+    {
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "model_id": null,
+      "model_version": null,
+      "production_eligible": false,
+      "rationale": "First-class unavailable result.",
+      "role": "MODEL_UNAVAILABLE"
+    }
+  ],
+  "rule": "Only CORE/RULE_BASED/MECHANISTIC endpoint-policy selections may produce production values. active=true is never sufficient."
+}

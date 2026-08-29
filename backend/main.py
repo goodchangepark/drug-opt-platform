@@ -41,6 +41,7 @@ from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
                         DataProvenance)
 from .endpoint_contracts import get_endpoint_contract
 from .endpoint_strategy_registry import get_registry_api_response
+from .prediction_engine_v1_policy import policy_api_response
 from .production_qualification import (
     ensure_qualification_schema,
     get_candidates_api_response,
@@ -156,6 +157,12 @@ def get_interpretation_rules():
 def model_strategy_registry():
     """Read-only scientific strategy policy; never executes or promotes a model."""
     return get_registry_api_response()
+
+
+@app.get("/api/prediction-engine-v1/policy")
+def prediction_engine_v1_policy():
+    """Immutable, read-only Stage 4E-4 policy snapshot and content hash."""
+    return policy_api_response()
 
 
 @app.get("/api/qualification/strategies")

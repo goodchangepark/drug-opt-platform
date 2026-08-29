@@ -10,7 +10,7 @@ from pathlib import Path
 
 from typing import Any
 
-APP_VERSION = "0.6.3-stage5b4-ui"
+APP_VERSION = "0.8.0-engine-v1"
 CURRENT_STAGE = "5B-4"
 
 PACKAGE_SPECS = (
@@ -275,6 +275,13 @@ VERSION_HISTORY = [
         "stage": "Stage 4E-3E",
         "milestone": "pKa / logD Final Qualification & Closure",
         "improvements": "Quantitative pKa/logD candidates reviewed with strict checkpoint and endpoint gates; rule/derived Engine-v1 limitations frozen; production unchanged.",
+    },
+    {
+        "version": "0.8.0-engine-v1",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-4",
+        "milestone": "Prediction Engine v1 Freeze",
+        "improvements": "Finalized 49 endpoint-specific policies, model roles, reliability dimensions, unavailable states, deterministic policy hash, and Engine-v1 prospective-freeze provenance. Ready for controlled internal prospective validation; not clinical or regulatory validation.",
     },
 ]
 

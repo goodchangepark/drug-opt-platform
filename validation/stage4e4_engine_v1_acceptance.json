@@ -1,0 +1,19 @@
+{
+  "created_at": "2026-08-29T00:00:00+00:00",
+  "endpoint_count": 49,
+  "gates": {
+    "ai_evidence_contract_complete": true,
+    "all_endpoint_policies_represented": true,
+    "historical_freezes_unchanged": true,
+    "no_policy_contradictions": true,
+    "policy_hash_deterministic": true,
+    "production_references_complete": true,
+    "runtime_follows_policy": true,
+    "same_compound_leakage_blocked": true,
+    "shadow_not_promoted": true,
+    "unavailable_not_fabricated": true
+  },
+  "policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "policy_id": "drugopt-prediction-engine-v1",
+  "unavailable_count": 22
+}

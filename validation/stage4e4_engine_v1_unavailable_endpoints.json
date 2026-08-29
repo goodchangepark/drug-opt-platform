@@ -1,0 +1,139 @@
+{
+  "endpoints": [
+    {
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "endpoint_name": "Monkey liver microsomal intrinsic clearance",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "endpoint_name": "CYP1A2 substrate",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "endpoint_name": "CYP2C19 substrate",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "distribution_bbb_penetration",
+      "endpoint_name": "BBB penetration",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "endpoint_name": "Dog liver microsomal intrinsic clearance",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "microsomal_clearance_generic",
+      "endpoint_name": "Microsomal clearance",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "endpoint_name": "logD7.4 (quantitative ML)",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "endpoint_name": "pKa (quantitative ML)",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_cns_liability",
+      "endpoint_name": "CNS liability",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_general_cytotoxicity",
+      "endpoint_name": "General cytotoxicity",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "endpoint_name": "Mitochondrial toxicity",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "safety_skin_sensitization",
+      "endpoint_name": "Skin sensitization",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "endpoint_name": "BCRP inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "endpoint_name": "BCRP substrate",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "endpoint_name": "BSEP inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "endpoint_name": "MATE1 inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "endpoint_name": "MATE2-K inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "endpoint_name": "OATP1B1 inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "endpoint_name": "OATP1B3 inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "endpoint_name": "OCT1 inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "endpoint_name": "OCT2 inhibitor",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "endpoint_name": "P-gp substrate",
+      "reason": "No qualified endpoint-specific model; no substitute, neighboring endpoint reuse, or cross-species reuse is permitted.",
+      "status": "MODEL_UNAVAILABLE"
+    }
+  ],
+  "policy": "MODEL_UNAVAILABLE is a valid result. No automatic substitute is allowed.",
+  "policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "policy_id": "drugopt-prediction-engine-v1"
+}

@@ -1,0 +1,1976 @@
+{
+  "created_at": "2026-08-29T00:00:00+00:00",
+  "endpoints": [
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3b",
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "endpoint_name": "Monkey liver microsomal intrinsic clearance",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "endpoint_name": "CYP1A2 inhibitor",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Isoform-specific: CYP1A2. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp1a2-inhibitor"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp1a2-inhibitor (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3c",
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "endpoint_name": "CYP1A2 substrate",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "endpoint_name": "CYP2C19 inhibitor",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Isoform-specific: CYP2C19. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp2c19-inhibitor"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp2c19-inhibitor (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3c",
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "endpoint_name": "CYP2C19 substrate",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "endpoint_name": "CYP2C9 inhibitor",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Isoform-specific: CYP2C9. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp2c9-inhibitor"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp2c9-inhibitor (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "endpoint_name": "CYP2C9 substrate",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp2c9-substrate"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp2c9-substrate (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "endpoint_name": "CYP2D6 inhibitor",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Isoform-specific: CYP2D6. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp2d6-inhibitor"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp2d6-inhibitor (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "endpoint_name": "CYP2D6 substrate",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp2d6-substrate"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp2d6-substrate (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Isoform-specific: CYP3A4. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions.",
+        "Stage 4D-3B1A: adaptive weighting NO_GO; fixed global blend does not outperform Fixed Global Prior on Brier/MCC/BAcc; dynamic feedback adds no value beyond w=0.9578/0.0422.",
+        "Fixed 0.9578/0.0422 blend and dynamic adaptation remain research/shadow only (NO_GO)."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp3a4-inhibitor"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [
+        {
+          "changes_production": false,
+          "model_id": "morgan_cyp3a4_inh_v1",
+          "model_version": "morgan-cyp3a4-v1.0",
+          "purpose": "accuracy/complementarity monitoring",
+          "role": "FIXED_BLEND_RESEARCH_SHADOW_ONLY"
+        }
+      ],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp3a4-inhibitor (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [
+        {
+          "changes_production": false,
+          "model_id": "morgan_cyp3a4_inh_v1",
+          "model_version": "morgan-cyp3a4-v1.0",
+          "purpose": "accuracy/complementarity monitoring",
+          "role": "FIXED_BLEND_RESEARCH_SHADOW_ONLY"
+        }
+      ],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "endpoint_name": "CYP3A4 substrate",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_cyp_cyp3a4-substrate"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_cyp_cyp3a4-substrate (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "distribution_bbb_penetration",
+      "endpoint_name": "BBB penetration",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3b",
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "endpoint_name": "Dog liver microsomal intrinsic clearance",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Species isolation enforced. HLM/RLM/MLM outputs must not be averaged.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "HLM intrinsic clearance",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Species: Human microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid.",
+        "Independent raw benchmark unavailable",
+        "Residual training overlap unknown",
+        "Strict human species isolation"
+      ],
+      "model_version": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "openadmet_hlm"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LOW-MEDIUM",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "openadmet_clearance (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "log10(mL/min/kg)",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "EXTERNAL_VALIDATION_INSUFFICIENT"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "endpoint_id": "ionization_pka_estimated",
+      "endpoint_name": "Ionization (pKa)",
+      "evidence_class": "RULE_ESTIMATE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "RULE_ESTIMATE: not a quantitatively validated ML model",
+        "Estimates derived from literature SMARTS pKa ranges; accuracy \u00b1 1\u20132 pKa units",
+        "Multi-protic and complex ampholyte systems have high uncertainty",
+        "Must not be presented to users as a validated quantitative pKa prediction",
+        "Site/rule semantics, not validated quantitative ML",
+        "Approximate \u00b11\u20132 pKa-unit uncertainty",
+        "Polyprotic and zwitterion limitations"
+      ],
+      "model_version": [
+        "stage4c4-ionization-v1"
+      ],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "ionization_smarts_rules_v1"
+      ],
+      "production_strategy": "RULE_ESTIMATE",
+      "reliability": "LOW-MEDIUM",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "structural_ionization_smarts (stage4c4)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "RULE_ESTIMATE"
+    },
+    {
+      "AD_policy": "Limited to supported SyGMa Phase I/II transformation rules and chemically valid products.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Rule evidence and rank are reported; no atom-level ML confidence is implied.",
+      "endpoint_contract_version": "stage3d-sygma-v1",
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "endpoint_name": "Metabolite hypotheses",
+      "evidence_class": "RULE_BASED",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Outputs are predicted metabolite hypotheses, not experimentally confirmed metabolites",
+        "No qualified atom-level ML probability is emitted",
+        "CYP compound-level evidence cannot assign an atom or transformation to an isoform"
+      ],
+      "model_version": [
+        "sygma-v1.1.0"
+      ],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "sygma_phase1_2"
+      ],
+      "production_strategy": "RULE_BASED",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "SyGMa stage3d rule baseline",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3b",
+      "endpoint_id": "microsomal_clearance_generic",
+      "endpoint_name": "Microsomal clearance",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Species isolation enforced. HLM/RLM/MLM outputs must not be averaged.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "MLM intrinsic clearance",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Species: Mouse microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid.",
+        "Independent raw benchmark unavailable",
+        "Residual training overlap unknown",
+        "Strict mouse species isolation"
+      ],
+      "model_version": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "openadmet_mlm"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "INSUFFICIENT_EVIDENCE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "openadmet_clearance (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Mouse",
+      "unit": "log10(mL/min/kg)",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "EXTERNAL_VALIDATION_INSUFFICIENT"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "permeability_caco2_logpapp",
+      "endpoint_name": "Permeability",
+      "evidence_class": "VALIDATED_MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Training dataset lacks assay direction (A\u2192B vs B\u2192A) and pH metadata",
+        "Not PAMPA, not MDCK, not efflux ratio",
+        "Small external validation cohort (N=34) limits ensemble conclusions (Stage 4D-2C)",
+        "ExpansionRx external MAE 0.5695; RMSE 0.7457; Spearman 0.0410",
+        "Limited ranking ability and AD coverage",
+        "Residual training overlap unknown",
+        "Assay heterogeneity"
+      ],
+      "model_version": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_caco2"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED / LOW-MEDIUM",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_caco2 (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [
+        {
+          "changes_production": false,
+          "model_id": "physchem_caco2_v1",
+          "model_version": "physchem-caco2-v1.0",
+          "purpose": "accuracy/complementarity monitoring",
+          "role": "SHADOW_ONLY"
+        }
+      ],
+      "species": "Human Caco-2 Cell Line",
+      "unit": "log10(cm/s)",
+      "validation_state": "INDEPENDENT_PARTIAL",
+      "validation_strength": "INDEPENDENT_COMPLETE_WITH_LIMITATIONS"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage4c4",
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "endpoint_name": "logD7.4 (quantitative ML)",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Only emitted when the ionization assumptions required by the derivation are available.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "DERIVED_ESTIMATE provenance is separate from model confidence.",
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "endpoint_name": "logD pH7.4 derived estimate",
+      "evidence_class": "DERIVED_ESTIMATE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Not a standalone quantitative ML logD7.4 model",
+        "Monoprotic assumptions can fail for polyprotic or zwitterionic compounds",
+        "Calculated cLogP is never relabeled as experimental or validated predicted logD",
+        "Depends on cLogP and pKa quality",
+        "Simplified monoprotic ionization and pH 7.4 assumption",
+        "Polyprotic/zwitterion limitations; not validated quantitative ML"
+      ],
+      "model_version": [
+        "stage4c4-ionization-v1"
+      ],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "henderson_hasselbalch_logd_v1"
+      ],
+      "production_strategy": "DERIVED_ESTIMATE",
+      "reliability": "LOW-MEDIUM",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "stage4c4-ionization-derived-logd",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "DERIVED_ESTIMATE"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage4c4",
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "endpoint_name": "pKa (quantitative ML)",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Requires an RDKit-sanitizable standardized molecular structure.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Calculated provenance is reported separately; no ML confidence is assigned.",
+      "endpoint_contract_version": "stage1-rdkit-property-pipeline-v1",
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "endpoint_name": "Physicochemical properties",
+      "evidence_class": "DERIVED_ESTIMATE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Crippen cLogP is a calculated descriptor and is not logD at any pH",
+        "QED and medicinal-chemistry rules are heuristic summaries, not validated clinical outcomes",
+        "Descriptor calculations do not represent experimental measurements"
+      ],
+      "model_version": [
+        "rdkit-2025.03.1"
+      ],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "rdkit_2d_descriptors"
+      ],
+      "production_strategy": "DERIVED_ESTIMATE",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "RDKit property pipeline baseline",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Evidence hierarchy: (1) NCA from in vivo data; (2) IVIVE from microsomal clearance; (3) allometric scaling from species data. Each method has distinct assumptions.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "pk_bioavailability_fraction",
+      "endpoint_name": "PK Bioavailability",
+      "evidence_class": "MECHANISTIC",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "model_version": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "mechanistic_pk_baseline (stage5a1)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+      "unit": "%",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Evidence hierarchy: (1) NCA from in vivo data; (2) IVIVE from microsomal clearance; (3) allometric scaling from species data. Each method has distinct assumptions.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "pk_clearance_systemic",
+      "endpoint_name": "PK Systemic Clearance",
+      "evidence_class": "MECHANISTIC",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "model_version": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "mechanistic_pk_baseline (stage5a1)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+      "unit": "mL/min/kg",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Requires route-compatible PK parameters with explicit experimental or derived provenance.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Simulation input evidence and parameter provenance remain separate from numerical output.",
+      "endpoint_contract_version": "stage5b2-pk-simulation-v1",
+      "endpoint_id": "pk_concentration_time_simulation",
+      "endpoint_name": "PK Simulation",
+      "evidence_class": "MECHANISTIC",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Simulation does not create missing CL, V, F, or ka evidence",
+        "Experimental, NCA, IVIVE, allometric, and derived inputs retain distinct assumptions",
+        "Mechanistic methods must not be averaged as ML predictions"
+      ],
+      "model_version": [
+        "5B-2.0"
+      ],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "pk_simulation"
+      ],
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "PK simulation 5B-2.0 baseline",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Evidence hierarchy: (1) NCA from in vivo data; (2) IVIVE from microsomal clearance; (3) allometric scaling from species data. Each method has distinct assumptions.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "pk_volume_distribution_vss",
+      "endpoint_name": "PK Volume of Distribution",
+      "evidence_class": "MECHANISTIC",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "model_version": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "mechanistic_pk_baseline (stage5a1)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+      "unit": "L/kg",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "ppb_human_percent_bound",
+      "endpoint_name": "Plasma protein binding",
+      "evidence_class": "VALIDATED_MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Single deterministic checkpoint; no uncertainty quantification",
+        "Independent validation (Biogen N=185): MAE 14.6%; moderate accuracy",
+        "Assay conditions not retained; cannot isolate total vs non-specific binding"
+      ],
+      "model_version": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_ppbr"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_ppbr (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "% bound",
+      "validation_state": "INDEPENDENT_PARTIAL",
+      "validation_strength": "INDEPENDENT_PARTIAL"
+    },
+    {
+      "AD_policy": "Species isolation enforced. HLM/RLM/MLM outputs must not be averaged.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "RLM intrinsic clearance",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Species: Rat microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid.",
+        "Independent raw benchmark unavailable",
+        "Residual training overlap unknown",
+        "Strict rat species isolation"
+      ],
+      "model_version": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "openadmet_rlm"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LOW-MEDIUM",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "openadmet_clearance (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Rat",
+      "unit": "log10(mL/min/kg)",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "EXTERNAL_VALIDATION_INSUFFICIENT"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "endpoint_name": "Ames mutagenicity",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Training mixes TA98, TA100, TA1535, TA1537, TA102 with/without S9; strains not per-row",
+        "Positive and negative cutoffs vary by strain; aggregate label is a simplified binary",
+        "Distinct from mammalian micronucleus or chromosomal aberration endpoints"
+      ],
+      "model_version": [
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admet_ai_ames"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admet_ai_ames (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Salmonella typhimurium",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_cns_liability",
+      "endpoint_name": "CNS liability",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "safety_dili_clinical_prob",
+      "endpoint_name": "DILI clinical liability",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Small training set (N=475); DILI classification is clinically heterogeneous",
+        "Clinical DILI labels aggregate diverse mechanisms; not mechanism-specific",
+        "High clinical uncertainty; output is a screening liability, not causal assessment"
+      ],
+      "model_version": [
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admet_ai_dili"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admet_ai_dili (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "PUBLISHER_REPORTED_ONLY",
+      "validation_strength": "PUBLISHER_REPORTED_ONLY"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_general_cytotoxicity",
+      "endpoint_name": "General cytotoxicity",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "CLOSED",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "CALIBRATION_RESEARCH",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_name": "hERG liability",
+      "evidence_class": "VALIDATED_MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "AUROC=0.667 \u2014 moderate base discrimination; cannot reach safety-screening specificity targets by calibration alone",
+        "Training prevalence 86% vs evaluation 67%: 18.8 pp prior shift (CLASS_IMBALANCE)",
+        "72.9% of evaluation compounds are IC50 borderline (1k\u201330k nM): LABEL_BOUNDARY_UNCERTAINTY",
+        "ASSAY_HETEROGENEITY_PRESENT: Wang et al. pools patch-clamp + radioligand binding",
+        "M2 rescue rate 5.4%: BETTER_SECONDARY_MODEL_REQUIRED",
+        "FP/FN ratio 17.7:1 at threshold 0.50",
+        "Raw M1: AUROC 0.6669; MCC 0.1844; BAcc 0.5442; sensitivity 0.9755; specificity 0.113 at threshold 0.50",
+        "Raw M1: Brier 0.2745; LogLoss 1.6901; ECE 0.2651",
+        "Platt is calibration research only; it improved historical-holdout Brier/LogLoss/ECE but did not qualify a production threshold",
+        "Prevalence shift, assay heterogeneity, borderline labels, and limited discrimination"
+      ],
+      "model_version": [
+        "admetica-d4f7056-herg-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_safety_herg"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LOW / LOW-MEDIUM",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_safety_herg raw (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [
+        {
+          "changes_production": false,
+          "model_id": "physchem_herg_v1",
+          "model_version": "physchem-herg-v1.0",
+          "purpose": "calibration support",
+          "role": "CALIBRATION_SUPPORTING_SHADOW_ONLY_NOT_DISCRIMINATIVE_BLEND"
+        }
+      ],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "INDEPENDENT_COMPLETE_WITH_LIMITATIONS",
+      "validation_strength": "INDEPENDENT_COMPLETE_WITH_LIMITATIONS"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "endpoint_name": "Mitochondrial toxicity",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_skin_sensitization",
+      "endpoint_name": "Skin sensitization",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "solubility_aqueous_logs",
+      "endpoint_name": "Solubility",
+      "evidence_class": "VALIDATED_MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Training aggregates heterogeneous pH/temperature/protocol conditions",
+        "Not pH-specific; no intrinsic solubility separation",
+        "Adaptive weighting architecture valid but no global accuracy gain (Stage 4D-3A2)"
+      ],
+      "model_version": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "output_type": "REGRESSION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_solubility"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [
+        {
+          "changes_production": false,
+          "model_id": "esol_delaney_v1",
+          "model_version": "esol-delaney-2004-v1.0",
+          "purpose": "accuracy/complementarity monitoring",
+          "role": "SHADOW_RESEARCH"
+        }
+      ],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_solubility (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [
+        {
+          "changes_production": false,
+          "model_id": "esol_delaney_v1",
+          "model_version": "esol-delaney-2004-v1.0",
+          "purpose": "accuracy/complementarity monitoring",
+          "role": "SHADOW_RESEARCH"
+        },
+        {
+          "changes_production": false,
+          "model_id": "rdkit_gbr_solubility_v1",
+          "model_version": "rdkit-gbr-sol-v1.0",
+          "purpose": "accuracy/complementarity monitoring",
+          "role": "ADAPTIVE_EXCLUDED"
+        }
+      ],
+      "species": "Chemical / In Vitro",
+      "unit": "log10(mol/L)",
+      "validation_state": "INDEPENDENT_PARTIAL",
+      "validation_strength": "INDEPENDENT_PARTIAL"
+    },
+    {
+      "AD_policy": "SyGMa: SMARTS-based biotransformation rules; SMARTCyp: DFT-derived fragment energies. Raw model scores are NOT averaged; reciprocal-rank fusion is applied per atom.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "som_metabolic_soft_spots",
+      "endpoint_name": "Metabolic soft spots",
+      "evidence_class": "RULE_BASED",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "SyGMa applies reaction rules; coverage limited to known biotransformations",
+        "SMARTCyp covers CYP-mediated oxidation; other pathways (UGT, SULT) not included",
+        "Raw metabolic scores are mechanistically distinct; do NOT average as scalar values"
+      ],
+      "model_version": [
+        "sygma-v1.1.0",
+        "smartcyp-v3.0"
+      ],
+      "output_type": "RANKING",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "sygma_phase1_2",
+        "smartcyp_dft_v1"
+      ],
+      "production_strategy": "RANK_FUSION",
+      "reliability": "MECHANISTIC",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "sygma_phase1_2@sygma-v1.1.0 + smartcyp_dft_v1@smartcyp-v3.0 rank-fusion baseline",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "atom_index_ranking",
+      "validation_state": "MECHANISTIC",
+      "validation_strength": "MECHANISTIC"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "endpoint_name": "BCRP inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "endpoint_name": "BCRP substrate",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "endpoint_name": "BSEP inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "endpoint_name": "MATE1 inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "endpoint_name": "MATE2-K inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "endpoint_name": "OATP1B1 inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "endpoint_name": "OATP1B3 inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "endpoint_name": "OCT1 inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "endpoint_name": "OCT2 inhibitor",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "RAW",
+        "threshold": 0.5
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "endpoint_name": "P-gp inhibitor",
+      "evidence_class": "MODEL_PREDICTION",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "Heterogeneous training: inhibitor labels pooled across cell systems, probes, and IC50 cutoffs.",
+        "No independent external validation qualified (Stage 4D-0)."
+      ],
+      "model_version": [
+        "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [
+        "admetica_transporter_pgp-inhibitor"
+      ],
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "reliability": "LIMITED",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": "admetica_transporter_pgp-inhibitor (stage4d0)",
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Human",
+      "unit": "probability",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    },
+    {
+      "AD_policy": "Chemical applicability domain evaluated per model.",
+      "Engine_v1_status": "FROZEN",
+      "calibration_state": {
+        "production_enabled": false,
+        "status": "NOT_APPLICABLE",
+        "threshold": null
+      },
+      "confidence_logic": "Model-reported confidence; not calibrated probability.",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "endpoint_name": "P-gp substrate",
+      "evidence_class": "MODEL_UNAVAILABLE",
+      "freeze_semantics": "Immutable prospective prediction provenance; experimental feedback never rewrites this prediction.",
+      "limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "model_version": [],
+      "output_type": "WORKFLOW_OUTPUT",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "production_model": [],
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "reliability": "UNAVAILABLE",
+      "research_models": [],
+      "rollback_target": {
+        "commit": "91fbf21",
+        "endpoint_target": null,
+        "policy_version": "stage4d4-endpoint-strategy-v1"
+      },
+      "shadow_models": [],
+      "species": "Not applicable / workflow-level",
+      "unit": "context-dependent",
+      "validation_state": "NOT_VALIDATED",
+      "validation_strength": "NOT_VALIDATED"
+    }
+  ],
+  "policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "policy_id": "drugopt-prediction-engine-v1",
+  "policy_version": "1.0.0"
+}
