@@ -1,0 +1,27 @@
+{
+  "assets": [
+    {
+      "asset": "MODEL_ADMET_AI_V2_HERG",
+      "checkpoint_or_data_pass": true,
+      "endpoint_pass": true,
+      "external_dataset_available": false,
+      "final": "FAIL_ARM64_RUNTIME",
+      "license_pass": true,
+      "overlap_plan_pass": false,
+      "runtime_pass": false,
+      "stage4e3_eligible": false
+    },
+    {
+      "asset": "DATA_OPENADMET_EXPANSIONRX_CACO2_PAPP_AB",
+      "checkpoint_or_data_pass": true,
+      "endpoint_pass": true,
+      "external_dataset_available": true,
+      "final": "PASS_AS_STAGE4E3_EXTERNAL_WITH_EXCLUSIONS",
+      "license_pass": true,
+      "overlap_plan_pass": true,
+      "runtime_pass": true,
+      "stage4e3_eligible": true
+    }
+  ],
+  "production_changed": false
+}

@@ -1,0 +1,102 @@
+{
+  "production_changed": false,
+  "records": [
+    {
+      "actions_taken": [
+        "Official repository/README/release path inspected"
+      ],
+      "candidate": "MODEL_CARDIOGENAI_HERG",
+      "final_decision": "BLOCKER_UNRESOLVED_CARDIOGENAI",
+      "original_blocker": "LEGAL_REVIEW_REQUIRED",
+      "resolution": "External unversioned parameters and exact hERG head/license remain unresolved.",
+      "resolved": false,
+      "sources_checked": [
+        "https://github.com/gregory-kyro/cardiogenai"
+      ]
+    },
+    {
+      "actions_taken": [
+        "Official repository, checkpoint path, species/units inspected"
+      ],
+      "candidate": "MODEL_METABOGNN_CLEARANCE",
+      "final_decision": "BLOCKER_UNRESOLVED_METABOGNN",
+      "original_blocker": "LEGAL_REVIEW_REQUIRED",
+      "resolution": "License and direct species/unit contract are unresolved.",
+      "resolved": false,
+      "sources_checked": [
+        "https://github.com/qwon135/MetaboGNN"
+      ]
+    },
+    {
+      "actions_taken": [
+        "Official source snapshot pinned",
+        "PyG isolated environment installed on aarch64",
+        "CPU model-load attempted"
+      ],
+      "candidate": "MODEL_PKASOLVER_LITE",
+      "final_decision": "BLOCKER_UNRESOLVED_REPRODUCIBILITY",
+      "original_blocker": "ARM64_WORKAROUND_REQUIRED",
+      "resolution": "Source-contained lite checkpoint is incompatible with current released PyG architecture; strict state-dict load fails.",
+      "resolved": false,
+      "sources_checked": [
+        "https://github.com/mayrf/pkasolver"
+      ]
+    },
+    {
+      "actions_taken": [
+        "Official repository/weight layout/environment inspected"
+      ],
+      "candidate": "MODEL_PKALEARN_GNN",
+      "final_decision": "BLOCKER_UNRESOLVED_PKALEARN",
+      "original_blocker": "LEGAL_REVIEW_REQUIRED",
+      "resolution": "Weight/data lineage remains legally unresolved; CUDA/Windows-oriented environment is not ARM64 evidence.",
+      "resolved": false,
+      "sources_checked": [
+        "https://github.com/MoitessierLab/pKaLearn"
+      ]
+    },
+    {
+      "actions_taken": [
+        "Local lineage and public source chain rechecked"
+      ],
+      "candidate": "DATA_BIOGEN_PROSPECTIVE",
+      "final_decision": "NO_GO_DATA_ACCESS",
+      "original_blocker": "NO_GO_DATA_ACCESS",
+      "resolution": "No immutable public raw structure/value release or reuse grant located.",
+      "resolved": false,
+      "sources_checked": [
+        "validation/stage4d0_dataset_lineage.json"
+      ]
+    },
+    {
+      "actions_taken": [
+        "Official OpenADMET/Hugging Face release inspected",
+        "Pinned raw CSV acquired",
+        "SHA256 and standardization intake completed"
+      ],
+      "candidate": "DATA_EXPANSIONRX",
+      "final_decision": "PASS_WITH_EXCLUSIONS",
+      "original_blocker": "LICENSE_REVIEW_REQUIRED",
+      "resolution": "CC-BY-4.0 official release with raw SMILES, Caco-2 A\u2192B values, HLM/RLM/MLM columns, DOI, pinned revision, and SHA256.",
+      "resolved": true,
+      "sources_checked": [
+        "https://openadmet.org/datasetsmodels/",
+        "https://huggingface.co/datasets/openadmet/openadmet-expansionrx-challenge-data"
+      ]
+    },
+    {
+      "actions_taken": [
+        "Official repository/source-license path rechecked"
+      ],
+      "candidate": "DATA_LOGD74_1130",
+      "final_decision": "BLOCKER_UNRESOLVED_LICENSE",
+      "original_blocker": "LICENSE_REVIEW_REQUIRED",
+      "resolution": "Reusable raw-data license remains unresolved.",
+      "resolved": false,
+      "sources_checked": [
+        "https://github.com/nanxstats/logd74"
+      ]
+    }
+  ],
+  "stage": "4E-2R"
+}

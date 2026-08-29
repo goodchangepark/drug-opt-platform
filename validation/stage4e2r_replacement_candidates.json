@@ -1,0 +1,18 @@
+{
+  "candidates": [
+    {
+      "architecture": "Chemprop v2 message-passing GNN",
+      "arm64": "Package dependency resolution selected CUDA-heavy Torch 2.13 stack; no CPU smoke completed",
+      "candidate_id": "MODEL_ADMET_AI_V2_HERG",
+      "checkpoint": "admet-ai==2.0.1 wheel, SHA256 fef3527f637abb00d272cf824e8eef0136fe31ebde6c56881f1a8c02c0417806; bundled model assets",
+      "decision": "ARM64_WORKAROUND_REQUIRED",
+      "endpoint": "safety_herg_blocker_prob",
+      "endpoint_semantics": "Binary hERG blocker classification",
+      "external_benchmark_path": "Requires a non-TDC hERG external dataset",
+      "license": "MIT",
+      "source": "https://pypi.org/project/admet-ai/",
+      "training_lineage": "TDC hERG (648); high overlap risk with TDC/Wang-derived audits"
+    }
+  ],
+  "replacement_search_scope": "hERG only after CardioGenAI blocker"
+}

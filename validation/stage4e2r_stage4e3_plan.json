@@ -1,0 +1,31 @@
+{
+  "eligible_dataset_ids": [
+    "DATA_OPENADMET_EXPANSIONRX_CACO2_PAPP_AB"
+  ],
+  "eligible_model_ids": [],
+  "pilot_size": {
+    "datasets": 1,
+    "models": 0
+  },
+  "plans": [
+    {
+      "ad_analysis": "report in-domain, borderline, and OOD separately",
+      "asset": "DATA_OPENADMET_EXPANSIONRX_CACO2_PAPP_AB",
+      "bootstrap": "paired 1,000 replicate comparison against current core",
+      "complementarity": "only if a future independently qualified secondary Caco-2 model exists",
+      "current_core_comparator": "admetica_caco2",
+      "exact_overlap_exclusion": "Current standardizer canonical SMILES; remove duplicates and any available core-training/Stage4D cohort matches",
+      "metrics": [
+        "MAE",
+        "RMSE",
+        "bias",
+        "Spearman",
+        "within-2-fold",
+        "within-3-fold"
+      ],
+      "purpose": "External Caco-2 A\u2192B benchmark only; no model activation",
+      "scaffold_strategy": "Murcko scaffold split after exclusion; chemically meaningful grouping for acyclic compounds"
+    }
+  ],
+  "ready_state": "PARTIAL_READY_FOR_STAGE_4E3"
+}

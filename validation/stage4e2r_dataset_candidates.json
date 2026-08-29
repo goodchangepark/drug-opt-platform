@@ -1,0 +1,24 @@
+{
+  "datasets": [
+    {
+      "acquisition": {
+        "filename": "expansion_data_raw.csv",
+        "outside_git": true,
+        "sha256": "f674ec74cca1146bc386f832a32d4b8d921d3c312f92cb436cc005901c724a3c"
+      },
+      "dataset_id": "DATA_OPENADMET_EXPANSIONRX_CACO2_PAPP_AB",
+      "decision": "PASS_WITH_EXCLUSIONS",
+      "doi": "10.57967/hf/9687",
+      "endpoint": "permeability_caco2_logpapp",
+      "license": "CC-BY-4.0",
+      "lineage": "Expansion Therapeutics post-challenge public release",
+      "n": 7618,
+      "overlap_risk": "UNKNOWN_FOR_ADMETICA_CORE; exact canonical-SMILES exclusions required",
+      "revision": "6b898ccc43d10d25b230fb09e22a6e30c30022b5",
+      "source": "https://huggingface.co/datasets/openadmet/openadmet-expansionrx-challenge-data",
+      "structures": "SMILES; 7,618 valid after current standardizer",
+      "unit": "Papp A\u2192B, source numeric unit recorded as source unit; log transform is deferred to Stage 4E-3 contract reconciliation",
+      "values": "Caco-2 Permeability Papp A>B; 3,773 numeric and 33 censored"
+    }
+  ]
+}

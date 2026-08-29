@@ -234,6 +234,13 @@ VERSION_HISTORY = [
         "milestone": "Candidate Acquisition & Runtime Feasibility Qualification",
         "improvements": "Audited candidate licenses, checkpoints, endpoint compatibility, and Xavier ARM64 feasibility; finalized a fail-closed Stage 4E-3 benchmark gate with no production prediction change.",
     },
+    {
+        "version": "0.7.1-stage4e2r",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-2R",
+        "milestone": "Model Acquisition Blocker Resolution",
+        "improvements": "Re-evaluated blocked candidates, acquired a pinned licensed Caco-2 external benchmark, and documented unresolved model gates; production prediction engine unchanged.",
+    },
 ]
 
 

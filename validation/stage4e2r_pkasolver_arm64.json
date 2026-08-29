@@ -1,0 +1,20 @@
+{
+  "architecture": "aarch64",
+  "build_method": "isolated environment with official ARM64 wheels for torch_geometric and its Python dependencies",
+  "candidate_id": "MODEL_PKASOLVER_LITE",
+  "cold_latency_seconds": null,
+  "decision": "NO_GO_REPRODUCIBILITY",
+  "determinism": "not testable",
+  "environment": {
+    "python": "3.11",
+    "torch": "2.8.0+cpu (read-only production site packages)",
+    "torch_geometric": "2.8.0.post1 isolated"
+  },
+  "errors": [
+    "Checkpoint state-dict keys expect legacy PyG GIN layout; current released PyG model layout differs."
+  ],
+  "load_success": false,
+  "memory_mb": null,
+  "test_panel": "not run because QueryModel construction failed before inference",
+  "warm_latency_seconds": null
+}
