@@ -1,0 +1,1895 @@
+{
+  "aleniglipron_used_for_optimization": false,
+  "artifact": "STAGE4D7_ENDPOINT_ACCURACY_MATRIX",
+  "endpoint_count": 49,
+  "endpoints": [
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+      ],
+      "current_production_models": [
+        "admet_ai_ames"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "endpoint_name": "Ames mutagenicity",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Training mixes TA98, TA100, TA1535, TA1537, TA102 with/without S9; strains not per-row",
+        "Positive and negative cutoffs vary by strain; aggregate label is a simplified binary",
+        "Distinct from mammalian micronucleus or chromosomal aberration endpoints"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "distribution_bbb_penetration",
+      "endpoint_name": "BBB penetration",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "endpoint_name": "BCRP inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "endpoint_name": "BCRP substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "endpoint_name": "BSEP inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_cns_liability",
+      "endpoint_name": "CNS liability",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp1a2-inhibitor"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "endpoint_name": "CYP1A2 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Isoform-specific: CYP1A2. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3c",
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "endpoint_name": "CYP1A2 substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp2c19-inhibitor"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "endpoint_name": "CYP2C19 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Isoform-specific: CYP2C19. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3c",
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "endpoint_name": "CYP2C19 substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp2c9-inhibitor"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "endpoint_name": "CYP2C9 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Isoform-specific: CYP2C9. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp2c9-substrate"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "endpoint_name": "CYP2C9 substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp2d6-inhibitor"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "endpoint_name": "CYP2D6 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Isoform-specific: CYP2D6. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp2d6-substrate"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "endpoint_name": "CYP2D6 substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [
+        "morgan_cyp3a4_inh_v1"
+      ],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE",
+        "FIXED_WEIGHT_BLEND",
+        "CALIBRATED_FIXED_BLEND"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": "FIXED_WEIGHT_BLEND",
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp3a4-inhibitor"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "Existing attribution/calibration analysis; probability and discrimination are kept separate.",
+      "dataset_provenance": [
+        "validation/stage4d3b1a_final_decision.json",
+        "validation/stage4d3b1a_calibration.json"
+      ],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "SHADOW_RETAINED"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "evidence_summary": "Fixed 0.957828/0.042172 blend is research evidence for probability behavior; dynamic adaptation is inferior to the fixed prior.",
+      "known_limitations": [
+        "Isoform-specific: CYP3A4. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions.",
+        "Stage 4D-3B1A: adaptive weighting NO_GO; fixed global blend does not outperform Fixed Global Prior on Brier/MCC/BAcc; dynamic feedback adds no value beyond w=0.9578/0.0422."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": 250,
+      "source_artifacts": [
+        {
+          "path": "validation/stage4d3b1a_final_decision.json",
+          "sha256": "40561c4f4d4851dc0fd18a3ecb37fdc28a8740801bd5158887f998df273bcd4f"
+        },
+        {
+          "path": "validation/stage4d3b1a_calibration.json",
+          "sha256": "c03b61b550d3744ba0a2e698329404c3388e0ef4c29cfe8d8845a4f57fb3092e"
+        }
+      ],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": "Stage 4D-3B1A representative CYP3A4 cohort"
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_cyp_cyp3a4-substrate"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "endpoint_name": "CYP3A4 substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+      ],
+      "current_production_models": [
+        "admet_ai_dili"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "safety_dili_clinical_prob",
+      "endpoint_name": "DILI clinical liability",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Small training set (N=475); DILI classification is clinically heterogeneous",
+        "Clinical DILI labels aggregate diverse mechanisms; not mechanism-specific",
+        "High clinical uncertainty; output is a screening liability, not causal assessment"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3b",
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "endpoint_name": "Dog liver microsomal intrinsic clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_general_cytotoxicity",
+      "endpoint_name": "General cytotoxicity",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "current_production_models": [
+        "openadmet_hlm"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "HLM intrinsic clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Species: Human microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "RULE_ESTIMATE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "RULE_ESTIMATE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "stage4c4-ionization-v1"
+      ],
+      "current_production_models": [
+        "ionization_smarts_rules_v1"
+      ],
+      "current_production_strategy": "RULE_ESTIMATE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "endpoint_id": "ionization_pka_estimated",
+      "endpoint_name": "Ionization (pKa)",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "RULE_ESTIMATE: not a quantitatively validated ML model",
+        "Estimates derived from literature SMARTS pKa ranges; accuracy \u00b1 1\u20132 pKa units",
+        "Multi-protic and complex ampholyte systems have high uncertainty",
+        "Must not be presented to users as a validated quantitative pKa prediction"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "RULE_OR_DERIVED_ONLY",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "endpoint_name": "MATE1 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "endpoint_name": "MATE2-K inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "current_production_models": [
+        "openadmet_mlm"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "MLM intrinsic clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Species: Mouse microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "RANK_FUSION",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "RANK_FUSION"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "sygma-v1.1.0",
+        "smartcyp-v3.0"
+      ],
+      "current_production_models": [
+        "sygma_phase1_2",
+        "smartcyp_dft_v1"
+      ],
+      "current_production_strategy": "RANK_FUSION",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "som_metabolic_soft_spots",
+      "endpoint_name": "Metabolic soft spots",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "SyGMa applies reaction rules; coverage limited to known biotransformations",
+        "SMARTCyp covers CYP-mediated oxidation; other pathways (UGT, SULT) not included",
+        "Raw metabolic scores are mechanistically distinct; do NOT average as scalar values"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "RULE_BASED",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "RULE_BASED"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "sygma-v1.1.0"
+      ],
+      "current_production_models": [
+        "sygma_phase1_2"
+      ],
+      "current_production_strategy": "RULE_BASED",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "endpoint_contract_version": "stage3d-sygma-v1",
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "endpoint_name": "Metabolite hypotheses",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Outputs are predicted metabolite hypotheses, not experimentally confirmed metabolites",
+        "No qualified atom-level ML probability is emitted",
+        "CYP compound-level evidence cannot assign an atom or transformation to an isoform"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "RULE_OR_DERIVED_ONLY",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3b",
+      "endpoint_id": "microsomal_clearance_generic",
+      "endpoint_name": "Microsomal clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "endpoint_name": "Mitochondrial toxicity",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3b",
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "endpoint_name": "Monkey liver microsomal intrinsic clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "endpoint_name": "OATP1B1 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "endpoint_name": "OATP1B3 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "endpoint_name": "OCT1 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "endpoint_name": "OCT2 inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_transporter_pgp-inhibitor"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "endpoint_name": "P-gp inhibitor",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Heterogeneous training: inhibitor labels pooled across cell systems, probes, and IC50 cutoffs.",
+        "No independent external validation qualified (Stage 4D-0)."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3e",
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "endpoint_name": "P-gp substrate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "METHOD_QUALIFICATION_ONLY"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "current_production_models": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "current_production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "pk_bioavailability_fraction",
+      "endpoint_name": "PK Bioavailability",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MECHANISTIC_NO_CONSENSUS",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "METHOD_QUALIFICATION_ONLY"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "5B-2.0"
+      ],
+      "current_production_models": [
+        "pk_simulation"
+      ],
+      "current_production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "endpoint_contract_version": "stage5b2-pk-simulation-v1",
+      "endpoint_id": "pk_concentration_time_simulation",
+      "endpoint_name": "PK Simulation",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Simulation does not create missing CL, V, F, or ka evidence",
+        "Experimental, NCA, IVIVE, allometric, and derived inputs retain distinct assumptions",
+        "Mechanistic methods must not be averaged as ML predictions"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MECHANISTIC_NO_CONSENSUS",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "METHOD_QUALIFICATION_ONLY"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "current_production_models": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "current_production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "pk_clearance_systemic",
+      "endpoint_name": "PK Systemic Clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MECHANISTIC_NO_CONSENSUS",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "METHOD_QUALIFICATION_ONLY"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "current_production_models": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "current_production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "pk_volume_distribution_vss",
+      "endpoint_name": "PK Volume of Distribution",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MECHANISTIC_NO_CONSENSUS",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [
+        "physchem_caco2_v1"
+      ],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE",
+        "FIXED_WEIGHT_BLEND",
+        "STATIC_CONSENSUS"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": "STATIC_CONSENSUS",
+      "current_model_versions": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_caco2"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "INDEPENDENT_PARTIAL",
+      "data_separation": "Existing bootstrap comparison; no selector fitted on the cohort.",
+      "dataset_provenance": [
+        "validation/stage4d2c_bootstrap_comparison.json"
+      ],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "DATA_LIMITED_ACCURACY_CEILING",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "permeability_caco2_logpapp",
+      "endpoint_name": "Permeability",
+      "evidence_summary": "N\u224834; apparent consensus MAE benefit has CI crossing zero and inadequate independent qualification evidence.",
+      "known_limitations": [
+        "Training dataset lacks assay direction (A\u2192B vs B\u2192A) and pH metadata",
+        "Not PAMPA, not MDCK, not efflux ratio",
+        "Small external validation cohort (N=34) limits ensemble conclusions (Stage 4D-2C)"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": 34,
+      "source_artifacts": [
+        {
+          "path": "validation/stage4d2c_bootstrap_comparison.json",
+          "sha256": "e9cc5337a1f7447ffdb90e9f4827519048dbb3a9374d1f007bb766b322be257c"
+        }
+      ],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": "Stage 4D-2C Caco-2 representative cohort"
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "DERIVED_ESTIMATE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "DERIVED_ESTIMATE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "rdkit-2025.03.1"
+      ],
+      "current_production_models": [
+        "rdkit_2d_descriptors"
+      ],
+      "current_production_strategy": "DERIVED_ESTIMATE",
+      "current_validation_status": "MECHANISTIC",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "endpoint_contract_version": "stage1-rdkit-property-pipeline-v1",
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "endpoint_name": "Physicochemical properties",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Crippen cLogP is a calculated descriptor and is not logD at any pH",
+        "QED and medicinal-chemistry rules are heuristic summaries, not validated clinical outcomes",
+        "Descriptor calculations do not represent experimental measurements"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "RULE_OR_DERIVED_ONLY",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_ppbr"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "INDEPENDENT_PARTIAL",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "ppb_human_percent_bound",
+      "endpoint_name": "Plasma protein binding",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Single deterministic checkpoint; no uncertainty quantification",
+        "Independent validation (Biogen N=185): MAE 14.6%; moderate accuracy",
+        "Assay conditions not retained; cannot isolate total vs non-specific binding"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "current_production_models": [
+        "openadmet_rlm"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "PUBLISHER_REPORTED_ONLY",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "RLM intrinsic clearance",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Species: Rat microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage3f",
+      "endpoint_id": "safety_skin_sensitization",
+      "endpoint_name": "Skin sensitization",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [
+        "esol_delaney_v1",
+        "rdkit_gbr_solubility_v1"
+      ],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE",
+        "FIXED_WEIGHT_BLEND",
+        "DOMAIN_AWARE_MODEL_SELECTOR"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": "ADAPTIVE_RESEARCH_SHADOW",
+      "current_model_versions": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_solubility"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "INDEPENDENT_PARTIAL",
+      "data_separation": "Existing replay/bootstrap evidence; no project measurements and no ALENIGLIPRON tuning.",
+      "dataset_provenance": [
+        "validation/stage4d3a2_m1_bootstrap.json",
+        "validation/stage4d3a2_final_decision.json"
+      ],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "SHADOW_RETAINED"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "solubility_aqueous_logs",
+      "endpoint_name": "Solubility",
+      "evidence_summary": "M1 MAE 0.4159 on N=250; adaptive M1+M2 delta MAE +0.0074, 95% CI [-0.0061, 0.0207], P(better)=0.159.",
+      "known_limitations": [
+        "Training aggregates heterogeneous pH/temperature/protocol conditions",
+        "Not pH-specific; no intrinsic solubility separation",
+        "Adaptive weighting architecture valid but no global accuracy gain (Stage 4D-3A2)"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": 250,
+      "source_artifacts": [
+        {
+          "path": "validation/stage4d3a2_m1_bootstrap.json",
+          "sha256": "0ce471a06705e4dd9f4cb489893aee61b9c1df0df5ff3304826a7450934a4b0e"
+        },
+        {
+          "path": "validation/stage4d3a2_final_decision.json",
+          "sha256": "b363b61edd063ea00db5a73d10d11b7528e43f4295f8e68bb2c1411f7fe9364f"
+        }
+      ],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": "Stage 4D-3A2 authoritative diverse solubility cohort"
+    },
+    {
+      "available_qualified_alternatives": [
+        "physchem_herg_v1"
+      ],
+      "best_validated_strategy": "CURRENT_SINGLE_CORE",
+      "calibration_candidates": [
+        "CALIBRATION_RESEARCH"
+      ],
+      "candidate_strategies_tested": [
+        "CURRENT_SINGLE_CORE",
+        "CALIBRATED_SINGLE_CORE",
+        "FIXED_WEIGHT_BLEND"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": "SINGLE_CORE_WITH_CALIBRATION",
+      "current_model_versions": [
+        "admetica-d4f7056-herg-chemprop-v2.1"
+      ],
+      "current_production_models": [
+        "admetica_safety_herg"
+      ],
+      "current_production_strategy": "SINGLE_CORE_MODEL",
+      "current_validation_status": "INDEPENDENT_COMPLETE_WITH_LIMITATIONS",
+      "data_separation": "Calibration was fitted on 546 and reported on untouched 182 holdout; threshold remains 0.50.",
+      "dataset_provenance": [
+        "validation/stage4d3b2a_calibration.json",
+        "validation/stage4d3b2a_model_metrics.json",
+        "validation/stage4d3b2a_final_decision.json"
+      ],
+      "decision_flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "CALIBRATION_RESEARCH_ONLY",
+        "BETTER_SECONDARY_MODEL_REQUIRED"
+      ],
+      "endpoint_contract_version": "1.0.0",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_name": "hERG liability",
+      "evidence_summary": "Scaffold-aware 546/182 calibration/holdout split improves probability calibration for Platt M1 but does not improve ranking; M2 discrimination remains inadequate.",
+      "known_limitations": [
+        "AUROC=0.667 \u2014 moderate base discrimination; cannot reach safety-screening specificity targets by calibration alone",
+        "Training prevalence 86% vs evaluation 67%: 18.8 pp prior shift (CLASS_IMBALANCE)",
+        "72.9% of evaluation compounds are IC50 borderline (1k\u201330k nM): LABEL_BOUNDARY_UNCERTAINTY",
+        "ASSAY_HETEROGENEITY_PRESENT: Wang et al. pools patch-clamp + radioligand binding",
+        "M2 rescue rate 5.4%: BETTER_SECONDARY_MODEL_REQUIRED",
+        "FP/FN ratio 17.7:1 at threshold 0.50"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "CURRENT_PRODUCTION_RETAINED",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": 728,
+      "source_artifacts": [
+        {
+          "path": "validation/stage4d3b2a_calibration.json",
+          "sha256": "399a39a1a51f12b0084cb59a05bd0c5055120a1a7f51c6a0bf6aeb821d761c78"
+        },
+        {
+          "path": "validation/stage4d3b2a_model_metrics.json",
+          "sha256": "f7dbd550f60bf5ac9c34b302858fbf88f3c6fbb6c6b203b5d471c981e06daa1d"
+        },
+        {
+          "path": "validation/stage4d3b2a_final_decision.json",
+          "sha256": "73014a8f66072d299bb61bcd1f3e0729011259f8944d7a57c4ded028049a6ee3"
+        }
+      ],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": "Stage 4D-3B2A hERG audit cohort"
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "DERIVED_ESTIMATE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [
+        "DERIVED_ESTIMATE"
+      ],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [
+        "stage4c4-ionization-v1"
+      ],
+      "current_production_models": [
+        "henderson_hasselbalch_logd_v1"
+      ],
+      "current_production_strategy": "DERIVED_ESTIMATE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "endpoint_name": "logD pH7.4 derived estimate",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "Not a standalone quantitative ML logD7.4 model",
+        "Monoprotic assumptions can fail for polyprotic or zwitterionic compounds",
+        "Calculated cLogP is never relabeled as experimental or validated predicted logD"
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "RULE_OR_DERIVED_ONLY",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage4c4",
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "endpoint_name": "logD7.4 (quantitative ML)",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    },
+    {
+      "available_qualified_alternatives": [],
+      "best_validated_strategy": "MODEL_UNAVAILABLE",
+      "calibration_candidates": [],
+      "candidate_strategies_tested": [],
+      "chemical_space_coverage": "See source artifact; no new selector/AD threshold was fitted in Stage 4D-7.",
+      "consensus_candidate": null,
+      "current_model_versions": [],
+      "current_production_models": [],
+      "current_production_strategy": "MODEL_UNAVAILABLE",
+      "current_validation_status": "NOT_VALIDATED",
+      "data_separation": "No project or same-compound experimental data is used.",
+      "dataset_provenance": [],
+      "decision_flags": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "endpoint_contract_version": "unavailable-stage4c4",
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "endpoint_name": "pKa (quantitative ML)",
+      "evidence_summary": "No endpoint-specific independent optimization evidence available.",
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "production_decision": "MODEL_UNAVAILABLE",
+      "promotion_eligibility": "FAIL_CLOSED_UNCONFIGURED_STAGE4D5_REQUIREMENTS",
+      "sample_size": null,
+      "source_artifacts": [],
+      "stage4d7_review_version": "stage4d7-preexperimental-review-v1",
+      "training_overlap_risk": "Not resolved to a promotion-grade independent claim unless explicitly stated in source artifact.",
+      "validation_dataset": null
+    }
+  ],
+  "production_policy_changes": [],
+  "project_or_series_adaptation": "NOT_IMPLEMENTED",
+  "review_version": "stage4d7-preexperimental-review-v1",
+  "same_compound_experimental_data_used": false,
+  "scope": "GLOBAL_PRE_EXPERIMENTAL_ONLY"
+}

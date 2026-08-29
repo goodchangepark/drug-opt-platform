@@ -1,0 +1,14 @@
+{
+  "artifact": "STAGE4D7_DOMAIN_ANALYSIS",
+  "caco2": "N\u224834 is inadequate for a stable domain selector.",
+  "cyp3a4": "Dynamic project/series adaptation previously had NO_ADAPTIVE_VALUE.",
+  "domain_aware_selector_fitted": false,
+  "herg": {
+    "m2": "Limited discriminatory complementarity; retained calibration-supporting shadow only.",
+    "out_of_domain": "N=2; insufficient for correction or selector claims.",
+    "source": "validation/stage4d3b2a_model_metrics.json"
+  },
+  "reason": "No nested, leakage-safe evidence establishes M2 superiority in an AD partition; OOD never triggers an automatic model switch.",
+  "review_version": "stage4d7-preexperimental-review-v1",
+  "solubility": "Stage 4D-3A2 retained M1 globally; no generalizable selector was validated."
+}

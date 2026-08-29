@@ -1,0 +1,62 @@
+{
+  "artifact": "STAGE4D7_BOOTSTRAP_RESULTS",
+  "caco2": {
+    "delta_mae": {
+      "ci_95": [
+        -0.0988,
+        0.0837
+      ],
+      "mean": -0.0134,
+      "median": -0.0172,
+      "prob_consensus_better": 0.629,
+      "std_error": 0.0474
+    },
+    "delta_rmse": {
+      "ci_95": [
+        -0.0879,
+        0.1449
+      ],
+      "mean": 0.0287,
+      "median": 0.0277,
+      "prob_consensus_better": 0.31,
+      "std_error": 0.0594
+    },
+    "n_replicates": 1000
+  },
+  "new_bootstrap_fitted": false,
+  "reason": "Reuses authoritative 1,000-replicate Stage 4D bootstrap analyses; no raw validation data are re-fit in Stage 4D-7.",
+  "review_version": "stage4d7-preexperimental-review-v1",
+  "solubility": {
+    "delta_mae": {
+      "ci_95": [
+        -0.0061,
+        0.0207
+      ],
+      "mean": 0.0074,
+      "median": 0.0072,
+      "prob_target_better": 0.159,
+      "std_error": 0.0071
+    },
+    "delta_rmse": {
+      "ci_95": [
+        -0.0277,
+        0.0187
+      ],
+      "mean": -0.0031,
+      "median": -0.003,
+      "prob_target_better": 0.6,
+      "std_error": 0.0119
+    },
+    "n_replicates": 1000
+  },
+  "source_artifacts": [
+    {
+      "path": "validation/stage4d2c_bootstrap_comparison.json",
+      "sha256": "e9cc5337a1f7447ffdb90e9f4827519048dbb3a9374d1f007bb766b322be257c"
+    },
+    {
+      "path": "validation/stage4d3a2_m1_bootstrap.json",
+      "sha256": "0ce471a06705e4dd9f4cb489893aee61b9c1df0df5ff3304826a7450934a4b0e"
+    }
+  ]
+}

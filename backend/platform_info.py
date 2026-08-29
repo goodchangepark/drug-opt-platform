@@ -208,6 +208,18 @@ VERSION_HISTORY = [
             "Legacy single-model path preserved as fallback."
         ),
     },
+    {
+        "version": "0.6.8-stage4d7",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4D-7",
+        "milestone": "Pre-Experimental Prediction Optimization",
+        "improvements": (
+            "Independently audited endpoint-specific initial-prediction candidates using existing "
+            "leakage-safe Stage 4D evidence. Production changes occur only after Stage 4D-5 "
+            "qualification gates pass; this review retained current policies where evidence or "
+            "configured promotion requirements were insufficient."
+        ),
+    },
 ]
 
 

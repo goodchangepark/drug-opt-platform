@@ -1,0 +1,575 @@
+{
+  "artifact": "STAGE4D7_CANDIDATE_STRATEGY_RESULTS",
+  "manual_activation_mode_preserved": true,
+  "production_policy_changes": [],
+  "promotion_policy": "stage4d5-qualification-policy-v1",
+  "review_version": "stage4d7-preexperimental-review-v1",
+  "reviews": [
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "Ames mutagenicity",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP1A2 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP2C19 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP2C9 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP2C9 substrate",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP2D6 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP2D6 substrate",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "FIXED_WEIGHT_BLEND",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CALIBRATED_FIXED_BLEND",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "CYP3A4 substrate",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "DILI clinical liability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "HLM intrinsic clearance",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "RULE_ESTIMATE",
+      "current_strategy": "RULE_ESTIMATE",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Ionization (pKa)",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "MLM intrinsic clearance",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "RANK_FUSION",
+      "current_strategy": "RANK_FUSION",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Metabolic soft spots",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "RULE_BASED",
+      "current_strategy": "RULE_BASED",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Metabolite hypotheses",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "P-gp inhibitor",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "METHOD_QUALIFICATION_ONLY",
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "PK Bioavailability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "METHOD_QUALIFICATION_ONLY",
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "PK Simulation",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "METHOD_QUALIFICATION_ONLY",
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "PK Systemic Clearance",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "METHOD_QUALIFICATION_ONLY",
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "PK Volume of Distribution",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "Permeability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "FIXED_WEIGHT_BLEND",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Permeability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "STATIC_CONSENSUS",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Permeability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "DERIVED_ESTIMATE",
+      "current_strategy": "DERIVED_ESTIMATE",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Physicochemical properties",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "Plasma protein binding",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "RLM intrinsic clearance",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "Solubility",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "FIXED_WEIGHT_BLEND",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Solubility",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "DOMAIN_AWARE_MODEL_SELECTOR",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "Solubility",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "CURRENT_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_name": "hERG liability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED",
+        "CURRENT_POLICY_IS_ALREADY_ACTIVE"
+      ]
+    },
+    {
+      "candidate_strategy": "CALIBRATED_SINGLE_CORE",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "hERG liability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "FIXED_WEIGHT_BLEND",
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "hERG liability",
+      "endpoint_requirements_configured": false,
+      "independent_validation": true,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    },
+    {
+      "candidate_strategy": "DERIVED_ESTIMATE",
+      "current_strategy": "DERIVED_ESTIMATE",
+      "decision": "INSUFFICIENT_EVIDENCE",
+      "endpoint_name": "logD pH7.4 derived estimate",
+      "endpoint_requirements_configured": false,
+      "independent_validation": false,
+      "may_promote": false,
+      "no_leakage": true,
+      "noninferiority_margin_configured": false,
+      "reasons": [
+        "INDEPENDENT_VALIDATION_GATE_FAILED",
+        "ENDPOINT_SAMPLE_REQUIREMENT_UNCONFIGURED_FAIL_CLOSED",
+        "NONINFERIORITY_MARGIN_UNCONFIGURED_FAIL_CLOSED"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,425 @@
+{
+  "activation_authorization_consumed": false,
+  "artifact": "STAGE4D7_PRODUCTION_POLICY_DECISIONS",
+  "decisions": [
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "endpoint_name": "Ames mutagenicity",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "distribution_bbb_penetration",
+      "endpoint_name": "BBB penetration",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "endpoint_name": "BCRP inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "endpoint_name": "BCRP substrate",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "endpoint_name": "BSEP inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "safety_cns_liability",
+      "endpoint_name": "CNS liability",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "endpoint_name": "CYP1A2 inhibitor",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "endpoint_name": "CYP1A2 substrate",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "endpoint_name": "CYP2C19 inhibitor",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "endpoint_name": "CYP2C19 substrate",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "endpoint_name": "CYP2C9 inhibitor",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "endpoint_name": "CYP2C9 substrate",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "endpoint_name": "CYP2D6 inhibitor",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "endpoint_name": "CYP2D6 substrate",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "SHADOW_RETAINED"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "endpoint_name": "CYP3A4 substrate",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "safety_dili_clinical_prob",
+      "endpoint_name": "DILI clinical liability",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "endpoint_name": "Dog liver microsomal intrinsic clearance",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "safety_general_cytotoxicity",
+      "endpoint_name": "General cytotoxicity",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "HLM intrinsic clearance",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "RULE_OR_DERIVED_ONLY",
+      "endpoint_id": "ionization_pka_estimated",
+      "endpoint_name": "Ionization (pKa)",
+      "flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "endpoint_name": "MATE1 inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "endpoint_name": "MATE2-K inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "MLM intrinsic clearance",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "som_metabolic_soft_spots",
+      "endpoint_name": "Metabolic soft spots",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED"
+      ]
+    },
+    {
+      "decision": "RULE_OR_DERIVED_ONLY",
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "endpoint_name": "Metabolite hypotheses",
+      "flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "microsomal_clearance_generic",
+      "endpoint_name": "Microsomal clearance",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "endpoint_name": "Mitochondrial toxicity",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "endpoint_name": "Monkey liver microsomal intrinsic clearance",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "endpoint_name": "OATP1B1 inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "endpoint_name": "OATP1B3 inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "endpoint_name": "OCT1 inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "endpoint_name": "OCT2 inhibitor",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "endpoint_name": "P-gp inhibitor",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "endpoint_name": "P-gp substrate",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_id": "pk_bioavailability_fraction",
+      "endpoint_name": "PK Bioavailability",
+      "flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_id": "pk_concentration_time_simulation",
+      "endpoint_name": "PK Simulation",
+      "flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_id": "pk_clearance_systemic",
+      "endpoint_name": "PK Systemic Clearance",
+      "flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_id": "pk_volume_distribution_vss",
+      "endpoint_name": "PK Volume of Distribution",
+      "flags": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "permeability_caco2_logpapp",
+      "endpoint_name": "Permeability",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "DATA_LIMITED_ACCURACY_CEILING",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "RULE_OR_DERIVED_ONLY",
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "endpoint_name": "Physicochemical properties",
+      "flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "ppb_human_percent_bound",
+      "endpoint_name": "Plasma protein binding",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "RLM intrinsic clearance",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "safety_skin_sensitization",
+      "endpoint_name": "Skin sensitization",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "solubility_aqueous_logs",
+      "endpoint_name": "Solubility",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "SHADOW_RETAINED"
+      ]
+    },
+    {
+      "decision": "CURRENT_PRODUCTION_RETAINED",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_name": "hERG liability",
+      "flags": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "CALIBRATION_RESEARCH_ONLY",
+        "BETTER_SECONDARY_MODEL_REQUIRED"
+      ]
+    },
+    {
+      "decision": "RULE_OR_DERIVED_ONLY",
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "endpoint_name": "logD pH7.4 derived estimate",
+      "flags": [
+        "RULE_OR_DERIVED_ONLY"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "endpoint_name": "logD7.4 (quantitative ML)",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "endpoint_name": "pKa (quantitative ML)",
+      "flags": [
+        "MODEL_UNAVAILABLE"
+      ]
+    }
+  ],
+  "manual_promotion_required": true,
+  "new_policy_version": "stage4d4-endpoint-strategy-v1",
+  "previous_policy_version": "stage4d4-endpoint-strategy-v1",
+  "production_policy_changes": [],
+  "reason_no_activation": "Stage 4D-5 endpoint-specific minimum sample and non-inferiority requirements remain unconfigured and fail closed.",
+  "review_version": "stage4d7-preexperimental-review-v1",
+  "rollback": "No activation occurred; existing deterministic Stage 4D-4 rollback metadata remains authoritative."
+}

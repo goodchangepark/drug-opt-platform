@@ -1,0 +1,60 @@
+{
+  "artifact": "STAGE4D7_CALIBRATION_RESULTS",
+  "cyp3a4": {
+    "decision": "RESEARCH_ONLY; Stage 4D-5 endpoint requirements and non-inferiority margin remain unconfigured.",
+    "ece": {
+      "fixed_global_prior": 0.0255,
+      "full_adaptive": 0.0293,
+      "m1_core": 0.0232,
+      "m2_shadow": 0.1015,
+      "static_50_50": 0.1257
+    },
+    "source": "validation/stage4d3b1a_calibration.json"
+  },
+  "herg": {
+    "decision": "CALIBRATION_RESEARCH_ONLY; raw M1 threshold 0.50 remains production.",
+    "platt": {
+      "auprc": 0.7321,
+      "auroc": 0.599,
+      "balanced_accuracy": 0.5866,
+      "brier_score": 0.2144,
+      "ece": 0.0887,
+      "fn": 17,
+      "fp": 40,
+      "log_loss": 0.6259,
+      "mcc": 0.2048,
+      "n": 182,
+      "n_neg": 58,
+      "n_pos": 124,
+      "prevalence": 0.6813,
+      "sensitivity": 0.8629,
+      "specificity": 0.3103,
+      "threshold": 0.5,
+      "tn": 18,
+      "tp": 107
+    },
+    "raw": {
+      "auprc": 0.7378,
+      "auroc": 0.6001,
+      "balanced_accuracy": 0.5017,
+      "brier_score": 0.2763,
+      "ece": 0.272,
+      "fn": 6,
+      "fp": 55,
+      "log_loss": 1.6942,
+      "mcc": 0.0072,
+      "n": 182,
+      "n_neg": 58,
+      "n_pos": 124,
+      "prevalence": 0.6813,
+      "sensitivity": 0.9516,
+      "specificity": 0.0517,
+      "threshold": 0.5,
+      "tn": 3,
+      "tp": 118
+    },
+    "source": "validation/stage4d3b2a_calibration.json",
+    "split": "scaffold_aware: calibration N=546, untouched test N=182"
+  },
+  "review_version": "stage4d7-preexperimental-review-v1"
+}
