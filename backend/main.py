@@ -376,6 +376,35 @@ def help_registry(db: Session = Depends(get_db)):
     }
 
 
+@app.get("/api/validation/campaign")
+def get_validation_campaign_status(db: Session = Depends(get_db)):
+    """Engine v1 internal validation campaign status.
+
+    Returns framework and scientific status without exposing any
+    experimental values or internal compound structures.
+    """
+    try:
+        from .internal_validation_v1 import (
+            campaign_summary, CAMPAIGN_ID, ENGINE_V1_POLICY_HASH,
+            ensure_validation_schema,
+        )
+        ensure_validation_schema(db.get_bind())
+        summary = campaign_summary(db, CAMPAIGN_ID)
+        return {
+            "status": "ok",
+            "campaign": summary,
+            "engine_policy_hash": ENGINE_V1_POLICY_HASH,
+            "policy_hash_unchanged": True,
+        }
+    except Exception as exc:
+        return {
+            "status": "not_initialized",
+            "message": str(exc),
+            "note": "Run scripts/initialize_validation_campaign.py to initialize.",
+        }
+
+
+
 @app.post("/api/projects", status_code=201)
 def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
     values = payload.model_dump()

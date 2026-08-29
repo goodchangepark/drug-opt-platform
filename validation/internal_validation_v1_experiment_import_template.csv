@@ -1,0 +1,45 @@
+compound_id,compound_version_id,endpoint_id,raw_value,raw_unit,qualifier,species,assay_type,assay_direction,assay_ph,assay_protocol,replicate_id,assay_date,result_available_at,source,censor_flag
+# USAGE GUIDE:
+# compound_id: Internal compound identifier (e.g. ORFORGLIPRON, ALENIGLIPRON, ELECOGLIPRON)
+# compound_version_id: Integer compound version row ID from database (1=ORFORGLIPRON, 2=ALENIGLIPRON, 3=ELECOGLIPRON)
+# endpoint_id: Must match Engine v1 endpoint ID (see validation/internal_validation_v1_endpoint_contracts.json)
+# raw_value: Numeric measured value — NEVER log-transform before import (import raw)
+# raw_unit: Exact unit string (e.g. "log10(mol/L)", "µM", "% bound", "mL/min/kg")
+# qualifier: "=" for exact, "<" for below detection, ">" for above upper limit, "BLQ" = below limit of quantification, "ULOQ" = above upper limit
+# species: "human", "rat", "mouse" (critical for clearance endpoints — must match exactly)
+# assay_type: e.g. "HLM_microsomal", "RLM_microsomal", "MLM_microsomal", "kinetic_solubility", "thermodynamic_solubility", "Caco-2_bidirectional"
+# assay_direction: For permeability: "A→B" required. Leave blank for other endpoints.
+# assay_ph: Numeric pH if relevant (e.g. 7.4 for solubility/logD)
+# assay_protocol: Protocol name/version string
+# replicate_id: Unique replicate identifier (blank = single measurement). Use replicate_1, replicate_2, etc.
+# assay_date: YYYY-MM-DD format
+# result_available_at: ISO 8601 datetime when result became available to team (e.g. 2026-09-15T00:00:00+09:00)
+#   This MUST be accurate for TRUE_PROSPECTIVE classification.
+#   If unknown: leave blank. Record will be classified HISTORICAL_VISIBLE.
+# source: Lab/notebook/LIMS reference
+# censor_flag: 0 = exact value, 1 = censored (only use with qualifier < or >)
+#
+# ENDPOINT IDs (Engine v1 production endpoints):
+# solubility_aqueous_logs          — raw_unit: "log10(mol/L)" or "mol/L" (raw numeric, will auto-convert)
+# permeability_caco2_logpapp       — raw_unit: "cm/s" or "log10(cm/s)"; assay_direction: "A→B" required
+# ppb_human_percent_bound          — raw_unit: "% bound" or "fraction unbound" (fu); species: "human"
+# hlm_intrinsic_clearance_scaled_log10 — raw_unit: "mL/min/kg" or "log10(mL/min/kg)"; species: "human"
+# rlm_intrinsic_clearance_scaled_log10 — raw_unit: "mL/min/kg"; species: "rat"
+# mlm_intrinsic_clearance_scaled_log10 — raw_unit: "mL/min/kg"; species: "mouse"
+# safety_herg_blocker_prob         — binary assay: raw_value=1 (blocker) or 0 (non-blocker); raw_unit: "binary"
+#   or: raw_value=IC50 in µM, raw_unit: "µM"; threshold applied by import script (10 µM default)
+# cyp3a4_inhibitor_prob            — raw_value=IC50 in µM or binary; raw_unit: "µM" or "binary"
+# ionization_pka_estimated         — raw_value=pKa numeric; raw_unit: "pKa"; species: blank
+# physchem_logd_ph74_derived_estimate — raw_value=logD at pH 7.4; raw_unit: "logD"
+#
+# MODEL_UNAVAILABLE endpoints (COVERAGE_GAP only — do NOT enter in this template for primary analysis):
+# cylm_intrinsic_clearance, dlm_intrinsic_clearance, distribution_bbb_penetration
+# physchem_logd74_quantitative_ml, physchem_pka_quantitative_ml
+# transporter_bcrp_inhibitor_prob, transporter_bcrp_substrate_prob, etc.
+#   → Still import these if measured — they are recorded as COVERAGE_GAP evidence for future Engine v2.
+#
+# EXAMPLES (remove # to use):
+# ALENIGLIPRON,2,solubility_aqueous_logs,-4.89,log10(mol/L),=,,kinetic_solubility,,7.4,SOP-SOL-001,rep_1,2026-09-10,2026-09-10T09:00:00+09:00,Internal assay batch 42,0
+# ALENIGLIPRON,2,permeability_caco2_logpapp,3.2e-6,cm/s,=,,Caco-2_bidirectional,A→B,7.4,SOP-CACO2-001,rep_1,2026-09-12,2026-09-12T09:00:00+09:00,Internal assay batch 43,0
+# ALENIGLIPRON,2,ppb_human_percent_bound,95.2,% bound,=,human,equilibrium_dialysis,,7.4,SOP-PPB-001,rep_1,2026-09-08,2026-09-08T09:00:00+09:00,Internal assay batch 40,0
+# ALENIGLIPRON,2,hlm_intrinsic_clearance_scaled_log10,12.5,mL/min/kg,=,human,HLM_microsomal,,7.4,SOP-HLM-001,rep_1,2026-09-14,2026-09-14T09:00:00+09:00,Internal assay batch 44,0

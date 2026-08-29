@@ -1,0 +1,22 @@
+{
+  "campaign_id": "IVC-engine-v1-2026-08-29",
+  "generated_at": "2026-08-29T14:32:47.923075+00:00",
+  "n_paired_observations": 0,
+  "n_prediction_freezes": 18,
+  "n_experimental_records": 0,
+  "ordering_verified": true,
+  "observation_summary": {
+    "TRUE_PROSPECTIVE": 0,
+    "BLINDED_RETROSPECTIVE": 0,
+    "HISTORICAL_VISIBLE": 0
+  },
+  "compatibility_summary": {
+    "DIRECT_MATCH": 0,
+    "DETERMINISTIC_UNIT_TRANSFORM": 0,
+    "ASSAY_CONTEXT_LIMITED": 0,
+    "ENDPOINT_MISMATCH": 0
+  },
+  "primary_metrics_eligible": 0,
+  "censored_observations": 0,
+  "data_collection_note": "No experimental data imported yet."
+}

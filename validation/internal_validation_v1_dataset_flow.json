@@ -1,0 +1,83 @@
+{
+  "campaign_id": "IVC-engine-v1-2026-08-29",
+  "generated_at": "2026-08-29T14:32:47.913826+00:00",
+  "engine_policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "framework_status": "READY",
+  "scientific_status": "COLLECTING",
+  "pipeline_stages": [
+    {
+      "stage": "STRUCTURE",
+      "n_compounds": 3,
+      "compounds": [
+        {
+          "compound_label": "ORFORGLIPRON",
+          "inchikey": "USUWIEBBBWHKNI-KHIFEHGGSA-N",
+          "project_label": "GLP1-SM",
+          "chemical_series_label": "GLP1-SM-PYRIDINONE",
+          "eligibility_status": "ELIGIBLE",
+          "enrolled_at": "2026-08-29T14:28:17.782614"
+        },
+        {
+          "compound_label": "ALENIGLIPRON",
+          "inchikey": "CPOJUYUGONJVPZ-WIXASUBBSA-N",
+          "project_label": "GLP1-SM",
+          "chemical_series_label": "GLP1-SM-PYRIDINONE",
+          "eligibility_status": "ELIGIBLE",
+          "enrolled_at": "2026-08-29T14:28:17.807526"
+        },
+        {
+          "compound_label": "ELECOGLIPRON",
+          "inchikey": "JMKBTILBGROESC-WNJJXGMVSA-N",
+          "project_label": "GLP1-SM",
+          "chemical_series_label": "GLP1-SM-PYRIDINONE",
+          "eligibility_status": "ELIGIBLE",
+          "enrolled_at": "2026-08-29T14:28:17.831963"
+        }
+      ]
+    },
+    {
+      "stage": "ENGINE_V1_PREDICTION",
+      "policy_version": "drugopt-prediction-engine-v1@1.0.0",
+      "policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+      "n_prediction_freezes": 18,
+      "endpoints_covered": [
+        "mlm_intrinsic_clearance_scaled_log10",
+        "rlm_intrinsic_clearance_scaled_log10",
+        "safety_ames_mutagenicity_prob",
+        "hlm_intrinsic_clearance_scaled_log10",
+        "cyp2c9_substrate_prob",
+        "transporter_pgp_inhibitor_prob",
+        "cyp3a4_inhibitor_prob",
+        "solubility_aqueous_logs",
+        "permeability_caco2_logpapp",
+        "safety_herg_blocker_prob",
+        "cyp2c9_inhibitor_prob",
+        "safety_dili_clinical_prob",
+        "cyp2d6_substrate_prob",
+        "cyp2d6_inhibitor_prob",
+        "cyp3a4_substrate_prob",
+        "cyp2c19_inhibitor_prob",
+        "ppb_human_percent_bound",
+        "cyp1a2_inhibitor_prob"
+      ]
+    },
+    {
+      "stage": "IMMUTABLE_FREEZE",
+      "n_freezes": 18,
+      "prediction_freeze_complete": true,
+      "freeze_before_experiment_enforced": true
+    },
+    {
+      "stage": "EXPERIMENT",
+      "n_experimental_records": 0,
+      "experiment_import_complete": false,
+      "note": "No experimental data imported yet. Data collection ongoing."
+    },
+    {
+      "stage": "COMPARISON",
+      "n_paired_observations": 0,
+      "note": "No paired observations yet \u2014 awaiting experimental data."
+    }
+  ],
+  "current_bottleneck": "AWAITING_EXPERIMENTAL_DATA"
+}

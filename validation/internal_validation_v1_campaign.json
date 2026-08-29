@@ -1,0 +1,54 @@
+{
+  "campaign_id": "IVC-engine-v1-2026-08-29",
+  "name": "Engine v1 Internal Prospective Validation",
+  "protocol_id": "internal-validation-v1-protocol-2026-08-29",
+  "engine_policy_id": "drugopt-prediction-engine-v1",
+  "engine_policy_version": "drugopt-prediction-engine-v1@1.0.0",
+  "engine_policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "standardizer_version": "CHEM_STANDARDIZER_V1",
+  "framework_status": "READY",
+  "scientific_status": "COLLECTING",
+  "status": "ACTIVE",
+  "bootstrap_seed": 42,
+  "prediction_freeze_complete": true,
+  "experiment_import_complete": false,
+  "analysis_complete": false,
+  "compound_count": 3,
+  "created_at": "2026-08-29T14:28:03.923884",
+  "cohort": [
+    {
+      "entry_id": "CE-43d69f98e00d4973",
+      "campaign_id": "IVC-engine-v1-2026-08-29",
+      "compound_version_id": "1",
+      "compound_label": "ORFORGLIPRON",
+      "inchikey": "USUWIEBBBWHKNI-KHIFEHGGSA-N",
+      "project_label": "GLP1-SM",
+      "chemical_series_label": "GLP1-SM-PYRIDINONE",
+      "eligibility_status": "ELIGIBLE",
+      "enrolled_at": "2026-08-29T14:28:17.782614"
+    },
+    {
+      "entry_id": "CE-56afbccda53d4ef5",
+      "campaign_id": "IVC-engine-v1-2026-08-29",
+      "compound_version_id": "2",
+      "compound_label": "ALENIGLIPRON",
+      "inchikey": "CPOJUYUGONJVPZ-WIXASUBBSA-N",
+      "project_label": "GLP1-SM",
+      "chemical_series_label": "GLP1-SM-PYRIDINONE",
+      "eligibility_status": "ELIGIBLE",
+      "enrolled_at": "2026-08-29T14:28:17.807526"
+    },
+    {
+      "entry_id": "CE-fdbfdd6087724eae",
+      "campaign_id": "IVC-engine-v1-2026-08-29",
+      "compound_version_id": "3",
+      "compound_label": "ELECOGLIPRON",
+      "inchikey": "JMKBTILBGROESC-WNJJXGMVSA-N",
+      "project_label": "GLP1-SM",
+      "chemical_series_label": "GLP1-SM-PYRIDINONE",
+      "eligibility_status": "ELIGIBLE",
+      "enrolled_at": "2026-08-29T14:28:17.831963"
+    }
+  ],
+  "_note": "Internal compound structures are NOT stored in this artifact. InChIKeys are stable, non-reversible identifiers sufficient for matching."
+}

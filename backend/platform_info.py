@@ -283,6 +283,22 @@ VERSION_HISTORY = [
         "milestone": "Prediction Engine v1 Freeze",
         "improvements": "Finalized 49 endpoint-specific policies, model roles, reliability dimensions, unavailable states, deterministic policy hash, and Engine-v1 prospective-freeze provenance. Ready for controlled internal prospective validation; not clinical or regulatory validation.",
     },
+    {
+        "version": "0.8.1-validation-framework",
+        "release_date": "2026-08-29",
+        "stage": "Stage 6 — Internal Validation",
+        "milestone": "Engine v1 Internal Prospective Validation Framework",
+        "improvements": (
+            "Created internal prospective validation framework for Engine v1: "
+            "campaign entity (IVC-engine-v1-2026-08-29), 3 GLP-1 compound cohort enrollment, "
+            "18 prediction freezes registered, blinding enforcement (prediction-before-experiment), "
+            "evidence classification (TRUE_PROSPECTIVE / BLINDED_RETROSPECTIVE / HISTORICAL_VISIBLE), "
+            "endpoint compatibility contracts, experiment import pipeline, "
+            "analysis engine (regression/classification/bootstrap/AD/reliability/scaffold), "
+            "14 validation artifacts, 48 new tests (all passing). "
+            "Framework status: READY. Scientific validation: COLLECTING — awaiting internal experimental data."
+        ),
+    },
 ]
 
 

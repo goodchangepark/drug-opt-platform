@@ -1,0 +1,140 @@
+{
+  "protocol_id": "internal-validation-v1-protocol-2026-08-29",
+  "protocol_version": "1.0.0",
+  "created_at": "2026-08-29T23:00:00+09:00",
+  "frozen_at": "2026-08-29T23:00:00+09:00",
+  "engine_policy_id": "drugopt-prediction-engine-v1",
+  "engine_policy_version": "drugopt-prediction-engine-v1@1.0.0",
+  "engine_policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "standardizer_version": "CHEM_STANDARDIZER_V1",
+  "scientific_principle": "STRUCTURE → ENGINE_V1_PREDICTION → IMMUTABLE_FREEZE → EXPERIMENT → EXPERIMENTAL_RESULT → COMPARISON",
+  "forbidden": [
+    "retrain", "fine-tune", "recalibrate", "adjust thresholds",
+    "fit bias correction", "fit ensemble weights", "fit selector",
+    "modify AD thresholds", "modify confidence rules",
+    "change endpoint strategy", "replace models", "activate shadow models",
+    "use internal data to improve current predictions",
+    "implement project adaptation", "implement series adaptation",
+    "implement local adaptation", "start AI Scientist"
+  ],
+  "cohort_rules": {
+    "preferred_overall_n": "20-50 compounds",
+    "minimum_overall_n": 1,
+    "diversity_requirement": "Prefer different chemical series over identical analogs",
+    "allow_sparse_matrix": true,
+    "validation_n_is_endpoint_specific": true
+  },
+  "compound_eligibility": {
+    "required": [
+      "compound_version_id must be registered in compounds table",
+      "structure must be processable by CHEM_STANDARDIZER_V1",
+      "compound must belong to an internal research project (not test/scaffold)"
+    ],
+    "excluded": [
+      "pure test compounds created for system testing",
+      "scaffold-only or fragment-only entries without full structure",
+      "compounds where InChIKey or canonical_smiles is unavailable"
+    ]
+  },
+  "endpoint_eligibility": {
+    "eligible_strategies": [
+      "SINGLE_CORE_MODEL",
+      "RULE_ESTIMATE",
+      "DERIVED_ESTIMATE",
+      "RULE_BASED",
+      "MECHANISTIC_NO_CONSENSUS"
+    ],
+    "ineligible_strategies": ["MODEL_UNAVAILABLE"],
+    "note": "MODEL_UNAVAILABLE endpoints recorded as COVERAGE_GAP only"
+  },
+  "evidence_classification": {
+    "TRUE_PROSPECTIVE": {
+      "definition": "freeze_timestamp < result_available_at",
+      "use_in_primary_metrics": true
+    },
+    "BLINDED_RETROSPECTIVE": {
+      "definition": "experimental result existed historically but was hidden during prediction freeze; blinding is documented",
+      "use_in_primary_metrics": true,
+      "note": "Secondary supporting evidence"
+    },
+    "HISTORICAL_VISIBLE": {
+      "definition": "experimental result was visible to prediction/model development team",
+      "use_in_primary_metrics": false,
+      "note": "Retrospective context only — must NOT be described as prospective"
+    }
+  },
+  "endpoint_compatibility_classification": {
+    "DIRECT_MATCH": "Primary quantitative metrics — same endpoint, same unit, compatible assay",
+    "DETERMINISTIC_UNIT_TRANSFORM": "Primary quantitative metrics — mathematically equivalent unit conversion",
+    "ASSAY_CONTEXT_LIMITED": "Secondary evidence only — assay context incompletely documented",
+    "ENDPOINT_MISMATCH": "Excluded from primary metrics — incompatible endpoints",
+    "NOT_COMPARABLE": "Excluded entirely"
+  },
+  "duplicate_handling": "Retain all raw replicates. Aggregate per protocol before pairing. Never cherry-pick.",
+  "replicate_handling": "Retain all replicate_ids. Use robust aggregation (median for regression, majority vote for binary) defined in protocol before pairing.",
+  "censor_handling": {
+    "censored_qualifiers": ["<", ">", "BLQ", "ULOQ"],
+    "rule": "Censored observations excluded from primary quantitative metrics. Used in directional/censored sensitivity analysis only.",
+    "forbidden": ["replace with threshold", "add epsilon", "treat as exact"]
+  },
+  "unit_normalization": {
+    "solubility": "log10(mol/L) — convert if needed (1 mg/mL ≈ 1/MW mol/L → log10)",
+    "caco2": "log10(cm/s) — Papp A→B only",
+    "ppb": "% bound — convert fu to % bound: % bound = (1 - fu) * 100",
+    "hlm_rlm_mlm": "log10(mL/min/kg) — Clint scaled",
+    "pka": "pKa units — direct comparison",
+    "logd": "logD units — direct comparison",
+    "classification_probs": "raw probability [0,1]"
+  },
+  "prediction_freeze_rules": {
+    "freeze_before_experiment": "MANDATORY — prediction freeze timestamp must precede experimental result availability",
+    "freeze_immutability": "Prediction freeze rows are APPEND_ONLY — never overwritten",
+    "policy_hash_in_freeze": "Every freeze must record engine_policy_hash",
+    "blinding_enforcement": "Experimental values are NOT readable during prediction freeze registration"
+  },
+  "primary_metrics": {
+    "regression": ["N", "MAE", "RMSE", "Bias", "Median_AE", "Spearman", "P75_AE", "P90_AE", "P95_AE"],
+    "fold_accuracy": ["Within_2fold_log10_2", "Within_3fold_log10_3"],
+    "classification": ["MCC", "Balanced_Accuracy", "AUROC", "AUPRC", "Sensitivity", "Specificity", "Brier", "LogLoss", "ECE"],
+    "secondary_regression": ["Pearson", "R2"],
+    "secondary_classification": ["Prevalence"]
+  },
+  "secondary_metrics": {
+    "ad_stratification": ["IN_DOMAIN", "BORDERLINE", "OUT_OF_DOMAIN"],
+    "reliability_stratification": ["HIGH", "MEDIUM", "LOW", "LIMITED", "INSUFFICIENT_EVIDENCE", "UNAVAILABLE"],
+    "shadow_disagreement": "|CORE - SHADOW| vs actual CORE error",
+    "scaffold_series": ["Murcko scaffold grouping", "within-series Spearman"],
+    "project_level": "Descriptive — no correction fitting"
+  },
+  "bootstrap": {
+    "n_replicates": 1000,
+    "seed": 42,
+    "level": "compound",
+    "minimum_n_for_bootstrap": 10,
+    "small_n_policy": "Report data_insufficiency_flag=true instead of fake precision"
+  },
+  "minimum_n_reporting_rules": {
+    "regression_metrics": "N >= 5 required for primary metric report",
+    "classification_metrics": "N >= 5 per class required for AUROC; N >= 10 overall for MCC",
+    "fold_accuracy": "N >= 5 for fold accuracy",
+    "bootstrap": "N >= 10 for bootstrap CI",
+    "series_analysis": "N >= 3 compounds per series for within-series Spearman"
+  },
+  "decision_rules": {
+    "A": "INTERNAL_VALIDATION_SUPPORTS_ENGINE_V1_BASELINE",
+    "B": "INTERNAL_VALIDATION_MIXED_ENGINE_V1_RETAINED_WITH_LIMITATIONS",
+    "C": "INTERNAL_VALIDATION_IDENTIFIES_ENDPOINT_REVIEW_REQUIRED",
+    "D": "INTERNAL_VALIDATION_INSUFFICIENT_DATA_CONTINUE_COLLECTION",
+    "E": "INTERNAL_VALIDATION_NOT_STARTED_AWAITING_EXPERIMENTAL_DATA",
+    "note": "C or D does NOT automatically modify Engine v1. No automatic acceptance thresholds."
+  },
+  "no_automatic_thresholds": "No post-hoc favorable threshold creation. Report observed performance and uncertainty.",
+  "historical_freeze_immutability": {
+    "ALENIGLIPRON": {
+      "solubility_aqueous_logs": -4.287727355957031,
+      "permeability_caco2_logpapp": -5.135347366333008,
+      "cyp3a4_inhibitor_prob": 0.9331268668174744,
+      "safety_herg_blocker_prob": 0.9903563857078552
+    }
+  }
+}

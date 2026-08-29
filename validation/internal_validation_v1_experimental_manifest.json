@@ -1,0 +1,9 @@
+{
+  "campaign_id": "IVC-engine-v1-2026-08-29",
+  "generated_at": "2026-08-29T14:32:47.922315+00:00",
+  "n_experimental_records": 0,
+  "experiment_import_complete": false,
+  "data_collection_status": "AWAITING_DATA",
+  "experiments": [],
+  "note": "Raw experimental values are NOT stored in this public artifact. They are stored only in the protected internal_validation_experimental_records DB table. This artifact provides audit-trail metadata only."
+}

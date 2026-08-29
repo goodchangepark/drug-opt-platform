@@ -1,0 +1,92 @@
+{
+  "campaign_id": "IVC-engine-v1-2026-08-29",
+  "generated_at": "2026-08-29T14:32:47.952012+00:00",
+  "engine_policy_id": "drugopt-prediction-engine-v1",
+  "engine_policy_version": "drugopt-prediction-engine-v1@1.0.0",
+  "engine_policy_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "policy_hash_verified": true,
+  "policy_hash_unchanged": true,
+  "framework_status": "READY",
+  "scientific_validation_status": "NOT_STARTED",
+  "cohort": {
+    "total_compounds": 3,
+    "chemical_series": 1,
+    "projects": 1
+  },
+  "evidence_classification": {
+    "TRUE_PROSPECTIVE": 0,
+    "BLINDED_RETROSPECTIVE": 0,
+    "HISTORICAL_VISIBLE": 0
+  },
+  "n_paired_observations": 0,
+  "n_primary_metrics_eligible": 0,
+  "evidence_sufficiency": "NOT_STARTED",
+  "final_scientific_decision": "INTERNAL_VALIDATION_NOT_STARTED_AWAITING_EXPERIMENTAL_DATA",
+  "decision_rationale": "No paired prediction/experiment observations available yet. Prediction freeze is complete and the framework is READY. Internal experimental data must be collected and imported to complete validation.",
+  "engine_v1_production_decision": "UNCHANGED",
+  "note_no_automatic_modification": "D does NOT automatically modify Engine v1. Engine v1 remains frozen per policy drugopt-prediction-engine-v1@1.0.0.",
+  "coverage_gaps": {
+    "model_unavailable_endpoints": [
+      "cylm_intrinsic_clearance",
+      "cyp1a2_substrate_prob",
+      "cyp2c19_substrate_prob",
+      "distribution_bbb_penetration",
+      "dlm_intrinsic_clearance",
+      "microsomal_clearance_generic",
+      "physchem_logd74_quantitative_ml",
+      "physchem_pka_quantitative_ml",
+      "safety_cns_liability",
+      "safety_general_cytotoxicity",
+      "safety_mitochondrial_toxicity",
+      "safety_skin_sensitization",
+      "transporter_bcrp_inhibitor_prob",
+      "transporter_bcrp_substrate_prob",
+      "transporter_bsep_inhibitor_prob",
+      "transporter_mate1_inhibitor_prob",
+      "transporter_mate2k_inhibitor_prob",
+      "transporter_oatp1b1_inhibitor_prob",
+      "transporter_oatp1b3_inhibitor_prob",
+      "transporter_oct1_inhibitor_prob",
+      "transporter_oct2_inhibitor_prob",
+      "transporter_pgp_substrate_prob"
+    ],
+    "n_coverage_gaps": 22,
+    "note": "Experimental data for MODEL_UNAVAILABLE endpoints should still be collected and recorded as COVERAGE_GAP evidence for future Engine v2 AI Scientist."
+  },
+  "engine_v1_known_limitations": {
+    "caco2": "External MAE 0.5695 log10; Spearman 0.041. Limited ranking ability.",
+    "herg": "Raw M1: AUROC 0.6669; Specificity 0.113 at threshold 0.50. Miscalibrated.",
+    "hlm_rlm": "LOW-MEDIUM evidence. No independent benchmark available.",
+    "mlm": "INSUFFICIENT_EVIDENCE. No independent benchmark.",
+    "pka": "RULE_ESTIMATE only. \u00b11\u20132 pKa unit uncertainty.",
+    "logd": "DERIVED_ESTIMATE from logP and pKa. Not quantitative ML."
+  },
+  "future_adaptation_readiness": {
+    "status": "DATA_LIMITED",
+    "n_compounds": 3,
+    "n_series": 1,
+    "note": "3 compounds from 1 series in 1 project is insufficient for project- or series-level adaptation. 20-50 compounds across multiple series would be required. No adaptation implemented in this stage."
+  },
+  "ai_scientist_readiness": {
+    "status": "PARTIAL",
+    "prediction_available": true,
+    "experimental_result_available": false,
+    "prediction_timestamp_available": true,
+    "experiment_timestamp_available": true,
+    "evidence_class_available": true,
+    "ad_available": true,
+    "reliability_available": true,
+    "validation_performance_available": false,
+    "limitations_documented": true,
+    "model_unavailable_documented": true,
+    "disagreement_available": false,
+    "note": "Framework is PARTIAL. AI Scientist can receive structured prediction evidence and limitations. Paired validation performance pending experimental data."
+  },
+  "git": {
+    "suggested_commit_message": "feat(validation): initialize engine v1 internal prospective validation framework",
+    "suggested_tag": "prediction-engine-v1-validation-framework-ready",
+    "note": "Tag 'prediction-engine-v1-internal-validation' reserved for scientifically complete validation with actual paired evidence."
+  },
+  "progress_summary": "5 / 6 COMPLETE \u2014 TASK 6 VALIDATION CAMPAIGN ACTIVE",
+  "next_step": "CONTINUE_INTERNAL_EXPERIMENTAL_DATA_COLLECTION"
+}
