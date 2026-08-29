@@ -20,9 +20,9 @@ client = TestClient(app)
 
 
 def test_platform_version_and_history():
-    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
+    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1", "1.0.0")
     assert CURRENT_STAGE == "5B-4"
-    assert latest_release_date() == "2026-08-29"
+    assert latest_release_date() == "2026-08-30"
     
     vh = version_history()
     assert len(vh) >= 12
@@ -30,7 +30,7 @@ def test_platform_version_and_history():
     stage5b4_entries = [entry for entry in vh if "Stage 5B-4 Refinement" in entry["stage"]]
     assert len(stage5b4_entries) > 0
     assert ("Unified Prediction Workflow" in stage5b4_entries[-1]["milestone"] or "Dashboard Redesign" in stage5b4_entries[-1]["milestone"])
-    assert vh[-1]["stage"] == "Stage 4E-4"
+    assert vh[-1]["version"] == "1.0.0"
 
 
 def test_api_health_endpoint():

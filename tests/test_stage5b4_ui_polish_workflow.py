@@ -31,12 +31,12 @@ client = TestClient(app)
 
 
 def test_app_version():
-    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
+    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1", "1.0.0")
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
     assert len(vh) >= 12
-    assert any(entry["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1") for entry in vh)
-    assert vh[-1]["stage"] == "Stage 4E-4"
+    assert any(entry["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1", "1.0.0") for entry in vh)
+    assert vh[-1]["version"] == "1.0.0"
 
 
 

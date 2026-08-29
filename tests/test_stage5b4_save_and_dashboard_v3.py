@@ -30,7 +30,7 @@ client = TestClient(app)
 
 
 def test_app_version_0_6_3():
-    assert APP_VERSION == "0.8.0-engine-v1"
+    assert APP_VERSION == "1.0.0"
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
     assert len(vh) >= 13

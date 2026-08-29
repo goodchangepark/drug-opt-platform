@@ -10,7 +10,7 @@ from pathlib import Path
 
 from typing import Any
 
-APP_VERSION = "0.8.0-engine-v1"
+APP_VERSION = "1.0.0"
 CURRENT_STAGE = "5B-4"
 
 PACKAGE_SPECS = (
@@ -297,6 +297,18 @@ VERSION_HISTORY = [
             "analysis engine (regression/classification/bootstrap/AD/reliability/scaffold), "
             "14 validation artifacts, 48 new tests (all passing). "
             "Framework status: READY. Scientific validation: COLLECTING — awaiting internal experimental data."
+        ),
+    },
+    {
+        "version": "1.0.0",
+        "release_date": "2026-08-30",
+        "stage": "Product Release",
+        "milestone": "Drug-OPT v1.0 — Prediction Engine v1 Baseline",
+        "improvements": (
+            "Prediction Engine v1 frozen with 49 endpoint policies; endpoint-specific model, rule, derived, "
+            "mechanistic and MODEL_UNAVAILABLE states finalized; immutable prospective prediction freeze and "
+            "same-compound leakage protection enabled; internal prospective validation framework ready for data "
+            "collection; test/demo projects removed while scientific provenance was preserved."
         ),
     },
 ]

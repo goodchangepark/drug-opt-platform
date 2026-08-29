@@ -4386,7 +4386,7 @@ function App(){
    ]),
     e('div',{className:'sidebar-footer',key:'footer'},[
     e('div',{className:'sidebar-footer-brand'},'Drug Optimization Platform'),
-    e('div',{className:'sidebar-footer-version'},'v0.6.3-stage5b4-ui'),
+    e('div',{className:'sidebar-footer-version'},'Drug-OPT v1.0'),
     e('div',{className:'sidebar-footer-date'},'Updated: 2026-08-27')
     ])
   ]);
