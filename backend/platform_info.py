@@ -264,10 +264,10 @@ VERSION_HISTORY = [
     },
     {
         "version": "0.7.5-stage4e3d",
-        "date": "2026-08-29",
+        "release_date": "2026-08-29",
         "stage": "Stage 4E-3D",
-        "title": "Clearance Final Qualification & Closure",
-        "changes": "HLM/RLM/MLM contracts and external evidence audited; species-specific Engine-v1 limitations frozen; production unchanged.",
+        "milestone": "Clearance Final Qualification & Closure",
+        "improvements": "HLM/RLM/MLM contracts and external evidence audited; species-specific Engine-v1 limitations frozen; production unchanged.",
     },
 ]
 
