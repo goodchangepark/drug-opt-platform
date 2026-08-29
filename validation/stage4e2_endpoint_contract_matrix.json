@@ -1,0 +1,57 @@
+{
+  "entries": [
+    {
+      "assay": "unresolved",
+      "candidate_endpoint": "cardiac-ion-channel output; exact hERG head label/threshold unresolved",
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "compatibility_status": "ENDPOINT_TRANSFORM_REQUIRES_VALIDATION",
+      "drug_opt_endpoint": "safety_herg_blocker_prob",
+      "notes": "A continuous score or alternate assay cutoff cannot be silently mapped to the blocker probability contract.",
+      "output_type": "unresolved classification head",
+      "species": "not release-qualified",
+      "threshold": "unresolved",
+      "transformation_required": "none may be assumed",
+      "unit": "probability/risk semantics unresolved"
+    },
+    {
+      "assay": "intrinsic clearance context unresolved",
+      "candidate_endpoint": "HLM/MLM only; RLM absent",
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "compatibility_status": "ASSAY_CONTEXT_REQUIRED",
+      "drug_opt_endpoint": "hlm_intrinsic_clearance_scaled_log10; mlm_intrinsic_clearance_scaled_log10",
+      "notes": "No deterministic conversion is valid until source units, protein/scaling, and log transform are released.",
+      "output_type": "regression",
+      "species": "human, mouse claimed; rat not claimed",
+      "threshold": "not applicable",
+      "transformation_required": "ASSAY_CONTEXT_REQUIRED",
+      "unit": "unresolved"
+    },
+    {
+      "assay": "pKa",
+      "candidate_endpoint": "microstate/site pKa ensemble",
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "compatibility_status": "ENDPOINT_COMPATIBLE_WITH_NEW_CONTRACT",
+      "drug_opt_endpoint": "physchem_pka_quantitative_ml (currently unavailable); existing ionization_pka_estimated is rule based",
+      "notes": "Must not replace the current rule estimate before ionization-site, polyprotic, and zwitterion qualification.",
+      "output_type": "site-specific regression with uncertainty",
+      "species": "chemical",
+      "threshold": "not applicable",
+      "transformation_required": "macro-pKa/endpoint policy validation",
+      "unit": "pKa"
+    },
+    {
+      "assay": "pKa",
+      "candidate_endpoint": "ionizable-center pKa plus iterative protonation state",
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "compatibility_status": "ENDPOINT_COMPATIBLE_WITH_NEW_CONTRACT",
+      "drug_opt_endpoint": "physchem_pka_quantitative_ml (currently unavailable); existing ionization_pka_estimated is rule based",
+      "notes": "API semantics are technically adequate but training/weight lineage remains incomplete.",
+      "output_type": "ionization-center regression",
+      "species": "chemical",
+      "threshold": "not applicable",
+      "transformation_required": "macro-pKa/endpoint policy validation",
+      "unit": "pKa"
+    }
+  ],
+  "production_contracts_changed": false
+}

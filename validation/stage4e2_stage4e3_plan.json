@@ -1,0 +1,29 @@
+{
+  "blocking_conditions": [
+    "Resolve separate code/weight/data rights for CardioGenAI, MetaboGNN, pKaLearn, and datasets.",
+    "Build and record a pinned isolated ARM64 PyG runtime for pkasolver-lite (and pKaLearn only after lineage review).",
+    "Acquire immutable licensed raw benchmark structures; then perform exact canonical-SMILES overlap exclusions before any metrics."
+  ],
+  "conditional_plans": [
+    {
+      "ad_analysis": "in-domain/borderline/OOD",
+      "bootstrap": "paired 1000-replicate",
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "core_comparator": "ionization_smarts_rules_v1 (rule estimate; not an ML accuracy comparator)",
+      "external_dataset": "licensed site-resolved pKa benchmark to be acquired",
+      "metrics": [
+        "site pKa MAE",
+        "RMSE",
+        "polyprotic completeness",
+        "zwitterion handling"
+      ],
+      "overlap_control": "exact canonical-SMILES exclusion against training/source lineage",
+      "runtime_role_if_successful": "new unregistered quantitative-pKa candidate only",
+      "split": "scaffold-aware held-out"
+    }
+  ],
+  "pass_dataset_ids": [],
+  "pass_model_ids": [],
+  "ready": false,
+  "stage": "4E-3"
+}

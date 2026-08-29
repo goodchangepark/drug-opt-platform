@@ -1,0 +1,52 @@
+{
+  "datasets": [
+    {
+      "dataset_id": "DATA_BIOGEN_PROSPECTIVE",
+      "decision": "NO_GO_DATA_ACCESS",
+      "may_be_used_as_external_benchmark": false
+    },
+    {
+      "dataset_id": "DATA_EXPANSIONRX",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "may_be_used_as_external_benchmark": false
+    },
+    {
+      "dataset_id": "DATA_LOGD74_1130",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "may_be_used_as_external_benchmark": false
+    }
+  ],
+  "models": [
+    {
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "failed_gate": "GATE_2_LICENSE",
+      "gate_summary": "Code MIT; checkpoint/data terms and versioned hERG head identity unavailable.",
+      "may_enter_runtime": false
+    },
+    {
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "failed_gate": "GATE_2_LICENSE",
+      "gate_summary": "Code/weights/data rights unresolved; output unit contract also unresolved.",
+      "may_enter_runtime": false
+    },
+    {
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "decision": "ARM64_WORKAROUND_REQUIRED",
+      "failed_gate": "GATE_8_ARM64_RUNTIME",
+      "gate_summary": "MIT source-contained lite weights and microstate semantics pass earlier technical gates; PyG ARM64 isolated runtime has not been reproduced.",
+      "may_enter_runtime": false
+    },
+    {
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "failed_gate": "GATE_2_LICENSE",
+      "gate_summary": "MIT code and source-contained weights found, but weight/data lineage requires review; PyG ARM64 runtime is also unproven.",
+      "may_enter_runtime": false
+    }
+  ],
+  "production_changed": false,
+  "scientific_superiority_established": false,
+  "stage": "4E-2"
+}

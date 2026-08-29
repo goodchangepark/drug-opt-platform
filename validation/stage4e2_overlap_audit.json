@@ -1,0 +1,22 @@
+{
+  "datasets": [
+    {
+      "dataset_id": "DATA_BIOGEN_PROSPECTIVE",
+      "decision": "NO_GO_DATA_ACCESS",
+      "status": "NOT_AUDITABLE_WITHOUT_RAW_STRUCTURES"
+    },
+    {
+      "dataset_id": "DATA_EXPANSIONRX",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "status": "NOT_AUDITABLE_WITHOUT_RAW_STRUCTURES"
+    },
+    {
+      "dataset_id": "DATA_LOGD74_1130",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "status": "NOT_AUDITABLE_WITHOUT_RAW_STRUCTURES"
+    }
+  ],
+  "method": "Exact canonical-SMILES overlap is required once legally acquired raw structures exist.",
+  "performed": false,
+  "reason": "No listed dataset passed license/source access gates for raw acquisition."
+}

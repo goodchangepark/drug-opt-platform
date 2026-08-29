@@ -1,0 +1,86 @@
+{
+  "entries": [
+    {
+      "CPU_inference": "NOT_TESTED",
+      "CPU_load": "NOT_TESTED",
+      "GPU_possible": "documented but unverified",
+      "batch_seconds": null,
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "checkpoint_mb": null,
+      "cold_seconds": null,
+      "compiled_extensions": "unverified",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "deterministic": "NOT_TESTED",
+      "errors": [
+        "Exact legal checkpoint and endpoint head were not qualified."
+      ],
+      "framework": "PyTorch",
+      "install_status": "NOT_ATTEMPTED_EARLY_GATE",
+      "peak_memory_mb": null,
+      "python": "unverified",
+      "warm_seconds": null
+    },
+    {
+      "CPU_inference": "NOT_TESTED",
+      "CPU_load": "NOT_TESTED",
+      "GPU_possible": "unverified",
+      "batch_seconds": null,
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "checkpoint_mb": null,
+      "cold_seconds": null,
+      "compiled_extensions": "PyG/DGL risk unresolved",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "deterministic": "NOT_TESTED",
+      "errors": [
+        "License and endpoint-unit gates failed closed before installation."
+      ],
+      "framework": "Graph GNN; exact stack unresolved",
+      "install_status": "NOT_ATTEMPTED_EARLY_GATE",
+      "peak_memory_mb": null,
+      "python": "unverified",
+      "warm_seconds": null
+    },
+    {
+      "CPU_inference": "NOT_TESTED",
+      "CPU_load": "NOT_TESTED",
+      "GPU_possible": "not required by source",
+      "batch_seconds": null,
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "checkpoint_mb": 2.07,
+      "cold_seconds": null,
+      "compiled_extensions": "torch_geometric installation/build required on ARM64",
+      "decision": "ARM64_WORKAROUND_REQUIRED",
+      "deterministic": "NOT_TESTED",
+      "errors": [
+        "No isolated ARM64 PyG environment was established; production environment deliberately untouched."
+      ],
+      "framework": "PyTorch + torch_geometric",
+      "install_status": "NOT_INSTALLED_PRODUCTION_SAFE",
+      "peak_memory_mb": null,
+      "python": "production Python has torch 2.8.0+cpu; torch_geometric absent",
+      "warm_seconds": null
+    },
+    {
+      "CPU_inference": "NOT_TESTED",
+      "CPU_load": "NOT_TESTED",
+      "GPU_possible": "source environment pins pytorch-cuda=12.4 and Windows prefix",
+      "batch_seconds": null,
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "checkpoint_mb": 9.41,
+      "cold_seconds": null,
+      "compiled_extensions": "torch_geometric installation/build required on ARM64",
+      "decision": "ARM64_WORKAROUND_REQUIRED",
+      "deterministic": "NOT_TESTED",
+      "errors": [
+        "CUDA/Windows-oriented supplied environment is not Xavier evidence; legal/data lineage review incomplete."
+      ],
+      "framework": "PyTorch + torch_geometric",
+      "install_status": "NOT_INSTALLED_PRODUCTION_SAFE",
+      "peak_memory_mb": null,
+      "python": "production Python has torch 2.8.0+cpu; torch_geometric absent",
+      "warm_seconds": null
+    }
+  ],
+  "host_architecture": "aarch64 / Jetson Xavier target",
+  "production_environment_modified": false
+}

@@ -1,0 +1,89 @@
+{
+  "entries": [
+    {
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "code": "PASS_INTERNAL_RESEARCH",
+      "commercial_internal_research": "LICENSE_UNCLEAR",
+      "data": "LICENSE_UNCLEAR",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "redistribution": "LICENSE_UNCLEAR",
+      "source_ids": [
+        "SRC_CARDIOGENAI_E2"
+      ],
+      "weights": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "code": "LICENSE_UNCLEAR",
+      "commercial_internal_research": "LICENSE_UNCLEAR",
+      "data": "LICENSE_UNCLEAR",
+      "decision": "LEGAL_REVIEW_REQUIRED",
+      "redistribution": "LICENSE_UNCLEAR",
+      "source_ids": [
+        "SRC_METABOGNN_E2"
+      ],
+      "weights": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "code": "PASS_INTERNAL_RESEARCH",
+      "commercial_internal_research": "PASS_INTERNAL_RESEARCH",
+      "data": "PASS_WITH_LEGAL_REVIEW",
+      "decision": "PASS_INTERNAL_RESEARCH",
+      "redistribution": "MIT_NOTICE_REQUIRED",
+      "source_ids": [
+        "SRC_PKASOLVER_E2"
+      ],
+      "weights": "PASS_INTERNAL_RESEARCH"
+    },
+    {
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "code": "PASS_INTERNAL_RESEARCH",
+      "commercial_internal_research": "PASS_WITH_LEGAL_REVIEW",
+      "data": "PASS_WITH_LEGAL_REVIEW",
+      "decision": "PASS_WITH_LEGAL_REVIEW",
+      "redistribution": "MIT_NOTICE_REQUIRED",
+      "source_ids": [
+        "SRC_PKALEARN_E2"
+      ],
+      "weights": "PASS_WITH_LEGAL_REVIEW"
+    },
+    {
+      "candidate_id": "DATA_BIOGEN_PROSPECTIVE",
+      "code": "NOT_APPLICABLE",
+      "commercial_internal_research": "LICENSE_UNCLEAR",
+      "data": "LICENSE_UNCLEAR",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "redistribution": "LICENSE_UNCLEAR",
+      "source_ids": [
+        "SRC_BIOGEN_E2"
+      ],
+      "weights": "NOT_APPLICABLE"
+    },
+    {
+      "candidate_id": "DATA_EXPANSIONRX",
+      "code": "NOT_APPLICABLE",
+      "commercial_internal_research": "LICENSE_UNCLEAR",
+      "data": "LICENSE_UNCLEAR",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "redistribution": "LICENSE_UNCLEAR",
+      "source_ids": [
+        "SRC_EXPANSIONRX_E2"
+      ],
+      "weights": "NOT_APPLICABLE"
+    },
+    {
+      "candidate_id": "DATA_LOGD74_1130",
+      "code": "NOT_APPLICABLE",
+      "commercial_internal_research": "LICENSE_UNCLEAR",
+      "data": "LICENSE_UNCLEAR",
+      "decision": "LICENSE_REVIEW_REQUIRED",
+      "redistribution": "LICENSE_UNCLEAR",
+      "source_ids": [
+        "SRC_LOGD74_E2"
+      ],
+      "weights": "NOT_APPLICABLE"
+    }
+  ],
+  "policy": "FAIL_CLOSED"
+}

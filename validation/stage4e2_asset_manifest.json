@@ -1,0 +1,57 @@
+{
+  "assets": [
+    {
+      "acquired": false,
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "download_date": null,
+      "filename": null,
+      "license": "LICENSE_UNCLEAR",
+      "local_location": null,
+      "reason": "Early license/checkpoint-manifest gate; no model weights downloaded.",
+      "sha256": null,
+      "size_bytes": null,
+      "source": "SRC_CARDIOGENAI_E2",
+      "version": "git 2f403b84bb6fb4a44762ef8d118377a2b1529416"
+    },
+    {
+      "acquired": false,
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "download_date": null,
+      "filename": null,
+      "license": "LICENSE_UNCLEAR",
+      "local_location": null,
+      "reason": "Early license and endpoint-unit gate; no checkpoint archive downloaded.",
+      "sha256": null,
+      "size_bytes": null,
+      "source": "SRC_METABOGNN_E2",
+      "version": "git c442f715356c5554902c1fc1a53521f28fa39172"
+    },
+    {
+      "acquired": false,
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "download_date": "2026-08-29",
+      "filename": "best_model_0.pt (source-inspected; not retained)",
+      "license": "MIT repository distribution",
+      "local_location": null,
+      "reason": "Temporary source clone was removed after identity/hash inspection; no binary is stored in the repository.",
+      "sha256": "8190bc02122478812eda0d4fd7a41e39cd9dfce803fbc293e936516845877ab2",
+      "size_bytes": 2167218,
+      "source": "SRC_PKASOLVER_E2",
+      "version": "git a6ec86e0337474efc9a6797b5a6374e6961a2748"
+    },
+    {
+      "acquired": false,
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "download_date": "2026-08-29",
+      "filename": "train_AAc-1_best.pth (source-inspected; not retained)",
+      "license": "PASS_WITH_LEGAL_REVIEW",
+      "local_location": null,
+      "reason": "Temporary source clone was removed after identity/hash inspection; no binary is stored in the repository.",
+      "sha256": "8e6fcd437d87e176740104bfc3533106a4e2603af99fb5d3a8bc3ac160145f45",
+      "size_bytes": 9864714,
+      "source": "SRC_PKALEARN_E2",
+      "version": "git ba07b6887a32f027e70510b9565bf61d48cada66"
+    }
+  ],
+  "assets_are_not_committed": true
+}

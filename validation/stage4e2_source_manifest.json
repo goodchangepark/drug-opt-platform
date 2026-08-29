@@ -1,0 +1,80 @@
+{
+  "accessed_at": "2026-08-29",
+  "sources": [
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "commit": "2f403b84bb6fb4a44762ef8d118377a2b1529416",
+      "license_evidence": "Repository MIT; no separate checkpoint grant located.",
+      "notes": "Required parameter files are partly external Google Drive assets without a release manifest/checksum.",
+      "source_id": "SRC_CARDIOGENAI_E2",
+      "source_type": "OFFICIAL_REPOSITORY",
+      "title": "CardioGenAI",
+      "url": "https://github.com/gregory-kyro/cardiogenai"
+    },
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "commit": "c442f715356c5554902c1fc1a53521f28fa39172",
+      "license_evidence": "No unambiguous code, checkpoint, or data license evidence found in the release path.",
+      "notes": "Google Drive checkpoint archive is not a versioned release manifest; HLM/MLM units are unresolved and RLM is not claimed.",
+      "source_id": "SRC_METABOGNN_E2",
+      "source_type": "OFFICIAL_REPOSITORY",
+      "title": "MetaboGNN",
+      "url": "https://github.com/qwon135/MetaboGNN"
+    },
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "commit": "a6ec86e0337474efc9a6797b5a6374e6961a2748",
+      "license_evidence": "LICENSE.md is MIT; README explicitly excludes Epik-transfer weights but distributes pkasolver-lite.",
+      "notes": "Repository snapshot contained versioned lite ensemble weights and a microstate/site-oriented API.",
+      "source_id": "SRC_PKASOLVER_E2",
+      "source_type": "OFFICIAL_REPOSITORY",
+      "title": "pkasolver",
+      "url": "https://github.com/mayrf/pkasolver"
+    },
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "commit": "ba07b6887a32f027e70510b9565bf61d48cada66",
+      "license_evidence": "Repository LICENSE is MIT; repository-contained weight provenance and training-data rights still need legal/lineage review.",
+      "notes": "README documents ionizable-center/pH inference and requires torch_geometric; supplied environment is CUDA/Windows oriented.",
+      "source_id": "SRC_PKALEARN_E2",
+      "source_type": "OFFICIAL_REPOSITORY",
+      "title": "pKaLearn",
+      "url": "https://github.com/MoitessierLab/pKaLearn"
+    },
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "DATA_BIOGEN_PROSPECTIVE",
+      "license_evidence": "Local lineage metadata does not grant raw-data acquisition or reuse rights.",
+      "notes": "Reported N=3,521; no immutable public raw-data release was available to acquire in this gate.",
+      "source_id": "SRC_BIOGEN_E2",
+      "source_type": "LOCAL_LINEAGE_METADATA",
+      "title": "Biogen Public ADME Prospective Benchmark",
+      "url": "validation/stage4d0_dataset_lineage.json"
+    },
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "DATA_EXPANSIONRX",
+      "license_evidence": "Endpoint listing found; raw-data terms and reusable structured release not established.",
+      "notes": "Caco-2 A\u2192B, HLM, and MLM must remain separate contracts.",
+      "source_id": "SRC_EXPANSIONRX_E2",
+      "source_type": "OFFICIAL_DOCUMENTATION",
+      "title": "OpenADMET ExpansionRx challenge",
+      "url": "https://openadmet.org/"
+    },
+    {
+      "accessed_at": "2026-08-29",
+      "candidate_id": "DATA_LOGD74_1130",
+      "license_evidence": "Repository source did not establish a reusable data license.",
+      "notes": "pH 7.4 claim alone is not a redistribution/internal-use grant.",
+      "source_id": "SRC_LOGD74_E2",
+      "source_type": "OFFICIAL_REPOSITORY",
+      "title": "logD7.4 curated dataset",
+      "url": "https://github.com/nanxstats/logd74"
+    }
+  ],
+  "stage": "4E-2"
+}
