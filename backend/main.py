@@ -1550,7 +1550,13 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
         select(ADMETMeasurement).where(ADMETMeasurement.version_id.in_(version_ids))
         .order_by(ADMETMeasurement.created_at.desc())
     ).all() if version_ids else []
-    models = db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name)).all()
+    # The legacy ADMET model list remains a production-model inventory.
+    # Executable Stage 4D shadow identities are exposed through multimodel
+    # provenance/freeze linkage, never as competing primary rows.
+    models = [
+        model for model in db.scalars(select(ADMETModelRegistry).order_by(ADMETModelRegistry.endpoint_name)).all()
+        if (model.provenance_json or {}).get("production_eligible") is not False
+    ]
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
         select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id)
     )}
@@ -1654,7 +1660,9 @@ def get_compound_version_multimodel_provenance(version_id: int, db: Session = De
         .where(ADMETConsensusPrediction.version_id == version_id)
         .order_by(ADMETConsensusPrediction.created_at.desc())
     ).all())
-    consensus_by_endpoint = {c.endpoint_id: c for c in consensuses}
+    consensuses_by_endpoint = {}
+    for consensus in consensuses:
+        consensuses_by_endpoint.setdefault(consensus.endpoint_id, []).append(consensus)
 
     measurements = list(db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version_id)).all())
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
@@ -1666,18 +1674,102 @@ def get_compound_version_multimodel_provenance(version_id: int, db: Session = De
         ep_name = pred.model.endpoint_name
         grouped.setdefault(ep_name, []).append(_admet_prediction_out(pred, measurements, endpoint_names))
 
+    freeze_by_endpoint = {}
+    try:
+        from .production_qualification import QualificationPredictionFreezeRow
+        for frozen in db.scalars(select(QualificationPredictionFreezeRow).where(
+            QualificationPredictionFreezeRow.compound_version_id == str(version_id)
+        )):
+            freeze_by_endpoint[frozen.endpoint_id] = frozen
+    except Exception:
+        pass
+
     endpoint_provenance = []
     for ep_name, model_preds in grouped.items():
         ep_obj = db.scalar(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id, ADMETEndpoint.name == ep_name))
-        cons_record = consensus_by_endpoint.get(ep_obj.id) if ep_obj else None
+        endpoint_consensuses = consensuses_by_endpoint.get(ep_obj.id, []) if ep_obj else []
+        research_consensuses = [
+            row for row in endpoint_consensuses
+            if (row.provenance_json or {}).get("stage4d6_research_only")
+        ]
+        cons_record = next((row for row in endpoint_consensuses if row not in research_consensuses), None)
         contract = get_endpoint_contract(ep_name)
+        from .endpoint_strategy_registry import get_endpoint_strategy
+        policy = get_endpoint_strategy(ep_name)
+        # Annotate model_role from outputs_json for each prediction
+        for mp in model_preds:
+            if "model_role" not in mp:
+                mp_outputs = mp.get("outputs") or {}
+                mp["model_role"] = mp_outputs.get("model_role", "CORE")
+        # Separate CORE and shadow predictions
+        core_preds = [mp for mp in model_preds if mp.get("model_role", "CORE") == "CORE"]
+        shadow_preds = [mp for mp in model_preds if mp.get("model_role", "CORE") != "CORE"]
+        if policy:
+            for core in core_preds:
+                core_model = core.get("model") or {}
+                core_model.setdefault("model_id", policy.primary_model_ids[0] if policy.primary_model_ids else None)
+                core_model["role"] = "CORE"
+                core["model"] = core_model
+        production = core_preds[0] if core_preds else None
+        frozen = freeze_by_endpoint.get(contract.endpoint_id if contract else ep_name)
+        freeze_ids = [frozen.frozen_prediction_id] if frozen else []
+        frozen_shadows = [
+            row for row in ((frozen.provenance_json or {}).get("individual_predictions") if frozen else []) or []
+            if row.get("role") != "CORE"
+        ]
+        for shadow in frozen_shadows:
+            model_preds.append({
+                "id": None,
+                "run_id": None,
+                "version_id": version_id,
+                "endpoint_id": ep_obj.id if ep_obj else None,
+                "endpoint": ep_name,
+                "predicted_value": shadow.get("predicted_value"),
+                "unit": contract.canonical_unit if contract else "",
+                "confidence": shadow.get("confidence", "NOT_APPLICABLE"),
+                "applicability_domain": shadow.get("applicability_domain", "UNKNOWN"),
+                "uncertainty": None,
+                "model": {
+                    "model_id": shadow.get("model_id"),
+                    "model_name": shadow.get("model_name"),
+                    "model_version": shadow.get("model_version"),
+                    "role": shadow.get("role"),
+                    "production_eligible": False,
+                },
+                "outputs": {"model_role": shadow.get("role"), "execution_status": shadow.get("execution_status", "SUCCESS")},
+                "experimental_comparisons": [],
+                "preferred_result": None,
+                "created_at": frozen.frozen_at.isoformat() if frozen and frozen.frozen_at else None,
+                "type": "Shadow Prediction",
+                "provenance": {"record_type": "Shadow Prediction", "freeze_id": frozen.frozen_prediction_id if frozen else None},
+                "model_role": shadow.get("role", "SHADOW"),
+            })
+        shadow_preds = [mp for mp in model_preds if mp.get("model_role", "CORE") != "CORE"]
         endpoint_provenance.append({
             "endpoint_name": ep_name,
             "endpoint_id": contract.endpoint_id if contract else ep_name,
             "canonical_unit": contract.canonical_unit if contract else (model_preds[0]["unit"] if model_preds else ""),
             "consensus": _consensus_out(cons_record) if cons_record else None,
+            "research_consensus": [_consensus_out(row) for row in research_consensuses],
             "models": model_preds,
             "model_count": len(model_preds),
+            "core_model_count": len(core_preds),
+            "shadow_model_count": len(shadow_preds),
+            "production_strategy": policy.primary_strategy.value if policy else "UNKNOWN",
+            "production_model": production["model"] if production else None,
+            "production_value": production["predicted_value"] if production else None,
+            "calibration_status": policy.calibration_status.value if policy else "UNKNOWN",
+            "calibration_result": {
+                "status": policy.calibration_status.value,
+                "production_enabled": policy.calibration_production_enabled,
+                "value": None,
+            } if policy else None,
+            "validation_status": policy.validation_status.value if policy else "UNKNOWN",
+            "limitations": list(policy.limitations) if policy else [],
+            "shadow_exclusion_reasons": {
+                model_id: role for model_id, role in (policy.non_primary_model_roles.items() if policy else [])
+            },
+            "freeze_linkage": freeze_ids,
         })
 
     return {
@@ -1686,8 +1778,11 @@ def get_compound_version_multimodel_provenance(version_id: int, db: Session = De
         "version_number": version.version_number,
         "canonical_smiles": version.canonical_smiles,
         "consensus_mode": "SHADOW",
+        "stage4d6_orchestrator": True,
         "endpoints": endpoint_provenance,
         "total_endpoints": len(endpoint_provenance),
+        "total_model_executions": sum(ep["model_count"] for ep in endpoint_provenance),
+        "shadow_model_executions": sum(ep["shadow_model_count"] for ep in endpoint_provenance),
     }
 
 
@@ -1958,54 +2053,79 @@ def admet_export(project_id: int, db: Session = Depends(get_db)):
     return csv_export(rows, labels)
 
 
-@app.post("/api/admet/predict/{row_id}", status_code=202)
-def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
-    version = db.get(CompoundVersion, row_id)
-    if not version:
-        raise HTTPException(status_code=404, detail="CompoundVersion not found")
-    compound = db.get(Compound, version.compound_row_id)
-    if compound.project.molecule_type != "Small Molecule":
-        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
-    active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
-    inactive_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(False))).all()
-    inactive_statuses = [{"endpoint": model.endpoint_name, "model_id": model.id, "status": "MODEL_UNAVAILABLE",
-                          "message": (model.provenance_json or {}).get("reason", "Model is disabled or no validated local checkpoint is installed")}
-                         for model in inactive_models]
-    implemented_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS]
-    available_models = [model for model in active_models if model.endpoint_name in MODEL_SPECS and model_files_available(model.endpoint_name)[0]]
-    cached = {}
-    for model in available_models:
-        prediction = db.scalar(
-            select(ADMETPrediction).join(ADMETModelRegistry)
-            .where(ADMETPrediction.version_id == row_id,
-                   ADMETModelRegistry.id == model.id,
-                   ADMETModelRegistry.model_version == model.model_version)
-            .order_by(ADMETPrediction.created_at.desc())
-        )
-        if prediction:
-            cached[model.id] = prediction
-    compound = db.get(Compound, version.compound_row_id)
-    measurements = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == row_id)).all()
-    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
-        select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
-    )}
-    if implemented_models and len(available_models) == len(implemented_models) and len(cached) == len(available_models):
-        _refresh_model_feedback(db, compound.project_id, [row_id])
-        consensuses = _store_consensus_predictions(db, version, compound.project_id, list(cached.values()))
-        db.commit()
-        predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
-        return {
-            "type": "Predicted", "run_id": predictions[0]["run_id"], "status": "CACHED",
-            "message": "Cached predictions reused for this CompoundVersion and model version.",
-            "models_available": len(available_models), "cache_hit": True, "predictions": predictions,
-            "consensus_predictions": [_consensus_out(row) for row in consensuses],
-            "endpoint_statuses": [{"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True} for model in available_models] + inactive_statuses,
-        }
 
-    digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}".encode()).hexdigest()
+def _check_shadow_cache(db: Session, version_id: int, compound: Compound) -> bool:
+    """
+    Check whether all authorized shadow models are already persisted for this version.
+    Returns True only if every shadow model that should be executed has an existing prediction row.
+    """
+    from .prediction_orchestrator import SHADOW_ADAPTER_MAP
+    from .endpoint_strategy_registry import get_all_strategies
+    from .production_qualification import QualificationPredictionFreezeRow
+
+    strategies = get_all_strategies()
+    freeze_rows = list(db.scalars(select(QualificationPredictionFreezeRow).where(
+        QualificationPredictionFreezeRow.compound_version_id == str(version_id)
+    )))
+    freezes_by_endpoint = {row.endpoint_id: row for row in freeze_rows}
+    for ep_name, policy in strategies.items():
+        if not policy.shadow_model_ids:
+            continue
+        for shadow_id in policy.shadow_model_ids:
+            role = policy.non_primary_model_roles.get(shadow_id, "SHADOW")
+            if "EXCLUDED" in role.upper():
+                continue
+            if shadow_id not in SHADOW_ADAPTER_MAP:
+                continue
+            frozen = freezes_by_endpoint.get(policy.endpoint_id)
+            executed = ((frozen.provenance_json or {}).get("individual_predictions") if frozen else []) or []
+            if not any(row.get("model_id") == shadow_id for row in executed):
+                return False
+    return True
+
+
+def _check_runtime_freeze_cache(db: Session, version_id: int) -> bool:
+    """Require Stage 4D-6 pre-experimental evidence before a true cache hit."""
+    try:
+        from .production_qualification import QualificationPredictionFreezeRow
+        from .endpoint_strategy_registry import get_all_strategies
+        required = {
+            policy.endpoint_id for name, policy in get_all_strategies().items()
+            if name in MODEL_SPECS and policy.production_execution_allowed
+        }
+        found = set(db.scalars(
+            select(QualificationPredictionFreezeRow.endpoint_id).where(
+                QualificationPredictionFreezeRow.compound_version_id == str(version_id)
+            )
+        ))
+        return required <= found
+    except Exception:
+        # A missing schema is never treated as a cache hit: the orchestrator
+        # will create it through normal application initialization.
+        return False
+
+
+def _run_admet_predictions_legacy(
+    row_id: int,
+    db: Session,
+    version: CompoundVersion,
+    compound: Compound,
+    available_models: list,
+    cached: dict,
+    measurements: list,
+    endpoint_names: dict,
+    inactive_statuses: list,
+    fallback_reason: str = "",
+) -> dict:
+    """
+    Legacy single-model prediction fallback used only when the orchestrator fails.
+    Preserves original Stage 3A-3F behavior.
+    """
+    active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
+    digest = hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{MODEL_VERSION}|legacy".encode()).hexdigest()
     run = ADMETPredictionRun(
         version_id=row_id, inputs_hash=digest, status="RUNNING",
-        message="Running endpoint-specific ADMET predictions through Stage 3F.",
+        message=f"Legacy prediction path (orchestrator fallback: {fallback_reason[:200] if fallback_reason else 'unspecified'}).",
     )
     db.add(run); db.flush()
     created, unavailable, endpoint_statuses = [], [], []
@@ -2031,8 +2151,8 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             unavailable.append(f"{model.endpoint_name}: {result.get('reason', 'model unavailable')}")
             endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "MODEL_UNAVAILABLE", "message": result.get("reason", "model unavailable")})
             continue
-        endpoint = get_or_create_admet_endpoint(db, compound.project_id, model.endpoint_name)
-        db.add(endpoint); db.flush()
+        endpoint_obj = get_or_create_admet_endpoint(db, compound.project_id, model.endpoint_name)
+        db.add(endpoint_obj); db.flush()
         domain = result["applicability_domain"]
         output = {
             "record_type": "Predicted", "compound_version_id": row_id,
@@ -2059,11 +2179,9 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         if result.get("calibrated_uncertainty") is not None:
             output["calibrated_uncertainty"] = result["calibrated_uncertainty"]
         prediction = ADMETPrediction(
-            run_id=run.id, endpoint_id=endpoint.id, version_id=row_id, model_id=model.id,
-            model_version=model.model_version,
-            execution_status="SUCCESS",
-            standardizer_version="CHEM_STANDARDIZER_V1",
-            canonical_smiles=version.canonical_smiles,
+            run_id=run.id, endpoint_id=endpoint_obj.id, version_id=row_id, model_id=model.id,
+            model_version=model.model_version, execution_status="SUCCESS",
+            standardizer_version="CHEM_STANDARDIZER_V1", canonical_smiles=version.canonical_smiles,
             runtime_ms=float(result.get("runtime_ms", 0.0)),
             predicted_value=result["predicted_value"], unit=result["unit"],
             confidence=result["confidence"], applicability_domain=domain["classification"],
@@ -2073,11 +2191,9 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         endpoint_statuses.append({"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": False})
     run.completed_at = datetime.now(timezone.utc)
     if selected_predictions and unavailable:
-        run.status, run.message = "PARTIAL", "Predictions completed; " + "; ".join(unavailable)
+        run.status, run.message = "PARTIAL", "Legacy predictions completed; " + "; ".join(unavailable)
     elif selected_predictions:
-        run.status, run.message = "COMPLETE", "Stage 3A-3F endpoint predictions completed." + (
-            f" Reused {len(cached)} cached endpoint." if cached else ""
-        )
+        run.status, run.message = "COMPLETE", "Legacy Stage 3A-3F endpoint predictions completed."
     else:
         run.status, run.message = "MODEL_UNAVAILABLE", "; ".join(unavailable) or "No implemented ADMET model is available."
     db.flush()
@@ -2096,10 +2212,210 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         "models_available": len(available_models), "cache_hit": False, "predictions": predictions,
         "consensus_predictions": [_consensus_out(row) for row in consensuses],
         "endpoint_statuses": endpoint_statuses + inactive_statuses, "unavailable": unavailable,
+        "legacy_fallback": True, "fallback_reason": fallback_reason,
+    }
+
+
+@app.post("/api/admet/predict/{row_id}", status_code=202)
+def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
+    """
+    Stage 4D-6 canonical prediction endpoint.
+    Delegates to PredictionOrchestrator which executes all authorized
+    CORE + SHADOW/secondary models per endpoint strategy policy.
+    """
+    from .prediction_orchestrator import (
+        PredictionOrchestrator,
+        ORCHESTRATOR_VERSION,
+        is_core_registry_model,
+    )
+
+    version = db.get(CompoundVersion, row_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    if compound.project.molecule_type != "Small Molecule":
+        raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
+
+    # Collect inactive-model unavailable statuses (for backward-compat response)
+    inactive_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(False))).all()
+    inactive_statuses = [
+        {"endpoint": model.endpoint_name, "model_id": model.id, "status": "MODEL_UNAVAILABLE",
+         "message": (model.provenance_json or {}).get("reason", "Model is disabled or no validated local checkpoint is installed")}
+        for model in inactive_models
+        if model.endpoint_name in MODEL_SPECS  # only primary-endpoint unavailable entries in legacy view
+    ]
+
+    # Active CORE models for backward-compatible response formatting
+    active_models = db.scalars(select(ADMETModelRegistry).where(ADMETModelRegistry.is_active.is_(True))).all()
+    available_models = [
+        model for model in active_models
+        if is_core_registry_model(model) and model_files_available(model.endpoint_name)[0]
+    ]
+
+    # ── Check full CORE cache (only primary models, not shadow) ─────────────
+    cached = {}
+    for model in available_models:
+        prediction = db.scalar(
+            select(ADMETPrediction).join(ADMETModelRegistry)
+            .where(
+                ADMETPrediction.version_id == row_id,
+                ADMETModelRegistry.id == model.id,
+                ADMETModelRegistry.model_version == model.model_version,
+                ADMETPrediction.execution_status == "SUCCESS",
+            )
+            .order_by(ADMETPrediction.created_at.desc())
+        )
+        if prediction:
+            cached[model.id] = prediction
+
+    measurements = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == row_id)).all()
+    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
+    )}
+
+    # Compatibility support for isolated callers that deliberately replace all
+    # governed core rows with ad-hoc test/local models. Production records
+    # always contain the policy identities above and therefore stay on the
+    # canonical orchestrator path.
+    legacy_compat_models = [
+        model for model in active_models
+        if model.endpoint_name in MODEL_SPECS and model_files_available(model.endpoint_name)[0]
+    ]
+    if not available_models and legacy_compat_models:
+        legacy_cached = {}
+        for model in legacy_compat_models:
+            prediction = db.scalar(
+                select(ADMETPrediction).where(
+                    ADMETPrediction.version_id == row_id,
+                    ADMETPrediction.model_id == model.id,
+                    ADMETPrediction.execution_status == "SUCCESS",
+                ).order_by(ADMETPrediction.created_at.desc())
+            )
+            if prediction is not None:
+                legacy_cached[model.id] = prediction
+        if len(legacy_cached) == len(legacy_compat_models):
+            consensuses = _store_consensus_predictions(
+                db, version, compound.project_id, list(legacy_cached.values())
+            )
+            db.commit()
+            return {
+                "type": "Predicted", "run_id": next(iter(legacy_cached.values())).run_id,
+                "status": "CACHED", "message": "Cached compatibility predictions reused.",
+                "models_available": len(legacy_compat_models), "cache_hit": True,
+                "predictions": [
+                    _admet_prediction_out(legacy_cached[model.id], measurements, endpoint_names)
+                    for model in legacy_compat_models
+                ],
+                "consensus_predictions": [_consensus_out(row) for row in consensuses],
+                "endpoint_statuses": [
+                    {"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True}
+                    for model in legacy_compat_models
+                ] + inactive_statuses,
+            }
+        return _run_admet_predictions_legacy(
+            row_id, db, version, compound, legacy_compat_models, legacy_cached, measurements,
+            endpoint_names, inactive_statuses,
+            fallback_reason="No Stage 4D policy CORE identity is installed; compatibility execution only.",
+        )
+
+    # Full core cache hit: still run orchestrator to execute shadow models + freeze
+    # (shadow models may not be cached yet even if CORE is)
+    full_core_cache = (
+        len(available_models) > 0 and len(cached) == len(available_models)
+    )
+
+    # Check if shadow models also all cached
+    shadow_all_cached = _check_shadow_cache(db, row_id, compound)
+
+    freeze_all_cached = _check_runtime_freeze_cache(db, row_id)
+    if full_core_cache and shadow_all_cached and freeze_all_cached:
+        # All predictions (core + shadow) already exist — true cache hit
+        _refresh_model_feedback(db, compound.project_id, [row_id])
+        consensuses = _store_consensus_predictions(db, version, compound.project_id, list(cached.values()))
+        db.commit()
+        predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
+        return {
+            "type": "Predicted", "run_id": predictions[0]["run_id"] if predictions else 0,
+            "status": "CACHED",
+            "message": "Cached predictions reused (core + shadow) for this CompoundVersion and model version.",
+            "models_available": len(available_models), "cache_hit": True, "predictions": predictions,
+            "consensus_predictions": [_consensus_out(row) for row in consensuses],
+            "endpoint_statuses": [
+                {"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True}
+                for model in available_models
+            ] + inactive_statuses,
+        }
+
+    # ── Run canonical orchestrator (CORE + SHADOW) ──────────────────────────
+    try:
+        orchestrator = PredictionOrchestrator(db, version, compound)
+        orch_result = orchestrator.orchestrate()
+        db.flush()
+    except Exception as exc:
+        # Orchestrator failure: fall back to legacy single-model prediction path
+        import traceback
+        _tb = traceback.format_exc()
+        return _run_admet_predictions_legacy(
+            row_id, db, version, compound, available_models, cached, measurements,
+            endpoint_names, inactive_statuses, fallback_reason=str(exc),
+        )
+
+    # Refresh performance feedback after orchestration
+    _refresh_model_feedback(db, compound.project_id, [row_id])
+
+    # Store static consensus (shadow mode, from primary model predictions only)
+    # Refresh cached after orchestration to include newly persisted CORE predictions
+    refreshed_core_preds = {}
+    for model in available_models:
+        pred = db.scalar(
+            select(ADMETPrediction).join(ADMETModelRegistry)
+            .where(
+                ADMETPrediction.version_id == row_id,
+                ADMETModelRegistry.id == model.id,
+                ADMETModelRegistry.model_version == model.model_version,
+                ADMETPrediction.execution_status == "SUCCESS",
+            )
+            .order_by(ADMETPrediction.created_at.desc())
+        )
+        if pred:
+            refreshed_core_preds[model.id] = pred
+
+    consensuses = _store_consensus_predictions(
+        db, version, compound.project_id, list(refreshed_core_preds.values())
+    )
+    db.commit()
+
+    # Refresh endpoint names after potential additions
+    endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
+        select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)
+    )}
+
+    predictions = [
+        _admet_prediction_out(refreshed_core_preds[model.id], measurements, endpoint_names)
+        for model in available_models if model.id in refreshed_core_preds
+    ]
+
+    return {
+        "type": "Predicted",
+        "run_id": orch_result.run_id,
+        "status": orch_result.status,
+        "message": orch_result.message,
+        "models_available": len(available_models),
+        "cache_hit": False,
+        "predictions": predictions,
+        "consensus_predictions": [_consensus_out(row) for row in consensuses],
+        "endpoint_statuses": orch_result.endpoint_statuses + inactive_statuses,
+        "unavailable": orch_result.unavailable,
+        "orchestrator": ORCHESTRATOR_VERSION,
+        "shadow_models_executed": sum(
+            ep.shadow_results.__len__() if hasattr(ep.shadow_results, '__len__') else 0
+            for ep in orch_result.endpoint_results
+        ),
     }
 
 
 def _soft_spot_out(row: MetabolicSoftSpot):
+
     return {
         "id": row.id, "run_id": row.run_id, "version_id": row.version_id,
         "rank": row.rank, "atom_index": row.atom_index,

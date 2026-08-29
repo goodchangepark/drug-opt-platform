@@ -193,7 +193,6 @@ def ensure_admet_schema(engine):
                         .values(**{key: value for key, value in values.items() if key != "endpoint_name"})
                     )
 
-
 ADMET_CSV_COLUMNS = [
     "compound_id", "version_number", "endpoint", "species", "matrix", "value", "qualitative_value", "unit",
     "qualifier", "replicate", "mean", "sd", "n", "method", "source", "date", "notes",

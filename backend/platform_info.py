@@ -191,7 +191,25 @@ VERSION_HISTORY = [
         "milestone": "Production Qualification & Prospective Validation Governance",
         "improvements": "Prospective qualification lifecycle (SHADOW -> VALIDATED -> PRODUCTION_CANDIDATE -> ACTIVE -> ROLLBACK), promotion gates, drift review policy, immutable qualification evidence, strategy cards, and verified scientific readiness (READY_FOR_INTERNAL_VALIDATION).",
     },
+    {
+        "version": "0.6.7-stage4d6",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4D-6",
+        "milestone": "Prediction Runtime Integration — Real Multi-Model Execution",
+        "improvements": (
+            "Connected Stage 4D multimodel scientific governance to the real Save & Predict runtime. "
+            "New canonical PredictionOrchestrator executes all endpoint-authorized CORE + SHADOW/secondary models "
+            "per EndpointStrategyPolicy (ESOL M2 for Solubility, physchem Caco-2 M2, Morgan CYP3A4 M2, physchem hERG M2). "
+            "Authorized secondary outputs execute each prediction run and are recorded in immutable "
+            "qualification prediction-freeze provenance without becoming legacy primary registry rows. "
+            "Research-only constraints enforced: CYP3A4 fixed blend (0.9578/0.0422) shadow-only, "
+            "hERG raw M1 remains production (threshold 0.50), RDKIT-GBR M3 ADAPTIVE_EXCLUDED. "
+            "Multimodel-provenance endpoint enhanced with shadow_model_count, core_model_count. "
+            "Legacy single-model path preserved as fallback."
+        ),
+    },
 ]
+
 
 
 
