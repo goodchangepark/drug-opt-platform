@@ -1,0 +1,8 @@
+{
+  "status":"CLOSED_WITH_NO_ELIGIBLE_SECONDARY",
+  "preregistered_candidates":[],
+  "screened_candidates":["MODEL_ATTENHERG","MODEL_NCATS_HERG_ML","MODEL_ADMET_AI_V2_HERG"],
+  "benchmark_dataset":"ChEMBL37 hERG IC50 overlap-excluded N=728",
+  "decision_rules":["No direct binary contract or no legal/versioned checkpoint means no benchmark.","No candidate may be added after preregistration."],
+  "no_new_candidate_search_after_preregistration":true
+}

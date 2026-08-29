@@ -1,0 +1,10 @@
+{
+  "status": "PLATT_PROMISING_BUT_NOT_INDEPENDENT_FOR_ENGINE_V1_PROMOTION",
+  "fit_split": {"method": "scaffold-aware split", "calibration_n": 546, "heldout_n": 182, "heldout_touched_by_fit": false, "leakage_check": "no test-set tuning documented"},
+  "heldout_raw_m1": {"N": 182, "prevalence": 0.6813, "MCC": 0.0072, "Balanced_Accuracy": 0.5017, "AUROC": 0.6001, "AUPRC": 0.7378, "Sensitivity": 0.9516, "Specificity": 0.0517, "Brier": 0.2763, "LogLoss": 1.6942, "ECE": 0.272},
+  "heldout_m1_platt": {"N": 182, "prevalence": 0.6813, "MCC": 0.2048, "Balanced_Accuracy": 0.5866, "AUROC": 0.599, "AUPRC": 0.7321, "Sensitivity": 0.8629, "Specificity": 0.3103, "Brier": 0.2144, "LogLoss": 0.6259, "ECE": 0.0887},
+  "separation": {"discrimination": "AUROC essentially unchanged; calibration cannot establish new ranking", "probability_quality": "Brier/LogLoss/ECE improved on holdout", "classification": "threshold 0.50 semantics changed sensitivity/specificity; threshold was not requalified", "independent_external_calibration": "not demonstrated beyond this single historical holdout"},
+  "decision": "CALIBRATION_RESEARCH_ONLY",
+  "promotion_evidence": false,
+  "required_next_evidence": ["new untouched prospective/internal validation cohort", "reproducible frozen Platt parameters", "subgroup and prevalence-shift robustness", "independent threshold policy review"]
+}

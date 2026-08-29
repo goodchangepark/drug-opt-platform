@@ -1,0 +1,14 @@
+{
+  "primary_decision":"HERG_NO_QUALIFIED_REPLACEMENT_RAW_M1_FROZEN",
+  "platt_decision":"CALIBRATION_RESEARCH_ONLY",
+  "secondary_decision":"NO_QUALIFIED_SECONDARY_MODEL",
+  "production_changed":false,
+  "production_strategy":"SINGLE_CORE_MODEL",
+  "production_model":"admetica_safety_herg/admetica-d4f7056-herg-chemprop-v2.1",
+  "threshold":0.5,
+  "reliability":{"discrimination":"LOW / LOW-MEDIUM","probability_calibration":"RAW research calibration candidate; not production","classification_threshold":"0.50 unchanged","applicability":"IN_DOMAIN 719; BORDERLINE 7; OUT_OF_DOMAIN 2 (too small)","validation_strength":"INDEPENDENT_COMPLETE_WITH_LIMITATIONS"},
+  "engine_v1_status":"CLOSED",
+  "no_further_dedicated_herg_optimization_before_engine_v1_freeze":true,
+  "limitations":["AUROC 0.6669; MCC 0.1844; BAcc 0.5442","Sensitivity 0.9755 vs specificity 0.113 at 0.50","Training/evaluation prevalence shift 0.1882","Assay heterogeneity and 72.94% borderline IC50 labels","M2 rescue rate 0.0536","Residual independent prospective calibration evidence absent"],
+  "next_planned_work":"STAGE 4E-3D — CLEARANCE FINAL QUALIFICATION"
+}

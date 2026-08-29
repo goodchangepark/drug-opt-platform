@@ -1,0 +1,10 @@
+{
+  "candidates": [
+    {"candidate_id":"MODEL_ATTENHERG","source":"https://github.com/Tianbiao-Yang/AttenhERG","architecture":"Attentive graph neural network","endpoint":"binary hERG blocker; cutoff not contract-mapped","checkpoint":"saved_models/model_2023_Aug_10_100_1_200_3_2_4.5_3.5_83.pt; repository path, no release hash","license":"MIT code; weight/data terms not separately stated","training_lineage":"repository data; overlap with Wang/ChEMBL37 unknown","arm64":"requires legacy PyTorch/PyG-style environment; untested","decision":"LEGAL_NOT_QUALIFIED","reason":"weight/data rights and versioned checksum unresolved; cutoff/label mapping not fully contract-qualified"},
+    {"candidate_id":"MODEL_NCATS_HERG_ML","source":"https://github.com/ncats/herg-ml","architecture":"descriptor + Morgan fingerprint classical ML consensus","endpoint":"hERG inhibition models; exact deployed head varies","checkpoint":"Git LFS assets; no pinned release/checksum","license":"repository/data/checkpoint terms not sufficient for unrestricted qualification","training_lineage":"repository data and external model comparisons; overlap risk high/unknown","arm64":"Python 3.6/conda and legacy notebook; not practical reproducible Xavier path","decision":"NO_GO_REPRODUCIBILITY","reason":"archived repository explicitly warns against production use; model artifacts require LFS and old environment"},
+    {"candidate_id":"MODEL_ADMET_AI_V2_HERG","source":"https://pypi.org/project/admet-ai/","architecture":"Chemprop v2 ADMET classifier","endpoint":"binary hERG blocker probability; TDC lineage","checkpoint":"package-bundled assets, version 2.0.1; no separately pinned hERG checkpoint hash","license":"MIT package; weight/data rights and internal-use separation unresolved","training_lineage":"TDC hERG; high overlap risk with public hERG audits","arm64":"CUDA-heavy dependency path; CPU/Xavier smoke unresolved","decision":"NO_GO_OVERLAP_AND_ARM64","reason":"likely training-lineage overlap and unresolved ARM64 checkpoint identity prevent independent qualification"}
+  ],
+  "candidate_count": 3,
+  "no_candidate_benchmarked": true,
+  "no_production_registration": true
+}

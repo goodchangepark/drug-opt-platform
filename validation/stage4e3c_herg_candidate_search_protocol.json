@@ -1,0 +1,8 @@
+{
+  "status": "FROZEN_BEFORE_CANDIDATE_RESULTS",
+  "maximum_serious_candidates": 3,
+  "requirements": ["released checkpoint", "clear code and weight license", "binary hERG endpoint", "reproducible version/hash", "CPU or realistic Xavier ARM64", "documented training lineage", "no benchmark training/tuning overlap"],
+  "decision_rule": "Only DIRECT_BINARY_MATCH candidates passing all gates may be benchmarked; quantitative IC50/pIC50 remains a separate contract.",
+  "external_benchmark": "Only defensible independent cohort; no candidate may be tuned on the Stage 4D 728 cohort.",
+  "post_preregistration_search": "FORBIDDEN"
+}

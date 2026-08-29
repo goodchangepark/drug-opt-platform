@@ -1,0 +1,14 @@
+{
+  "stage": "4E-3C",
+  "status": "FROZEN_BEFORE_NEW_CANDIDATE_SEARCH",
+  "endpoint_id": "safety_herg_blocker_prob",
+  "endpoint_contract_version": "stage4d0-herg-blocker-liability-v1",
+  "production": {"strategy": "SINGLE_CORE_MODEL", "model_id": "admetica_safety_herg", "model_version": "admetica-d4f7056-herg-chemprop-v2.1", "threshold": 0.5, "checkpoint": "Admetica converted Chemprop v2.1"},
+  "shadow": {"model_id": "physchem_herg_v1", "model_version": "physchem-herg-v1.0", "role": "CALIBRATION_SUPPORTING_SHADOW_ONLY_NOT_DISCRIMINATIVE_BLEND"},
+  "platt": {"artifact": "validation/stage4d3b2a_calibration.json", "status": "CALIBRATION_RESEARCH", "calibration_n": 546, "heldout_n": 182},
+  "threshold_policy": "KEEP_0.50; no threshold fitting",
+  "benchmark": "ChEMBL37 hERG IC50 overlap-excluded cohort, N=728, positive when median IC50 <=10000 nM",
+  "candidate_limit": 3,
+  "no_fitting": true,
+  "no_production_change": true
+}

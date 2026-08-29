@@ -255,6 +255,13 @@ VERSION_HISTORY = [
         "milestone": "Caco-2 Final Model Expansion & Closure",
         "improvements": "Completed the final targeted Caco-2 candidate search under license, checkpoint, endpoint, lineage, and ARM64 gates; no qualified replacement was found, so the current CORE is frozen for Engine-v1. No candidate was installed, registered, benchmarked, or promoted.",
     },
+    {
+        "version": "0.7.4-stage4e3c",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-3C",
+        "milestone": "hERG Final Qualification & Closure",
+        "improvements": "Reviewed raw hERG M1 and the historical leakage-safe Platt holdout, separated calibration from discrimination, and completed the final secondary-model acquisition attempt. No qualified replacement or production calibration was found; raw M1 at threshold 0.50 remains frozen for Engine-v1.",
+    },
 ]
 
 

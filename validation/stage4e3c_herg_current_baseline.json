@@ -1,0 +1,9 @@
+{
+  "endpoint": "safety_herg_blocker_prob",
+  "dataset": {"source": "ChEMBL37 hERG IC50 overlap-excluded", "N": 728, "positive": 489, "negative": 239, "prevalence": 0.6717, "label": "median IC50 <=10000 nM (pIC50 >=5.0)", "borderline_ic50": 531, "strong_positive": 133, "strong_negative": 64},
+  "raw_m1": {"model_id": "admetica_safety_herg", "model_version": "admetica-d4f7056-herg-chemprop-v2.1", "threshold": 0.5, "MCC": 0.1844, "Balanced_Accuracy": 0.5442, "AUROC": 0.6669, "AUPRC": 0.7865, "Sensitivity": 0.9755, "Specificity": 0.113, "Brier": 0.2745, "LogLoss": 1.6901, "ECE": 0.2651},
+  "m2_shadow": {"model_id": "physchem_herg_v1", "model_version": "physchem-herg-v1.0", "MCC": -0.0227, "Balanced_Accuracy": 0.498, "AUROC": 0.5319, "AUPRC": 0.6762, "Sensitivity": 0.9918, "Specificity": 0.0042, "Brier": 0.2769, "LogLoss": 0.9196, "ECE": 0.2402},
+  "ad": {"IN_DOMAIN": 719, "BORDERLINE": 7, "OUT_OF_DOMAIN": 2},
+  "training_prevalence": 0.8599,
+  "limitations": ["prior/label shift", "assay heterogeneity", "limited discrimination", "specificity 0.113 at threshold 0.50", "M2 rescue rate 0.0536"]
+}
