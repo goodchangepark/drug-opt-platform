@@ -1,0 +1,66 @@
+{
+  "artifact": "STAGE4E1_STAGE4E2_PILOT_PLAN",
+  "no_installation_in_stage4e1": true,
+  "pilot_dataset_ids": [
+    "DATA_BIOGEN_PROSPECTIVE",
+    "DATA_EXPANSIONRX",
+    "DATA_LOGD74_1130"
+  ],
+  "pilot_model_ids": [
+    "MODEL_CARDIOGENAI_HERG",
+    "MODEL_METABOGNN_CLEARANCE",
+    "MODEL_PKASOLVER_LITE",
+    "MODEL_PKALEARN_GNN"
+  ],
+  "plans": [
+    {
+      "adapter": "New isolated Stage4E2 shadow adapter only",
+      "baseline": "Current endpoint CORE",
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "metrics": "Contract-appropriate metrics plus paired bootstrap",
+      "overlap_control": "Exact canonical-SMILES exclusion against training and validation sources",
+      "promotion": "Stage4D5 fail-closed gates; never auto-activate",
+      "xavier_benchmark": "CPU cold/warm latency, RAM, import/build reliability"
+    },
+    {
+      "adapter": "New isolated Stage4E2 shadow adapter only",
+      "baseline": "Current endpoint CORE",
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "metrics": "Contract-appropriate metrics plus paired bootstrap",
+      "overlap_control": "Exact canonical-SMILES exclusion against training and validation sources",
+      "promotion": "Stage4D5 fail-closed gates; never auto-activate",
+      "xavier_benchmark": "CPU cold/warm latency, RAM, import/build reliability"
+    },
+    {
+      "adapter": "New isolated Stage4E2 shadow adapter only",
+      "baseline": "Current endpoint CORE",
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "metrics": "Contract-appropriate metrics plus paired bootstrap",
+      "overlap_control": "Exact canonical-SMILES exclusion against training and validation sources",
+      "promotion": "Stage4D5 fail-closed gates; never auto-activate",
+      "xavier_benchmark": "CPU cold/warm latency, RAM, import/build reliability"
+    },
+    {
+      "adapter": "New isolated Stage4E2 shadow adapter only",
+      "baseline": "Current endpoint CORE",
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "metrics": "Contract-appropriate metrics plus paired bootstrap",
+      "overlap_control": "Exact canonical-SMILES exclusion against training and validation sources",
+      "promotion": "Stage4D5 fail-closed gates; never auto-activate",
+      "xavier_benchmark": "CPU cold/warm latency, RAM, import/build reliability"
+    }
+  ],
+  "review_version": "stage4e1-model-landscape-v1",
+  "universal_gate": [
+    "verify_code_checkpoint_dataset_license_separately",
+    "download_only_after_license_gate",
+    "record_checksum",
+    "verify_endpoint_contract_and_units",
+    "exact_structure_overlap_exclusion",
+    "scaffold_split_and_external_holdout",
+    "paired_bootstrap_against_core",
+    "AD_and_disagreement_analysis",
+    "ARM64_cold_warm_benchmark",
+    "stage4d5_promotion_gates"
+  ]
+}

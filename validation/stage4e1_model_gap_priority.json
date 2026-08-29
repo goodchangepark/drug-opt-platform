@@ -1,0 +1,86 @@
+{
+  "artifact": "STAGE4E1_MODEL_GAP_PRIORITY",
+  "dimensions": [
+    "scientific_impact",
+    "current_weakness",
+    "coverage_gap",
+    "candidate_quality",
+    "dataset_quality",
+    "complementarity",
+    "license",
+    "arm64",
+    "integration_effort"
+  ],
+  "priorities": [
+    {
+      "dataset_candidates": [
+        "DATA_TDC_HERG"
+      ],
+      "gap": "hERG discrimination + independent dataset",
+      "model_candidates": [
+        "MODEL_CARDIOGENAI_HERG",
+        "MODEL_BAYESHERG"
+      ],
+      "rank": 1,
+      "rationale": "Current M1 discrimination/calibration limits; current M2 lacks complementarity.",
+      "tier": "TIER_1"
+    },
+    {
+      "dataset_candidates": [
+        "DATA_EXPANSIONRX",
+        "DATA_TDC_CACO2_WANG"
+      ],
+      "gap": "Caco-2 Papp A>B model/data",
+      "model_candidates": [],
+      "rank": 2,
+      "rationale": "Current independent cohort is small; Wang dataset is not independent.",
+      "tier": "TIER_1"
+    },
+    {
+      "dataset_candidates": [
+        "DATA_BIOGEN_PROSPECTIVE",
+        "DATA_EXPANSIONRX"
+      ],
+      "gap": "Species-specific microsomal clearance",
+      "model_candidates": [
+        "MODEL_METABOGNN_CLEARANCE"
+      ],
+      "rank": 3,
+      "rationale": "Downstream PK impact and low current prospective generalization; species isolation mandatory.",
+      "tier": "TIER_1"
+    },
+    {
+      "dataset_candidates": [],
+      "gap": "Quantitative pKa",
+      "model_candidates": [
+        "MODEL_PKASOLVER_LITE",
+        "MODEL_PKALEARN_GNN"
+      ],
+      "rank": 4,
+      "rationale": "Current output is rule estimate; quantitative candidate requires micro/macro qualification.",
+      "tier": "TIER_3"
+    },
+    {
+      "dataset_candidates": [
+        "DATA_LOGD74_1130"
+      ],
+      "gap": "Quantitative logD7.4",
+      "model_candidates": [],
+      "rank": 5,
+      "rationale": "Current output is derived estimate; pH-specific independent data is more valuable than an unqualified model.",
+      "tier": "TIER_3"
+    },
+    {
+      "dataset_candidates": [],
+      "gap": "Transporter coverage",
+      "model_candidates": [
+        "MODEL_MMTKPRED_TRANSPORTER"
+      ],
+      "rank": 6,
+      "rationale": "Most endpoints unavailable; identified kinetics model fails classification contract.",
+      "tier": "TIER_2"
+    }
+  ],
+  "review_version": "stage4e1-model-landscape-v1",
+  "score_is_planning_only": true
+}

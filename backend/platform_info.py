@@ -220,6 +220,13 @@ VERSION_HISTORY = [
             "configured promotion requirements were insufficient."
         ),
     },
+    {
+        "version": "0.6.9-stage4e1",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-1",
+        "milestone": "Model Landscape & Qualification Planning",
+        "improvements": "Prioritized model gaps; audited candidate model and dataset sources, licenses, overlap risk, and ARM64 feasibility; defined a Stage 4E-2 qualification queue without installing models or changing production predictions.",
+    },
 ]
 
 

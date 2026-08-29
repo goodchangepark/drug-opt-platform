@@ -1,0 +1,53 @@
+{
+  "artifact": "STAGE4E1_ARM64_FEASIBILITY",
+  "candidates": [
+    {
+      "arm64_feasibility": "REQUIRES_BUILD_TEST",
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "cpu": "DOCUMENTED_CPU_OPTION",
+      "dependencies": []
+    },
+    {
+      "arm64_feasibility": "REQUIRES_BUILD_TEST",
+      "candidate_id": "MODEL_BAYESHERG",
+      "cpu": "LIKELY",
+      "dependencies": [
+        "Python 3.6",
+        "DGL",
+        "PyTorch",
+        "RDKit"
+      ]
+    },
+    {
+      "arm64_feasibility": "REQUIRES_BUILD_TEST",
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "cpu": "UNKNOWN",
+      "dependencies": []
+    },
+    {
+      "arm64_feasibility": "REQUIRES_BUILD_TEST",
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "cpu": "LIKELY",
+      "dependencies": []
+    },
+    {
+      "arm64_feasibility": "REQUIRES_BUILD_TEST",
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "cpu": "LIKELY",
+      "dependencies": []
+    },
+    {
+      "arm64_feasibility": "GPU_DEPENDENT",
+      "candidate_id": "MODEL_THEMOL_FOUNDATION",
+      "cpu": "UNKNOWN",
+      "dependencies": []
+    },
+    {
+      "arm64_feasibility": "ARM64_PYTHON_ONLY_LIKELY",
+      "candidate_id": "MODEL_MMTKPRED_TRANSPORTER",
+      "cpu": "LIKELY",
+      "dependencies": []
+    }
+  ],
+  "review_version": "stage4e1-model-landscape-v1"
+}

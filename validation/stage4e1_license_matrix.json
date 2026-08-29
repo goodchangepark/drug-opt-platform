@@ -1,0 +1,55 @@
+{
+  "artifact": "STAGE4E1_LICENSE_MATRIX",
+  "candidates": [
+    {
+      "candidate_id": "MODEL_CARDIOGENAI_HERG",
+      "checkpoint": "LICENSE_UNCLEAR",
+      "code": "MIT",
+      "commercial": "LIKELY_ALLOWED_BUT_REVIEW_REQUIRED",
+      "dataset": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_BAYESHERG",
+      "checkpoint": "CC-BY-NC-4.0",
+      "code": "MIT",
+      "commercial": "NONCOMMERCIAL_ONLY",
+      "dataset": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_METABOGNN_CLEARANCE",
+      "checkpoint": "LICENSE_UNCLEAR",
+      "code": "LICENSE_UNCLEAR",
+      "commercial": "LICENSE_UNCLEAR",
+      "dataset": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_PKASOLVER_LITE",
+      "checkpoint": "MIT_REPOSITORY_CLAIM",
+      "code": "MIT",
+      "commercial": "CLEAR_FOR_INTERNAL_RESEARCH",
+      "dataset": "MIT_REPOSITORY_CLAIM"
+    },
+    {
+      "candidate_id": "MODEL_PKALEARN_GNN",
+      "checkpoint": "LICENSE_UNCLEAR",
+      "code": "MIT",
+      "commercial": "LIKELY_ALLOWED_BUT_REVIEW_REQUIRED",
+      "dataset": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_THEMOL_FOUNDATION",
+      "checkpoint": "LICENSE_UNCLEAR",
+      "code": "LICENSE_UNCLEAR",
+      "commercial": "LICENSE_UNCLEAR",
+      "dataset": "LICENSE_UNCLEAR"
+    },
+    {
+      "candidate_id": "MODEL_MMTKPRED_TRANSPORTER",
+      "checkpoint": "LICENSE_UNCLEAR",
+      "code": "LICENSE_UNCLEAR",
+      "commercial": "LICENSE_UNCLEAR",
+      "dataset": "LICENSE_UNCLEAR"
+    }
+  ],
+  "review_version": "stage4e1-model-landscape-v1"
+}

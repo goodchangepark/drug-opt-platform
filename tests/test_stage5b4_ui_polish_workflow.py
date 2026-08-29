@@ -36,7 +36,7 @@ def test_app_version():
     vh = version_history()
     assert len(vh) >= 12
     assert any(entry["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui") for entry in vh)
-    assert vh[-1]["stage"] == "Stage 4D-7"
+    assert vh[-1]["stage"] == "Stage 4E-1"
 
 
 

@@ -1,0 +1,1688 @@
+{
+  "artifact": "STAGE4E1_CURRENT_MODEL_BASELINE",
+  "endpoint_count": 49,
+  "endpoints": [
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN to 7,255 Ames training compounds",
+      "assay_definition": "Bacterial Reverse Mutation Test (Ames Assay / OECD 471)",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admet_ai_ames"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary probability of inducing bacterial reverse mutation in Salmonella typhimurium strains (TA98, TA100, TA1535, TA1537, TA102) with or without S9 metabolic activation.",
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "endpoint_name": "Ames mutagenicity",
+      "independent_validation": {
+        "reason": "No rigorously independent public structure/label set with non-overlapping source lineage was qualified in Stage 3F.",
+        "status": "NOT_AVAILABLE"
+      },
+      "known_validation": {
+        "AUPRC": 0.8957980387,
+        "AUROC": 0.8815869914,
+        "probability_calibration": "Not reported",
+        "scope": "ADMET-AI v2 release-reported five-fold held-out evaluation"
+      },
+      "model_family": "admet_ai_ensemble",
+      "model_version": [
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Training mixes TA98, TA100, TA1535, TA1537, TA102 with/without S9; strains not per-row",
+        "Positive and negative cutoffs vary by strain; aggregate label is a simplified binary",
+        "Distinct from mammalian micronucleus or chromosomal aberration endpoints"
+      ],
+      "species": "Salmonella typhimurium",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 7255,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "distribution_bbb_penetration",
+      "endpoint_name": "BBB penetration",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "endpoint_name": "BCRP inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "endpoint_name": "BCRP substrate",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "endpoint_name": "BSEP inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "safety_cns_liability",
+      "endpoint_name": "CNS liability",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Recombinant Human CYP1A2 Functional Dealkylation Assay",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp1a2-inhibitor"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Calibrated binary probability of inhibiting human CYP1A2 at AC50 <= 10 uM in recombinant fluorogenic/luminescent dealkylation assay (PubChem AID 1851 protocol).",
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "endpoint_name": "CYP1A2 inhibitor",
+      "independent_validation": {
+        "status": "ChEMBL30 prospective check"
+      },
+      "known_validation": {
+        "accuracy": 0.87,
+        "balanced_accuracy": 0.869,
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.866,
+        "specificity": 0.873
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Isoform-specific: CYP1A2. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 13239,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "endpoint_name": "CYP1A2 substrate",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Recombinant Human CYP2C19 Functional Assay",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp2c19-inhibitor"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Calibrated binary probability of inhibiting human CYP2C19 at AC50 <= 10 uM in recombinant assay.",
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "endpoint_name": "CYP2C19 inhibitor",
+      "independent_validation": {
+        "status": "ChEMBL30 prospective check"
+      },
+      "known_validation": {
+        "accuracy": 0.824,
+        "balanced_accuracy": 0.825,
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.83,
+        "specificity": 0.819
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Isoform-specific: CYP2C19. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 13427,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "endpoint_name": "CYP2C19 substrate",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Recombinant Human CYP2C9 Functional Assay",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp2c9-inhibitor"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Calibrated binary probability of inhibiting human CYP2C9 at AC50 <= 10 uM in recombinant fluorogenic/luminescent assay.",
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "endpoint_name": "CYP2C9 inhibitor",
+      "independent_validation": {
+        "AUPRC": 0.3813,
+        "AUROC": 0.5851,
+        "MCC": 0.1324,
+        "balanced_accuracy": 0.5717,
+        "both_classes": true,
+        "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+        "decision_threshold": 0.5,
+        "n": 464,
+        "sensitivity": 0.5111,
+        "specificity": 0.6322
+      },
+      "known_validation": {
+        "accuracy": 0.826,
+        "balanced_accuracy": 0.824,
+        "publisher_documentation_note": "The Admetica root overview reports balanced accuracy 0.824; its metabolism page reports 0.890. The overview value is retained conservatively.",
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.819,
+        "specificity": 0.83
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Isoform-specific: CYP2C9. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 12881,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Literature In Vitro CYP2C9 Turnover Annotation",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp2c9-substrate"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2C9.",
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "endpoint_name": "CYP2C9 substrate",
+      "independent_validation": {
+        "status": "Literature substrate check"
+      },
+      "known_validation": {
+        "accuracy": 0.738,
+        "balanced_accuracy": 0.742,
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.757,
+        "specificity": 0.728
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 899,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Recombinant Human CYP2D6 Functional Assay",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp2d6-inhibitor"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Calibrated binary probability of inhibiting human CYP2D6 at AC50 <= 10 uM in recombinant assay.",
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "endpoint_name": "CYP2D6 inhibitor",
+      "independent_validation": {
+        "AUPRC": 0.4164,
+        "AUROC": 0.5999,
+        "MCC": 0.1216,
+        "balanced_accuracy": 0.5657,
+        "both_classes": true,
+        "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+        "decision_threshold": 0.5,
+        "n": 639,
+        "sensitivity": 0.5436,
+        "specificity": 0.5878
+      },
+      "known_validation": {
+        "accuracy": 0.843,
+        "balanced_accuracy": 0.808,
+        "publisher_documentation_note": "The upstream dataset table/released data is approximately 13.9k records, while the model metrics table's size cell says 11,127.",
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.751,
+        "specificity": 0.866
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Isoform-specific: CYP2D6. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 13898,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Literature In Vitro CYP2D6 Turnover Annotation",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp2d6-substrate"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2D6.",
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "endpoint_name": "CYP2D6 substrate",
+      "independent_validation": {
+        "status": "Literature substrate check"
+      },
+      "known_validation": {
+        "accuracy": 0.753,
+        "balanced_accuracy": 0.759,
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.769,
+        "specificity": 0.749
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 941,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Recombinant Human CYP3A4 Functional Assay",
+      "calibration_status": "RAW",
+      "current_model_gap": "Fixed 0.957828/0.042172 blend is research evidence for probability behavior; dynamic adaptation is inferior to the fixed prior.",
+      "current_production_model": [
+        "admetica_cyp_cyp3a4-inhibitor"
+      ],
+      "current_shadow_models": [
+        "morgan_cyp3a4_inh_v1"
+      ],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Calibrated binary probability of inhibiting human CYP3A4 at AC50 <= 10 uM in recombinant assay.",
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "endpoint_name": "CYP3A4 inhibitor",
+      "independent_validation": {
+        "AUPRC": 0.4471,
+        "AUROC": 0.6533,
+        "MCC": 0.2015,
+        "balanced_accuracy": 0.6096,
+        "both_classes": true,
+        "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+        "decision_threshold": 0.5,
+        "n": 788,
+        "sensitivity": 0.6527,
+        "specificity": 0.5665
+      },
+      "known_validation": {
+        "accuracy": 0.826,
+        "balanced_accuracy": 0.829,
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.842,
+        "specificity": 0.815
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Isoform-specific: CYP3A4. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions.",
+        "Stage 4D-3B1A: adaptive weighting NO_GO; fixed global blend does not outperform Fixed Global Prior on Brier/MCC/BAcc; dynamic feedback adds no value beyond w=0.9578/0.0422."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "SHADOW_RETAINED"
+      ],
+      "training_n": 12997,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Literature In Vitro CYP3A4 Turnover Annotation",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_cyp_cyp3a4-substrate"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP3A4.",
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "endpoint_name": "CYP3A4 substrate",
+      "independent_validation": {
+        "both_classes": false,
+        "dataset": "FDA-approved tyrosine kinase inhibitors; 2 canonical training overlaps excluded",
+        "n": 22,
+        "note": "Directionality-only sanity set; AUROC/AUPRC/specificity/balanced accuracy/MCC cannot be calculated from positives alone.",
+        "positive_only": true,
+        "sensitivity": 0.9545
+      },
+      "known_validation": {
+        "accuracy": 0.718,
+        "balanced_accuracy": 0.674,
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.779,
+        "specificity": 0.569
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-cyp-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 1149,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN to 475 DILI drugs",
+      "assay_definition": "Clinical Post-Marketing Pharmacovigilance & Physician Assessment (FDA-NCTR LTKB)",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admet_ai_dili"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary probability of clinical drug-induced liver injury (DILI) concern based on FDA-NCTR Liver Toxicity Knowledge Base (LTKB) annotations. Represents human clinical post-marketing liver injury risk.",
+      "endpoint_id": "safety_dili_clinical_prob",
+      "endpoint_name": "DILI clinical liability",
+      "independent_validation": {
+        "reason": "No rigorously independent public structure/label set with non-overlapping source lineage was qualified in Stage 3F.",
+        "status": "NOT_AVAILABLE"
+      },
+      "known_validation": {
+        "AUPRC": 0.8777147,
+        "AUROC": 0.8814562005,
+        "probability_calibration": "Not reported",
+        "scope": "ADMET-AI v2 release-reported five-fold held-out evaluation"
+      },
+      "model_family": "admet_ai_ensemble",
+      "model_version": [
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Small training set (N=475); DILI classification is clinically heterogeneous",
+        "Clinical DILI labels aggregate diverse mechanisms; not mechanism-specific",
+        "High clinical uncertainty; output is a screening liability, not causal assessment"
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 475,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "endpoint_name": "Dog liver microsomal intrinsic clearance",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "safety_general_cytotoxicity",
+      "endpoint_name": "General cytotoxicity",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN to 5,086 HLM training compounds",
+      "assay_definition": "Pooled Human Liver Microsomes (HLM) Substrate Depletion + NADPH",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "openadmet_hlm"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Human liver microsomal intrinsic clearance scaled to in vivo body weight clearance and expressed in log10(mL/min/kg). Represents Phase I oxidative/hydrolytic metabolic rate under pooled human hepatic microsomes.",
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "HLM intrinsic clearance",
+      "independent_validation": {
+        "MAE": 0.6259,
+        "R2": -0.4911,
+        "RMSE": 0.7616,
+        "Spearman": 0.37,
+        "dataset": "Biogen prospective public ADME, canonical training overlap excluded",
+        "n": 3078
+      },
+      "known_validation": {
+        "released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."
+      },
+      "model_family": "openadmet_clearance",
+      "model_version": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "Species: Human microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 5086,
+      "unit": "log10(mL/min/kg)"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "ionization_smarts_rules_v1"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "RULE_ESTIMATE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "ionization_pka_estimated",
+      "endpoint_name": "Ionization (pKa)",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "stage4c4-ionization-v1"
+      ],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "RULE_ESTIMATE: not a quantitatively validated ML model",
+        "Estimates derived from literature SMARTS pKa ranges; accuracy \u00b1 1\u20132 pKa units",
+        "Multi-protic and complex ampholyte systems have high uncertainty",
+        "Must not be presented to users as a validated quantitative pKa prediction"
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "endpoint_name": "MATE1 inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "endpoint_name": "MATE2-K inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN to 5,086 MLM training compounds",
+      "assay_definition": "Pooled Mouse Liver Microsomes (MLM) Substrate Depletion + NADPH",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "openadmet_mlm"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Mouse liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled CD-1 mouse liver microsomes.",
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "MLM intrinsic clearance",
+      "independent_validation": {
+        "status": "No compatible independent MLM endpoint in the selected Biogen prospective set"
+      },
+      "known_validation": {
+        "released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."
+      },
+      "model_family": "openadmet_clearance",
+      "model_version": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "Species: Mouse microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "species": "Mouse",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 5086,
+      "unit": "log10(mL/min/kg)"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "Rule-Based SMARTS Reaction Library / Atom Reactivity Ranking (SyGMa)",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "sygma_phase1_2",
+        "smartcyp_dft_v1"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "RANK_FUSION",
+      "endpoint_definition": "Atom-level ranking of vulnerability to Phase I (oxidation, dealkylation, hydrolysis) and Phase II (glucuronidation, sulfation) metabolic transformations.",
+      "endpoint_id": "som_metabolic_soft_spots",
+      "endpoint_name": "Metabolic soft spots",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "sygma-v1.1.0",
+        "smartcyp-v3.0"
+      ],
+      "output_type": "RANKING",
+      "scientific_limitation": [
+        "SyGMa applies reaction rules; coverage limited to known biotransformations",
+        "SMARTCyp covers CYP-mediated oxidation; other pathways (UGT, SULT) not included",
+        "Raw metabolic scores are mechanistically distinct; do NOT average as scalar values"
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED"
+      ],
+      "training_n": null,
+      "unit": "atom_index_ranking"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "sygma_phase1_2"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "RULE_BASED",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "endpoint_name": "Metabolite hypotheses",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "sygma-v1.1.0"
+      ],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "Outputs are predicted metabolite hypotheses, not experimentally confirmed metabolites",
+        "No qualified atom-level ML probability is emitted",
+        "CYP compound-level evidence cannot assign an atom or transformation to an isoform"
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "microsomal_clearance_generic",
+      "endpoint_name": "Microsomal clearance",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "endpoint_name": "Mitochondrial toxicity",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "endpoint_name": "Monkey liver microsomal intrinsic clearance",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "endpoint_name": "OATP1B1 inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "endpoint_name": "OATP1B3 inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "endpoint_name": "OCT1 inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "endpoint_name": "OCT2 inhibitor",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Heterogeneous Human P-gp Transwell / Fluorescent Dye Efflux Assays",
+      "calibration_status": "RAW",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_transporter_pgp-inhibitor"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary probability of inhibiting human P-glycoprotein (P-gp/ABCB1) efflux activity (IC50 <= 15 uM or >25% transport inhibition in calcein-AM / rhodamine-123 dye efflux assays).",
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "endpoint_name": "P-gp inhibitor",
+      "independent_validation": {
+        "reason": "No rigorously independent public structure/label set was qualified: accessible alternatives share the Broccatelli/Chen source lineage or do not publish reusable structures.",
+        "status": "NOT_AVAILABLE"
+      },
+      "known_validation": {
+        "accuracy": 0.888,
+        "balanced_accuracy": 0.889,
+        "probability_calibration": "Not reported",
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.863,
+        "specificity": 0.916
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "Heterogeneous training: inhibitor labels pooled across cell systems, probes, and IC50 cutoffs.",
+        "No independent external validation qualified (Stage 4D-0)."
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 1275,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "endpoint_name": "P-gp substrate",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "Matched IV and PO In Vivo PK Study AUC Normalization",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_definition": "Fraction of an orally administered dose that reaches the systemic circulation intact, expressed as % (0-100%).",
+      "endpoint_id": "pk_bioavailability_fraction",
+      "endpoint_name": "PK Bioavailability",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+      "stage4d7_decision": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "training_n": null,
+      "unit": "%"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "pk_simulation"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "pk_concentration_time_simulation",
+      "endpoint_name": "PK Simulation",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "5B-2.0"
+      ],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "Simulation does not create missing CL, V, F, or ka evidence",
+        "Experimental, NCA, IVIVE, allometric, and derived inputs retain distinct assumptions",
+        "Mechanistic methods must not be averaged as ML predictions"
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "In Vivo Intravenous PK Non-Compartmental Analysis (NCA)",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_definition": "Total systemic in vivo clearance of drug from circulating plasma, in mL/min/kg.",
+      "endpoint_id": "pk_clearance_systemic",
+      "endpoint_name": "PK Systemic Clearance",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+      "stage4d7_decision": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "training_n": null,
+      "unit": "mL/min/kg"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "In Vivo Intravenous PK NCA / Mechanistic Tissue Ionization Model",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "pk_nca",
+        "pk_ivive",
+        "pk_allometric_scaling"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "endpoint_definition": "Apparent steady-state volume of distribution reflecting the extent of tissue partitioning, in L/kg.",
+      "endpoint_id": "pk_volume_distribution_vss",
+      "endpoint_name": "PK Volume of Distribution",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "5A-1.0",
+        "5A-2A.1.0",
+        "5B-3.1.0"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+      "stage4d7_decision": [
+        "MECHANISTIC_NO_CONSENSUS"
+      ],
+      "training_n": null,
+      "unit": "L/kg"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN + 6D descriptor envelope",
+      "assay_definition": "Transwell Monolayer Permeability (pH 7.4/7.4 or pH 6.5/7.4)",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "N\u224834; apparent consensus MAE benefit has CI crossing zero and inadequate independent qualification evidence.",
+      "current_production_model": [
+        "admetica_caco2"
+      ],
+      "current_shadow_models": [
+        "physchem_caco2_v1"
+      ],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Apparent membrane permeability measured in human colon carcinoma (Caco-2) monolayers, expressed as LogPapp = log10(Papp [cm/s]). Represents overall apical-to-basolateral (A->B) transcellular and paracellular flux.",
+      "endpoint_id": "permeability_caco2_logpapp",
+      "endpoint_name": "Permeability",
+      "independent_validation": {
+        "MAE": 0.412,
+        "dataset": "Admetica External Caco-2 Benchmark",
+        "n": 34
+      },
+      "known_validation": {
+        "MAE": 0.317,
+        "R2": 0.701,
+        "RMSE": 0.415,
+        "Spearman": 0.832,
+        "external_MAE_34_compounds": 0.412
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "Training dataset lacks assay direction (A\u2192B vs B\u2192A) and pH metadata",
+        "Not PAMPA, not MDCK, not efflux ratio",
+        "Small external validation cohort (N=34) limits ensemble conclusions (Stage 4D-2C)"
+      ],
+      "species": "Human Caco-2 Cell Line",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "DATA_LIMITED_ACCURACY_CEILING",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 910,
+      "unit": "log10(cm/s)"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "rdkit_2d_descriptors"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "DERIVED_ESTIMATE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "endpoint_name": "Physicochemical properties",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "rdkit-2025.03.1"
+      ],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "Crippen cLogP is a calculated descriptor and is not logD at any pH",
+        "QED and medicinal-chemistry rules are heuristic summaries, not validated clinical outcomes",
+        "Descriptor calculations do not represent experimental measurements"
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN + 6D descriptor envelope",
+      "assay_definition": "Equilibrium Dialysis / Rapid Equilibrium Dialysis (RED) / Ultrafiltration",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "admetica_ppbr"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Percent of compound bound to plasma proteins in pooled human plasma at equilibrium. Fraction unbound fu is derived strictly as fu = (100 - % bound) / 100.",
+      "endpoint_id": "ppb_human_percent_bound",
+      "endpoint_name": "Plasma protein binding",
+      "independent_validation": {
+        "MAE_percent_bound": 14.6194,
+        "R2": 0.4389,
+        "RMSE_percent_bound": 21.795,
+        "Spearman": 0.6105,
+        "dataset": "Biogen prospective public ADME, canonical training overlap excluded",
+        "n": 185
+      },
+      "known_validation": {
+        "MAE_percent_bound": 6.919,
+        "R2": 0.609,
+        "RMSE_percent_bound": 11.294,
+        "Spearman": 0.762
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "Single deterministic checkpoint; no uncertainty quantification",
+        "Independent validation (Biogen N=185): MAE 14.6%; moderate accuracy",
+        "Assay conditions not retained; cannot isolate total vs non-specific binding"
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 2790,
+      "unit": "% bound"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN to 670 RLM training compounds",
+      "assay_definition": "Pooled Rat Liver Microsomes (RLM) Substrate Depletion + NADPH",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "openadmet_rlm"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Rat liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled Sprague-Dawley rat liver microsomes.",
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "endpoint_name": "RLM intrinsic clearance",
+      "independent_validation": {
+        "MAE": 0.6263,
+        "R2": -0.0577,
+        "RMSE": 0.7716,
+        "Spearman": 0.4248,
+        "dataset": "Biogen prospective public ADME, canonical training overlap excluded",
+        "n": 3045
+      },
+      "known_validation": {
+        "released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."
+      },
+      "model_family": "openadmet_clearance",
+      "model_version": [
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "Species: Rat microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "species": "Rat",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "INSUFFICIENT_EVIDENCE"
+      ],
+      "training_n": 670,
+      "unit": "log10(mL/min/kg)"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "safety_skin_sensitization",
+      "endpoint_name": "Skin sensitization",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN + 6D descriptor envelope",
+      "assay_definition": "Aggregate Aqueous Shake-Flask / Nephelometric / Potentiometric",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "M1 MAE 0.4159 on N=250; adaptive M1+M2 delta MAE +0.0074, 95% CI [-0.0061, 0.0207], P(better)=0.159.",
+      "current_production_model": [
+        "admetica_solubility"
+      ],
+      "current_shadow_models": [
+        "esol_delaney_v1",
+        "rdkit_gbr_solubility_v1"
+      ],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Aqueous solubility expressed as LogS = log10(S [mol/L]). Represents room-temperature aggregate aqueous solubility across neutral/buffered media, not a pH-dependent micro-state or intrinsic solubility S0.",
+      "endpoint_id": "solubility_aqueous_logs",
+      "endpoint_name": "Solubility",
+      "independent_validation": {
+        "status": "Biogen prospective check available in Stage 3A"
+      },
+      "known_validation": {
+        "MAE": 0.714,
+        "R2": 0.788,
+        "RMSE": 1.089,
+        "Spearman": 0.897
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-chemprop-v2.1"
+      ],
+      "output_type": "REGRESSION",
+      "scientific_limitation": [
+        "Training aggregates heterogeneous pH/temperature/protocol conditions",
+        "Not pH-specific; no intrinsic solubility separation",
+        "Adaptive weighting architecture valid but no global accuracy gain (Stage 4D-3A2)"
+      ],
+      "species": "Chemical / In Vitro",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "SHADOW_RETAINED"
+      ],
+      "training_n": 9982,
+      "unit": "log10(mol/L)"
+    },
+    {
+      "ad_status": "Morgan radius 2, 2048-bit Tanimoto k-NN",
+      "assay_definition": "Heterogeneous Patch-Clamp & Radioligand Binding ([3H]-dofetilide / [3H]-astemizole)",
+      "calibration_status": "CALIBRATION_RESEARCH",
+      "current_model_gap": "Scaffold-aware 546/182 calibration/holdout split improves probability calibration for Platt M1 but does not improve ranking; M2 discrimination remains inadequate.",
+      "current_production_model": [
+        "admetica_safety_herg"
+      ],
+      "current_shadow_models": [
+        "physchem_herg_v1"
+      ],
+      "current_strategy": "SINGLE_CORE_MODEL",
+      "endpoint_definition": "Binary probability of exhibiting human ether-a-go-go-related gene (hERG / Kv11.1 / KCNH2) potassium channel blocker liability (screening threshold IC50 <= 10 uM or pIC50 >= 5.0).",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_name": "hERG liability",
+      "independent_validation": {
+        "AUPRC": 0.7854091863,
+        "AUROC": 0.6668976906,
+        "MCC": 0.1844230442,
+        "balanced_accuracy": 0.544215417,
+        "both_classes": true,
+        "dataset": "OpenADMET ChEMBL 37 human hERG IC50 aggregate; exact training overlap excluded",
+        "limitations": "Exact-structure exclusion does not prove source, series, or assay-lineage independence.",
+        "n": 728,
+        "overlap_policy": "7,249 exact canonical-SMILES overlaps removed from 7,977 ChEMBL aggregates",
+        "positive_definition": "median IC50 <= 10,000 nM",
+        "sensitivity": 0.9754601227,
+        "specificity": 0.1129707113,
+        "status": "COMPLETE_WITH_LIMITATIONS",
+        "threshold": 0.5
+      },
+      "known_validation": {
+        "accuracy": 0.885,
+        "balanced_accuracy": 0.854,
+        "probability_calibration": "Not reported",
+        "scope": "Admetica publisher-reported validation",
+        "sensitivity": 0.897,
+        "specificity": 0.811
+      },
+      "model_family": "admetica",
+      "model_version": [
+        "admetica-d4f7056-herg-chemprop-v2.1"
+      ],
+      "output_type": "BINARY_CLASSIFICATION",
+      "scientific_limitation": [
+        "AUROC=0.667 \u2014 moderate base discrimination; cannot reach safety-screening specificity targets by calibration alone",
+        "Training prevalence 86% vs evaluation 67%: 18.8 pp prior shift (CLASS_IMBALANCE)",
+        "72.9% of evaluation compounds are IC50 borderline (1k\u201330k nM): LABEL_BOUNDARY_UNCERTAINTY",
+        "ASSAY_HETEROGENEITY_PRESENT: Wang et al. pools patch-clamp + radioligand binding",
+        "M2 rescue rate 5.4%: BETTER_SECONDARY_MODEL_REQUIRED",
+        "FP/FN ratio 17.7:1 at threshold 0.50"
+      ],
+      "species": "Human",
+      "stage4d7_decision": [
+        "CURRENT_PRODUCTION_RETAINED",
+        "CALIBRATION_RESEARCH_ONLY",
+        "BETTER_SECONDARY_MODEL_REQUIRED"
+      ],
+      "training_n": 22249,
+      "unit": "probability"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [
+        "henderson_hasselbalch_logd_v1"
+      ],
+      "current_shadow_models": [],
+      "current_strategy": "DERIVED_ESTIMATE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "endpoint_name": "logD pH7.4 derived estimate",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [
+        "stage4c4-ionization-v1"
+      ],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "Not a standalone quantitative ML logD7.4 model",
+        "Monoprotic assumptions can fail for polyprotic or zwitterionic compounds",
+        "Calculated cLogP is never relabeled as experimental or validated predicted logD"
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "RULE_OR_DERIVED_ONLY"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "endpoint_name": "logD7.4 (quantitative ML)",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    },
+    {
+      "ad_status": "Not applicable/unavailable",
+      "assay_definition": "N/A",
+      "calibration_status": "NOT_APPLICABLE",
+      "current_model_gap": "No endpoint-specific independent optimization evidence available.",
+      "current_production_model": [],
+      "current_shadow_models": [],
+      "current_strategy": "MODEL_UNAVAILABLE",
+      "endpoint_definition": "Policy-only endpoint",
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "endpoint_name": "pKa (quantitative ML)",
+      "independent_validation": {},
+      "known_validation": {},
+      "model_family": "rule/mechanistic/unavailable",
+      "model_version": [],
+      "output_type": "N/A",
+      "scientific_limitation": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "species": "N/A",
+      "stage4d7_decision": [
+        "MODEL_UNAVAILABLE"
+      ],
+      "training_n": null,
+      "unit": "N/A"
+    }
+  ],
+  "production_changed": false,
+  "reconciliation": {
+    "contradictions": [],
+    "runtime_ml_endpoints": 18,
+    "stage4d7_rows": 49,
+    "strategy_policies": 49
+  },
+  "review_version": "stage4e1-model-landscape-v1"
+}

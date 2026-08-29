@@ -1,0 +1,106 @@
+{
+  "artifact": "STAGE4E1_DATASET_LANDSCAPE",
+  "datasets": [
+    {
+      "assay_quality": "Corporate prospective benchmark, already quarantined in Drug-OPT",
+      "dataset_id": "DATA_BIOGEN_PROSPECTIVE",
+      "endpoint_ids": [
+        "solubility_aqueous_logs",
+        "ppb_human_percent_bound",
+        "hlm_intrinsic_clearance_scaled_log10",
+        "rlm_intrinsic_clearance_scaled_log10"
+      ],
+      "license": "LICENSE_REVIEW_REQUIRED",
+      "n": 3521,
+      "name": "Biogen Public ADME Prospective Benchmark",
+      "overlap_risk": "LOW_OVERLAP_RISK",
+      "recommended_action": "GO_DATASET_QUALIFICATION_FIRST",
+      "source_ids": [],
+      "use": "Independent validation only; never train a candidate on it."
+    },
+    {
+      "assay_quality": "Exact Caco-2 Papp A>B, HLM/MLM CLint endpoints listed; obtain protocol/terms before use",
+      "dataset_id": "DATA_EXPANSIONRX",
+      "endpoint_ids": [
+        "permeability_caco2_logpapp",
+        "hlm_intrinsic_clearance_scaled_log10",
+        "mlm_intrinsic_clearance_scaled_log10"
+      ],
+      "license": "LICENSE_UNCLEAR",
+      "n": null,
+      "name": "ExpansionRx/OpenADMET challenge data",
+      "overlap_risk": "HIGH_OVERLAP_RISK_FOR_CURRENT_OPENADMET_CLEARANCE",
+      "recommended_action": "GO_LICENSE_REVIEW_FIRST",
+      "source_ids": [
+        "SRC_OPENADMET"
+      ],
+      "use": "Potential Caco-2 external dataset only after raw labels, terms, and overlap de-duplication."
+    },
+    {
+      "assay_quality": "Caco-2 regression, scaffold benchmark; direction/protocol must be reconciled",
+      "dataset_id": "DATA_TDC_CACO2_WANG",
+      "endpoint_ids": [
+        "permeability_caco2_logpapp"
+      ],
+      "license": "LICENSE_REVIEW_REQUIRED",
+      "n": 906,
+      "name": "TDC Caco2_Wang",
+      "overlap_risk": "HIGH_OVERLAP_RISK",
+      "recommended_action": "NO_GO_OVERLAP_RISK",
+      "source_ids": [
+        "SRC_TDC_CACO2",
+        "SRC_TDC_ADMET"
+      ],
+      "use": "Not independent: current core trained on Wang compilation."
+    },
+    {
+      "assay_quality": "Binary, scaffold benchmark",
+      "dataset_id": "DATA_TDC_HERG",
+      "endpoint_ids": [
+        "safety_herg_blocker_prob"
+      ],
+      "license": "LICENSE_REVIEW_REQUIRED",
+      "n": 648,
+      "name": "TDC hERG",
+      "overlap_risk": "HIGH_OVERLAP_RISK",
+      "recommended_action": "NO_GO_OVERLAP_RISK",
+      "source_ids": [
+        "SRC_TDC_HERG"
+      ],
+      "use": "Not independent from current Wang-derived hERG lineage."
+    },
+    {
+      "assay_quality": "pH 7.4 distribution coefficient with structures",
+      "dataset_id": "DATA_LOGD74_1130",
+      "endpoint_ids": [
+        "physchem_logd74_quantitative_ml"
+      ],
+      "license": "LICENSE_UNCLEAR",
+      "n": 1130,
+      "name": "Curated logD7.4",
+      "overlap_risk": "UNKNOWN",
+      "recommended_action": "GO_LICENSE_REVIEW_FIRST",
+      "source_ids": [
+        "SRC_LOGD74"
+      ],
+      "use": "Potential independent quantitative-logD benchmark after exact license/protocol and overlap audit."
+    },
+    {
+      "assay_quality": "Regression, mL.min-1.g-1, scaffold split",
+      "dataset_id": "DATA_TDC_CLEARANCE_MICROSOME_AZ",
+      "endpoint_ids": [
+        "microsomal_clearance_generic"
+      ],
+      "license": "LICENSE_REVIEW_REQUIRED",
+      "n": 1102,
+      "name": "TDC Clearance_Microsome_AZ",
+      "overlap_risk": "UNKNOWN",
+      "recommended_action": "NO_GO_ENDPOINT_MISMATCH",
+      "source_ids": [
+        "SRC_TDC_CLEARANCE"
+      ],
+      "use": "Not automatically transformable to species-specific scaled Drug-OPT HLM/RLM/MLM contract."
+    }
+  ],
+  "review_version": "stage4e1-model-landscape-v1"
+}
