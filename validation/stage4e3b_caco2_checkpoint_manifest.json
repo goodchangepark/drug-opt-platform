@@ -1,0 +1,8 @@
+{
+  "assets": [
+    {"candidate_id": "MODEL_CACO2_GNN_MTL_ZENODO", "classification": "VERSIONED_CHECKPOINT", "filename": "model.pt", "release": "Zenodo v1", "size_mb": 1.3, "published_md5": "6772137b9b56a422a4ce8a35d3d53a21", "sha256": null, "acquired": false, "decision": "NO_CHECKSUM_FOR_REPRODUCIBLE_ACQUISITION"},
+    {"candidate_id": "MODEL_MOLGRAD_CACO2", "classification": "REMOTE_UNVERSIONED_WEIGHTS", "filename": "eos1af5.zip", "size_mb": 17, "sha256": null, "acquired": false, "decision": "NO_GO_LICENSE"},
+    {"candidate_id": "MODEL_PHARMPAPP_CACO2", "classification": "HASHED_UNVERSIONED_CHECKPOINT", "filename": "Caco2-A/C/L.zip", "sha256": null, "acquired": false, "decision": "NO_GO_ENDPOINT_MISMATCH"}
+  ],
+  "production_assets_untouched": true
+}

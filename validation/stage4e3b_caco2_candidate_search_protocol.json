@@ -1,0 +1,21 @@
+{
+  "stage": "4E-3B",
+  "status": "FROZEN_BEFORE_CANDIDATE_RESULTS",
+  "search_scope": "final targeted Caco-2 expansion; maximum 4 serious candidates",
+  "criteria": {
+    "endpoint": "Caco-2 Papp A→B regression",
+    "released_inference_checkpoint_required": true,
+    "reproducible_version_required": true,
+    "code_and_weight_license_clear": true,
+    "internal_pharmaceutical_research_permitted": true,
+    "inference_without_retraining": true,
+    "cpu_or_realistic_arm64": true,
+    "training_lineage_documented": true,
+    "scientific_units": "Papp A→B convertible to log10(cm/s) without assay assumptions",
+    "architecture_diversity_preferred": true,
+    "no_expansionrx_training_or_tuning": true
+  },
+  "gate_order": ["source", "license", "checkpoint", "endpoint", "lineage", "arm64", "benchmark"],
+  "benchmark": "Stage 4E-3A ExpansionRx cohort; no fitting, calibration, consensus, selector, or threshold change",
+  "closure_rule": "After preregistration, no additional candidate search; Caco-2 closes in this stage."
+}

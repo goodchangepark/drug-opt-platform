@@ -1,0 +1,8 @@
+{
+  "entries": [
+    {"candidate_id": "MODEL_CACO2_GNN_MTL_ZENODO", "code": "SOURCE_EMBEDDED_CHEMPROP", "weights": "COPYRIGHT_ONLY_LICENSE_UNCLEAR", "training_data": "UNSPECIFIED", "internal_research": "REVIEW_REQUIRED", "decision": "LEGAL_NOT_QUALIFIED", "source": "https://zenodo.org/records/16948542"},
+    {"candidate_id": "MODEL_MOLGRAD_CACO2", "code": "GPL-3.0", "weights": "AGPL-3.0-only", "training_data": "UNSPECIFIED", "internal_research": "RESTRICTED_REVIEW_REQUIRED", "decision": "NO_GO_LICENSE", "source": "https://github.com/ersilia-os/eos1af5"},
+    {"candidate_id": "MODEL_PHARMPAPP_CACO2", "code": "LICENSE_UNCLEAR", "weights": "LICENSE_UNCLEAR", "training_data": "UNSPECIFIED", "internal_research": "LICENSE_UNCLEAR", "decision": "NO_GO_LICENSE", "source": "https://github.com/ifyoungnet/PharmPapp"}
+  ],
+  "fail_closed": true
+}

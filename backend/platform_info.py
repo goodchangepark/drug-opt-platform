@@ -248,6 +248,13 @@ VERSION_HISTORY = [
         "milestone": "Caco-2 Independent Scientific Benchmark",
         "improvements": "Benchmarked the existing Caco-2 CORE and authorized SHADOW on the pinned ExpansionRx Papp A→B cohort without refitting; completed overlap, censor, duplicate, AD, scaffold, disagreement, and complementarity analyses. No numeric consensus existed or was created, and production policy remains unchanged.",
     },
+    {
+        "version": "0.7.3-stage4e3b",
+        "release_date": "2026-08-29",
+        "stage": "Stage 4E-3B",
+        "milestone": "Caco-2 Final Model Expansion & Closure",
+        "improvements": "Completed the final targeted Caco-2 candidate search under license, checkpoint, endpoint, lineage, and ARM64 gates; no qualified replacement was found, so the current CORE is frozen for Engine-v1. No candidate was installed, registered, benchmarked, or promoted.",
+    },
 ]
 
 

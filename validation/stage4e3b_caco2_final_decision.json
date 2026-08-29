@@ -1,0 +1,12 @@
+{
+  "closure_decision": "CACO2_NO_QUALIFIED_REPLACEMENT_FOUND_CORE_FROZEN",
+  "best_candidate_assessment": "NO_QUALIFIED_CANDIDATE",
+  "reliability": "LIMITED / LOW-MEDIUM",
+  "production_strategy": "SINGLE_CORE_MODEL",
+  "production_model": "admetica_caco2/admetica-d4f7056-chemprop-v2.1",
+  "production_changed": false,
+  "caco2_engine_v1_status": "CLOSED",
+  "no_further_dedicated_caco2_optimization_before_engine_v1_freeze": true,
+  "limitations": ["ExpansionRx external CORE MAE 0.5695 with Spearman 0.0410", "Residual Admetica training overlap unknown", "Assay heterogeneity/protocol metadata limited", "No legally and contractually qualified replacement checkpoint found"],
+  "next_planned_work": "STAGE 4E-3C — hERG FINAL QUALIFICATION"
+}

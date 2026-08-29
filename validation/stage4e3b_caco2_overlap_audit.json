@@ -1,0 +1,8 @@
+{
+  "stage4e3a_reference_cohort_n": 3498,
+  "candidate_overlaps": [],
+  "training_overlap_status": "UNKNOWN_FOR_ALL_CANDIDATES",
+  "expansionrx_used_for_training_or_tuning": false,
+  "benchmark_started": false,
+  "note": "All candidates failed an earlier legal/checkpoint/endpoint gate; no candidate predictions were run and no overlap exclusions were fabricated."
+}

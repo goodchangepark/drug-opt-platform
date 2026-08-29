@@ -1,0 +1,6 @@
+{
+  "status": "NOT_RUN",
+  "reason": "No candidate passed legal, checkpoint, and direct endpoint gates; Stage 4E-3A fixed CORE/SHADOW benchmark remains the only external performance evidence.",
+  "no_fitting": true,
+  "production_core_unchanged": true
+}

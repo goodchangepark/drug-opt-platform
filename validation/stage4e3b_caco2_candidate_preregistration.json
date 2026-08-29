@@ -1,0 +1,8 @@
+{
+  "status": "CLOSED_WITH_NO_BENCHMARK_ELIGIBLE_CANDIDATE",
+  "preregistered_candidates": [],
+  "screened_candidates": ["MODEL_CACO2_GNN_MTL_ZENODO", "MODEL_MOLGRAD_CACO2", "MODEL_PHARMPAPP_CACO2"],
+  "benchmark_dataset": "DATA_OPENADMET_EXPANSIONRX_CACO2_PAPP_AB",
+  "decision_rules": ["Only candidates passing license, versioned checkpoint, direct endpoint, lineage, and ARM64 gates may be benchmarked.", "No candidate may be added after preregistration."],
+  "no_new_candidate_search_after_preregistration": true
+}

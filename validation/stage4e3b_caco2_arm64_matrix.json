@@ -1,0 +1,8 @@
+{
+  "entries": [
+    {"candidate_id": "MODEL_CACO2_GNN_MTL_ZENODO", "cpu_load": "NOT_RUN_LICENSE_GATE", "arm64": "UNVERIFIED", "decision": "LEGAL_NOT_QUALIFIED"},
+    {"candidate_id": "MODEL_MOLGRAD_CACO2", "cpu_load": "NOT_RUN_LICENSE_GATE", "arm64": "X86_ONLY_RISK", "decision": "NO_GO_LICENSE"},
+    {"candidate_id": "MODEL_PHARMPAPP_CACO2", "cpu_load": "NOT_RUN_ENDPOINT_GATE", "arm64": "REQUIRES_BUILD_TEST", "decision": "NO_GO_ENDPOINT_MISMATCH"}
+  ],
+  "production_venv_modified": false
+}

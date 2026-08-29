@@ -1,0 +1,48 @@
+{
+  "candidates": [
+    {
+      "candidate_id": "MODEL_CACO2_GNN_MTL_ZENODO",
+      "model": "Prediction of permeability and efflux using multi-task learning",
+      "source": "https://zenodo.org/records/16948542",
+      "version": "Zenodo v1, DOI 10.5281/zenodo.16948542",
+      "architecture": "Chemprop v2.1.0 GNN multi-task checkpoint",
+      "endpoint": "Caco-2 P_app (10^-6 cm/s), output column 2; A→B direction not explicit in model card",
+      "checkpoint": "model.pt, 1.3 MB, MD5 6772137b9b56a422a4ce8a35d3d53a21; SHA256 not published",
+      "license": "COPYRIGHT_ONLY_LICENSE_UNCLEAR",
+      "training_lineage": "Publication-specific permeability/efflux datasets; exact overlap with ExpansionRx and Admetica unknown",
+      "arm64": "Likely CPU PyTorch/Chemprop but not tested because license/checkpoint identity gates failed",
+      "decision": "LEGAL_NOT_QUALIFIED",
+      "reason": "Zenodo record identifies the checkpoint and output but gives copyright rather than an internal-research model license; A→B assay direction and published training lineage are insufficiently explicit."
+    },
+    {
+      "candidate_id": "MODEL_MOLGRAD_CACO2",
+      "model": "MolGrad / Ersilia eos1af5",
+      "source": "https://github.com/ersilia-os/eos1af5",
+      "version": "eos1af5 package snapshot; original MolGrad publication 2021",
+      "architecture": "Message-passing GNN plus forward FNN",
+      "endpoint": "log10 passive permeability in cm/s; passive output, not a verified Papp A→B contract",
+      "checkpoint": "17 MB package asset; remote S3 archive, no independently versioned checkpoint hash",
+      "license": "AGPL-3.0-only model / GPL-3.0 package",
+      "training_lineage": "Experimental Caco-2 permeability; exact overlap unknown",
+      "arm64": "Ersilia deployment is AMD64; Xavier feasibility not established",
+      "decision": "NO_GO_LICENSE",
+      "reason": "Model license and deployment architecture are unsuitable for unrestricted internal Drug-OPT qualification; endpoint is passive rather than verified A→B."
+    },
+    {
+      "candidate_id": "MODEL_PHARMPAPP_CACO2",
+      "model": "PharmPapp Caco2-A/C/L",
+      "source": "https://github.com/ifyoungnet/PharmPapp",
+      "version": "repository model archives Caco2-A.zip, Caco2-C.zip, Caco2-L.zip",
+      "architecture": "KNIME descriptor/fingerprint regression workflows",
+      "endpoint": "Peptide-oriented Caco-2 datasets; protocol and A→B mapping are not a direct Drug-OPT contract",
+      "checkpoint": "ZIP model archives; no release checksum/version manifest",
+      "license": "LICENSE_UNCLEAR",
+      "training_lineage": "Systematically collected peptide permeability datasets; overlap unknown",
+      "arm64": "KNIME/runtime dependency; Xavier feasibility unverified",
+      "decision": "NO_GO_ENDPOINT_MISMATCH",
+      "reason": "Peptide/cell-line workflow outputs are not a clean small-molecule Papp A→B checkpoint contract and licensing is not sufficiently explicit."
+    }
+  ],
+  "candidate_count": 3,
+  "no_production_registration": true
+}
