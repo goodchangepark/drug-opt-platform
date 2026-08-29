@@ -2840,7 +2840,7 @@ function App(){
     ),
 
     // Grid: Curve + Metrics
-    e('div',{className:'grid'},[
+    e('div',{className:'grid comparison-config-grid'},[
      e('div',{className:'col-7'},e('div',{style:{marginTop:'6px'}},renderCurvePlot())),
      e('div',{className:'col-5'},[
       e('h5',{},'Analytical PK Metrics'),
@@ -3949,6 +3949,17 @@ function App(){
   ]));
  }
 
+ function comparisonVisualizations(comparison, assayId){
+  const compounds=comparison?.compounds||[];
+  const endpoints=['Activity','Solubility','Caco-2','PPB','fu','HLM','RLM','MLM','CYP3A4 Inh','hERG','P-gp Inh'];
+  const direction={Activity:'LOWER_IS_BETTER',Solubility:'HIGHER_IS_BETTER','Caco-2':'HIGHER_IS_BETTER',PPB:'INFORMATION_ONLY',fu:'INFORMATION_ONLY',HLM:'LOWER_IS_BETTER',RLM:'LOWER_IS_BETTER',MLM:'LOWER_IS_BETTER','CYP3A4 Inh':'LOWER_IS_BETTER',hERG:'LOWER_IS_BETTER','P-gp Inh':'LOWER_IS_BETTER'};
+  const available=endpoints.filter(k=>compounds.some(c=>c[k]!=null));
+  const heatCols={gridTemplateColumns:'120px repeat('+Math.max(1,compounds.length)+', minmax(80px,1fr))'};
+  const heat=e('div',{className:'comparison-visual-card',key:'heat'},[e('h3',{},'Compound Profile Heatmap'),e('p',{className:'small'},'Relative comparison; raw values and evidence remain visible.'),e('div',{className:'comparison-heatmap'},[e('div',{className:'comparison-heatmap-row comparison-heatmap-head',style:heatCols},[e('span',{},'Endpoint'),...compounds.map(c=>e('strong',{key:c.row_id},c.name||c.compound))]),...available.map(k=>{const vals=compounds.map(c=>Number(c[k])).filter(Number.isFinite),min=Math.min(...vals),max=Math.max(...vals);return e('div',{className:'comparison-heatmap-row',style:heatCols,key:k},[e('span',{},k),...compounds.map(c=>{const raw=c[k], n=Number(raw), norm=!Number.isFinite(n)||max===min?0.5:(n-min)/(max-min), score=direction[k]==='LOWER_IS_BETTER'?1-norm:norm;return e('span',{key:c.row_id,className:'comparison-heat-cell',style:{background:!Number.isFinite(n)?'#f8fafc':`rgba(37,99,235,${0.12+score*0.45})`}},Number.isFinite(n)?String(raw):'N/A')})])})])]);
+  const scatter=(title,xKey,yKey,xLabel,yLabel)=>{const pts=compounds.filter(c=>Number.isFinite(Number(c[xKey]))&&Number.isFinite(Number(c[yKey])));return e('div',{className:'comparison-visual-card',key:title},[e('h3',{},title),e('p',{className:'small'},pts.length>=2?xLabel+' vs '+yLabel:'Insufficient comparable data'),pts.length>=2?e('div',{className:'comparison-scatter'},pts.map((c,i)=>e('div',{className:'comparison-point',key:c.row_id,style:{left:(8+i*76/Math.max(1,pts.length-1))+'%',bottom:(12+(Number(c[yKey])%1+1)*30)+'%'}},[e('span',{className:'comparison-dot'},'●'),e('small',{},c.name||c.compound)]))):null]);};
+  return e('div',{className:'comparison-visual-grid'},[heat,scatter('Potency vs Metabolic Stability','Activity','HLM','Selected activity assay','HLM log10(mL/min/kg)'),scatter('Solubility vs Permeability','Solubility','Caco-2','Solubility','Caco-2 Papp A→B')]);
+ }
+
  function ComparePanel(){
   const groups={
    Properties:['MW','cLogP','TPSA','QED'],
@@ -3994,6 +4005,7 @@ function App(){
    ]),
    comparison&&e('div',{className:'card',key:'table'},[
     e('h3',{},'Selected Compound Comparison'),e('p',{className:'small'},'Experimental values take precedence. Each cell retains its evidence type. No overall score or automatic ranking is calculated.'),
+    e('div',{className:'comparison-structure-row'},(comparison.compounds||[]).map(compound=>e('div',{className:'comparison-structure-card',key:compound.row_id},[compound.svg?e('div',{className:'comparison-structure-image',dangerouslySetInnerHTML:{__html:compound.svg}}):e('div',{className:'comparison-structure-unavailable'},'Structure unavailable'),e('strong',{},compound.name||compound.compound||'Compound')]))) ,
     e('div',{className:'table-scroll comparison-table-scroll'},e('table',{className:'comparison-table'},[
      e('thead',{},e('tr',{},['Metric',...(comparison.compounds||[]).map(compound=>compound.name||compound.compound||'Compound')].map(label=>e('th',{key:label},label)))),
      e('tbody',{},metrics.map(metric=>e('tr',{key:metric},[
@@ -4004,7 +4016,7 @@ function App(){
       ]))
      ])))
     ])),
-    e('div',{className:'plot-grid'},pairPlot(comparison,'MW','cLogP'),pairPlot(comparison,'TPSA','cLogP'),qedHistogram(comparison))
+    comparisonVisualizations(comparison,compareAssay)
    ])
   ]);
  }

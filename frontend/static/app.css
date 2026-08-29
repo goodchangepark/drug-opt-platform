@@ -991,6 +991,31 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   color: #64748b;
 }
 
+.comparison-config-grid .check-option,
+.comparison-configuration .check-option {
+  display: grid;
+  grid-template-columns: 18px minmax(0,1fr);
+  align-items: center;
+  min-height: 28px;
+  cursor: pointer;
+}
+.comparison-structure-row { display:flex; gap:12px; overflow-x:auto; margin:12px 0; padding-bottom:4px; }
+.comparison-structure-card { min-width:180px; text-align:center; border:1px solid var(--line); border-radius:8px; padding:8px; background:#f8fafc; }
+.comparison-structure-image { height:150px; display:flex; align-items:center; justify-content:center; background:#fff; border-radius:6px; }
+.comparison-structure-image svg { max-width:100%; max-height:145px; }
+.comparison-structure-unavailable { height:150px; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; }
+.comparison-visual-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:14px; }
+.comparison-visual-card { border:1px solid var(--line); border-radius:8px; padding:12px; background:#fbfdff; min-width:0; }
+.comparison-heatmap { overflow-x:auto; }
+.comparison-heatmap-row { display:grid; grid-template-columns:120px repeat(var(--comparison-compounds,3),minmax(80px,1fr)); gap:4px; align-items:center; margin:4px 0; }
+.comparison-heatmap-row > span,.comparison-heatmap-row > strong { padding:6px; font-size:11px; }
+.comparison-heat-cell { text-align:center; border-radius:4px; font-family:var(--font-mono); }
+.comparison-scatter { position:relative; height:180px; border-left:1px solid var(--line); border-bottom:1px solid var(--line); margin:10px 4px; }
+.comparison-point { position:absolute; transform:translate(-50%,50%); color:#1d4ed8; text-align:center; }
+.comparison-dot { display:block; font-size:20px; }
+.comparison-point small { display:block; white-space:nowrap; font-size:10px; }
+@media (max-width:900px) { .comparison-visual-grid { grid-template-columns:1fr; } }
+
 /* Visual ADMET Profile Chart */
 .admet-visual-profile {
   background: #fff;
