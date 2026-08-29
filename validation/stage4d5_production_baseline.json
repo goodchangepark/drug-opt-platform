@@ -1,0 +1,923 @@
+{
+  "artifact": "stage4d5_production_baseline",
+  "baseline_commit": "083163c6362fd2d2d10fb5a473468a1429a6a274",
+  "baseline_tag": "stage4d4-endpoint-strategy-finalized",
+  "created_for_policy": "stage4d5-qualification-policy-v1",
+  "active_policy_count": 27,
+  "active_endpoint_policies": [
+    {
+      "endpoint": "Ames mutagenicity",
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admet_ai_ames",
+          "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage3f-production-baseline",
+        "rollback_target": "admet_ai_ames (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admet_ai_ames"
+        ],
+        "rollback_model_versions": [
+          "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage3f-model-selection.md",
+        "model_version_provenance": {
+          "admet_ai_ames": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP1A2 inhibitor",
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp1a2-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp1a2-inhibitor (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp1a2-inhibitor"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp1a2-inhibitor": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP2C19 inhibitor",
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2c19-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp2c19-inhibitor (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp2c19-inhibitor"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp2c19-inhibitor": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP2C9 inhibitor",
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2c9-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp2c9-inhibitor (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp2c9-inhibitor"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp2c9-inhibitor": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP2C9 substrate",
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2c9-substrate",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp2c9-substrate (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp2c9-substrate"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp2c9-substrate": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP2D6 inhibitor",
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2d6-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp2d6-inhibitor (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp2d6-inhibitor"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp2d6-inhibitor": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP2D6 substrate",
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2d6-substrate",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp2d6-substrate (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp2d6-substrate"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp2d6-substrate": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP3A4 inhibitor",
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp3a4-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d3b1a-production-baseline",
+        "rollback_target": "admetica_cyp_cyp3a4-inhibitor (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp3a4-inhibitor"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d3b1a_final_decision.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp3a4-inhibitor": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "CYP3A4 substrate",
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp3a4-substrate",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_cyp_cyp3a4-substrate (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_cyp_cyp3a4-substrate"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-cyp-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_cyp_cyp3a4-substrate": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "DILI clinical liability",
+      "endpoint_id": "safety_dili_clinical_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admet_ai_dili",
+          "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage3f-production-baseline",
+        "rollback_target": "admet_ai_dili (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admet_ai_dili"
+        ],
+        "rollback_model_versions": [
+          "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage3f-model-selection.md",
+        "model_version_provenance": {
+          "admet_ai_dili": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        }
+      }
+    },
+    {
+      "endpoint": "HLM intrinsic clearance",
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "openadmet_hlm",
+          "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "openadmet_clearance (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "openadmet_hlm"
+        ],
+        "rollback_model_versions": [
+          "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "openadmet_hlm": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      }
+    },
+    {
+      "endpoint": "Ionization (pKa)",
+      "endpoint_id": "ionization_pka_estimated",
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "primary_strategy": "RULE_ESTIMATE",
+      "models": [
+        {
+          "model_id": "ionization_smarts_rules_v1",
+          "model_version": "stage4c4-ionization-v1"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4c4-production-baseline",
+        "rollback_target": "structural_ionization_smarts (stage4c4)",
+        "rollback_primary_strategy": "RULE_ESTIMATE",
+        "rollback_model_ids": [
+          "ionization_smarts_rules_v1"
+        ],
+        "rollback_model_versions": [
+          "stage4c4-ionization-v1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage4c4-pka-model-selection.md",
+        "model_version_provenance": {
+          "ionization_smarts_rules_v1": "stage4c4-ionization-v1"
+        }
+      }
+    },
+    {
+      "endpoint": "MLM intrinsic clearance",
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "openadmet_mlm",
+          "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "openadmet_clearance (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "openadmet_mlm"
+        ],
+        "rollback_model_versions": [
+          "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "openadmet_mlm": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      }
+    },
+    {
+      "endpoint": "Metabolic soft spots",
+      "endpoint_id": "som_metabolic_soft_spots",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "RANK_FUSION",
+      "models": [
+        {
+          "model_id": "sygma_phase1_2",
+          "model_version": "sygma-v1.1.0"
+        },
+        {
+          "model_id": "smartcyp_dft_v1",
+          "model_version": "smartcyp-v3.0"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage3f-production-baseline",
+        "rollback_target": "sygma_phase1_2@sygma-v1.1.0 + smartcyp_dft_v1@smartcyp-v3.0 rank-fusion baseline",
+        "rollback_primary_strategy": "RANK_FUSION",
+        "rollback_model_ids": [
+          "sygma_phase1_2",
+          "smartcyp_dft_v1"
+        ],
+        "rollback_model_versions": [
+          "sygma-v1.1.0",
+          "smartcyp-v3.0"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage3f-model-selection.md",
+        "model_version_provenance": {
+          "smartcyp_dft_v1": "smartcyp-v3.0",
+          "sygma_phase1_2": "sygma-v1.1.0"
+        }
+      }
+    },
+    {
+      "endpoint": "Metabolite hypotheses",
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "endpoint_contract_version": "stage3d-sygma-v1",
+      "primary_strategy": "RULE_BASED",
+      "models": [
+        {
+          "model_id": "sygma_phase1_2",
+          "model_version": "sygma-v1.1.0"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage3f-production-baseline",
+        "rollback_target": "SyGMa stage3d rule baseline",
+        "rollback_primary_strategy": "RULE_BASED",
+        "rollback_model_ids": [
+          "sygma_phase1_2"
+        ],
+        "rollback_model_versions": [
+          "sygma-v1.1.0"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage3f-model-selection.md",
+        "model_version_provenance": {
+          "sygma_phase1_2": "sygma-v1.1.0"
+        }
+      }
+    },
+    {
+      "endpoint": "P-gp inhibitor",
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_transporter_pgp-inhibitor",
+          "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "RAW",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_transporter_pgp-inhibitor (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_transporter_pgp-inhibitor"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_transporter_pgp-inhibitor": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "PK Bioavailability",
+      "endpoint_id": "pk_bioavailability_fraction",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "models": [
+        {
+          "model_id": "pk_nca",
+          "model_version": "5A-1.0"
+        },
+        {
+          "model_id": "pk_ivive",
+          "model_version": "5A-2A.1.0"
+        },
+        {
+          "model_id": "pk_allometric_scaling",
+          "model_version": "5B-3.1.0"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage5a1-production-baseline",
+        "rollback_target": "mechanistic_pk_baseline (stage5a1)",
+        "rollback_primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+        "rollback_model_ids": [
+          "pk_nca",
+          "pk_ivive",
+          "pk_allometric_scaling"
+        ],
+        "rollback_model_versions": [
+          "5A-1.0",
+          "5A-2A.1.0",
+          "5B-3.1.0"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage5a2a-ivive-hepatic-clearance.md",
+        "model_version_provenance": {
+          "pk_allometric_scaling": "5B-3.1.0",
+          "pk_ivive": "5A-2A.1.0",
+          "pk_nca": "5A-1.0"
+        }
+      }
+    },
+    {
+      "endpoint": "PK Simulation",
+      "endpoint_id": "pk_concentration_time_simulation",
+      "endpoint_contract_version": "stage5b2-pk-simulation-v1",
+      "primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "models": [
+        {
+          "model_id": "pk_simulation",
+          "model_version": "5B-2.0"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage5b2-production-baseline",
+        "rollback_target": "PK simulation 5B-2.0 baseline",
+        "rollback_primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+        "rollback_model_ids": [
+          "pk_simulation"
+        ],
+        "rollback_model_versions": [
+          "5B-2.0"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/current-platform-capabilities.md",
+        "model_version_provenance": {
+          "pk_simulation": "5B-2.0"
+        }
+      }
+    },
+    {
+      "endpoint": "PK Systemic Clearance",
+      "endpoint_id": "pk_clearance_systemic",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "models": [
+        {
+          "model_id": "pk_nca",
+          "model_version": "5A-1.0"
+        },
+        {
+          "model_id": "pk_ivive",
+          "model_version": "5A-2A.1.0"
+        },
+        {
+          "model_id": "pk_allometric_scaling",
+          "model_version": "5B-3.1.0"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage5a1-production-baseline",
+        "rollback_target": "mechanistic_pk_baseline (stage5a1)",
+        "rollback_primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+        "rollback_model_ids": [
+          "pk_nca",
+          "pk_ivive",
+          "pk_allometric_scaling"
+        ],
+        "rollback_model_versions": [
+          "5A-1.0",
+          "5A-2A.1.0",
+          "5B-3.1.0"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage5a2a-ivive-hepatic-clearance.md",
+        "model_version_provenance": {
+          "pk_allometric_scaling": "5B-3.1.0",
+          "pk_ivive": "5A-2A.1.0",
+          "pk_nca": "5A-1.0"
+        }
+      }
+    },
+    {
+      "endpoint": "PK Volume of Distribution",
+      "endpoint_id": "pk_volume_distribution_vss",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "models": [
+        {
+          "model_id": "pk_nca",
+          "model_version": "5A-1.0"
+        },
+        {
+          "model_id": "pk_ivive",
+          "model_version": "5A-2A.1.0"
+        },
+        {
+          "model_id": "pk_allometric_scaling",
+          "model_version": "5B-3.1.0"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage5a1-production-baseline",
+        "rollback_target": "mechanistic_pk_baseline (stage5a1)",
+        "rollback_primary_strategy": "MECHANISTIC_NO_CONSENSUS",
+        "rollback_model_ids": [
+          "pk_nca",
+          "pk_ivive",
+          "pk_allometric_scaling"
+        ],
+        "rollback_model_versions": [
+          "5A-1.0",
+          "5A-2A.1.0",
+          "5B-3.1.0"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage5a2a-ivive-hepatic-clearance.md",
+        "model_version_provenance": {
+          "pk_allometric_scaling": "5B-3.1.0",
+          "pk_ivive": "5A-2A.1.0",
+          "pk_nca": "5A-1.0"
+        }
+      }
+    },
+    {
+      "endpoint": "Permeability",
+      "endpoint_id": "permeability_caco2_logpapp",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_caco2",
+          "model_version": "admetica-d4f7056-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d2c-production-baseline",
+        "rollback_target": "admetica_caco2 (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_caco2"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d2c_promotion_decisions.json",
+        "model_version_provenance": {
+          "admetica_caco2": "admetica-d4f7056-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "Physicochemical properties",
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "endpoint_contract_version": "stage1-rdkit-property-pipeline-v1",
+      "primary_strategy": "DERIVED_ESTIMATE",
+      "models": [
+        {
+          "model_id": "rdkit_2d_descriptors",
+          "model_version": "rdkit-2025.03.1"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage1-production-baseline",
+        "rollback_target": "RDKit property pipeline baseline",
+        "rollback_primary_strategy": "DERIVED_ESTIMATE",
+        "rollback_model_ids": [
+          "rdkit_2d_descriptors"
+        ],
+        "rollback_model_versions": [
+          "rdkit-2025.03.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/current-platform-capabilities.md",
+        "model_version_provenance": {
+          "rdkit_2d_descriptors": "rdkit-2025.03.1"
+        }
+      }
+    },
+    {
+      "endpoint": "Plasma protein binding",
+      "endpoint_id": "ppb_human_percent_bound",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_ppbr",
+          "model_version": "admetica-d4f7056-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "admetica_ppbr (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_ppbr"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "admetica_ppbr": "admetica-d4f7056-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "RLM intrinsic clearance",
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "openadmet_rlm",
+          "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d0-production-baseline",
+        "rollback_target": "openadmet_clearance (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "openadmet_rlm"
+        ],
+        "rollback_model_versions": [
+          "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d0_candidate_model_qualification.json",
+        "model_version_provenance": {
+          "openadmet_rlm": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      }
+    },
+    {
+      "endpoint": "Solubility",
+      "endpoint_id": "solubility_aqueous_logs",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_solubility",
+          "model_version": "admetica-d4f7056-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d3a2-production-baseline",
+        "rollback_target": "admetica_solubility (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_solubility"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d3a2_final_decision.json",
+        "model_version_provenance": {
+          "admetica_solubility": "admetica-d4f7056-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "hERG liability",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "primary_strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "model_id": "admetica_safety_herg",
+          "model_version": "admetica-d4f7056-herg-chemprop-v2.1"
+        }
+      ],
+      "decision_threshold": 0.5,
+      "calibration_status": "CALIBRATION_RESEARCH",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4d3b2a-production-baseline",
+        "rollback_target": "admetica_safety_herg raw (stage4d0)",
+        "rollback_primary_strategy": "SINGLE_CORE_MODEL",
+        "rollback_model_ids": [
+          "admetica_safety_herg"
+        ],
+        "rollback_model_versions": [
+          "admetica-d4f7056-herg-chemprop-v2.1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "validation/stage4d3b2a_final_decision.json",
+        "model_version_provenance": {
+          "admetica_safety_herg": "admetica-d4f7056-herg-chemprop-v2.1"
+        }
+      }
+    },
+    {
+      "endpoint": "logD pH7.4 derived estimate",
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "primary_strategy": "DERIVED_ESTIMATE",
+      "models": [
+        {
+          "model_id": "henderson_hasselbalch_logd_v1",
+          "model_version": "stage4c4-ionization-v1"
+        }
+      ],
+      "decision_threshold": null,
+      "calibration_status": "NOT_APPLICABLE",
+      "calibration_production_enabled": false,
+      "policy_version": "stage4d4-endpoint-strategy-v1",
+      "rollback_policy": {
+        "previous_policy_version": "stage4c4-production-baseline",
+        "rollback_target": "stage4c4-ionization-derived-logd",
+        "rollback_primary_strategy": "DERIVED_ESTIMATE",
+        "rollback_model_ids": [
+          "henderson_hasselbalch_logd_v1"
+        ],
+        "rollback_model_versions": [
+          "stage4c4-ionization-v1"
+        ],
+        "promotion_reason": "Stage 4D-4 codifies the existing production behavior; no production prediction strategy is activated or changed.",
+        "validation_artifact": "docs/stage4c4-pka-model-selection.md",
+        "model_version_provenance": {
+          "henderson_hasselbalch_logd_v1": "stage4c4-ionization-v1"
+        }
+      }
+    }
+  ],
+  "production_behavior_changed": false
+}

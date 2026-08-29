@@ -41,6 +41,13 @@ from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
                         DataProvenance)
 from .endpoint_contracts import get_endpoint_contract
 from .endpoint_strategy_registry import get_registry_api_response
+from .production_qualification import (
+    ensure_qualification_schema,
+    get_candidates_api_response,
+    get_drift_api_response,
+    get_qualification_api_response,
+    get_qualification_endpoint_response,
+)
 from .database import Base, SessionLocal, engine, get_db
 from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
                                   ENGINE_NAME as METABOLISM_ENGINE,
@@ -110,6 +117,7 @@ async def lifespan(app_instance: FastAPI):
         ensure_simulation_schema(engine)
         ensure_translational_schema(engine)
         ensure_human_pk_schema(engine)
+        ensure_qualification_schema(engine)
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -148,6 +156,30 @@ def get_interpretation_rules():
 def model_strategy_registry():
     """Read-only scientific strategy policy; never executes or promotes a model."""
     return get_registry_api_response()
+
+
+@app.get("/api/qualification/strategies")
+def qualification_strategies():
+    """Read-only qualification policies; never mutates production state."""
+    return get_qualification_api_response()
+
+
+@app.get("/api/qualification/endpoint/{endpoint_id}")
+def qualification_endpoint(endpoint_id: str):
+    response = get_qualification_endpoint_response(endpoint_id)
+    if response is None:
+        raise HTTPException(status_code=404, detail="Qualification endpoint not found")
+    return response
+
+
+@app.get("/api/qualification/candidates")
+def qualification_candidates():
+    return get_candidates_api_response()
+
+
+@app.get("/api/qualification/drift")
+def qualification_drift():
+    return get_drift_api_response()
 
 
 @app.post("/api/structure/validate")

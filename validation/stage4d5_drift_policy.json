@@ -1,0 +1,60 @@
+{
+  "artifact": "stage4d5_drift_policy",
+  "policy_version": "stage4d5-drift-review-v1",
+  "warning_states": [
+    "PERFORMANCE_DRIFT",
+    "CALIBRATION_DRIFT",
+    "DOMAIN_SHIFT",
+    "PRIOR_SHIFT",
+    "INSUFFICIENT_DATA",
+    "MODEL_VERSION_CHANGED",
+    "ENDPOINT_MISMATCH"
+  ],
+  "deterministic_review_thresholds": {
+    "version": "stage4d5-drift-review-v1",
+    "minimum_n": 30,
+    "performance_absolute_delta": 0.1,
+    "ece_absolute_delta": 0.05,
+    "domain_out_rate_delta": 0.1,
+    "prevalence_absolute_delta": 0.1,
+    "chemical_distance_delta": 0.1,
+    "provenance": "Stage 4D-5 deterministic REVIEW_REQUIRED trigger defaults. These are monitoring thresholds, not regulatory acceptance criteria, and cannot retrain or change production policy."
+  },
+  "response": "REVIEW_REQUIRED",
+  "automatic_actions": [],
+  "explicitly_forbidden": [
+    "AUTO_RETRAIN",
+    "THRESHOLD_CHANGE",
+    "ENSEMBLE_WEIGHT_CHANGE",
+    "CALIBRATION_ACTIVATION",
+    "PRODUCTION_MODEL_SWITCH"
+  ],
+  "monitoring_scopes": [
+    "GLOBAL",
+    "PROJECT",
+    "CHEMICAL_SERIES",
+    "MODEL_VERSION",
+    "POLICY_VERSION"
+  ],
+  "regression_metrics": [
+    "n",
+    "mae",
+    "rmse",
+    "bias",
+    "spearman",
+    "within_2_fold",
+    "within_3_fold"
+  ],
+  "classification_metrics": [
+    "n",
+    "mcc",
+    "balanced_accuracy",
+    "auroc",
+    "auprc",
+    "brier",
+    "log_loss",
+    "sensitivity",
+    "specificity",
+    "ece"
+  ]
+}

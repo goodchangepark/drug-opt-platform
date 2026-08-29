@@ -1,0 +1,36 @@
+{
+  "artifact": "stage4d5_promotion_gates",
+  "policy_version": "stage4d5-qualification-policy-v1",
+  "decision": "NO_CURRENT_CANDIDATE_IS_AUTOMATICALLY_QUALIFIED",
+  "activation_mode": "MANUAL_PROMOTION_REQUIRED",
+  "required_conjunctive_gates": [
+    "endpoint_contract_compatible",
+    "model_identity_frozen",
+    "no_leakage",
+    "independent_validation",
+    "endpoint_specific_sample_and_class_balance_sufficient",
+    "primary_metric_noninferior",
+    "meaningful_or_equivalent_benefit",
+    "calibration_acceptable",
+    "subgroup_robust",
+    "no_unacceptable_safety_tradeoff",
+    "rollback_target_exists",
+    "artifacts_reproducible",
+    "manual_activation_only"
+  ],
+  "one_metric_promotion_allowed": false,
+  "minimum_sample_policy": "Endpoint-specific requirements are intentionally unconfigured until approved with scientific provenance. An unconfigured requirement fails closed as INSUFFICIENT_EVIDENCE.",
+  "noninferiority_policy": "Endpoint-specific margins are versioned and fail closed until approved. Equivalent accuracy may only be accepted with documented calibration, robustness, applicability, cost, or provenance benefit.",
+  "candidate_freeze": [
+    "models",
+    "model_versions",
+    "checkpoint_hashes",
+    "weights",
+    "decision_threshold",
+    "calibration",
+    "policy_version",
+    "standardizer_version",
+    "endpoint_contract_version"
+  ],
+  "candidate_change_rule": "ANY_CHANGE_REQUIRES_NEW_CANDIDATE_ID_AND_VERSION"
+}

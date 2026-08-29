@@ -1,0 +1,1441 @@
+{
+  "artifact": "stage4d5_dry_run",
+  "scope": "TEST_ONLY_SYNTHETIC",
+  "real_research_data_used": false,
+  "production_state_changed": false,
+  "active_and_shadow_stored_separately": true,
+  "active_specification": {
+    "candidate_id": "TEST-ACTIVE-HERG-V1",
+    "endpoint_id": "safety_herg_blocker_prob",
+    "endpoint_contract_version": "1.0.0",
+    "candidate_strategy": "SINGLE_CORE_MODEL",
+    "models": [
+      {
+        "checkpoint_hash": "sha256:test-active-checkpoint",
+        "model_id": "test_herg_active_m1",
+        "model_version": "test-v1"
+      }
+    ],
+    "policy_version": "TEST-POLICY-ACTIVE-V1",
+    "candidate_version": "TEST-ACTIVE-V1",
+    "weights": [],
+    "decision_threshold": 0.5,
+    "calibration": "RAW",
+    "standardizer_version": "CHEM_STANDARDIZER_V1",
+    "qualification_kind": "STRATEGY_QUALIFICATION",
+    "specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9"
+  },
+  "candidate_specification": {
+    "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+    "endpoint_id": "safety_herg_blocker_prob",
+    "endpoint_contract_version": "1.0.0",
+    "candidate_strategy": "SINGLE_CORE_WITH_CALIBRATION",
+    "models": [
+      {
+        "checkpoint_hash": "sha256:test-candidate-checkpoint",
+        "model_id": "test_herg_platt_m1",
+        "model_version": "test-v1"
+      }
+    ],
+    "policy_version": "TEST-POLICY-CANDIDATE-V1",
+    "candidate_version": "TEST-CANDIDATE-V1",
+    "weights": [],
+    "decision_threshold": 0.5,
+    "calibration": "PLATT_TEST_ONLY",
+    "standardizer_version": "CHEM_STANDARDIZER_V1",
+    "qualification_kind": "STRATEGY_QUALIFICATION",
+    "specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5"
+  },
+  "frozen_predictions": [
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-01",
+      "compound_version_id": "TEST-COMPOUND-V01",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.7,
+      "probability": 0.7,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:01:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "b817aa1aaf12dc61e0e65f4cc59ac5dfa6f69a1560d6de57a1ec1e573525366f"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-02",
+      "compound_version_id": "TEST-COMPOUND-V02",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.6,
+      "probability": 0.6,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:02:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "440e3f26af676a0825f0f0d337ee0d45664b2c006382fd42d1abb3f6750e2374"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-03",
+      "compound_version_id": "TEST-COMPOUND-V03",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.55,
+      "probability": 0.55,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:03:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "04457752a0d6859b60817efc4b15631deb59a4b0a1b980b38f0507593506f38e"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-04",
+      "compound_version_id": "TEST-COMPOUND-V04",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.4,
+      "probability": 0.4,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:04:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "49dfedee15da44d5b4fa380138c054f958c8c304081a03180f665ca7ee02a743"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-05",
+      "compound_version_id": "TEST-COMPOUND-V05",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.6,
+      "probability": 0.6,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:05:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "da30501548020947b3f5687ece0acb0a437ba0a17c4ee9d303b01611a3dd8790"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-06",
+      "compound_version_id": "TEST-COMPOUND-V06",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.45,
+      "probability": 0.45,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:06:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "9d8e0e7c0c1cb8e8d0de302284afcf1a9533edafaab0569d78486baee8c1bd73"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-07",
+      "compound_version_id": "TEST-COMPOUND-V07",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.35,
+      "probability": 0.35,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:07:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "16ffe61a259edab392111d4763528445a70e10d6d92a62e46bab6eafd06a6767"
+    },
+    {
+      "role": "ACTIVE",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-08",
+      "compound_version_id": "TEST-COMPOUND-V08",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-ACTIVE-HERG-V1",
+      "candidate_specification_hash": "4004611c3f2086bc80117a69346a0b4f3ac4deb51ff4677a6ad267e6eced8cb9",
+      "strategy": "SINGLE_CORE_MODEL",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-active-checkpoint",
+          "model_id": "test_herg_active_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.2,
+      "probability": 0.2,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:08:00+00:00",
+      "policy_version": "TEST-POLICY-ACTIVE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "e300fa70f8abe77ce8f5b4f0529d6a7a8d6f5d75e7563a3cc36b254a6f76f696"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-01",
+      "compound_version_id": "TEST-COMPOUND-V01",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.9,
+      "probability": 0.9,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:01:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "16cf504048a203a9b92eed92e587a3dd2daf84fb4cb81d01a8960bf405a4e259"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-02",
+      "compound_version_id": "TEST-COMPOUND-V02",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.85,
+      "probability": 0.85,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:02:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "29d6b4bab34b31b9ceb34df6f45a8c1cbac5de1a49473b1fcc79acfecbc35637"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-03",
+      "compound_version_id": "TEST-COMPOUND-V03",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.8,
+      "probability": 0.8,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:03:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "7d5514b5c030c08225a8d90116a770b3dbf747427df9ac724e299c12c2425028"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-04",
+      "compound_version_id": "TEST-COMPOUND-V04",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.75,
+      "probability": 0.75,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:04:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-A",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "87883ce2dbbd84fd6b4af50588f419e4a29fbc9ca6ff29195ee9bc4ef1abda2e"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-05",
+      "compound_version_id": "TEST-COMPOUND-V05",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.25,
+      "probability": 0.25,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:05:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "c7108df1a90d1c62f628cb1c4b691e0e008febfd69073963319664530f8ff226"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-06",
+      "compound_version_id": "TEST-COMPOUND-V06",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.2,
+      "probability": 0.2,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:06:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "8e01afb1077229f13971b9e8b8773db7238e87bc9131694f7e4737bcc232ea1b"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-07",
+      "compound_version_id": "TEST-COMPOUND-V07",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.15,
+      "probability": 0.15,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:07:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "8c4f292be45c05509f2f7ba24f68c8848244ed2307bc7dbb136d3a0c704cbcfe"
+    },
+    {
+      "role": "SHADOW",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-08",
+      "compound_version_id": "TEST-COMPOUND-V08",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "candidate_specification_hash": "625768c92d5132d22ebf0d22f0a10a03dc10e7653e6639b66fb587ecd62af8a5",
+      "strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "models": [
+        {
+          "checkpoint_hash": "sha256:test-candidate-checkpoint",
+          "model_id": "test_herg_platt_m1",
+          "model_version": "test-v1"
+        }
+      ],
+      "prediction_value": 0.1,
+      "probability": 0.1,
+      "unit": "probability",
+      "frozen_at": "2026-08-29T00:08:00+00:00",
+      "policy_version": "TEST-POLICY-CANDIDATE-V1",
+      "standardizer_version": "CHEM_STANDARDIZER_V1",
+      "project_id": "TEST-PROJECT",
+      "chemical_series_id": "TEST-SERIES-B",
+      "applicability_domain": "IN_DOMAIN",
+      "provenance": [
+        [
+          "data_scope",
+          "TEST_ONLY_SYNTHETIC"
+        ]
+      ],
+      "record_hash": "1dae5f2e85cea63951d6b383e9f2d4ab656de793ff08a9af6c14cb682b083c7f"
+    }
+  ],
+  "experimental_results": [
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-01",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-01",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:01:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:02:00+00:00",
+      "record_hash": "46883235f37604e0bcc513a79d49f3eff4eba7f6d749c767c67a18fe60f128b9",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-02",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-02",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:02:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:03:00+00:00",
+      "record_hash": "b83ede5552d9c1b791cd33951d72976ca3fe7f7b5b24f7609d55cae26c4ad8f0",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-03",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-03",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:03:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:04:00+00:00",
+      "record_hash": "b8553a8930b4cb40a958971740182ed2441f19d6d566ad23470f5b3548f438a6",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-04",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-04",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:04:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:05:00+00:00",
+      "record_hash": "de9758095d68c0900eac6cfbf78dcab92c5ca109748843fb7f9bf79a92b2e792",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-05",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-05",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:05:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:06:00+00:00",
+      "record_hash": "14f67586aded5a471ff61c3d454453e6c52fc3d5438258eba90e25c737dbddf9",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-06",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-06",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:06:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:07:00+00:00",
+      "record_hash": "eff8c41dc630ccb16bc3462958344f60a1e5bbc48981d49880ce69ab3ed4564e",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-07",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-07",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:07:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:08:00+00:00",
+      "record_hash": "72493cbe9d2dfadd30a5df31ef8d297b90e93a103d3d59eb3b6c79b3a35cc773",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "ACTIVE",
+      "experimental_result_id": "TEST-RESULT-ACTIVE-08",
+      "frozen_prediction_id": "TEST-FREEZE-ACTIVE-08",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:08:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:09:00+00:00",
+      "record_hash": "7b2a25d856a2690927316c8a4b78d903d02d60fd46884680c095fe56d335f765",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-01",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-01",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:01:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:02:00+00:00",
+      "record_hash": "e1fe268b9990271180baf3f9c973dce0111d5b172ca7fb89ac7ba3736651aefb",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-02",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-02",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:02:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:03:00+00:00",
+      "record_hash": "eeab788bfe1039598eac4cd36a9fd64248c6a2ea3c088bdd685a0de8ef2bcc50",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-03",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-03",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:03:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:04:00+00:00",
+      "record_hash": "e5cbc5f331dcb4a2c94a1bce1ecb0b95e9b0a495369ef5b33b495068790375b5",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-04",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-04",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 1.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:04:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:05:00+00:00",
+      "record_hash": "437316fac6bac39d3350905b39fa7421e4fc3745eab1f3bf8f663d62dc205e25",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-05",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-05",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:05:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:06:00+00:00",
+      "record_hash": "55a5914ab1a9ab0562f51eb7fb6b789834e41a2863dfc17de7ca846b25791c13",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-06",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-06",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:06:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:07:00+00:00",
+      "record_hash": "15cd39e5391e69b143f3fe4b1b034433f103f10cb418604ce5eef03ea1f8f7dd",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-07",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-07",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:07:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:08:00+00:00",
+      "record_hash": "320033ade94af3660043a887093092ae23279eefdbe6bb6f9a316a916bf393bc",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    },
+    {
+      "role": "SHADOW",
+      "experimental_result_id": "TEST-RESULT-SHADOW-08",
+      "frozen_prediction_id": "TEST-FREEZE-SHADOW-08",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "experimental_value": 0.0,
+      "unit": "binary_label",
+      "assay_type": "Automated patch clamp hERG inhibition label",
+      "species": "Human",
+      "experiment_date": "2026-08-30",
+      "result_available_at": "2026-08-30T00:08:00+00:00",
+      "source": "TEST_ONLY_SYNTHETIC",
+      "quality": "QUALIFICATION_GRADE",
+      "protocol_metadata": [
+        [
+          "fixture",
+          "stage4d5_dry_run"
+        ]
+      ],
+      "recorded_at": "2026-08-30T00:09:00+00:00",
+      "record_hash": "8a6d4966bc1b464d0aafe92dd38651955cde9f83cc24bd4eb0c6b3dc4b38dfa7",
+      "eligibility": {
+        "status": "QUALIFICATION_ELIGIBLE",
+        "reason_codes": [
+          "ALL_COMPATIBILITY_GATES_PASSED"
+        ],
+        "counts_toward_qualification": true
+      }
+    }
+  ],
+  "active_metrics": {
+    "endpoint_id": "safety_herg_blocker_prob",
+    "candidate_id": "TEST-ACTIVE-HERG-V1",
+    "task_type": "BINARY_CLASSIFICATION",
+    "scope": "GLOBAL",
+    "scope_key": "GLOBAL",
+    "model_version_key": "test-v1",
+    "policy_version": "TEST-POLICY-ACTIVE-V1",
+    "metrics": [
+      [
+        "auprc",
+        0.8541666666666666
+      ],
+      [
+        "auroc",
+        0.78125
+      ],
+      [
+        "balanced_accuracy",
+        0.75
+      ],
+      [
+        "brier",
+        0.1921875
+      ],
+      [
+        "ece",
+        0.20625
+      ],
+      [
+        "log_loss",
+        0.5687103125463673
+      ],
+      [
+        "mcc",
+        0.5
+      ],
+      [
+        "n",
+        8
+      ],
+      [
+        "sensitivity",
+        0.75
+      ],
+      [
+        "specificity",
+        0.75
+      ]
+    ],
+    "source_record_hashes": [
+      "17f3edad9644e0bb47f590648ec5dede5dc6e006c7ec408b845cecda51e8cf31",
+      "1ee916658ab228c2d6fabc858019db17965795a6c61d6667f746fd6c2e0cc1ed",
+      "43bcf2c8d9e103fdc97b381dc333d36025889b6928e341da87be8245bbd25ab7",
+      "4804903873cb5436bed1d37065954ef58c45050cfca27c4dd6bea1669fcdeed4",
+      "5d4260438aabb7a80cf01ca29229669f8b63cb013f4dc451f61b4fc5fd7efe8f",
+      "dc026b33d58e1a1a17a73a4e9569a38d466e2ede46b0b3b85e389f05274db700",
+      "de42f3d727c43ca015ee2a9b3898275742c721928a413f789305e0a73f0c4470",
+      "e8cbd20000498b581a196442edbd6f2f17e0eee9d345df7ed12713a0b4ae35c4"
+    ],
+    "rebuilt_at": "2026-08-31T00:00:00+00:00",
+    "source_snapshot_hash": "da550234db059824893e2c90223365c74eea24a6a77113bcbda1aac35ee1f4d5",
+    "statistics_hash": "290ee8ddb0705fe68dd3edef91c6215df90b556cbcad411c7357ada1139a6d18"
+  },
+  "candidate_metrics": {
+    "endpoint_id": "safety_herg_blocker_prob",
+    "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+    "task_type": "BINARY_CLASSIFICATION",
+    "scope": "GLOBAL",
+    "scope_key": "GLOBAL",
+    "model_version_key": "test-v1",
+    "policy_version": "TEST-POLICY-CANDIDATE-V1",
+    "metrics": [
+      [
+        "auprc",
+        1.0
+      ],
+      [
+        "auroc",
+        1.0
+      ],
+      [
+        "balanced_accuracy",
+        1.0
+      ],
+      [
+        "brier",
+        0.03375
+      ],
+      [
+        "ece",
+        0.175
+      ],
+      [
+        "log_loss",
+        0.19467626723039796
+      ],
+      [
+        "mcc",
+        1.0
+      ],
+      [
+        "n",
+        8
+      ],
+      [
+        "sensitivity",
+        1.0
+      ],
+      [
+        "specificity",
+        1.0
+      ]
+    ],
+    "source_record_hashes": [
+      "0e7579c7ce03545091c4e99423e90125668b694322b84319ca261670c36fdd8d",
+      "11d78fe3fd0d8c7c43b1d694dc5493eda1795b68a92628165219d492e36fa16b",
+      "1ea7c40d9948764e8e0c198b951584f276d1195a426035e448e3b4abfdbb696d",
+      "4377a0fb40344557e1527b67acf42f65dc817c79895d2ce765d63dbeaa040f7b",
+      "8059231e67eaf3d34af31cc18c3d02de02b56d4e7c76e985da8f52f38eb31217",
+      "8160e70d8f7f04e4cea32a6683af940680fc03dc3bfa65254383458038d45820",
+      "845411f5264373d3b1c7e8620910f293de8c3afa83f3088fd1fda313a3df7b38",
+      "e8740591591bcbdb7af3ea6cc675831c319ca06b268a7e581af819db73db353d"
+    ],
+    "rebuilt_at": "2026-08-31T00:00:00+00:00",
+    "source_snapshot_hash": "7f982b60b04bb0b22dbee194095ceed9893c291aeb347e3cdd31f150089fba5f",
+    "statistics_hash": "26b63b91f50658a8186ade96fcb6f01ef649d5f80ad4a8e42e7dd7387495b3b2"
+  },
+  "qualification_record": {
+    "qualification_record_id": "TEST-QUALIFICATION-HERG-PLATT-V1",
+    "endpoint_id": "safety_herg_blocker_prob",
+    "policy_version": "TEST-POLICY-CANDIDATE-V1",
+    "candidate_strategy": "SINGLE_CORE_WITH_CALIBRATION",
+    "candidate_models": [
+      "test_herg_platt_m1"
+    ],
+    "model_versions": [
+      "test-v1"
+    ],
+    "checkpoint_hashes": [
+      "sha256:test-candidate-checkpoint"
+    ],
+    "current_active_strategy": "SINGLE_CORE_MODEL",
+    "validation_dataset": "TEST_ONLY_SYNTHETIC_HERG_DRY_RUN",
+    "validation_snapshot_hash": "26b63b91f50658a8186ade96fcb6f01ef649d5f80ad4a8e42e7dd7387495b3b2",
+    "validation_type": "PROSPECTIVE_INTERNAL",
+    "prospective_or_retrospective": "PROSPECTIVE",
+    "sample_size": 8,
+    "primary_metrics": [
+      [
+        "mcc",
+        1.0
+      ]
+    ],
+    "secondary_metrics": [
+      [
+        "balanced_accuracy",
+        1.0
+      ],
+      [
+        "auroc",
+        1.0
+      ],
+      [
+        "auprc",
+        1.0
+      ],
+      [
+        "sensitivity",
+        1.0
+      ],
+      [
+        "specificity",
+        1.0
+      ]
+    ],
+    "subgroup_metrics": [
+      [
+        "TEST-SERIES-A",
+        "PASS_TEST_ONLY"
+      ],
+      [
+        "TEST-SERIES-B",
+        "PASS_TEST_ONLY"
+      ]
+    ],
+    "calibration_metrics": [
+      [
+        "brier",
+        0.03375
+      ],
+      [
+        "log_loss",
+        0.19467626723039796
+      ],
+      [
+        "ece",
+        0.175
+      ]
+    ],
+    "applicability_domain_metrics": [
+      [
+        "in_domain_rate",
+        1.0
+      ]
+    ],
+    "known_limitations": [
+      "TEST_ONLY_SYNTHETIC",
+      "NOT_SCIENTIFIC_EVIDENCE"
+    ],
+    "qualification_decision": "QUALIFIED",
+    "review_timestamp": "2026-08-31T01:00:00+00:00",
+    "promotion_status": "VALIDATED",
+    "rollback_target": "TEST-ACTIVE-HERG-V1",
+    "provenance": [
+      [
+        "generator",
+        "generate_stage4d5_qualification_artifacts.py"
+      ]
+    ],
+    "record_hash": "b335dc32c7786a1cf8bef95a67073c1fca7099201e6facdaae4cbaea0dca8bc0"
+  },
+  "promotion_gate": {
+    "passed": true,
+    "decision": "QUALIFIED",
+    "checks": [
+      [
+        "qualification_pipeline_allowed",
+        true
+      ],
+      [
+        "endpoint_contract_compatible",
+        true
+      ],
+      [
+        "model_identity_frozen",
+        true
+      ],
+      [
+        "no_leakage",
+        true
+      ],
+      [
+        "independent_validation",
+        true
+      ],
+      [
+        "minimum_sample_requirements_configured",
+        true
+      ],
+      [
+        "sample_size_and_class_balance_sufficient",
+        true
+      ],
+      [
+        "subgroup_sample_size_sufficient",
+        true
+      ],
+      [
+        "noninferiority_margin_configured",
+        true
+      ],
+      [
+        "primary_metric_noninferior",
+        true
+      ],
+      [
+        "meaningful_or_equivalent_benefit",
+        true
+      ],
+      [
+        "calibration_acceptable",
+        true
+      ],
+      [
+        "subgroup_robust",
+        true
+      ],
+      [
+        "no_unacceptable_safety_tradeoff",
+        true
+      ],
+      [
+        "rollback_target_exists",
+        true
+      ],
+      [
+        "artifacts_reproducible",
+        true
+      ],
+      [
+        "manual_activation_only",
+        true
+      ]
+    ],
+    "reason_codes": [],
+    "activation_mode": "MANUAL_PROMOTION_REQUIRED"
+  },
+  "manual_authorization": {
+    "authorization_id": "TEST-MANUAL-AUTHORIZATION-V1",
+    "authorized_by": "TEST_FIXTURE",
+    "authorized_at": "2026-09-01T00:00:00+00:00",
+    "qualification_record_hash": "b335dc32c7786a1cf8bef95a67073c1fca7099201e6facdaae4cbaea0dca8bc0",
+    "reason": "TEST-only simulated manual activation"
+  },
+  "lifecycle_events": [
+    {
+      "event_id": "LCE-190ba08a6bcb472b801f01a8e7647913",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "from_state": "SHADOW",
+      "to_state": "VALIDATED",
+      "occurred_at": "2026-08-29T02:45:10.367950+00:00",
+      "state_machine_version": "stage4d5-lifecycle-v1",
+      "reason": "TEST gate evidence assembled",
+      "authorization_id": "",
+      "rollback_reason": ""
+    },
+    {
+      "event_id": "LCE-e87f8a0a27d7484495851bf46ef85957",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "from_state": "VALIDATED",
+      "to_state": "PRODUCTION_CANDIDATE",
+      "occurred_at": "2026-08-29T02:45:10.368022+00:00",
+      "state_machine_version": "stage4d5-lifecycle-v1",
+      "reason": "TEST promotion gate passed",
+      "authorization_id": "",
+      "rollback_reason": ""
+    },
+    {
+      "event_id": "LCE-a40f8cd44ee242a1a7e1d06eb5d977ba",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "from_state": "PRODUCTION_CANDIDATE",
+      "to_state": "ACTIVE",
+      "occurred_at": "2026-08-29T02:45:10.368806+00:00",
+      "state_machine_version": "stage4d5-lifecycle-v1",
+      "reason": "TEST-only simulated manual activation",
+      "authorization_id": "TEST-MANUAL-AUTHORIZATION-V1",
+      "rollback_reason": ""
+    },
+    {
+      "event_id": "LCE-fa96160fcd4045f280cf1fa2ee67bd22",
+      "candidate_id": "TEST-CANDIDATE-HERG-PLATT-V1",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "from_state": "ACTIVE",
+      "to_state": "ROLLED_BACK",
+      "occurred_at": "2026-08-29T02:45:10.368958+00:00",
+      "state_machine_version": "stage4d5-lifecycle-v1",
+      "reason": "Deterministic rollback to frozen previous ACTIVE specification",
+      "authorization_id": "",
+      "rollback_reason": "PERFORMANCE_REGRESSION"
+    }
+  ],
+  "simulated_drift": {
+    "warnings": [
+      "PERFORMANCE_DRIFT",
+      "CALIBRATION_DRIFT",
+      "DOMAIN_SHIFT",
+      "PRIOR_SHIFT"
+    ],
+    "status": "REVIEW_REQUIRED",
+    "review_required": true,
+    "details": [
+      [
+        "performance_delta",
+        "0.6"
+      ]
+    ],
+    "policy_version": "TEST-DRIFT-V1",
+    "automatic_action": "NONE"
+  },
+  "rollback": {
+    "event_id": "LCE-fa96160fcd4045f280cf1fa2ee67bd22",
+    "reason": "PERFORMANCE_REGRESSION",
+    "deterministic_target": "TEST-ACTIVE-HERG-V1",
+    "final_active_candidate_id": "TEST-ACTIVE-HERG-V1"
+  },
+  "lifecycle_complete": true
+}

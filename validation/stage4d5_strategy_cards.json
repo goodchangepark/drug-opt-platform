@@ -1,0 +1,3063 @@
+{
+  "artifact": "stage4d5_strategy_cards",
+  "policy_version": "stage4d5-qualification-policy-v1",
+  "card_count": 49,
+  "cards": [
+    {
+      "endpoint": "Ames mutagenicity",
+      "endpoint_id": "safety_ames_mutagenicity_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary probability of inducing bacterial reverse mutation in Salmonella typhimurium strains (TA98, TA100, TA1535, TA1537, TA102) with or without S9 metabolic activation.",
+      "endpoint_definition": {
+        "endpoint_id": "safety_ames_mutagenicity_prob",
+        "display_name": "Ames Bacterial Reverse Mutation Mutagenicity",
+        "category": "SAFETY",
+        "scientific_definition": "Binary probability of inducing bacterial reverse mutation in Salmonella typhimurium strains (TA98, TA100, TA1535, TA1537, TA102) with or without S9 metabolic activation.",
+        "species": "Salmonella typhimurium",
+        "assay_type": "Bacterial Reverse Mutation Test (Ames Assay / OECD 471)",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "MUTAGENIC",
+          "negative_class": "NON_MUTAGENIC",
+          "decision_threshold": 0.5
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "strains",
+          "s9_activation"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "assay_family_must_match": "Ames"
+        },
+        "ensemble_compatibility_rules": {
+          "required_assay": "Ames Reverse Mutation",
+          "required_canonical_unit": "probability",
+          "forbidden_mix_types": [
+            "mammalian_micronucleus",
+            "chromosomal_aberration"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admet_ai_ames",
+          "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        }
+      ],
+      "training_source": {
+        "dataset": "TDC AMES/Xu et al. aggregate (7,255 valid training labels)",
+        "source": "https://github.com/swansonk14/admet_ai",
+        "license": "MIT for ADMET-AI code/checkpoints; the TDC endpoint page lists the upstream dataset license as not specified while also linking CC BY 4.0, so redistribution/commercial dataset use requires separate review",
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "AUROC": 0.8815869914,
+          "AUPRC": 0.8957980387,
+          "scope": "ADMET-AI v2 release-reported five-fold held-out evaluation",
+          "probability_calibration": "Not reported"
+        },
+        "independent_validation": {
+          "status": "NOT_AVAILABLE",
+          "reason": "No rigorously independent public structure/label set with non-overlapping source lineage was qualified in Stage 3F."
+        },
+        "evidence_artifact": "docs/stage3f-model-selection.md"
+      },
+      "known_limitations": [
+        "Training mixes TA98, TA100, TA1535, TA1537, TA102 with/without S9; strains not per-row",
+        "Positive and negative cutoffs vary by strain; aggregate label is a simplified binary",
+        "Distinct from mammalian micronucleus or chromosomal aberration endpoints"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "BBB penetration",
+      "endpoint_id": "distribution_bbb_penetration",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "scientific_purpose": "BBB penetration is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "BCRP inhibitor",
+      "endpoint_id": "transporter_bcrp_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "BCRP inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "BCRP substrate",
+      "endpoint_id": "transporter_bcrp_substrate_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "BCRP substrate is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "BSEP inhibitor",
+      "endpoint_id": "transporter_bsep_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "BSEP inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CNS liability",
+      "endpoint_id": "safety_cns_liability",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "scientific_purpose": "CNS liability is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP1A2 inhibitor",
+      "endpoint_id": "cyp1a2_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Calibrated binary probability of inhibiting human CYP1A2 at AC50 <= 10 uM in recombinant fluorogenic/luminescent dealkylation assay (PubChem AID 1851 protocol).",
+      "endpoint_definition": {
+        "endpoint_id": "cyp1a2_inhibitor_prob",
+        "display_name": "CYP1A2 Inhibition Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Calibrated binary probability of inhibiting human CYP1A2 at AC50 <= 10 uM in recombinant fluorogenic/luminescent dealkylation assay (PubChem AID 1851 protocol).",
+        "species": "Human",
+        "assay_type": "Recombinant Human CYP1A2 Functional Dealkylation Assay",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "INHIBITOR",
+          "negative_class": "NON_INHIBITOR",
+          "decision_threshold": 0.5,
+          "potency_threshold_um": 10.0
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP1A2",
+          "role_must_match": "INHIBITOR"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP1A2",
+          "required_role": "INHIBITOR"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp1a2-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "PubChem AID 1851 CYP panel as curated by Admetica (13,239 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.873,
+          "sensitivity": 0.866,
+          "accuracy": 0.87,
+          "balanced_accuracy": 0.869,
+          "scope": "Admetica publisher-reported validation"
+        },
+        "independent_validation": null,
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Isoform-specific: CYP1A2. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP1A2 substrate",
+      "endpoint_id": "cyp1a2_substrate_prob",
+      "endpoint_contract_version": "unavailable-stage3c",
+      "scientific_purpose": "CYP1A2 substrate is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3c",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP2C19 inhibitor",
+      "endpoint_id": "cyp2c19_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Calibrated binary probability of inhibiting human CYP2C19 at AC50 <= 10 uM in recombinant assay.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp2c19_inhibitor_prob",
+        "display_name": "CYP2C19 Inhibition Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Calibrated binary probability of inhibiting human CYP2C19 at AC50 <= 10 uM in recombinant assay.",
+        "species": "Human",
+        "assay_type": "Recombinant Human CYP2C19 Functional Assay",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "INHIBITOR",
+          "negative_class": "NON_INHIBITOR",
+          "decision_threshold": 0.5,
+          "potency_threshold_um": 10.0
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP2C19",
+          "role_must_match": "INHIBITOR"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP2C19",
+          "required_role": "INHIBITOR"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2c19-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "PubChem AID 1851 CYP panel as curated by Admetica (13,427 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.819,
+          "sensitivity": 0.83,
+          "accuracy": 0.824,
+          "balanced_accuracy": 0.825,
+          "scope": "Admetica publisher-reported validation"
+        },
+        "independent_validation": null,
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Isoform-specific: CYP2C19. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP2C19 substrate",
+      "endpoint_id": "cyp2c19_substrate_prob",
+      "endpoint_contract_version": "unavailable-stage3c",
+      "scientific_purpose": "CYP2C19 substrate is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3c",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP2C9 inhibitor",
+      "endpoint_id": "cyp2c9_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Calibrated binary probability of inhibiting human CYP2C9 at AC50 <= 10 uM in recombinant fluorogenic/luminescent assay.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp2c9_inhibitor_prob",
+        "display_name": "CYP2C9 Inhibition Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Calibrated binary probability of inhibiting human CYP2C9 at AC50 <= 10 uM in recombinant fluorogenic/luminescent assay.",
+        "species": "Human",
+        "assay_type": "Recombinant Human CYP2C9 Functional Assay",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "INHIBITOR",
+          "negative_class": "NON_INHIBITOR",
+          "decision_threshold": 0.5,
+          "potency_threshold_um": 10.0
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP2C9",
+          "role_must_match": "INHIBITOR"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP2C9",
+          "required_role": "INHIBITOR"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2c9-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "PubChem AID 1851 CYP panel as curated by Admetica (12,881 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.83,
+          "sensitivity": 0.819,
+          "accuracy": 0.826,
+          "balanced_accuracy": 0.824,
+          "scope": "Admetica publisher-reported validation",
+          "publisher_documentation_note": "The Admetica root overview reports balanced accuracy 0.824; its metabolism page reports 0.890. The overview value is retained conservatively."
+        },
+        "independent_validation": {
+          "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+          "decision_threshold": 0.5,
+          "n": 464,
+          "both_classes": true,
+          "AUROC": 0.5851,
+          "AUPRC": 0.3813,
+          "balanced_accuracy": 0.5717,
+          "sensitivity": 0.5111,
+          "specificity": 0.6322,
+          "MCC": 0.1324
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Isoform-specific: CYP2C9. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP2C9 substrate",
+      "endpoint_id": "cyp2c9_substrate_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2C9.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp2c9_substrate_prob",
+        "display_name": "CYP2C9 Substrate Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2C9.",
+        "species": "Human",
+        "assay_type": "Literature In Vitro CYP2C9 Turnover Annotation",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "NEUTRAL",
+        "classification_semantics": {
+          "positive_class": "SUBSTRATE",
+          "negative_class": "NON_SUBSTRATE",
+          "decision_threshold": 0.5
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP2C9",
+          "role_must_match": "SUBSTRATE"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP2C9",
+          "required_role": "SUBSTRATE"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2c9-substrate",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "Carbon-Mangels et al. CYP2C9 substrate classification compilation (899 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.728,
+          "sensitivity": 0.757,
+          "accuracy": 0.738,
+          "balanced_accuracy": 0.742,
+          "scope": "Admetica publisher-reported validation"
+        },
+        "independent_validation": null,
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP2D6 inhibitor",
+      "endpoint_id": "cyp2d6_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Calibrated binary probability of inhibiting human CYP2D6 at AC50 <= 10 uM in recombinant assay.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp2d6_inhibitor_prob",
+        "display_name": "CYP2D6 Inhibition Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Calibrated binary probability of inhibiting human CYP2D6 at AC50 <= 10 uM in recombinant assay.",
+        "species": "Human",
+        "assay_type": "Recombinant Human CYP2D6 Functional Assay",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "INHIBITOR",
+          "negative_class": "NON_INHIBITOR",
+          "decision_threshold": 0.5,
+          "potency_threshold_um": 10.0
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP2D6",
+          "role_must_match": "INHIBITOR"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP2D6",
+          "required_role": "INHIBITOR"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2d6-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "PubChem AID 1851 CYP panel as curated by Admetica (13,898 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.866,
+          "sensitivity": 0.751,
+          "accuracy": 0.843,
+          "balanced_accuracy": 0.808,
+          "scope": "Admetica publisher-reported validation",
+          "publisher_documentation_note": "The upstream dataset table/released data is approximately 13.9k records, while the model metrics table's size cell says 11,127."
+        },
+        "independent_validation": {
+          "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+          "decision_threshold": 0.5,
+          "n": 639,
+          "both_classes": true,
+          "AUROC": 0.5999,
+          "AUPRC": 0.4164,
+          "balanced_accuracy": 0.5657,
+          "sensitivity": 0.5436,
+          "specificity": 0.5878,
+          "MCC": 0.1216
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Isoform-specific: CYP2D6. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP2D6 substrate",
+      "endpoint_id": "cyp2d6_substrate_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2D6.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp2d6_substrate_prob",
+        "display_name": "CYP2D6 Substrate Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP2D6.",
+        "species": "Human",
+        "assay_type": "Literature In Vitro CYP2D6 Turnover Annotation",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "NEUTRAL",
+        "classification_semantics": {
+          "positive_class": "SUBSTRATE",
+          "negative_class": "NON_SUBSTRATE",
+          "decision_threshold": 0.5
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP2D6",
+          "role_must_match": "SUBSTRATE"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP2D6",
+          "required_role": "SUBSTRATE"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp2d6-substrate",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "Carbon-Mangels et al. and Zaretzki et al. substrate compilations (941 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.749,
+          "sensitivity": 0.769,
+          "accuracy": 0.753,
+          "balanced_accuracy": 0.759,
+          "scope": "Admetica publisher-reported validation"
+        },
+        "independent_validation": null,
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP3A4 inhibitor",
+      "endpoint_id": "cyp3a4_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Calibrated binary probability of inhibiting human CYP3A4 at AC50 <= 10 uM in recombinant assay.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp3a4_inhibitor_prob",
+        "display_name": "CYP3A4 Inhibition Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Calibrated binary probability of inhibiting human CYP3A4 at AC50 <= 10 uM in recombinant assay.",
+        "species": "Human",
+        "assay_type": "Recombinant Human CYP3A4 Functional Assay",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "INHIBITOR",
+          "negative_class": "NON_INHIBITOR",
+          "decision_threshold": 0.5,
+          "potency_threshold_um": 10.0
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP3A4",
+          "role_must_match": "INHIBITOR"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP3A4",
+          "required_role": "INHIBITOR"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp3a4-inhibitor",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "PubChem AID 1851 CYP panel as curated by Admetica (12,997 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific",
+        "stage_evidence": "stage4d3b1a",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.815,
+          "sensitivity": 0.842,
+          "accuracy": 0.826,
+          "balanced_accuracy": 0.829,
+          "scope": "Admetica publisher-reported validation"
+        },
+        "independent_validation": {
+          "dataset": "ChEMBL 30 inhibitor set; canonical training overlap excluded (0 exact overlaps)",
+          "decision_threshold": 0.5,
+          "n": 788,
+          "both_classes": true,
+          "AUROC": 0.6533,
+          "AUPRC": 0.4471,
+          "balanced_accuracy": 0.6096,
+          "sensitivity": 0.6527,
+          "specificity": 0.5665,
+          "MCC": 0.2015
+        },
+        "evidence_artifact": "validation/stage4d3b1a_final_decision.json"
+      },
+      "known_limitations": [
+        "Isoform-specific: CYP3A4. Do not mix inhibitor/substrate endpoints.",
+        "No probability calibration reported by publisher.",
+        "Binary threshold optimized on PubChem AID 1851 training conditions.",
+        "Stage 4D-3B1A: adaptive weighting NO_GO; fixed global blend does not outperform Fixed Global Prior on Brier/MCC/BAcc; dynamic feedback adds no value beyond w=0.9578/0.0422."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": "SHADOW",
+      "shadow_strategy": "FIXED_WEIGHT_BLEND",
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": {
+        "candidate_id": "cyp3a4-fixed-9578-0422-shadow-stage4d5-v1",
+        "state": "SHADOW",
+        "candidate_strategy": "FIXED_WEIGHT_BLEND",
+        "candidate_models": [
+          "admetica_cyp_cyp3a4-inhibitor",
+          "morgan_cyp3a4_inh_v1"
+        ],
+        "weights": [
+          0.9578,
+          0.0422
+        ],
+        "dynamic_adaptive_promotion": "CLOSED_NO_ADAPTIVE_VALUE",
+        "qualification_status": "AWAITING_COMPATIBLE_PROSPECTIVE_EVIDENCE",
+        "required_metrics": [
+          "n",
+          "mcc",
+          "balanced_accuracy",
+          "auroc",
+          "auprc",
+          "brier",
+          "log_loss",
+          "sensitivity",
+          "specificity",
+          "ece"
+        ],
+        "automatic_activation": false
+      },
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "CYP3A4 substrate",
+      "endpoint_id": "cyp3a4_substrate_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP3A4.",
+      "endpoint_definition": {
+        "endpoint_id": "cyp3a4_substrate_prob",
+        "display_name": "CYP3A4 Substrate Probability",
+        "category": "CYP_PANEL",
+        "scientific_definition": "Binary classification probability of a compound being a metabolic turnover substrate for human CYP3A4.",
+        "species": "Human",
+        "assay_type": "Literature In Vitro CYP3A4 Turnover Annotation",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "NEUTRAL",
+        "classification_semantics": {
+          "positive_class": "SUBSTRATE",
+          "negative_class": "NON_SUBSTRATE",
+          "decision_threshold": 0.5
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "isoform",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "isoform_must_match": "CYP3A4",
+          "role_must_match": "SUBSTRATE"
+        },
+        "ensemble_compatibility_rules": {
+          "required_isoform": "CYP3A4",
+          "required_role": "SUBSTRATE"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_cyp_cyp3a4-substrate",
+          "model_version": "admetica-d4f7056-cyp-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "Carbon-Mangels et al. and Zaretzki et al. substrate compilations (1,149 reported records)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.569,
+          "sensitivity": 0.779,
+          "accuracy": 0.718,
+          "balanced_accuracy": 0.674,
+          "scope": "Admetica publisher-reported validation"
+        },
+        "independent_validation": {
+          "dataset": "FDA-approved tyrosine kinase inhibitors; 2 canonical training overlaps excluded",
+          "n": 22,
+          "both_classes": false,
+          "positive_only": true,
+          "sensitivity": 0.9545,
+          "note": "Directionality-only sanity set; AUROC/AUPRC/specificity/balanced accuracy/MCC cannot be calculated from positives alone."
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Substrate vs inhibitor are distinct endpoints; must not be interchanged.",
+        "Small training cohort; substrate N << inhibitor N."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "DILI clinical liability",
+      "endpoint_id": "safety_dili_clinical_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary probability of clinical drug-induced liver injury (DILI) concern based on FDA-NCTR Liver Toxicity Knowledge Base (LTKB) annotations. Represents human clinical post-marketing liver injury risk.",
+      "endpoint_definition": {
+        "endpoint_id": "safety_dili_clinical_prob",
+        "display_name": "Drug-Induced Liver Injury (DILI) Clinical Concern",
+        "category": "SAFETY",
+        "scientific_definition": "Binary probability of clinical drug-induced liver injury (DILI) concern based on FDA-NCTR Liver Toxicity Knowledge Base (LTKB) annotations. Represents human clinical post-marketing liver injury risk.",
+        "species": "Human",
+        "assay_type": "Clinical Post-Marketing Pharmacovigilance & Physician Assessment (FDA-NCTR LTKB)",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "DILI_CONCERN",
+          "negative_class": "NO_DILI_CONCERN",
+          "decision_threshold": 0.5
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "annotation_source",
+          "clinical_severity"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "clinical_scope_must_match": "Human Drug-Level DILI"
+        },
+        "ensemble_compatibility_rules": {
+          "required_scope": "Clinical DILI",
+          "required_canonical_unit": "probability",
+          "forbidden_mix_types": [
+            "in_vitro_cytotoxicity",
+            "isolated_mitochondrial_toxicity",
+            "bsep_inhibition"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admet_ai_dili",
+          "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5"
+        }
+      ],
+      "training_source": {
+        "dataset": "TDC DILI/Xu et al. FDA-NCTR compilation (475 drugs)",
+        "source": "https://github.com/swansonk14/admet_ai",
+        "license": "MIT for ADMET-AI code/checkpoints; the TDC endpoint page lists the upstream dataset license as not specified while also linking CC BY 4.0, so redistribution/commercial dataset use requires separate review",
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "AUROC": 0.8814562005,
+          "AUPRC": 0.8777147,
+          "scope": "ADMET-AI v2 release-reported five-fold held-out evaluation",
+          "probability_calibration": "Not reported"
+        },
+        "independent_validation": {
+          "status": "NOT_AVAILABLE",
+          "reason": "No rigorously independent public structure/label set with non-overlapping source lineage was qualified in Stage 3F."
+        },
+        "evidence_artifact": "docs/stage3f-model-selection.md"
+      },
+      "known_limitations": [
+        "Small training set (N=475); DILI classification is clinically heterogeneous",
+        "Clinical DILI labels aggregate diverse mechanisms; not mechanism-specific",
+        "High clinical uncertainty; output is a screening liability, not causal assessment"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Dog liver microsomal intrinsic clearance",
+      "endpoint_id": "dlm_intrinsic_clearance",
+      "endpoint_contract_version": "unavailable-stage3b",
+      "scientific_purpose": "Dog liver microsomal intrinsic clearance is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3b",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "General cytotoxicity",
+      "endpoint_id": "safety_general_cytotoxicity",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "scientific_purpose": "General cytotoxicity is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "HLM intrinsic clearance",
+      "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Human liver microsomal intrinsic clearance scaled to in vivo body weight clearance and expressed in log10(mL/min/kg). Represents Phase I oxidative/hydrolytic metabolic rate under pooled human hepatic microsomes.",
+      "endpoint_definition": {
+        "endpoint_id": "hlm_intrinsic_clearance_scaled_log10",
+        "display_name": "Human Liver Microsomal Clearance (HLM Clint)",
+        "category": "METABOLISM",
+        "scientific_definition": "Human liver microsomal intrinsic clearance scaled to in vivo body weight clearance and expressed in log10(mL/min/kg). Represents Phase I oxidative/hydrolytic metabolic rate under pooled human hepatic microsomes.",
+        "species": "Human",
+        "assay_type": "Pooled Human Liver Microsomes (HLM) Substrate Depletion + NADPH",
+        "raw_unit": "log10(mL/min/kg)",
+        "canonical_unit": "log10(mL/min/kg)",
+        "transformation": "Identity (log10 mL/min/kg)",
+        "output_type": "REGRESSION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": {
+          "stable_max": 0.90309,
+          "moderate_max": 1.741998,
+          "unstable_min": 1.741998
+        },
+        "required_metadata": [
+          "species",
+          "matrix",
+          "mppgl_mg_per_g",
+          "liver_weight_g_per_kg"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_experimental_types": [
+            "HLM in vitro substrate depletion Clint (scaled)"
+          ],
+          "incompatible_types": [
+            "Cryopreserved Human Hepatocyte Clint (without hepatocyte scaling)",
+            "Rat/Mouse liver microsomes",
+            "Recombinant CYP isoform Clint"
+          ],
+          "scaling_from_raw_in_vitro": "Clint_scaled_mL_min_kg = Clint_uL_min_mg * MPPGL(45.0) * LiverWeight(25.7) / 1000.0"
+        },
+        "comparison_rules": {
+          "species_must_match": "Human",
+          "matrix_must_match": "Microsomes"
+        },
+        "ensemble_compatibility_rules": {
+          "required_species": "Human",
+          "required_canonical_unit": "log10(mL/min/kg)",
+          "forbidden_mix_types": [
+            "raw_uL_min_mg_unscaled",
+            "microsomal_half_life_min",
+            "hepatocyte_clearance"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "openadmet_hlm",
+          "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      ],
+      "training_source": {
+        "dataset": "OpenADMET curated ChEMBL 35, ASAP-Polaris and ExpansionRx microsomal clearance; 5,086 non-missing HLM training labels in the released checkpoint",
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."
+        },
+        "independent_validation": {
+          "dataset": "Biogen prospective public ADME, canonical training overlap excluded",
+          "n": 3078,
+          "MAE": 0.6259,
+          "RMSE": 0.7616,
+          "R2": -0.4911,
+          "Spearman": 0.37
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Species: Human microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "applicability": "Species isolation enforced. HLM/RLM/MLM outputs must not be averaged.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Ionization (pKa)",
+      "endpoint_id": "ionization_pka_estimated",
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "scientific_purpose": "pKa is computed via SMARTS pattern matching and representative literature ranges. This is scientifically honest: it is a rule estimate, not an ML model. A validated quantitative pKa model is a future requirement (Stage 4D-5+).",
+      "endpoint_definition": null,
+      "models": [
+        {
+          "model_id": "ionization_smarts_rules_v1",
+          "model_version": "stage4c4-ionization-v1"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage4c4",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage4c4-pka-model-selection.md"
+      },
+      "known_limitations": [
+        "RULE_ESTIMATE: not a quantitatively validated ML model",
+        "Estimates derived from literature SMARTS pKa ranges; accuracy ± 1–2 pKa units",
+        "Multi-protic and complex ampholyte systems have high uncertainty",
+        "Must not be presented to users as a validated quantitative pKa prediction"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "RULE_ESTIMATE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "MATE1 inhibitor",
+      "endpoint_id": "transporter_mate1_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "MATE1 inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "MATE2-K inhibitor",
+      "endpoint_id": "transporter_mate2k_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "MATE2-K inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "MLM intrinsic clearance",
+      "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Mouse liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled CD-1 mouse liver microsomes.",
+      "endpoint_definition": {
+        "endpoint_id": "mlm_intrinsic_clearance_scaled_log10",
+        "display_name": "Mouse Liver Microsomal Clearance (MLM Clint)",
+        "category": "METABOLISM",
+        "scientific_definition": "Mouse liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled CD-1 mouse liver microsomes.",
+        "species": "Mouse",
+        "assay_type": "Pooled Mouse Liver Microsomes (MLM) Substrate Depletion + NADPH",
+        "raw_unit": "log10(mL/min/kg)",
+        "canonical_unit": "log10(mL/min/kg)",
+        "transformation": "Identity (log10 mL/min/kg)",
+        "output_type": "REGRESSION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": {
+          "stable_max": 1.930057,
+          "moderate_max": 2.818209,
+          "unstable_min": 2.818209
+        },
+        "required_metadata": [
+          "species",
+          "matrix",
+          "mppgl_mg_per_g",
+          "liver_weight_g_per_kg"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_experimental_types": [
+            "MLM in vitro substrate depletion Clint (scaled)"
+          ],
+          "incompatible_types": [
+            "Human/Rat microsomes"
+          ],
+          "scaling_from_raw_in_vitro": "Clint_scaled_mL_min_kg = Clint_uL_min_mg * MPPGL(45.0) * LiverWeight(87.5) / 1000.0"
+        },
+        "comparison_rules": {
+          "species_must_match": "Mouse",
+          "matrix_must_match": "Microsomes"
+        },
+        "ensemble_compatibility_rules": {
+          "required_species": "Mouse",
+          "required_canonical_unit": "log10(mL/min/kg)",
+          "forbidden_mix_types": [
+            "human_hlm",
+            "rat_rlm"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "openadmet_mlm",
+          "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      ],
+      "training_source": {
+        "dataset": "OpenADMET curated ChEMBL 35, ASAP-Polaris and ExpansionRx microsomal clearance; 5,086 non-missing MLM training labels in the released checkpoint",
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."
+        },
+        "independent_validation": {
+          "status": "No compatible independent MLM endpoint in the selected Biogen prospective set"
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Species: Mouse microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "applicability": "Species isolation enforced. HLM/RLM/MLM outputs must not be averaged.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Metabolic soft spots",
+      "endpoint_id": "som_metabolic_soft_spots",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Atom-level ranking of vulnerability to Phase I (oxidation, dealkylation, hydrolysis) and Phase II (glucuronidation, sulfation) metabolic transformations.",
+      "endpoint_definition": {
+        "endpoint_id": "som_metabolic_soft_spots",
+        "display_name": "Metabolic Site-of-Metabolism (SoM) Ranking",
+        "category": "METABOLISM",
+        "scientific_definition": "Atom-level ranking of vulnerability to Phase I (oxidation, dealkylation, hydrolysis) and Phase II (glucuronidation, sulfation) metabolic transformations.",
+        "species": "Human",
+        "assay_type": "Rule-Based SMARTS Reaction Library / Atom Reactivity Ranking (SyGMa)",
+        "raw_unit": "atom_rank_and_score",
+        "canonical_unit": "atom_index_ranking",
+        "transformation": "Rank-ordered atom indices with reaction pathway metadata",
+        "output_type": "RANKING",
+        "directionality": "NEUTRAL",
+        "classification_semantics": null,
+        "cutoff_definition": null,
+        "required_metadata": [
+          "phase_1_reactions",
+          "phase_2_reactions",
+          "atom_indices"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "atom_mapping_must_match": true
+        },
+        "ensemble_compatibility_rules": {
+          "ensemble_aggregation_method": "Reciprocal Rank Fusion (RRF) / Borda Count",
+          "forbidden_mix_types": [
+            "numeric_average_of_uncalibrated_scores"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "sygma_phase1_2",
+          "model_version": "sygma-v1.1.0"
+        },
+        {
+          "model_id": "smartcyp_dft_v1",
+          "model_version": "smartcyp-v3.0"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage3f-model-selection.md"
+      },
+      "known_limitations": [
+        "SyGMa applies reaction rules; coverage limited to known biotransformations",
+        "SMARTCyp covers CYP-mediated oxidation; other pathways (UGT, SULT) not included",
+        "Raw metabolic scores are mechanistically distinct; do NOT average as scalar values"
+      ],
+      "applicability": "SyGMa: SMARTS-based biotransformation rules; SMARTCyp: DFT-derived fragment energies. Raw model scores are NOT averaged; reciprocal-rank fusion is applied per atom.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "RANK_FUSION",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Metabolite hypotheses",
+      "endpoint_id": "metabolism_sygma_rule_hypotheses",
+      "endpoint_contract_version": "stage3d-sygma-v1",
+      "scientific_purpose": "SMARTCyp participates only in compatible SoM rank fusion; SyGMa rules generate the existing metabolite hypotheses.",
+      "endpoint_definition": null,
+      "models": [
+        {
+          "model_id": "sygma_phase1_2",
+          "model_version": "sygma-v1.1.0"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage3f-model-selection.md"
+      },
+      "known_limitations": [
+        "Outputs are predicted metabolite hypotheses, not experimentally confirmed metabolites",
+        "No qualified atom-level ML probability is emitted",
+        "CYP compound-level evidence cannot assign an atom or transformation to an isoform"
+      ],
+      "applicability": "Limited to supported SyGMa Phase I/II transformation rules and chemically valid products.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "RULE_BASED",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Microsomal clearance",
+      "endpoint_id": "microsomal_clearance_generic",
+      "endpoint_contract_version": "unavailable-stage3b",
+      "scientific_purpose": "Microsomal clearance is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3b",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Mitochondrial toxicity",
+      "endpoint_id": "safety_mitochondrial_toxicity",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "scientific_purpose": "Mitochondrial toxicity is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Monkey liver microsomal intrinsic clearance",
+      "endpoint_id": "cylm_intrinsic_clearance",
+      "endpoint_contract_version": "unavailable-stage3b",
+      "scientific_purpose": "Monkey liver microsomal intrinsic clearance is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3b",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "OATP1B1 inhibitor",
+      "endpoint_id": "transporter_oatp1b1_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "OATP1B1 inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "OATP1B3 inhibitor",
+      "endpoint_id": "transporter_oatp1b3_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "OATP1B3 inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "OCT1 inhibitor",
+      "endpoint_id": "transporter_oct1_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "OCT1 inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "OCT2 inhibitor",
+      "endpoint_id": "transporter_oct2_inhibitor_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "OCT2 inhibitor is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "P-gp inhibitor",
+      "endpoint_id": "transporter_pgp_inhibitor_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary probability of inhibiting human P-glycoprotein (P-gp/ABCB1) efflux activity (IC50 <= 15 uM or >25% transport inhibition in calcein-AM / rhodamine-123 dye efflux assays).",
+      "endpoint_definition": {
+        "endpoint_id": "transporter_pgp_inhibitor_prob",
+        "display_name": "P-glycoprotein (P-gp/ABCB1) Inhibitor Probability",
+        "category": "TRANSPORTER",
+        "scientific_definition": "Binary probability of inhibiting human P-glycoprotein (P-gp/ABCB1) efflux activity (IC50 <= 15 uM or >25% transport inhibition in calcein-AM / rhodamine-123 dye efflux assays).",
+        "species": "Human",
+        "assay_type": "Heterogeneous Human P-gp Transwell / Fluorescent Dye Efflux Assays",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "INHIBITOR",
+          "negative_class": "NON_INHIBITOR",
+          "decision_threshold": 0.5
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "transporter",
+          "role"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "transporter_must_match": "P-gp",
+          "role_must_match": "INHIBITOR"
+        },
+        "ensemble_compatibility_rules": {
+          "required_transporter": "P-gp / ABCB1",
+          "required_role": "INHIBITOR"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_transporter_pgp-inhibitor",
+          "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "Broccatelli et al. human P-gp inhibitor compilation as curated by Admetica (1,275 reported compounds; 666 inhibitors, 609 non-inhibitors; 1,227 valid structures in the packaged curated file)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; the upstream literature aggregation retains source-specific terms",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.916,
+          "sensitivity": 0.863,
+          "accuracy": 0.888,
+          "balanced_accuracy": 0.889,
+          "scope": "Admetica publisher-reported validation",
+          "probability_calibration": "Not reported"
+        },
+        "independent_validation": {
+          "status": "NOT_AVAILABLE",
+          "reason": "No rigorously independent public structure/label set was qualified: accessible alternatives share the Broccatelli/Chen source lineage or do not publish reusable structures."
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Heterogeneous training: inhibitor labels pooled across cell systems, probes, and IC50 cutoffs.",
+        "No independent external validation qualified (Stage 4D-0)."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "RAW",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "P-gp substrate",
+      "endpoint_id": "transporter_pgp_substrate_prob",
+      "endpoint_contract_version": "unavailable-stage3e",
+      "scientific_purpose": "P-gp substrate is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3e",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "PK Bioavailability",
+      "endpoint_id": "pk_bioavailability_fraction",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Fraction of an orally administered dose that reaches the systemic circulation intact, expressed as % (0-100%).",
+      "endpoint_definition": {
+        "endpoint_id": "pk_bioavailability_fraction",
+        "display_name": "Oral Absolute Bioavailability (F)",
+        "category": "PHARMACOKINETICS",
+        "scientific_definition": "Fraction of an orally administered dose that reaches the systemic circulation intact, expressed as % (0-100%).",
+        "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+        "assay_type": "Matched IV and PO In Vivo PK Study AUC Normalization",
+        "raw_unit": "%",
+        "canonical_unit": "%",
+        "transformation": "F (%) = (AUC_PO * Dose_IV) / (AUC_IV * Dose_PO) * 100",
+        "output_type": "REGRESSION",
+        "directionality": "HIGHER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": null,
+        "required_metadata": [
+          "species",
+          "dose_iv",
+          "dose_po",
+          "auc_iv",
+          "auc_po"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_types": [
+            "Matched IV/PO in vivo experimental F"
+          ],
+          "incompatible_types": [
+            "Unmatched single-dose oral AUC"
+          ]
+        },
+        "comparison_rules": {
+          "species_must_match": true
+        },
+        "ensemble_compatibility_rules": {
+          "hierarchy": "MATCHED_EXPERIMENTAL_F > MECHANISTIC_DECOMPOSITION (F = Fa * Fg * Fh) > UNAVAILABLE"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "pk_nca",
+          "model_version": "5A-1.0"
+        },
+        {
+          "model_id": "pk_ivive",
+          "model_version": "5A-2A.1.0"
+        },
+        {
+          "model_id": "pk_allometric_scaling",
+          "model_version": "5B-3.1.0"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage5a1",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage5a2a-ivive-hepatic-clearance.md"
+      },
+      "known_limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "applicability": "Evidence hierarchy: (1) NCA from in vivo data; (2) IVIVE from microsomal clearance; (3) allometric scaling from species data. Each method has distinct assumptions.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "PK Simulation",
+      "endpoint_id": "pk_concentration_time_simulation",
+      "endpoint_contract_version": "stage5b2-pk-simulation-v1",
+      "scientific_purpose": "Stage 4D-4 governs the existing simulation method without altering profiles or parameter selection.",
+      "endpoint_definition": null,
+      "models": [
+        {
+          "model_id": "pk_simulation",
+          "model_version": "5B-2.0"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage5b2",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/current-platform-capabilities.md"
+      },
+      "known_limitations": [
+        "Simulation does not create missing CL, V, F, or ka evidence",
+        "Experimental, NCA, IVIVE, allometric, and derived inputs retain distinct assumptions",
+        "Mechanistic methods must not be averaged as ML predictions"
+      ],
+      "applicability": "Requires route-compatible PK parameters with explicit experimental or derived provenance.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "PK Systemic Clearance",
+      "endpoint_id": "pk_clearance_systemic",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Total systemic in vivo clearance of drug from circulating plasma, in mL/min/kg.",
+      "endpoint_definition": {
+        "endpoint_id": "pk_clearance_systemic",
+        "display_name": "Systemic In Vivo Clearance (CL)",
+        "category": "PHARMACOKINETICS",
+        "scientific_definition": "Total systemic in vivo clearance of drug from circulating plasma, in mL/min/kg.",
+        "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+        "assay_type": "In Vivo Intravenous PK Non-Compartmental Analysis (NCA)",
+        "raw_unit": "mL/min/kg",
+        "canonical_unit": "mL/min/kg",
+        "transformation": "Identity (mL/min/kg)",
+        "output_type": "REGRESSION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": null,
+        "required_metadata": [
+          "species",
+          "route",
+          "matrix",
+          "dose_mg_per_kg"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_types": [
+            "In Vivo IV NCA Clearance CL"
+          ],
+          "incompatible_types": [
+            "Apparent Oral Clearance CL/F (unless normalized by F)",
+            "In Vitro Clint (requires IVIVE scaling)"
+          ]
+        },
+        "comparison_rules": {
+          "species_must_match": true,
+          "route_must_match": "IV"
+        },
+        "ensemble_compatibility_rules": {
+          "hierarchy": "EXPERIMENTAL_NCA > HEPATIC_IVIVE > ALLOMETRIC_SCALING > QSAR_PREDICTION",
+          "forbidden_mix_types": [
+            "apparent_oral_cl_f_as_iv_cl"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "pk_nca",
+          "model_version": "5A-1.0"
+        },
+        {
+          "model_id": "pk_ivive",
+          "model_version": "5A-2A.1.0"
+        },
+        {
+          "model_id": "pk_allometric_scaling",
+          "model_version": "5B-3.1.0"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage5a1",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage5a2a-ivive-hepatic-clearance.md"
+      },
+      "known_limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "applicability": "Evidence hierarchy: (1) NCA from in vivo data; (2) IVIVE from microsomal clearance; (3) allometric scaling from species data. Each method has distinct assumptions.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "PK Volume of Distribution",
+      "endpoint_id": "pk_volume_distribution_vss",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Apparent steady-state volume of distribution reflecting the extent of tissue partitioning, in L/kg.",
+      "endpoint_definition": {
+        "endpoint_id": "pk_volume_distribution_vss",
+        "display_name": "Steady-State Volume of Distribution (Vss)",
+        "category": "PHARMACOKINETICS",
+        "scientific_definition": "Apparent steady-state volume of distribution reflecting the extent of tissue partitioning, in L/kg.",
+        "species": "Multi-Species (Mouse, Rat, Dog, Monkey, Human)",
+        "assay_type": "In Vivo Intravenous PK NCA / Mechanistic Tissue Ionization Model",
+        "raw_unit": "L/kg",
+        "canonical_unit": "L/kg",
+        "transformation": "Identity (L/kg)",
+        "output_type": "REGRESSION",
+        "directionality": "NEUTRAL",
+        "classification_semantics": null,
+        "cutoff_definition": null,
+        "required_metadata": [
+          "species",
+          "route",
+          "matrix",
+          "ionization_class"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_types": [
+            "In Vivo IV NCA Vss",
+            "In Vivo IV NCA Vz"
+          ],
+          "incompatible_types": [
+            "Oral Vz/F (unadjusted for F)"
+          ]
+        },
+        "comparison_rules": {
+          "species_must_match": true
+        },
+        "ensemble_compatibility_rules": {
+          "hierarchy": "EXPERIMENTAL_VSS > EXPERIMENTAL_VZ > LOMBARDO_IONIZATION_VD > QSAR_PREDICTION"
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "pk_nca",
+          "model_version": "5A-1.0"
+        },
+        {
+          "model_id": "pk_ivive",
+          "model_version": "5A-2A.1.0"
+        },
+        {
+          "model_id": "pk_allometric_scaling",
+          "model_version": "5B-3.1.0"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage5a1",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage5a2a-ivive-hepatic-clearance.md"
+      },
+      "known_limitations": [
+        "NCA, IVIVE, and compartment simulation are mechanistically incompatible; must not be averaged",
+        "IVIVE requires microsomal Clint as input; HLM/RLM/MLM predictions carry uncertainty",
+        "Allometric scaling assumes geometric scaling law; extrapolation uncertainty not bounded"
+      ],
+      "applicability": "Evidence hierarchy: (1) NCA from in vivo data; (2) IVIVE from microsomal clearance; (3) allometric scaling from species data. Each method has distinct assumptions.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "MECHANISTIC_NO_CONSENSUS",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Permeability",
+      "endpoint_id": "permeability_caco2_logpapp",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Apparent membrane permeability measured in human colon carcinoma (Caco-2) monolayers, expressed as LogPapp = log10(Papp [cm/s]). Represents overall apical-to-basolateral (A->B) transcellular and paracellular flux.",
+      "endpoint_definition": {
+        "endpoint_id": "permeability_caco2_logpapp",
+        "display_name": "Caco-2 Apparent Permeability (LogPapp)",
+        "category": "ABSORPTION",
+        "scientific_definition": "Apparent membrane permeability measured in human colon carcinoma (Caco-2) monolayers, expressed as LogPapp = log10(Papp [cm/s]). Represents overall apical-to-basolateral (A->B) transcellular and paracellular flux.",
+        "species": "Human Caco-2 Cell Line",
+        "assay_type": "Transwell Monolayer Permeability (pH 7.4/7.4 or pH 6.5/7.4)",
+        "raw_unit": "log10(cm/s)",
+        "canonical_unit": "log10(cm/s)",
+        "transformation": "Identity (log10 cm/s)",
+        "output_type": "REGRESSION",
+        "directionality": "HIGHER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": {
+          "high_permeability_min": -5.0,
+          "moderate_permeability_min": -6.0,
+          "low_permeability_max": -6.0
+        },
+        "required_metadata": [
+          "direction",
+          "ph_apical",
+          "ph_basolateral"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_experimental_types": [
+            "Caco-2 A->B apparent permeability",
+            "Caco-2 Papp"
+          ],
+          "incompatible_types": [
+            "PAMPA",
+            "MDCK-WT",
+            "MDCK-MDR1",
+            "RBE4 BBB permeability",
+            "Efflux Ratio (B->A / A->B)"
+          ],
+          "unit_conversions": {
+            "10^-6 cm/s": "log10(val * 1e-6)",
+            "nm/s": "log10(val * 1e-7)",
+            "um/s": "log10(val * 1e-4)"
+          }
+        },
+        "comparison_rules": {
+          "direction_must_match": true,
+          "strict_assay_isolation": true
+        },
+        "ensemble_compatibility_rules": {
+          "required_species": "Human Caco-2 Cell Line",
+          "required_canonical_unit": "log10(cm/s)",
+          "forbidden_mix_types": [
+            "pampa_artificial_membrane",
+            "mdck_canine_cells",
+            "efflux_ratio"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_caco2",
+          "model_version": "admetica-d4f7056-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "Wang et al. Caco-2 compiled permeability set as distributed by Admetica (910 rows)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT",
+        "stage_evidence": "stage4d2c",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "MAE": 0.317,
+          "RMSE": 0.415,
+          "R2": 0.701,
+          "Spearman": 0.832,
+          "external_MAE_34_compounds": 0.412
+        },
+        "independent_validation": null,
+        "evidence_artifact": "validation/stage4d2c_promotion_decisions.json"
+      },
+      "known_limitations": [
+        "Training dataset lacks assay direction (A→B vs B→A) and pH metadata",
+        "Not PAMPA, not MDCK, not efflux ratio",
+        "Small external validation cohort (N=34) limits ensemble conclusions (Stage 4D-2C)"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": "SHADOW",
+      "shadow_strategy": "STATIC_CONSENSUS",
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": {
+        "candidate_id": "caco2-consensus-shadow-stage4d5-v1",
+        "state": "SHADOW",
+        "candidate_strategy": "STATIC_CONSENSUS",
+        "candidate_models": [
+          "admetica_caco2",
+          "physchem_caco2_v1"
+        ],
+        "qualification_status": "INSUFFICIENT_EVIDENCE",
+        "required_metrics": [
+          "n",
+          "mae",
+          "rmse",
+          "bias",
+          "spearman",
+          "within_2_fold",
+          "within_3_fold"
+        ],
+        "automatic_activation": false
+      },
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Physicochemical properties",
+      "endpoint_id": "physchem_rdkit_2d_descriptors",
+      "endpoint_contract_version": "stage1-rdkit-property-pipeline-v1",
+      "scientific_purpose": "Covers the existing RDKit molecular formula, mass, cLogP, TPSA, HBD/HBA, rings, flexibility, Fsp3, molar refractivity, and QED outputs.",
+      "endpoint_definition": null,
+      "models": [
+        {
+          "model_id": "rdkit_2d_descriptors",
+          "model_version": "rdkit-2025.03.1"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage1",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/current-platform-capabilities.md"
+      },
+      "known_limitations": [
+        "Crippen cLogP is a calculated descriptor and is not logD at any pH",
+        "QED and medicinal-chemistry rules are heuristic summaries, not validated clinical outcomes",
+        "Descriptor calculations do not represent experimental measurements"
+      ],
+      "applicability": "Requires an RDKit-sanitizable standardized molecular structure.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "DERIVED_ESTIMATE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Plasma protein binding",
+      "endpoint_id": "ppb_human_percent_bound",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Percent of compound bound to plasma proteins in pooled human plasma at equilibrium. Fraction unbound fu is derived strictly as fu = (100 - % bound) / 100.",
+      "endpoint_definition": {
+        "endpoint_id": "ppb_human_percent_bound",
+        "display_name": "Human Plasma Protein Binding (% Bound)",
+        "category": "DISTRIBUTION",
+        "scientific_definition": "Percent of compound bound to plasma proteins in pooled human plasma at equilibrium. Fraction unbound fu is derived strictly as fu = (100 - % bound) / 100.",
+        "species": "Human",
+        "assay_type": "Equilibrium Dialysis / Rapid Equilibrium Dialysis (RED) / Ultrafiltration",
+        "raw_unit": "% bound",
+        "canonical_unit": "% bound",
+        "transformation": "Identity (% bound, range [0.0, 100.0])",
+        "output_type": "REGRESSION",
+        "directionality": "NEUTRAL",
+        "classification_semantics": null,
+        "cutoff_definition": {
+          "low_binding_max": 80.0,
+          "moderate_binding_min": 80.0,
+          "moderate_binding_max": 95.0,
+          "high_binding_min": 95.0,
+          "high_binding_max": 99.0,
+          "very_high_binding_min": 99.0
+        },
+        "required_metadata": [
+          "matrix",
+          "species",
+          "protein_concentration_g_per_L"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_experimental_types": [
+            "Human plasma equilibrium dialysis % bound",
+            "Human plasma RED % bound",
+            "Human plasma ultrafiltration % bound"
+          ],
+          "incompatible_types": [
+            "Bovine Serum Albumin (BSA) binding",
+            "Alpha-1-acid glycoprotein (AAG) isolated binding",
+            "Rat/Mouse plasma binding"
+          ],
+          "unit_conversions": {
+            "fraction_bound": "val * 100.0",
+            "fraction_unbound_fu": "(1.0 - val) * 100.0",
+            "%_unbound": "100.0 - val"
+          }
+        },
+        "comparison_rules": {
+          "species_must_match": "Human",
+          "matrix_must_match": "Plasma"
+        },
+        "ensemble_compatibility_rules": {
+          "required_species": "Human",
+          "required_canonical_unit": "% bound",
+          "derived_fu_formula": "fu = max(0.0001, (100.0 - percent_bound) / 100.0)",
+          "forbidden_mix_types": [
+            "animal_plasma_ppb",
+            "isolated_albumin_binding"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_ppbr",
+          "model_version": "admetica-d4f7056-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "AstraZeneca/ChEMBL CHEMBL3301361 human plasma protein binding rate (2,790 rows distributed by Admetica)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "MAE_percent_bound": 6.919,
+          "RMSE_percent_bound": 11.294,
+          "R2": 0.609,
+          "Spearman": 0.762
+        },
+        "independent_validation": {
+          "dataset": "Biogen prospective public ADME, canonical training overlap excluded",
+          "n": 185,
+          "MAE_percent_bound": 14.6194,
+          "RMSE_percent_bound": 21.795,
+          "R2": 0.4389,
+          "Spearman": 0.6105
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Single deterministic checkpoint; no uncertainty quantification",
+        "Independent validation (Biogen N=185): MAE 14.6%; moderate accuracy",
+        "Assay conditions not retained; cannot isolate total vs non-specific binding"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "RLM intrinsic clearance",
+      "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Rat liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled Sprague-Dawley rat liver microsomes.",
+      "endpoint_definition": {
+        "endpoint_id": "rlm_intrinsic_clearance_scaled_log10",
+        "display_name": "Rat Liver Microsomal Clearance (RLM Clint)",
+        "category": "METABOLISM",
+        "scientific_definition": "Rat liver microsomal intrinsic clearance scaled to in vivo body weight clearance in log10(mL/min/kg). Represents Phase I metabolic rate in pooled Sprague-Dawley rat liver microsomes.",
+        "species": "Rat",
+        "assay_type": "Pooled Rat Liver Microsomes (RLM) Substrate Depletion + NADPH",
+        "raw_unit": "log10(mL/min/kg)",
+        "canonical_unit": "log10(mL/min/kg)",
+        "transformation": "Identity (log10 mL/min/kg)",
+        "output_type": "REGRESSION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": {
+          "stable_max": 1.30103,
+          "moderate_max": 2.17136,
+          "unstable_min": 2.17136
+        },
+        "required_metadata": [
+          "species",
+          "matrix",
+          "mppgl_mg_per_g",
+          "liver_weight_g_per_kg"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_experimental_types": [
+            "RLM in vitro substrate depletion Clint (scaled)"
+          ],
+          "incompatible_types": [
+            "Human/Mouse microsomes",
+            "In vivo rat PK clearance without IVIVE"
+          ],
+          "scaling_from_raw_in_vitro": "Clint_scaled_mL_min_kg = Clint_uL_min_mg * MPPGL(45.0) * LiverWeight(40.0) / 1000.0"
+        },
+        "comparison_rules": {
+          "species_must_match": "Rat",
+          "matrix_must_match": "Microsomes"
+        },
+        "ensemble_compatibility_rules": {
+          "required_species": "Rat",
+          "required_canonical_unit": "log10(mL/min/kg)",
+          "forbidden_mix_types": [
+            "human_hlm",
+            "mouse_mlm",
+            "unscaled_half_life"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "openadmet_rlm",
+          "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493"
+        }
+      ],
+      "training_source": {
+        "dataset": "OpenADMET curated ChEMBL 35, ASAP-Polaris and ExpansionRx microsomal clearance; 670 non-missing RLM training labels in the released checkpoint",
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0",
+        "stage_evidence": "stage4d0",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "released_checkpoint": "No numeric held-out metric published for this exact all-data checkpoint; model card plots compare an analogous checkpoint that excluded ExpansionRx test data."
+        },
+        "independent_validation": {
+          "dataset": "Biogen prospective public ADME, canonical training overlap excluded",
+          "n": 3045,
+          "MAE": 0.6263,
+          "RMSE": 0.7716,
+          "R2": -0.0577,
+          "Spearman": 0.4248
+        },
+        "evidence_artifact": "validation/stage4d0_candidate_model_qualification.json"
+      },
+      "known_limitations": [
+        "Species: Rat microsomes only. Must not be mixed with other species.",
+        "Species-specific scaled clearance prediction; averaging with other species is scientifically invalid."
+      ],
+      "applicability": "Species isolation enforced. HLM/RLM/MLM outputs must not be averaged.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Skin sensitization",
+      "endpoint_id": "safety_skin_sensitization",
+      "endpoint_contract_version": "unavailable-stage3f",
+      "scientific_purpose": "Skin sensitization is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage3f",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "Solubility",
+      "endpoint_id": "solubility_aqueous_logs",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Aqueous solubility expressed as LogS = log10(S [mol/L]). Represents room-temperature aggregate aqueous solubility across neutral/buffered media, not a pH-dependent micro-state or intrinsic solubility S0.",
+      "endpoint_definition": {
+        "endpoint_id": "solubility_aqueous_logs",
+        "display_name": "Aqueous Solubility (LogS)",
+        "category": "PHYSICOCHEMICAL",
+        "scientific_definition": "Aqueous solubility expressed as LogS = log10(S [mol/L]). Represents room-temperature aggregate aqueous solubility across neutral/buffered media, not a pH-dependent micro-state or intrinsic solubility S0.",
+        "species": "Chemical / In Vitro",
+        "assay_type": "Aggregate Aqueous Shake-Flask / Nephelometric / Potentiometric",
+        "raw_unit": "log10(mol/L)",
+        "canonical_unit": "log10(mol/L)",
+        "transformation": "Identity (already in log10 mol/L)",
+        "output_type": "REGRESSION",
+        "directionality": "HIGHER_BETTER",
+        "classification_semantics": null,
+        "cutoff_definition": {
+          "high_solubility_min": -2.0,
+          "moderate_solubility_min": -4.0,
+          "low_solubility_max": -4.0,
+          "poor_solubility_max": -6.0
+        },
+        "required_metadata": [
+          "temperature_celsius",
+          "solvent_system"
+        ],
+        "experimental_compatibility_rules": {
+          "compatible_experimental_types": [
+            "Thermodynamic aqueous solubility",
+            "Kinetic aqueous solubility (low DMSO <1%)"
+          ],
+          "incompatible_types": [
+            "Organic solvent solubility",
+            "Mass solubility without MW",
+            "High DMSO cosolvent (>5%)"
+          ],
+          "conversion_from_mass": "log10(S_mg_per_mL / (MW * 1e-3))"
+        },
+        "comparison_rules": {
+          "max_compatible_ph_difference": 1.0
+        },
+        "ensemble_compatibility_rules": {
+          "required_species": "Chemical / In Vitro",
+          "required_canonical_unit": "log10(mol/L)",
+          "forbidden_mix_types": [
+            "intrinsic_s0_without_pka",
+            "kinetic_dmso_turbidity_raw"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_solubility",
+          "model_version": "admetica-d4f7056-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "AqSolDB curated aqueous solubility (9 merged public sources; 9,982 rows)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT",
+        "stage_evidence": "stage4d3a2",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "MAE": 0.714,
+          "RMSE": 1.089,
+          "R2": 0.788,
+          "Spearman": 0.897
+        },
+        "independent_validation": null,
+        "evidence_artifact": "validation/stage4d3a2_final_decision.json"
+      },
+      "known_limitations": [
+        "Training aggregates heterogeneous pH/temperature/protocol conditions",
+        "Not pH-specific; no intrinsic solubility separation",
+        "Adaptive weighting architecture valid but no global accuracy gain (Stage 4D-3A2)"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": "SHADOW",
+      "shadow_strategy": "ADAPTIVE_RESEARCH_SHADOW",
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": {
+        "candidate_id": "solubility-adaptive-shadow-stage4d5-v1",
+        "state": "SHADOW",
+        "candidate_strategy": "ADAPTIVE_RESEARCH_SHADOW",
+        "candidate_models": [
+          "admetica_solubility",
+          "esol_delaney_v1"
+        ],
+        "excluded_models": [
+          "rdkit_gbr_solubility_v1"
+        ],
+        "qualification_status": "AWAITING_COMPATIBLE_PROSPECTIVE_EVIDENCE",
+        "required_metrics": [
+          "n",
+          "mae",
+          "rmse",
+          "bias",
+          "spearman",
+          "within_2_fold",
+          "within_3_fold"
+        ],
+        "automatic_activation": false
+      },
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "hERG liability",
+      "endpoint_id": "safety_herg_blocker_prob",
+      "endpoint_contract_version": "1.0.0",
+      "scientific_purpose": "Binary probability of exhibiting human ether-a-go-go-related gene (hERG / Kv11.1 / KCNH2) potassium channel blocker liability (screening threshold IC50 <= 10 uM or pIC50 >= 5.0).",
+      "endpoint_definition": {
+        "endpoint_id": "safety_herg_blocker_prob",
+        "display_name": "hERG Cardiac Blocker Liability Probability",
+        "category": "SAFETY",
+        "scientific_definition": "Binary probability of exhibiting human ether-a-go-go-related gene (hERG / Kv11.1 / KCNH2) potassium channel blocker liability (screening threshold IC50 <= 10 uM or pIC50 >= 5.0).",
+        "species": "Human",
+        "assay_type": "Heterogeneous Patch-Clamp & Radioligand Binding ([3H]-dofetilide / [3H]-astemizole)",
+        "raw_unit": "probability",
+        "canonical_unit": "probability",
+        "transformation": "Identity (probability in [0.0, 1.0])",
+        "output_type": "BINARY_CLASSIFICATION",
+        "directionality": "LOWER_BETTER",
+        "classification_semantics": {
+          "positive_class": "BLOCKER",
+          "negative_class": "NON_BLOCKER",
+          "decision_threshold": 0.5,
+          "potency_threshold_um": 10.0
+        },
+        "cutoff_definition": null,
+        "required_metadata": [
+          "target",
+          "species"
+        ],
+        "experimental_compatibility_rules": {},
+        "comparison_rules": {
+          "target_must_match": "hERG",
+          "species_must_match": "Human"
+        },
+        "ensemble_compatibility_rules": {
+          "required_target": "hERG / KCNH2",
+          "required_canonical_unit": "probability",
+          "forbidden_mix_types": [
+            "patch_clamp_ic50_regression_without_thresholding",
+            "qt_prolongation_clinical"
+          ]
+        },
+        "version": "1.0.0"
+      },
+      "models": [
+        {
+          "model_id": "admetica_safety_herg",
+          "model_version": "admetica-d4f7056-herg-chemprop-v2.1"
+        }
+      ],
+      "training_source": {
+        "dataset": "Wang et al. hERG blocker compilation as curated by Admetica (22,249 reported records; 22,248 valid structures packaged; 19,130 positive and 3,118 negative)",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream dataset licensing is source-specific",
+        "stage_evidence": "stage4d3b2a",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": {
+          "specificity": 0.811,
+          "sensitivity": 0.897,
+          "accuracy": 0.885,
+          "balanced_accuracy": 0.854,
+          "scope": "Admetica publisher-reported validation",
+          "probability_calibration": "Not reported"
+        },
+        "independent_validation": {
+          "status": "COMPLETE_WITH_LIMITATIONS",
+          "dataset": "OpenADMET ChEMBL 37 human hERG IC50 aggregate; exact training overlap excluded",
+          "n": 728,
+          "both_classes": true,
+          "positive_definition": "median IC50 <= 10,000 nM",
+          "AUROC": 0.6668976906,
+          "AUPRC": 0.7854091863,
+          "balanced_accuracy": 0.544215417,
+          "sensitivity": 0.9754601227,
+          "specificity": 0.1129707113,
+          "MCC": 0.1844230442,
+          "threshold": 0.5,
+          "overlap_policy": "7,249 exact canonical-SMILES overlaps removed from 7,977 ChEMBL aggregates",
+          "limitations": "Exact-structure exclusion does not prove source, series, or assay-lineage independence."
+        },
+        "evidence_artifact": "validation/stage4d3b2a_final_decision.json"
+      },
+      "known_limitations": [
+        "AUROC=0.667 — moderate base discrimination; cannot reach safety-screening specificity targets by calibration alone",
+        "Training prevalence 86% vs evaluation 67%: 18.8 pp prior shift (CLASS_IMBALANCE)",
+        "72.9% of evaluation compounds are IC50 borderline (1k–30k nM): LABEL_BOUNDARY_UNCERTAINTY",
+        "ASSAY_HETEROGENEITY_PRESENT: Wang et al. pools patch-clamp + radioligand binding",
+        "M2 rescue rate 5.4%: BETTER_SECONDARY_MODEL_REQUIRED",
+        "FP/FN ratio 17.7:1 at threshold 0.50"
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "CALIBRATION_RESEARCH",
+      "production_status": "ACTIVE",
+      "production_strategy": "SINGLE_CORE_MODEL",
+      "shadow_status": "SHADOW",
+      "shadow_strategy": "SINGLE_CORE_WITH_CALIBRATION",
+      "qualification_kind": "STRATEGY_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": {
+        "candidate_id": "herg-platt-m1-shadow-stage4d5-v1",
+        "state": "SHADOW",
+        "candidate_strategy": "SINGLE_CORE_WITH_CALIBRATION",
+        "candidate_models": [
+          "admetica_safety_herg"
+        ],
+        "calibration": "PLATT_CALIBRATION_RESEARCH",
+        "supporting_only_models": [
+          "physchem_herg_v1"
+        ],
+        "qualification_status": "AWAITING_COMPATIBLE_PROSPECTIVE_EVIDENCE",
+        "required_metrics": [
+          "n",
+          "mcc",
+          "balanced_accuracy",
+          "auroc",
+          "auprc",
+          "brier",
+          "log_loss",
+          "sensitivity",
+          "specificity",
+          "ece"
+        ],
+        "required_subgroups": [
+          "chemical_series",
+          "applicability_domain",
+          "class_balance"
+        ],
+        "automatic_activation": false
+      },
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "logD pH7.4 derived estimate",
+      "endpoint_id": "physchem_logd_ph74_derived_estimate",
+      "endpoint_contract_version": "stage4c4-ionization-v1",
+      "scientific_purpose": "The existing runtime ionization engine exposes this conditional derivation; Stage 4D-4 does not change it.",
+      "endpoint_definition": null,
+      "models": [
+        {
+          "model_id": "henderson_hasselbalch_logd_v1",
+          "model_version": "stage4c4-ionization-v1"
+        }
+      ],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage4c4",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": "docs/stage4c4-pka-model-selection.md"
+      },
+      "known_limitations": [
+        "Not a standalone quantitative ML logD7.4 model",
+        "Monoprotic assumptions can fail for polyprotic or zwitterionic compounds",
+        "Calculated cLogP is never relabeled as experimental or validated predicted logD"
+      ],
+      "applicability": "Only emitted when the ionization assumptions required by the derivation are available.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "ACTIVE",
+      "production_strategy": "DERIVED_ESTIMATE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "METHOD_QUALIFICATION",
+      "qualification_allowed": true,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "logD7.4 (quantitative ML)",
+      "endpoint_id": "physchem_logd74_quantitative_ml",
+      "endpoint_contract_version": "unavailable-stage4c4",
+      "scientific_purpose": "logD7.4 (quantitative ML) is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage4c4",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    },
+    {
+      "endpoint": "pKa (quantitative ML)",
+      "endpoint_id": "physchem_pka_quantitative_ml",
+      "endpoint_contract_version": "unavailable-stage4c4",
+      "scientific_purpose": "pKa (quantitative ML) is an explicit runtime registry slot but is inactive. No production value may be emitted.",
+      "endpoint_definition": null,
+      "models": [],
+      "training_source": {
+        "dataset": null,
+        "source": null,
+        "license": null,
+        "stage_evidence": "stage4c4",
+        "stage4d5_training_performed": false
+      },
+      "validation_source": {
+        "model_registry_validation": null,
+        "independent_validation": null,
+        "evidence_artifact": null
+      },
+      "known_limitations": [
+        "No scientifically qualified endpoint-specific production model is available."
+      ],
+      "applicability": "Chemical applicability domain evaluated per model.",
+      "calibration_status": "NOT_APPLICABLE",
+      "production_status": "DEFERRED",
+      "production_strategy": "MODEL_UNAVAILABLE",
+      "shadow_status": null,
+      "shadow_strategy": null,
+      "qualification_kind": "EXCLUDED",
+      "qualification_allowed": false,
+      "candidate_track": null,
+      "promotion_history": [],
+      "rollback_history": [],
+      "unsupported_confidence_claims": false
+    }
+  ]
+}
