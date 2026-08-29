@@ -3993,14 +3993,14 @@ function App(){
      e('div',{},[e('div',{className:'eyebrow'},'COMPARE COMPOUNDS'),e('h2',{},'Comparison Configuration'),e('p',{className:'small'},selected.length+' compounds selected. Multi-compound data appears only here.')]),
      e('button',{disabled:selected.length<2,onClick:compare},'Refresh Comparison')
     ]),
-    e('div',{className:'grid'},[
-     ...Object.entries(groups).map(([group,items])=>e('div',{className:'col-3',key:group},[
+    e('div',{className:'comparison-config-layout'},[
+     e('div',{className:'comparison-config-grid'},Object.entries(groups).map(([group,items])=>e('section',{className:'comparison-config-group',key:group},[
       e('h4',{},group),
-      ...items.map(metric=>e('label',{key:metric,className:'check-option'},[
+      e('div',{className:'comparison-config-options'},items.map(metric=>e('label',{key:metric,className:'check-option'},[
        e('input',{type:'checkbox',checked:compareMetrics.includes(metric),onChange:event=>setCompareMetrics(current=>event.target.checked?[...current,metric]:current.filter(item=>item!==metric))}),e('span',{},metric)
-      ]))
-     ])),
-     e('div',{className:'col-4'},[e('label',{},'Activity assay'),e('select',{value:compareAssay,onChange:event=>setCompareAssay(event.target.value)},[e('option',{value:''},'Latest experimental assay'),...assays.map(row=>e('option',{key:row.id,value:row.id},row.name))])])
+      ])))
+     ]))),
+     e('div',{className:'comparison-config-assay'},[e('label',{},'Activity assay'),e('select',{value:compareAssay,onChange:event=>setCompareAssay(event.target.value)},[e('option',{value:''},'Latest experimental assay'),...assays.map(row=>e('option',{key:row.id,value:row.id},row.name))])])
     ])
    ]),
    comparison&&e('div',{className:'card',key:'table'},[

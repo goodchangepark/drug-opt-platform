@@ -999,6 +999,15 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   min-height: 28px;
   cursor: pointer;
 }
+.comparison-config-layout { display:grid; gap:12px; }
+.comparison-config-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 16px; }
+.comparison-config-group { min-width:0; border:1px solid var(--line); border-radius:8px; padding:8px 10px; background:#fbfdff; }
+.comparison-config-group h4 { margin:0 0 5px; font-size:12px; }
+.comparison-config-options { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:2px 12px; }
+.comparison-config-options .check-option { min-height:26px; font-size:12px; }
+.comparison-config-assay { max-width:420px; }
+.comparison-config-assay select { width:100%; }
+@media (max-width:700px) { .comparison-config-grid,.comparison-config-options { grid-template-columns:1fr; } }
 .comparison-structure-row { display:flex; gap:12px; overflow-x:auto; margin:12px 0; padding-bottom:4px; }
 .comparison-structure-card { min-width:180px; text-align:center; border:1px solid var(--line); border-radius:8px; padding:8px; background:#f8fafc; }
 .comparison-structure-image { height:150px; display:flex; align-items:center; justify-content:center; background:#fff; border-radius:6px; }
