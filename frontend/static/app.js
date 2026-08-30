@@ -689,7 +689,7 @@ function App(){
   const smiles=prompt('New SMILES (creates a new version)');if(!smiles)return;
   try{await api.patch('/compounds/'+detail.row_id,{smiles,change_note:'Manual structure edit'});await openDetail(detail.row_id);await loadProject(projectId);setAdmet(null);setMessage('Version created')}catch(error){setMessage(String(error))}
  };
- const compare=async()=>{try{setComparison(await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:'')));setProjectTab('compare');setDetail(null);setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
+ const compare=async(event)=>{event?.preventDefault?.();event?.stopPropagation?.();try{const result=await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:''));setComparison(result);setProjectTab('compare');setDetail(null);setGlobalView('dashboard');setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
 
  const saveAdmet=async versionId=>{
   const targetVersionId=Number(versionId||admetVersionId);
@@ -3991,7 +3991,7 @@ function App(){
    e('div',{className:'card',key:'config'},[
     e('div',{className:'row toolbar'},[
      e('div',{},[e('div',{className:'eyebrow'},'COMPARE COMPOUNDS'),e('h2',{},'Comparison Configuration'),e('p',{className:'small'},selected.length+' compounds selected. Multi-compound data appears only here.')]),
-     e('button',{disabled:selected.length<2,onClick:compare},'Refresh Comparison')
+     e('button',{type:'button',disabled:selected.length<2,onClick:compare},'Refresh Comparison')
     ]),
     e('div',{className:'comparison-config-layout'},[
      e('div',{className:'comparison-config-grid'},Object.entries(groups).map(([group,items])=>e('section',{className:'comparison-config-group',key:group},[
