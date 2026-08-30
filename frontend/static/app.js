@@ -463,9 +463,17 @@ function App(){
 
  useEffect(()=>{Promise.all([loadProjects(),loadDashboard(),loadHelpRegistry()]).catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
-  const state={globalView,projectId:projectId||null,projectTab,detailId:detail?.row_id||null,detailTab};
+ const state={globalView,projectId:projectId||null,projectTab,detailId:detail?.row_id||null,detailTab};
   const key=JSON.stringify(state);
   if(!navigationReady.current){
+   const saved=window.history.state;
+   if(saved?.appNavigation){
+    navigationPop.current=true;
+    setGlobalView(saved.globalView||'dashboard'); setProjectId(saved.projectId||null);
+    setProjectTab(saved.projectTab||'dashboard'); setDetailTab(saved.detailTab||'overview');
+    if(saved.detailId)openDetail(saved.detailId); else setDetail(null);
+    navigationReady.current=true; navigationKey.current=JSON.stringify(saved); return;
+   }
    window.history.replaceState({...state,appNavigation:true},'',window.location.href);
    navigationReady.current=true; navigationKey.current=key; return;
   }
