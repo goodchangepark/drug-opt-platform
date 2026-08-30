@@ -338,7 +338,7 @@ function App(){
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
- const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState('');
+ const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
  const previewRequest=useRef(0);
  const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false);
  const [projectTab,setProjectTab]=useState('dashboard'),[detailTab,setDetailTab]=useState('overview');
@@ -512,10 +512,10 @@ function App(){
   if(projectId&&detail&&detailTab==='optimization')loadOptimization(detail.version.id).catch(error=>setMessage(String(error)));
  },[projectId,detailTab,detail?.version?.id]);
  useEffect(()=>{
-  if(detail&&detailTab==='pk'&&detail.version)loadPkData(detail.version.id).catch(error=>setMessage(String(error)));
+  if(detail&&['overview','pk'].includes(detailTab)&&detail.version)loadPkData(detail.version.id).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id]);
  useEffect(()=>{
-  if(detail&&detailTab==='pk'&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
+  if(detail&&['overview','pk'].includes(detailTab)&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id,iviveSpecies]);
  useEffect(()=>{
   if(globalView!=='optimization')return;
@@ -652,6 +652,10 @@ function App(){
    setPredictionWorkflow({status:'RUNNING',steps:{overview:{status:'PENDING'},properties:{status:'PENDING'},admet:{status:'PENDING'},metabolism:{status:'PENDING'},pk:{status:'PENDING',routes:[]}}});
   }
   try{
+   if(editingCompound&&detail){
+    await api.patch('/compounds/'+detail.row_id,{name,compound_id:compoundForm.compound_id.trim(),notes:compoundForm.notes||''});
+    setAddCompoundOpen(false);setEditingCompound(false);await openDetail(detail.row_id);await loadProject(projectId);setMessage('Compound information updated');return;
+   }
    const saved=await api.post('/projects/'+projectId+'/compounds',{
     name,
     compound_id:compoundForm.compound_id.trim(),
@@ -699,6 +703,7 @@ function App(){
   const smiles=prompt('New SMILES (creates a new version)');if(!smiles)return;
   try{await api.patch('/compounds/'+detail.row_id,{smiles,change_note:'Manual structure edit'});await openDetail(detail.row_id);await loadProject(projectId);setAdmet(null);setMessage('Version created')}catch(error){setMessage(String(error))}
  };
+ const openCompoundEdit=()=>{setCompoundForm({compound_id:detail.compound_id||'',name:detail.name||'',smiles:version?.canonical_smiles||'',notes:detail.notes||''});setEditingCompound(true);setAddCompoundOpen(true);setMessage('')};
  const compare=async(event)=>{event?.preventDefault?.();event?.stopPropagation?.();try{const result=await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:''));setComparison(result);setProjectTab('compare');setDetail(null);setGlobalView('dashboard');setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
 
  const saveAdmet=async versionId=>{
@@ -3661,6 +3666,7 @@ function App(){
       e('button',{className:'btn-predict-primary',disabled:admetBusy||!version,onClick:runFullPredict},[
        admetBusy?'⏳ PREDICTING…':'▶ PREDICT'
       ]),
+      version&&e('button',{className:'secondary',onClick:openCompoundEdit,style:{fontSize:'11.5px',padding:'6px 12px'}},'Edit Compound'),
       version&&e('button',{className:'secondary',onClick:updateStructure,style:{fontSize:'11.5px',padding:'6px 12px'}},'Modify Structure / New Version'),
       e('button',{className:'secondary',onClick:()=>setDetail(null),style:{fontSize:'11.5px',padding:'6px 12px'}},'Back to Compounds')
      ]),
@@ -3926,7 +3932,7 @@ function App(){
   if(!addCompoundOpen)return null;
   const smallMolecule=project.molecule_type==='Small Molecule';
   return e('div',{className:'modal-backdrop'},e('div',{className:'card compound-modal'},[
-   e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('div',{className:'eyebrow'},'NEW COMPOUND'),e('h2',{},'Add Compound')]),e('button',{type:'button',className:'secondary',onClick:()=>setAddCompoundOpen(false)},'Close')]),
+   e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('div',{className:'eyebrow'},editingCompound?'EDIT COMPOUND':'NEW COMPOUND'),e('h2',{},editingCompound?'Edit Compound':'Add Compound')]),e('button',{type:'button',className:'secondary',onClick:()=>{setAddCompoundOpen(false);setEditingCompound(false)}},'Close')]),
    e('div',{className:'grid',key:'identity'},[e('div',{className:'col-6'},Field({label:'Compound Name *',value:compoundForm.name,onChange:value=>setCompoundForm(current=>({...current,name:value})),placeholder:'HIT-001'})),e('div',{className:'col-6'},Field({label:'Compound ID (optional)',value:compoundForm.compound_id,onChange:value=>setCompoundForm(current=>({...current,compound_id:value})),placeholder:'Generated from name if empty'}))]),
    smallMolecule?e(React.Fragment,{key:'editor'},[
     e('h3',{key:'title',style:{marginTop:'22px'}},'Draw Chemical Structure'),e('p',{key:'help',className:'small'},'Draw or edit the compound structure below. The SMILES field updates automatically while you draw.'),
