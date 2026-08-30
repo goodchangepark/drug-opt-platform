@@ -1021,13 +1021,14 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .comparison-heatmap-row > span,.comparison-heatmap-row > strong { padding:6px; font-size:11px; }
 .comparison-heat-cell { text-align:center; border-radius:4px; font-family:var(--font-mono); }
 .comparison-chart-subtitle { margin-bottom:4px; }
-.comparison-scatter-wrap { position:relative; padding-left:28px; }
+.comparison-scatter-wrap { position:relative; padding:6px 0 0 34px; }
 .comparison-scatter { position:relative; height:180px; border-left:1px solid var(--line); border-bottom:1px solid var(--line); margin:10px 4px 0; background:repeating-linear-gradient(to top,transparent 0,transparent 44px,rgba(148,163,184,.16) 45px); }
-.comparison-y-axis-label { position:absolute; left:0; top:50%; transform:rotate(-90deg) translateX(50%); transform-origin:left top; color:var(--muted); font-size:10px; white-space:nowrap; }
+.comparison-y-axis-label { position:absolute; left:2px; top:102px; transform:rotate(-90deg); transform-origin:left top; color:var(--muted); font-size:10px; white-space:nowrap; }
 .comparison-axis-tick { position:absolute; left:-27px; color:var(--muted); font:10px var(--font-mono); }
 .comparison-y-max { top:-6px; }.comparison-y-min { bottom:-6px; }
 .comparison-x-axis { display:flex; justify-content:space-between; align-items:center; gap:8px; margin:3px 4px 0; color:var(--muted); font:10px var(--font-mono); }
 .comparison-x-axis strong { color:var(--muted); font:600 10px var(--font-sans); text-align:center; }
+.comparison-chart-interpretation { margin:8px 0 0; color:var(--muted); line-height:1.35; }
 .comparison-point { position:absolute; transform:translate(-50%,50%); color:#1d4ed8; text-align:center; }
 .comparison-dot { display:block; font-size:20px; }
 .comparison-point small { display:block; white-space:nowrap; font-size:10px; }
