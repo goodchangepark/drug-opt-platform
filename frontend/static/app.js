@@ -466,7 +466,8 @@ function App(){
  const state={globalView,projectId:projectId||null,projectTab,detailId:detail?.row_id||null,detailTab};
   const key=JSON.stringify(state);
   if(!navigationReady.current){
-   const saved=window.history.state;
+   let saved=window.history.state;
+   try{if(!saved?.appNavigation){const stored=JSON.parse(window.sessionStorage.getItem('drugopt.navigation')||'null');if(stored?.appNavigation)saved=stored;}}catch(_){/* storage may be unavailable */}
    if(saved?.appNavigation){
     navigationPop.current=true;
     setGlobalView(saved.globalView||'dashboard'); setProjectId(saved.projectId||null);
@@ -477,8 +478,9 @@ function App(){
    window.history.replaceState({...state,appNavigation:true},'',window.location.href);
    navigationReady.current=true; navigationKey.current=key; return;
   }
-  if(navigationPop.current){navigationPop.current=false;navigationKey.current=key;return}
+   if(navigationPop.current){navigationPop.current=false;navigationKey.current=key;try{window.sessionStorage.setItem('drugopt.navigation',JSON.stringify({...state,appNavigation:true}))}catch(_){};return}
   if(navigationKey.current!==key){window.history.pushState({...state,appNavigation:true},'',window.location.href);navigationKey.current=key}
+  try{window.sessionStorage.setItem('drugopt.navigation',JSON.stringify({...state,appNavigation:true}))}catch(_){}
  },[globalView,projectId,projectTab,detail?.row_id,detailTab]);
  useEffect(()=>{
   const onPop=event=>{
