@@ -704,6 +704,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .comparison-metric-title { color: #334155; font-size: 12px; }
 .comparison-criteria { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; font-weight: 500; line-height: 1.35; }
 .comparison-table .comparison-value { vertical-align: top; }
+.comparison-value-legend { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0 0; }
+.comparison-value-legend span { display:inline-flex; align-items:center; gap:4px; }
+.comparison-legend-best::before,.comparison-legend-worst::before { content:''; width:10px; height:10px; border-radius:3px; display:inline-block; }
+.comparison-legend-best::before { background:#dcfce7; border:1px solid #86efac; }
+.comparison-legend-worst::before { background:#ffedd5; border:1px solid #fdba74; }
+.comparison-value-best { background:#f0fdf4; box-shadow:inset 3px 0 #22c55e; }
+.comparison-value-worst { background:#fff7ed; box-shadow:inset 3px 0 #f97316; }
 .comparison-source { margin-top: 5px; }
 .comparison-table .status-badge { max-width: 100%; white-space: normal; }
 

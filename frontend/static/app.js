@@ -3997,6 +3997,8 @@ function App(){
    hERG:'No cardiac liability preferred',Ames:'No mutagenicity preferred',DILI:'No clinical hepatotoxicity preferred'
   };
   const metrics=(comparison?.metrics||[]).filter(metric=>compareMetrics.includes(metric));
+  const comparisonDirection={MW:'LOWER_IS_BETTER',cLogP:'LOWER_IS_BETTER',TPSA:'LOWER_IS_BETTER',QED:'HIGHER_IS_BETTER',Activity:'LOWER_IS_BETTER',Solubility:'HIGHER_IS_BETTER','Caco-2':'HIGHER_IS_BETTER',PPB:'INFORMATION_ONLY',fu:'INFORMATION_ONLY',HLM:'LOWER_IS_BETTER',RLM:'LOWER_IS_BETTER',MLM:'LOWER_IS_BETTER','CYP3A4 Inh':'LOWER_IS_BETTER','P-gp Inh':'LOWER_IS_BETTER',hERG:'LOWER_IS_BETTER',Ames:'LOWER_IS_BETTER',DILI:'LOWER_IS_BETTER'};
+  const cellClass=(metric,value)=>{const dir=comparisonDirection[metric],n=Number(value),vals=(comparison?.compounds||[]).map(c=>Number(c[metric])).filter(Number.isFinite);if(!dir||dir==='INFORMATION_ONLY'||!Number.isFinite(n)||vals.length<2||Math.min(...vals)===Math.max(...vals))return 'comparison-value';const best=dir==='HIGHER_IS_BETTER'?Math.max(...vals):Math.min(...vals),worst=dir==='HIGHER_IS_BETTER'?Math.min(...vals):Math.max(...vals);return 'comparison-value '+(n===best?'comparison-value-best':n===worst?'comparison-value-worst':'');};
   return e('div',{},[
    e('div',{className:'card',key:'config'},[
     e('div',{className:'row toolbar'},[
@@ -4016,11 +4018,12 @@ function App(){
    comparison&&e('div',{className:'card',key:'table'},[
     e('h3',{},'Selected Compound Comparison'),e('p',{className:'small'},'Experimental values take precedence. Each cell retains its evidence type. No overall score or automatic ranking is calculated.'),
     e('div',{className:'comparison-structure-row'},(comparison.compounds||[]).map(compound=>e('div',{className:'comparison-structure-card',key:compound.row_id},[compound.svg?e('div',{className:'comparison-structure-image',dangerouslySetInnerHTML:{__html:compound.svg}}):e('div',{className:'comparison-structure-unavailable'},'Structure unavailable'),e('strong',{},compound.name||compound.compound||'Compound')]))) ,
+    e('p',{className:'small comparison-value-legend'},[e('span',{className:'comparison-legend-best'},'Best relative value'),e('span',{className:'comparison-legend-worst'},'Lowest relative value'),e('span',{},'Colors follow endpoint direction; ties remain neutral.')]),
     e('div',{className:'table-scroll comparison-table-scroll'},e('table',{className:'comparison-table'},[
      e('thead',{},e('tr',{},['Metric',...(comparison.compounds||[]).map(compound=>compound.name||compound.compound||'Compound')].map(label=>e('th',{key:label},label)))),
      e('tbody',{},metrics.map(metric=>e('tr',{key:metric},[
       e('th',{scope:'row'},[e('div',{className:'comparison-metric-title'},metric),e('small',{className:'comparison-criteria'},metricCriteria[metric]||'Evidence shown below')]),
-      ...(comparison.compounds||[]).map(compound=>e('td',{key:compound.row_id,className:'comparison-value'},[
+      ...(comparison.compounds||[]).map(compound=>e('td',{key:compound.row_id,className:cellClass(metric,compound[metric])},[
        e('span',{className:'mono'},compound[metric]??'—'),
        e('div',{className:'comparison-source'},StatusBadge({type:compound.sources?.[metric]||'Not measured'}))
       ]))
