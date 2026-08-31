@@ -76,6 +76,9 @@ class ExternalExperimentalEvidence(Base):
     normalization_rule: Mapped[str] = mapped_column(String(240), default="")
     normalization_version: Mapped[str] = mapped_column(String(80), default="")
     comparability_status: Mapped[str] = mapped_column(String(60), default="UNSUPPORTED")
+    source_quality_class: Mapped[str] = mapped_column(String(4), default="D")
+    duplicate_status: Mapped[str] = mapped_column(String(40), default="DISTINCT_MEASUREMENT")
+    provenance_fingerprint: Mapped[str] = mapped_column(String(64), default="", index=True)
     retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -181,6 +184,9 @@ def ensure_ui_schema(engine):
                 "normalization_rule": "VARCHAR(240) NOT NULL DEFAULT ''",
                 "normalization_version": "VARCHAR(80) NOT NULL DEFAULT ''",
                 "comparability_status": "VARCHAR(60) NOT NULL DEFAULT 'UNSUPPORTED'",
+                "source_quality_class": "VARCHAR(4) NOT NULL DEFAULT 'D'",
+                "duplicate_status": "VARCHAR(40) NOT NULL DEFAULT 'DISTINCT_MEASUREMENT'",
+                "provenance_fingerprint": "VARCHAR(64) NOT NULL DEFAULT ''",
             }.items():
                 if name not in evidence_columns:
                     connection.execute(text(f"ALTER TABLE external_experimental_evidence ADD COLUMN {name} {definition}"))

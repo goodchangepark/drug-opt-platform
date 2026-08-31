@@ -101,7 +101,7 @@ def ensure_admet_schema(engine):
             ADMETEndpoint.__table__, ADMETAssayDefinition.__table__, ADMETMeasurement.__table__,
             ADMETModelRegistry.__table__, ADMETPredictionRun.__table__, ADMETPrediction.__table__,
             ADMETConsensusPrediction.__table__, ADMETModelComparison.__table__, ADMETModelPerformance.__table__,
-            ADMETExperimentalFeedbackEvent.__table__, ADMETAdaptivePrediction.__table__,
+            ADMETExperimentalFeedbackEvent.__table__, ADMETAdaptivePrediction.__table__, ProjectAdapterVersion.__table__,
         ],
     )
     with engine.begin() as connection:
@@ -420,6 +420,28 @@ class ADMETAdaptivePrediction(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     version = relationship("CompoundVersion")
     __table_args__ = (UniqueConstraint("version_id", "endpoint_name", "policy_version", name="uq_admet_adaptive_prediction_version"),)
+
+
+class ProjectAdapterVersion(Base):
+    """Auditable, opt-in project adapter snapshot; Engine-v1 predictions remain immutable."""
+    __tablename__ = "project_adapter_versions"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    endpoint_id: Mapped[str] = mapped_column(String(120), index=True)
+    adapter_version: Mapped[str] = mapped_column(String(80))
+    status: Mapped[str] = mapped_column(String(80), default="BASE_ONLY")
+    active: Mapped[bool] = mapped_column(default=False)
+    base_engine_policy: Mapped[str] = mapped_column(String(100))
+    base_engine_hash: Mapped[str] = mapped_column(String(80))
+    training_compound_version_ids_json: Mapped[list] = mapped_column(JSON, default=list)
+    training_evidence_ids_json: Mapped[list] = mapped_column(JSON, default=list)
+    raw_n: Mapped[int] = mapped_column(Integer, default=0)
+    effective_n: Mapped[float] = mapped_column(Float, default=0.0)
+    global_weights_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    project_weights_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    validation_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    activation_decision: Mapped[str] = mapped_column(String(60), default="BASE_RETAINED")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 def measurement_out(row: ADMETMeasurement):

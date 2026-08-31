@@ -28,6 +28,7 @@ from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefin
 from .admet import (ADMETAssayDefinition, ADMETConsensusPrediction, ADMETEndpoint, ADMETMeasurement,
                     ADMETModelComparison, ADMETModelPerformance, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     ADMETExperimentalFeedbackEvent, ADMETAdaptivePrediction,
+                    ProjectAdapterVersion,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
 from .adaptive_weighting import (ADAPTIVE_POLICY_VERSION, AdaptiveConsensusResult, AdaptiveReasonCode,
@@ -103,6 +104,9 @@ from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STAT
 from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
+from .experimental_harvester import harvest_public_evidence, resolve_public_identity
+from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
+                                    QualifiedEvidencePair, fit_project_adapter)
 
 
 CURRENT_STAGE = "5B-4"
@@ -1008,6 +1012,33 @@ def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)
     return result
 
 
+@app.post("/api/compounds/{row_id}/experimental-harvest/preview")
+def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = Depends(get_db)):
+    """Explicit public-identifier search; never submits a local structure."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    if not payload.get("confirm_public_identifier_search"):
+        raise HTTPException(status_code=400, detail="Explicit public identifier search confirmation is required")
+    current = next((v for v in compound.versions if v.version_number == compound.current_version), None)
+    identity = resolve_public_identity(
+        cas=str(payload.get("cas") or compound.cas_number or ""),
+        name=str(payload.get("name") or compound.name or ""),
+        pubchem_cid=str(payload.get("pubchem_cid") or ""), chembl_id=str(payload.get("chembl_id") or ""),
+        dtxsid=str(payload.get("dtxsid") or ""), local_inchikey=current.inchikey if current else "",
+    )
+    if identity.identity_status not in {"EXACT_STRUCTURE_MATCH", "PUBLIC_IDENTIFIER_RESOLVED"}:
+        return {"status": identity.identity_status, "identity": identity.to_dict(), "records": [],
+                "source_notice": "No local structure or SMILES was transmitted; returned public identity was not accepted."}
+    result = harvest_public_evidence(identity, set(payload.get("sources") or [] ) or None)
+    molecular_weight = (current.properties_json or {}).get("molecular_weight") if current else None
+    for row in result["records"]:
+        row["display"] = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("measurement_type", row.get("assay_type", "")), target=row.get("target", ""), mw=molecular_weight)
+    result["status"] = "RESULTS_AVAILABLE"
+    result["source_notice"] = "Explicit public-identifier search only. Literature candidates require review; no source prediction is experimental evidence."
+    return result
+
+
 @app.get("/api/compounds/{row_id}/external-experimental")
 def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
@@ -1022,7 +1053,8 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "evidence_origin": row.evidence_origin, "evidence_label": evidence_label(row.evidence_origin),
                          "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
                          "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
-                         "normalization_version": row.normalization_version, "comparability_status": row.comparability_status} for row in rows]}
+                         "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
+                         "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status} for row in rows]}
 
 
 @app.post("/api/compounds/{row_id}/external-experimental/import")
@@ -1055,7 +1087,7 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
                reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None,
-               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"]))
+               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", ""))))
         if assay:
             try:
                 numeric = float(row["value"])
@@ -2134,6 +2166,61 @@ def get_compound_version_adaptive_provenance(
     }
 
 
+def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> tuple[dict, list[QualifiedEvidencePair]]:
+    events = list(db.scalars(select(ADMETExperimentalFeedbackEvent).where(
+        ADMETExperimentalFeedbackEvent.project_id == project_id,
+        ADMETExperimentalFeedbackEvent.endpoint_name == endpoint_id,
+        ADMETExperimentalFeedbackEvent.is_valid == True,
+    )).all())
+    pairs = []
+    for event in events:
+        version = db.get(CompoundVersion, event.version_id)
+        predictions = event.frozen_predictions_json or {}
+        if version and predictions:
+            pairs.append(QualifiedEvidencePair(event.event_id, event.version_id, version.canonical_smiles, endpoint_id,
+                         event.experimental_value, predictions, origin="EXPERIMENTAL_INTERNAL", source_quality="A"))
+    model_ids = sorted({key for pair in pairs for key in pair.frozen_predictions})
+    weights = {key: 1.0 / len(model_ids) for key in model_ids} if model_ids else {}
+    result = fit_project_adapter(endpoint_id, pairs, weights)
+    return result.to_dict(), pairs
+
+
+@app.get("/api/projects/{project_id}/project-adaptation")
+def project_adaptation_dashboard(project_id: int, db: Session = Depends(get_db)):
+    if not db.get(Project, project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    endpoints = sorted(set(db.scalars(select(ADMETExperimentalFeedbackEvent.endpoint_name).where(
+        ADMETExperimentalFeedbackEvent.project_id == project_id
+    ))))
+    rows = []
+    for endpoint_id in endpoints:
+        preview, _ = _project_adapter_preview(db, project_id, endpoint_id)
+        latest = db.scalar(select(ProjectAdapterVersion).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id).order_by(ProjectAdapterVersion.created_at.desc()))
+        rows.append(preview | {"active_adapter_version": latest.adapter_version if latest and latest.active else None,
+                               "active": bool(latest and latest.active)})
+    return {"project_id": project_id, "policy_version": ADAPTER_POLICY_VERSION, "activation_requires_explicit_action": True, "endpoints": rows}
+
+
+@app.post("/api/projects/{project_id}/project-adaptation/{endpoint_id}/activate")
+def activate_project_adapter(project_id: int, endpoint_id: str, payload: dict, db: Session = Depends(get_db)):
+    """Opt-in activation only after preview gate succeeds; never edits historical freezes."""
+    if not db.get(Project, project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    if not payload.get("confirm_activation"):
+        raise HTTPException(status_code=400, detail="Explicit project adapter activation confirmation is required")
+    preview, pairs = _project_adapter_preview(db, project_id, endpoint_id)
+    if preview["activation_decision"] != "ACTIVATED":
+        raise HTTPException(status_code=400, detail="Adapter gate did not demonstrate held-out improvement")
+    db.query(ProjectAdapterVersion).filter(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id).update({"active": False})
+    row = ProjectAdapterVersion(project_id=project_id, endpoint_id=endpoint_id, adapter_version=ADAPTER_POLICY_VERSION,
+        status=preview["status"], active=True, base_engine_policy=ENGINE_V1_POLICY, base_engine_hash=ENGINE_V1_HASH,
+        training_compound_version_ids_json=[pair.compound_version_id for pair in pairs], training_evidence_ids_json=[pair.evidence_id for pair in pairs],
+        raw_n=preview["raw_n"], effective_n=preview["effective_n"], global_weights_json=preview["global_weights"], project_weights_json=preview["project_weights"],
+        validation_json={"base_error": preview["base_validation_error"], "adapted_error": preview["adapted_validation_error"]}, activation_decision=preview["activation_decision"])
+    db.add(row); db.commit(); db.refresh(row)
+    return {"id": row.id, **preview, "active": True}
+
+
 @app.post("/api/projects/{project_id}/admet/measurements", status_code=201)
 def create_admet_measurement(project_id: int, payload: dict, db: Session = Depends(get_db)):
     project = db.get(Project, project_id)
@@ -2896,6 +2983,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
             "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
             "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
+            "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status,
             "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported"),
         } for row in external_evidence],
         "admet": admet_payload,
