@@ -1049,6 +1049,28 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
     molecular_weight = (current.properties_json or {}).get("molecular_weight") if current else None
     for row in result["records"]:
         row["display"] = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("measurement_type", row.get("assay_type", "")), target=row.get("target", ""), mw=molecular_weight)
+        display = row["display"]
+        numeric = display.get("normalized_value") is not None or bool(__import__("re").search(r"\d", str(row.get("value", ""))))
+        traceable = str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED")
+        endpoint_qualified = bool(row.get("endpoint")) and numeric and bool(str(row.get("unit", "")).strip())
+        comparable = display.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}
+        # Candidates remain explicit/manual unless their raw source has a
+        # numeric unit, traceable reference, and deterministic endpoint map.
+        row["numeric_observation"] = numeric
+        row["endpoint_qualified"] = endpoint_qualified
+        row["import_eligible"] = bool(traceable and endpoint_qualified and comparable and row.get("duplicate_status") != "SAME_MEASUREMENT")
+        row["qualification_state"] = "IMPORTABLE" if row["import_eligible"] else ("MANUAL_REVIEW" if numeric and traceable else "CANDIDATE")
+    records = result["records"]
+    summary = result.setdefault("summary", {})
+    summary.update({
+        "numeric_observations": sum(bool(r.get("numeric_observation")) for r in records),
+        "endpoint_qualified": sum(bool(r.get("endpoint_qualified")) for r in records),
+        "directly_comparable": sum(r["display"].get("comparability_status") == "DIRECTLY_COMPARABLE" for r in records),
+        "conditionally_comparable": sum(r["display"].get("comparability_status") == "CONDITIONALLY_COMPARABLE" for r in records),
+        "related_evidence": sum(r["display"].get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT" for r in records),
+        "manual_review": sum(r.get("qualification_state") == "MANUAL_REVIEW" for r in records),
+        "importable": sum(bool(r.get("import_eligible")) for r in records),
+    })
     result["status"] = "RESULTS_AVAILABLE"
     result.setdefault("summary", {})["last_search"] = datetime.now(timezone.utc).isoformat()
     result["source_notice"] = "Explicit public-identifier search only. Literature candidates require review; no source prediction is experimental evidence."

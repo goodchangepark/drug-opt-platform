@@ -327,9 +327,13 @@ class RegulatoryAdapter:
             context = " ".join(lines[line_no - 1:line_no + 2]).strip()
             if not self._terms.search(context) or not self._value.search(context): continue
             endpoint = self._terms.search(context).group(1)
-            value = self._value.search(context).group(0)
+            raw_numeric = self._value.search(context).group(0).strip()
+            numeric_match = re.match(r"([<>≤≥]?\s*\d+(?:[.,]\d+)?)\s*(.*)", raw_numeric)
+            value = numeric_match.group(1).replace(" ", "") if numeric_match else raw_numeric
+            unit = numeric_match.group(2).strip() if numeric_match else ""
             category = "PK" if endpoint.lower() in {"cmax", "tmax", "auc", "half-life", "clearance", "cl/f", "volume of distribution", "vd/f", "bioavailability"} else ("METABOLISM" if re.search(r"cyp|hepatocyte|microsomal|metabolite|feces|urine|excret", endpoint, re.I) else "ADMET")
-            rows.append(_record(self.name, f"{app}:{doc_id}:L{line_no}", endpoint, value, "", evidence_category=category, context_qualified=False, record_status="REGULATORY_CANDIDATE", application_id=app, document_type=doc_type, page_or_line=f"line {line_no}", raw_context=context, reference=f"Drugs@FDA {app} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url, conditions="Review raw regulatory context before normalization"))
+            species = "Human" if re.search(r"\bhuman|patients?|healthy subjects?\b", context, re.I) else ""
+            rows.append(_record(self.name, f"{app}:{doc_id}:L{line_no}", endpoint, value, unit, evidence_category=category, context_qualified=False, record_status="REGULATORY_CANDIDATE", application_id=app, document_type=doc_type, page_or_line=f"line {line_no}", raw_context=context, species=species, reference=f"Drugs@FDA {app} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url, conditions=context))
             if len(rows) >= 400: break
         return rows
 
