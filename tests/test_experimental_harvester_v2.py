@@ -29,3 +29,23 @@ def test_deduplication_marks_without_silently_dropping():
     rows = h.deduplicate(identity, [h._record("A", "1", "IC50", 2, "nM", doi="x"), h._record("B", "2", "IC50", 2, "nM", doi="x")])
     assert rows[0]["duplicate_status"] == "DISTINCT_MEASUREMENT"
     assert rows[1]["duplicate_status"] == "SAME_MEASUREMENT"
+
+
+def test_public_identity_expands_verified_pubchem_aliases(monkeypatch):
+    def fake(url):
+        if "synonyms" in url:
+            return {"InformationList": {"Information": [{"Synonym": ["DZD9008", "DZD-9008", "ZEGFROVY", "CHEMBL5314564", "DTXSID701376536", "L1Q2K5JYO8"]}]}}
+        return {"PropertyTable": {"Properties": [{"CID": 1, "InChIKey": "KEY", "CanonicalSMILES": "CC"}]}}
+    monkeypatch.setattr(h, "_get_json", fake)
+    identity = h.resolve_public_identity(name="public drug")
+    assert {"DZD9008", "ZEGFROVY"}.issubset(identity.synonyms)
+    assert identity.chembl_id == "CHEMBL5314564" and identity.dtxsid == "DTXSID701376536" and identity.unii == "L1Q2K5JYO8"
+
+
+def test_regulatory_documents_and_candidates_remain_separate(monkeypatch):
+    adapter = h.RegulatoryAdapter()
+    monkeypatch.setattr(h, "_get_document_text", lambda _url: "Cmax 412 ng/mL at steady state.")
+    monkeypatch.setattr(h, "_get_json", lambda _url: {"results": [{"application_number": "NDA123456", "submissions": [{"submission_type": "ORIG", "submission_number": "1", "submission_status": "AP", "submission_status_date": "20250101", "application_docs": [{"id": "1", "url": "https://example.test/label.pdf", "type": "Label", "date": "20250101"}]}]}]})
+    rows = adapter.harvest(h.PublicIdentity(name="PUBLIC"))
+    assert any(row["record_status"] == "DOCUMENT_DISCOVERED" for row in rows)
+    assert any(row["record_status"] == "REGULATORY_CANDIDATE" and row["value"] for row in rows)

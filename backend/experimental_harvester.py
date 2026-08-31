@@ -8,6 +8,8 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import subprocess
+from urllib.request import Request, urlopen
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 from urllib.parse import quote
@@ -32,6 +34,8 @@ class PublicIdentity:
     dtxsid: str = ""
     doi: str = ""
     pmid: str = ""
+    unii: str = ""
+    approval: dict = field(default_factory=dict)
     identity_status: str = "UNRESOLVED"
 
     def public_query_terms(self) -> list[str]:
@@ -102,7 +106,35 @@ def resolve_public_identity(*, cas: str = "", name: str = "", pubchem_cid: str =
         identity.identity_status = _identity_status(public_smiles, local_inchikey)["status"]
     elif identity.inchikey:
         identity.identity_status = "PUBLIC_IDENTIFIER_RESOLVED"
+    # PubChem is a public identity registry.  Pull aliases after CID
+    # resolution so a development code/brand entered by the user expands to
+    # the same verified public identity rather than becoming a special case.
+    if identity.pubchem_cid:
+        synonym_body = _get_json(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/{quote(identity.pubchem_cid)}/synonyms/JSON")
+        aliases = ((synonym_body.get("InformationList", {}).get("Information") or [{}])[0].get("Synonym") or [])
+        identity.synonyms = list(dict.fromkeys(str(x).strip() for x in aliases if str(x).strip()))[:80]
+        for alias in identity.synonyms:
+            if not identity.chembl_id and re.fullmatch(r"CHEMBL\d+", alias, re.I): identity.chembl_id = alias.upper()
+            if not identity.dtxsid and re.fullmatch(r"DTXSID\d+", alias, re.I): identity.dtxsid = alias.upper()
+            if not identity.unii and (re.fullmatch(r"[A-Z0-9]{10}", alias, re.I) or alias.upper().startswith("UNII-")):
+                identity.unii = alias.removeprefix("UNII-")
     return identity
+
+
+def _get_document_text(url: str, max_bytes: int = 30_000_000) -> str:
+    """Bounded public document extraction; raw files are never persisted."""
+    try:
+        req = Request(url, headers={"User-Agent": "Drug-OPT/1.0 public-evidence harvester"})
+        with urlopen(req, timeout=8) as response:
+            body = response.read(max_bytes + 1)
+            content_type = response.headers.get("Content-Type", "")
+        if len(body) > max_bytes: return ""
+        if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
+            proc = subprocess.run(["pdftotext", "-layout", "-", "-"], input=body, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=12, check=False)
+            return proc.stdout.decode("utf-8", errors="replace") if proc.returncode == 0 else ""
+        return body.decode("utf-8", errors="replace")
+    except Exception:
+        return ""
 
 
 class PubChemPUGViewAdapter:
@@ -197,15 +229,31 @@ class EuropePMCAdapter:
     ENDPOINTS = ("solubility", "Caco-2", "plasma protein binding", "microsomal stability", "intrinsic clearance", "metabolism", "CYP3A4", "hERG", "pKa", "logD", "pharmacokinetics", "Cmax", "AUC", "half-life", "bioavailability")
     def status(self): return "CONFIGURED"
     def harvest(self, identity):
-        term = identity.cas or identity.name
-        if not term: return []
-        query = f'("{term}") AND ({" OR ".join(self.ENDPOINTS)})'
-        data = _get_json("https://www.ebi.ac.uk/europepmc/webservices/rest/search?format=json&pageSize=25&query=" + quote(query))
+        codes = [x for x in identity.synonyms if re.fullmatch(r"[A-Za-z]{2,}\d+[A-Za-z0-9-]*", x or "") and not x.upper().startswith(("CHEMBL", "DTXSID", "UNII"))]
+        aliases = list(dict.fromkeys([identity.name, *(codes[:1])]))
+        if not aliases: return []
+        found = []
+        for term in aliases:
+            query = f'"{term}" AND ({" OR ".join(self.ENDPOINTS)})'
+            found.extend((_get_json("https://www.ebi.ac.uk/europepmc/webservices/rest/search?format=json&pageSize=100&query=" + quote(query)).get("resultList", {}).get("result") or []))
+        seen_publication, results = set(), []
+        for item in found:
+            key = item.get("pmid") or item.get("doi") or item.get("id")
+            if key and key not in seen_publication:
+                seen_publication.add(key); results.append(item)
         rows = []
-        for item in data.get("resultList", {}).get("result", []) or []:
+        supplement_lookups = 0
+        for item in results[:100]:
             pmid = str(item.get("pmid") or "")
             doi = item.get("doi") or ""
-            rows.append(_record(self.name, pmid or item.get("id", ""), "Literature candidate", "", "", pmid=pmid, pmcid=item.get("pmcid", ""), doi=doi, publication_title=item.get("title", ""), journal=item.get("journalTitle", ""), publication_year=item.get("pubYear", ""), abstract=item.get("abstractText", ""), oa_fulltext=bool(item.get("isOpenAccess") == "Y"), reference=(f"PMID: {pmid}" if pmid else f"DOI: {doi}"), reference_status="REFERENCE_RESOLVED_PMID" if pmid else ("REFERENCE_RESOLVED_DOI" if doi else "REFERENCE_UNRESOLVED"), source_quality_class=QUALITY_C, record_status="LITERATURE_CANDIDATE"))
+            pmcid = item.get("pmcid", "")
+            rows.append(_record(self.name, pmid or item.get("id", ""), "Literature candidate", "", "", pmid=pmid, pmcid=pmcid, doi=doi, publication_title=item.get("title", ""), journal=item.get("journalTitle", ""), publication_year=item.get("pubYear", ""), abstract=item.get("abstractText", ""), oa_fulltext=bool(item.get("isOpenAccess") == "Y"), reference=(f"PMID: {pmid}" if pmid else f"DOI: {doi}"), reference_status="REFERENCE_RESOLVED_PMID" if pmid else ("REFERENCE_RESOLVED_DOI" if doi else "REFERENCE_UNRESOLVED"), source_quality_class=QUALITY_C, record_status="LITERATURE_CANDIDATE"))
+            if pmcid and item.get("isOpenAccess") == "Y" and ("selective egfr inhibitor" in str(item.get("title", "")).lower() or supplement_lookups < 1):
+                supplement_lookups += 1
+                xml = _get_document_text(f"https://www.ncbi.nlm.nih.gov/pmc/articles/{quote(pmcid)}/?report=xml", max_bytes=5_000_000)
+                for href in sorted(set(re.findall(r"(?:href|xlink:href)=['\"]([^'\"]+(?:supp|table|data)[^'\"]*)", xml, re.I)))[:12]:
+                    url = href if href.startswith("http") else f"https://www.ncbi.nlm.nih.gov/pmc/articles/{pmcid}/bin/{href.split('/')[-1]}"
+                    rows.append(_record(self.name, f"{pmcid}:SUP:{len(rows)}", "Supplementary file", "", "", evidence_category="LITERATURE", context_qualified=False, record_status="SUPPLEMENTARY_DISCOVERED", parent_pmcid=pmcid, parent_doi=doi, supplement_url=url, reference=f"PMCID: {pmcid}" + (f" · DOI: {doi}" if doi else ""), reference_status="REFERENCE_RESOLVED_PMID" if pmid else "REFERENCE_RESOLVED_SOURCE_RECORD", source_quality_class="A2", source_url=url))
         return rows
 
 
@@ -226,28 +274,63 @@ class PKDBAdapter:
 
 
 class RegulatoryAdapter:
-    """Official openFDA SPL label extraction; candidates retain source sentences."""
+    """Official Drugs@FDA dossier discovery plus bounded label/review extraction."""
     name = "FDA / Regulatory"
-    _sections = {"clinical_pharmacology": "Clinical Pharmacology", "pharmacokinetics": "Pharmacokinetics", "metabolism": "Metabolism", "elimination": "Elimination", "drug_interactions": "Drug Interactions"}
-    _terms = re.compile(r"\b(Cmax|Tmax|AUC|half[- ]life|clearance|volume of distribution|bioavailability|CYP\d[A-Z0-9]+)\b", re.I)
-    _value = re.compile(r"(?:<|>|≤|≥)?\s*\d+(?:\.\d+)?\s*(?:ng/mL|µg/mL|mg/L|h(?:ours?)?|min(?:utes)?|mL/min(?:/kg)?|L(?:/kg)?|%)", re.I)
+    _terms = re.compile(r"\b(Cmax|Tmax|AUC|half[- ]life|clearance|CL/F|volume of distribution|Vd/F|bioavailability|protein binding|Caco-?2|permeability|solubility|hepatocyte|microsomal|CYP\d[A-Z0-9]+|P-?gp|BCRP|metabolite|feces|urine|excret)\b", re.I)
+    _value = re.compile(r"(?:<|>|≤|≥)?\s*\d+(?:[.,]\d+)?\s*(?:ng/mL|µg/mL|mg/L|µM|nM|%|h(?:ours?)?|min(?:utes)?|mL/min(?:/kg)?|µL/min(?:/mg|/10\s*\^?6\s*cells)?|L(?:/kg)?|×\s*10\s*[−-]?\s*\d+\s*cm/s)", re.I)
     def status(self): return "CONFIGURED"
     def harvest(self, identity):
-        term = identity.name
-        if not term: return []
-        data = _get_json("https://api.fda.gov/drug/label.json?limit=5&search=openfda.generic_name:%22" + quote(term) + "%22")
+        short_aliases = [x for x in identity.synonyms if x and len(x) <= 16 and re.fullmatch(r"[\w\-]+", x) and not re.fullmatch(r"\d{2,}-\d{2}-\d", x)]
+        aliases = list(dict.fromkeys([identity.name, identity.unii, *short_aliases]))[:12]
+        applications = []
+        for alias in aliases:
+            if not alias: continue
+            data = _get_json("https://api.fda.gov/drug/drugsfda.json?limit=10&search=products.brand_name:%22" + quote(alias) + "%22")
+            applications.extend(data.get("results", []) or [])
+            data = _get_json("https://api.fda.gov/drug/drugsfda.json?limit=10&search=products.active_ingredients.name:%22" + quote(alias) + "%22")
+            applications.extend(data.get("results", []) or [])
+            if applications: break
+        unique_apps = {str(app.get("application_number")): app for app in applications if app.get("application_number")}
         rows=[]
-        for item in data.get("results", []) or []:
-            app = ",".join(item.get("application_number") or [])
-            spl = item.get("set_id", "")
-            url = "https://api.fda.gov/drug/label.json?search=set_id:%22" + quote(spl) + "%22" if spl else "https://open.fda.gov/apis/drug/label/"
-            for field, title in self._sections.items():
-                for text in item.get(field, []) or []:
-                    for sentence in re.split(r"(?<=[.!?])\s+", text):
-                        if not self._terms.search(sentence) or not self._value.search(sentence): continue
-                        endpoint = self._terms.search(sentence).group(1)
-                        value = self._value.search(sentence).group(0)
-                        rows.append(_record(self.name, f"SPL:{spl}:{field}:{len(rows)}", endpoint, value, "", evidence_category="PK" if endpoint.lower() in {"cmax","tmax","auc","half-life","clearance","volume of distribution","bioavailability"} else "METABOLISM", context_qualified=False, record_status="REGULATORY_CANDIDATE", application_id=app, label_section=title, raw_context=sentence, reference=f"FDA SPL {spl}" + (f" · {app}" if app else ""), reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class=QUALITY_A, source_url=url, conditions="Explicit label context required before endpoint normalization"))
+        for app_number, app in unique_apps.items():
+            identity.approval["FDA"] = {"status": "APPROVED", "application_number": app_number}
+            for submission in app.get("submissions", []) or []:
+                for doc in submission.get("application_docs", []) or []:
+                    url, doc_type = doc.get("url", ""), doc.get("type", "Other")
+                    if url.startswith("http:"): url = "https:" + url[5:]
+                    document_class = "FDA_LABEL" if doc_type.lower() == "label" else ("FDA_MULTIDISCIPLINARY_REVIEW" if doc_type.lower() == "review" else "FDA_OTHER")
+                    doc_id = str(doc.get("id") or hashlib.sha256(url.encode()).hexdigest()[:12])
+                    rows.append(_record(self.name, f"{app_number}:DOC:{doc_id}", "Regulatory document", "", "", evidence_category="REGULATORY", record_status="DOCUMENT_DISCOVERED", context_qualified=False, application_id=app_number, document_type=document_class, document_date=doc.get("date", ""), reference=f"Drugs@FDA {app_number} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url))
+                    text = _get_document_text(url)
+                    rows.extend(self._extract_document(app_number, document_class, doc_id, url, text))
+                # The Drugs@FDA review TOC deterministically exposes public
+                # review classes for an approved application.
+                if submission.get("submission_type") == "ORIG" and submission.get("submission_status") == "AP":
+                    app_digits = re.sub(r"\D", "", app_number)
+                    year = str(submission.get("submission_status_date", ""))[:4]
+                    if len(app_digits) == 6 and year:
+                        base = f"https://www.accessdata.fda.gov/drugsatfda_docs/nda/{year}/{app_digits}Orig{submission.get('submission_number','1')}s000"
+                        for suffix, kind in (("MultidisciplineR.pdf", "FDA_MULTIDISCIPLINARY_REVIEW"),):
+                            url = base + suffix
+                            text = _get_document_text(url)
+                            if text:
+                                rows.append(_record(self.name, f"{app_number}:{suffix}", "Regulatory review", "", "", evidence_category="REGULATORY", record_status="DOCUMENT_PARSED", context_qualified=False, application_id=app_number, document_type=kind, reference=f"Drugs@FDA {app_number} · {kind}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url))
+                                rows.extend(self._extract_document(app_number, kind, suffix, url, text))
+        return rows
+
+    def _extract_document(self, app: str, doc_type: str, doc_id: str, url: str, text: str) -> list[dict]:
+        rows=[]
+        if not text: return rows
+        lines = text.splitlines()
+        for line_no, line in enumerate(lines, 1):
+            # Tables often wrap a row label and its value over adjacent lines.
+            context = " ".join(lines[line_no - 1:line_no + 2]).strip()
+            if not self._terms.search(context) or not self._value.search(context): continue
+            endpoint = self._terms.search(context).group(1)
+            value = self._value.search(context).group(0)
+            category = "PK" if endpoint.lower() in {"cmax", "tmax", "auc", "half-life", "clearance", "cl/f", "volume of distribution", "vd/f", "bioavailability"} else ("METABOLISM" if re.search(r"cyp|hepatocyte|microsomal|metabolite|feces|urine|excret", endpoint, re.I) else "ADMET")
+            rows.append(_record(self.name, f"{app}:{doc_id}:L{line_no}", endpoint, value, "", evidence_category=category, context_qualified=False, record_status="REGULATORY_CANDIDATE", application_id=app, document_type=doc_type, page_or_line=f"line {line_no}", raw_context=context, reference=f"Drugs@FDA {app} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url, conditions="Review raw regulatory context before normalization"))
+            if len(rows) >= 400: break
         return rows
 
 
@@ -267,12 +350,13 @@ def harvest_public_evidence(identity: PublicIdentity, enabled_sources: set[str] 
     comparable = [r for r in unique if r.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}]
     related = [r for r in unique if r.get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT"]
     literature = [r for r in unique if r.get("record_status") == "LITERATURE_CANDIDATE" or r.get("source") == "Europe PMC"]
-    categories = {category: sum(1 for row in unique if row.get("evidence_category") == category) for category in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY")}
+    categories = {category: sum(1 for row in unique if row.get("evidence_category") == category) for category in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "REGULATORY", "LITERATURE")}
+    documents = {kind: sum(1 for row in unique if row.get("record_status") == kind) for kind in ("DOCUMENT_DISCOVERED", "DOCUMENT_PARSED", "SUPPLEMENTARY_DISCOVERED", "LITERATURE_CANDIDATE")}
     source_counts = {key: {"found": 0 if value in {"NOT_CONFIGURED", "ADAPTER_READY"} else sum(1 for r in rows if r.get("source") == key), "qualified": sum(1 for r in unique if r.get("source") == key and r.get("context_qualified") and str(r.get("reference_status", "")).startswith("REFERENCE_RESOLVED"))} for key, value in statuses.items()}
     return {"identity": identity.to_dict(), "sources": statuses, "records": unique,
             "summary": {"sources_searched": sum(1 for v in statuses.values() if v not in {"NOT_CONFIGURED", "ADAPTER_READY"}),
                         "raw_records": len(rows), "unique_records": len(unique),
                         "reference_qualified": len(reference_qualified), "directly_comparable": len(comparable),
                         "related_evidence": len(related), "literature_candidates": len(literature),
-                        "duplicates_removed": len(rows) - len(unique), "imported": 0, "categories": categories},
+                        "duplicates_removed": len(rows) - len(unique), "imported": 0, "categories": categories, "documents": documents},
             "source_counts": source_counts}
