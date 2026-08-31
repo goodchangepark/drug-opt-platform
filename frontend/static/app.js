@@ -653,7 +653,8 @@ function App(){
   }
   try{
    if(editingCompound&&detail){
-    const changedSmiles=smilesToUse&&smilesToUse!==(version?.canonical_smiles||'');
+    const currentVersion=detail.version||detail.current_version;
+    const changedSmiles=smilesToUse&&smilesToUse!==(currentVersion?.canonical_smiles||'');
     await api.patch('/compounds/'+detail.row_id,{name,compound_id:compoundForm.compound_id.trim(),notes:compoundForm.notes||'',...(changedSmiles?{smiles:smilesToUse,change_note:'Manual structure edit'}:{})});
     setAddCompoundOpen(false);setEditingCompound(false);await openDetail(detail.row_id);await loadProject(projectId);setMessage('Compound information updated');return;
    }
