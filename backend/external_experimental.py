@@ -114,7 +114,13 @@ def _pubchem_experimental_annotations(cid: int, cas_number: str) -> list[dict]:
             value = item.get("Value", {}).get("StringWithMarkup", [])
             raw_value = "; ".join(x.get("String", "") for x in value if x.get("String"))
             refs = item.get("Reference", []) or []
-            reference = "; ".join((r.get("SourceName") or r.get("URL") or "") for r in refs if (r.get("SourceName") or r.get("URL")))
+            reference_parts = []
+            for ref in refs:
+                if isinstance(ref, dict):
+                    reference_parts.append(ref.get("SourceName") or ref.get("URL") or "")
+                elif isinstance(ref, str):
+                    reference_parts.append(ref)
+            reference = "; ".join(part for part in reference_parts if part)
             if not raw_value:
                 continue
             records.append({"source": "PubChem", "source_record_id": f"CID:{cid}:{item.get('Name','Experimental property')}",
@@ -138,6 +144,7 @@ def _chembl_activities(inchikey: str, cas_number: str) -> list[dict]:
     if not chembl_id:
         return []
     data = _get_json("https://www.ebi.ac.uk/chembl/api/data/activity.json?format=json&limit=100&molecule_chembl_id=" + quote(chembl_id))
+    assay_cache, target_cache, document_cache = {}, {}, {}
     records = []
     for row in data.get("activities", []) if isinstance(data, dict) else []:
         value, unit, kind = row.get("standard_value"), row.get("standard_units"), row.get("standard_type")
@@ -145,13 +152,28 @@ def _chembl_activities(inchikey: str, cas_number: str) -> list[dict]:
             continue
         activity_id = str(row.get("activity_id", ""))
         assay_id, document_id = str(row.get("assay_chembl_id", "")), str(row.get("document_chembl_id", ""))
-        reference = "ChEMBL " + activity_id + (" · " + document_id if document_id else "")
+        assay = assay_cache.setdefault(assay_id, _get_json(f"https://www.ebi.ac.uk/chembl/api/data/assay/{quote(assay_id)}.json") if assay_id else {})
+        target_id = str(row.get("target_chembl_id", ""))
+        target = target_cache.setdefault(target_id, _get_json(f"https://www.ebi.ac.uk/chembl/api/data/target/{quote(target_id)}.json") if target_id else {})
+        document = document_cache.setdefault(document_id, _get_json(f"https://www.ebi.ac.uk/chembl/api/data/document/{quote(document_id)}.json") if document_id else {})
+        doi = document.get("doi") or document.get("document_doi") or ""
+        pmid = document.get("pubmed_id") or document.get("pmid") or ""
+        title = document.get("title") or document.get("document_title") or ""
+        journal = document.get("journal") or document.get("journal_name") or ""
+        year = document.get("year") or document.get("publication_year") or ""
+        reference_status = "REFERENCE_RESOLVED_DOI" if doi else ("REFERENCE_RESOLVED_PMID" if pmid else ("REFERENCE_RESOLVED_SOURCE_RECORD" if activity_id or document_id else "REFERENCE_UNRESOLVED"))
+        reference = (f"DOI: {doi}" if doi else (f"PMID: {pmid}" if pmid else f"ChEMBL {activity_id}"))
         records.append({"source": "ChEMBL", "source_record_id": activity_id, "endpoint": kind, "value": str(value), "unit": unit or "",
                         "relation": row.get("standard_relation") or "=", "target": row.get("target_chembl_id", ""),
-                        "assay_id": assay_id, "document_id": document_id, "conditions": row.get("assay_description") or "",
-                        "species": row.get("target_organism") or "", "reference": reference if activity_id else "REFERENCE_UNRESOLVED",
+                        "target_name": target.get("pref_name") or target.get("target_name") or row.get("target_pref_name", ""),
+                        "assay_id": assay_id, "document_id": document_id,
+                        "assay_type": assay.get("assay_type") or row.get("assay_type", ""),
+                        "conditions": assay.get("description") or row.get("assay_description") or "",
+                        "cell_line": assay.get("cell_line_name") or row.get("cell_line_name", ""),
+                        "species": target.get("organism") or row.get("target_organism") or "", "reference": reference,
+                        "doi": doi, "pmid": str(pmid) if pmid else "", "publication_title": title, "journal": journal, "publication_year": year,
                         "source_url": "https://www.ebi.ac.uk/chembl/explore/activities/" + activity_id,
-                        "reference_status": "REFERENCE_RESOLVED" if activity_id else "REFERENCE_UNRESOLVED",
+                        "reference_status": reference_status,
                         "identity_match_status": "EXACT_STRUCTURE_MATCH", "endpoint_match_status": "ASSAY_CONTEXT_REQUIRED",
                         "import_eligible": False, "evidence_origin": "EXPERIMENTAL_EXTERNAL"})
     return records

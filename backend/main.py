@@ -1012,7 +1012,9 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
     rows = db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(version_ids)).order_by(ExternalExperimentalEvidence.imported_at.desc())).all() if version_ids else []
     return {"records": [{"id": row.id, "endpoint": row.raw_endpoint_name, "value": row.raw_value, "unit": row.raw_unit,
                          "relation": row.raw_relation, "source": row.source_database, "reference": row.reference_text,
-                         "source_url": row.source_url, "evidence_origin": row.evidence_origin} for row in rows]}
+                         "source_url": row.source_url, "source_record_id": row.source_record_id,
+                         "assay_id": row.source_assay_id, "document_id": row.source_document_id,
+                         "evidence_origin": row.evidence_origin} for row in rows]}
 
 
 @app.post("/api/compounds/{row_id}/external-experimental/import")
@@ -1027,7 +1029,7 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
     imported, duplicates = 0, 0
     assay_ids = {assay.id: assay for assay in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
     for row in payload.get("records") or []:
-        if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or row.get("reference_status") != "REFERENCE_RESOLVED":
+        if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or not str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED"):
             continue
         if not str(row.get("value", "")).strip() or not str(row.get("reference", "")).strip():
             continue
