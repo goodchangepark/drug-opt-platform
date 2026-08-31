@@ -1036,6 +1036,7 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
     for row in result["records"]:
         row["display"] = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("measurement_type", row.get("assay_type", "")), target=row.get("target", ""), mw=molecular_weight)
     result["status"] = "RESULTS_AVAILABLE"
+    result.setdefault("summary", {})["last_search"] = datetime.now(timezone.utc).isoformat()
     result["source_notice"] = "Explicit public-identifier search only. Literature candidates require review; no source prediction is experimental evidence."
     return result
 
@@ -1600,6 +1601,12 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
         prediction.model.endpoint_name, prediction.predicted_value, measurements, endpoint_names,
     ) if prediction.predicted_value is not None and prediction.model.endpoint_name in MODEL_SPECS else []
     outputs = dict(prediction.outputs_json or {})
+    # Old cached/legacy rows predate adaptation metadata. Expose the
+    # canonical base maturity without mutating the frozen prediction.
+    maturity = outputs.get("prediction_maturity") or maturity_for_adapter(
+        status="BASE_ONLY", effective_n=0.0,
+        activation_decision="BASE_RETAINED", representative_series=False,
+    ).to_dict()
     outputs["experimental_comparisons"] = comparisons
     if prediction.model.endpoint_name in MODEL_SPECS and MODEL_SPECS[prediction.model.endpoint_name].get("prediction_type") == "binary_classification":
         outputs["experimental_evidence"] = cyp_experimental_evidence(
@@ -1636,6 +1643,12 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
         "confidence": prediction.confidence, "applicability_domain": prediction.applicability_domain,
         "uncertainty": prediction.uncertainty, "model": _admet_model_out(prediction.model),
         "outputs": outputs, "experimental_comparisons": comparisons, "preferred_result": preferred,
+        "prediction_maturity": maturity,
+        "prediction_maturity_level": maturity["level"],
+        "prediction_maturity_label": maturity["label"],
+        "adapter_version": outputs.get("prediction_maturity_adapter_version", ""),
+        "effective_n": maturity.get("effective_n", 0.0),
+        "adaptation_status": maturity.get("status", "BASE_ONLY"),
         "created_at": prediction.created_at.isoformat(), "type": "Predicted", "provenance": provenance,
     }
 

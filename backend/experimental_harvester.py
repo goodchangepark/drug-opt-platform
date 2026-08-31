@@ -219,4 +219,15 @@ def harvest_public_evidence(identity: PublicIdentity, enabled_sources: set[str] 
         statuses[adapter.name] = adapter.status()
         if adapter.name in enabled and adapter.status() in {"CONFIGURED", "ADAPTER_READY"}:
             rows.extend(adapter.harvest(identity))
-    return {"identity": identity.to_dict(), "sources": statuses, "records": deduplicate(identity, rows)}
+    unique = deduplicate(identity, rows)
+    reference_qualified = [r for r in unique if str(r.get("reference_status", "")).startswith("REFERENCE_RESOLVED")]
+    comparable = [r for r in unique if r.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}]
+    related = [r for r in unique if r.get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT"]
+    literature = [r for r in unique if r.get("record_status") == "LITERATURE_CANDIDATE" or r.get("source") == "Europe PMC"]
+    return {"identity": identity.to_dict(), "sources": statuses, "records": unique,
+            "summary": {"sources_searched": sum(1 for v in statuses.values() if v not in {"NOT_CONFIGURED", "ADAPTER_READY"}),
+                        "raw_records": len(rows), "unique_records": len(unique),
+                        "reference_qualified": len(reference_qualified), "directly_comparable": len(comparable),
+                        "related_evidence": len(related), "literature_candidates": len(literature),
+                        "duplicates_removed": len(rows) - len(unique), "imported": 0},
+            "source_counts": {key: (0 if value in {"NOT_CONFIGURED", "ADAPTER_READY"} else sum(1 for r in rows if r.get("source") == key)) for key, value in statuses.items()}}
