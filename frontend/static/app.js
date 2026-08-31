@@ -337,7 +337,8 @@ function App(){
  const [globalView,setGlobalView]=useState('dashboard');
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
- const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
+ const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',cas_number:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
+ const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false);
  const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
  const previewRequest=useRef(0);
  const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false);
@@ -655,17 +656,17 @@ function App(){
    if(editingCompound&&detail){
     const currentVersion=detail.version||detail.current_version;
     const changedSmiles=smilesToUse&&smilesToUse!==(currentVersion?.canonical_smiles||'');
-    await api.patch('/compounds/'+detail.row_id,{name,compound_id:compoundForm.compound_id.trim(),notes:compoundForm.notes||'',...(changedSmiles?{smiles:smilesToUse,change_note:'Manual structure edit'}:{})});
+    await api.patch('/compounds/'+detail.row_id,{name,compound_id:compoundForm.compound_id.trim(),cas_number:compoundForm.cas_number.trim(),notes:compoundForm.notes||'',...(changedSmiles?{smiles:smilesToUse,change_note:'Manual structure edit'}:{})});
     setAddCompoundOpen(false);setEditingCompound(false);await openDetail(detail.row_id);await loadProject(projectId);setMessage('Compound information updated');return;
    }
    const saved=await api.post('/projects/'+projectId+'/compounds',{
     name,
     compound_id:compoundForm.compound_id.trim(),
     smiles:smilesToUse,
-    notes:compoundForm.notes||'',
+    cas_number:compoundForm.cas_number.trim(), notes:compoundForm.notes||'',
     calculate:true
    });
-   setCompoundForm({compound_id:'',name:'',smiles:'',notes:''});
+   setCompoundForm({compound_id:'',name:'',smiles:'',cas_number:'',notes:''});
    setPreview(null);
    setAddCompoundOpen(false);
    let workflow=null;
@@ -705,7 +706,8 @@ function App(){
   const smiles=prompt('New SMILES (creates a new version)');if(!smiles)return;
   try{await api.patch('/compounds/'+detail.row_id,{smiles,change_note:'Manual structure edit'});await openDetail(detail.row_id);await loadProject(projectId);setAdmet(null);setMessage('Version created')}catch(error){setMessage(String(error))}
  };
- const openCompoundEdit=()=>{const currentVersion=detail?.version||detail?.current_version;setCompoundForm({compound_id:detail?.compound_id||'',name:detail?.name||'',smiles:currentVersion?.canonical_smiles||'',notes:detail?.notes||''});setEditingCompound(true);setAddCompoundOpen(true);setMessage('')};
+ const openCompoundEdit=()=>{const currentVersion=detail?.version||detail?.current_version;setCompoundForm({compound_id:detail?.compound_id||'',name:detail?.name||'',smiles:currentVersion?.canonical_smiles||'',cas_number:detail?.cas_number||'',notes:detail?.notes||''});setEditingCompound(true);setAddCompoundOpen(true);setMessage('')};
+ const searchExternalEvidence=async()=>{if(!detail?.cas_number)return;setExternalEvidenceBusy(true);try{setExternalEvidence(await api.get('/compounds/'+detail.row_id+'/external-experimental/search'))}catch(error){setExternalEvidence({status:'ERROR',message:String(error),records:[]})}finally{setExternalEvidenceBusy(false)}};
  const compare=async(event)=>{event?.preventDefault?.();event?.stopPropagation?.();try{const result=await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:''));setComparison(result);setProjectTab('compare');setDetail(null);setGlobalView('dashboard');setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
 
  const saveAdmet=async versionId=>{
@@ -3664,6 +3666,10 @@ function App(){
       e('span',{className:'mono small',style:{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},version.canonical_smiles),
       e('button',{className:'copy-btn',onClick:()=>{navigator.clipboard.writeText(version.canonical_smiles);setMessage('SMILES copied to clipboard');}},'Copy SMILES')
      ]),
+     e('div',{className:'row',style:{marginTop:'8px',alignItems:'center',gap:'8px'}},[
+      e('span',{className:'small'},'CAS No. '),e('strong',{className:'mono small'},detail.cas_number||'Not provided'),
+      e('button',{type:'button',className:'secondary',disabled:!detail.cas_number||externalEvidenceBusy,onClick:searchExternalEvidence,title:detail.cas_number?'Search public experimental evidence after identity verification.':'CAS number is required to search external experimental data.'},externalEvidenceBusy?'Searching…':'Search Experimental Data')
+     ]),
      e('div',{className:'row',style:{marginTop:'12px',alignItems:'center',flexWrap:'wrap',gap:'10px'}},[
       e('button',{className:'btn-predict-primary',disabled:admetBusy||!version,onClick:runFullPredict},[
        admetBusy?'⏳ PREDICTING…':'▶ PREDICT'
@@ -3689,7 +3695,14 @@ function App(){
       e('span',{className:'small'},'— Click Predict to refresh model comparisons and interpretations.')
      ]),
      e('p',{className:'small',style:{margin:'6px 0 0'}},workspace?'Strict scope: Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id:'Draft compound; no version-linked data exists.')
-    ])
+   ])
+   ]),
+   externalEvidence&&e('section',{className:'card',key:'external-evidence'},[
+    e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'EXTERNAL EXPERIMENTAL DATA'),e('h3',{},'CAS-based public evidence preview')]),e('button',{type:'button',className:'secondary',onClick:()=>setExternalEvidence(null)},'Close')]),
+    e('p',{className:'small'},'CAS '+(externalEvidence.cas_number||detail.cas_number||'—')+' · Status: '+externalEvidence.status),
+    externalEvidence.identity&&e('p',{className:'small'},'PubChem CID: '+(externalEvidence.identity.cid||'—')+' · Identity: '+externalEvidence.identity.status),
+    e('p',{className:'small'},externalEvidence.source_notice||externalEvidence.message||'Only source-recorded experimental values with a resolved reference can be imported. PubChem computed properties are excluded.'),
+    (externalEvidence.records||[]).length?e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Value','Unit','Source','Reference','Match'].map(x=>e('th',{key:x},x)))),e('tbody',{},externalEvidence.records.map((row,index)=>e('tr',{key:row.source_record_id||index},[e('td',{},row.endpoint),e('td',{className:'mono'},row.value),e('td',{},row.unit),e('td',{},row.source),e('td',{},row.reference||'REFERENCE_UNRESOLVED'),e('td',{},row.identity_match_status||externalEvidence.identity?.status)])))])):e('p',{className:'small'},'No importable external experimental records were returned.')
    ]),
    e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
     const storedStatus=workspace?.prediction_status?.[tab];
@@ -3778,7 +3791,7 @@ function App(){
       ]),
       e('button',{className:'secondary',onClick:()=>setDetailTab('pk')},'Open Full PK Profile →')
      ]),
-     e('div',{className:'overview-pk-grid'},[
+    e('div',{className:'overview-pk-grid'},[
       e('div',{className:'overview-pk-card'},[
        e('span',{},'Experimental PK'),
        e('strong',{},hasExpPk?studyCount+' Studies':'Unavailable'),
@@ -3936,6 +3949,7 @@ function App(){
   return e('div',{className:'modal-backdrop'},e('div',{className:'card compound-modal'},[
    e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('div',{className:'eyebrow'},editingCompound?'EDIT COMPOUND':'NEW COMPOUND'),e('h2',{},editingCompound?'Edit Compound':'Add Compound')]),e('button',{type:'button',className:'secondary',onClick:()=>{setAddCompoundOpen(false);setEditingCompound(false)}},'Close')]),
    e('div',{className:'grid',key:'identity'},[e('div',{className:'col-6'},Field({label:'Compound Name *',value:compoundForm.name,onChange:value=>setCompoundForm(current=>({...current,name:value})),placeholder:'HIT-001'})),e('div',{className:'col-6'},Field({label:'Compound ID (optional)',value:compoundForm.compound_id,onChange:value=>setCompoundForm(current=>({...current,compound_id:value})),placeholder:'Generated from name if empty'}))]),
+   e('div',{className:'grid',key:'cas'},[e('div',{className:'col-6'},Field({label:'CAS No. (optional)',value:compoundForm.cas_number,onChange:value=>setCompoundForm(current=>({...current,cas_number:value})),placeholder:'123-45-6'})),e('p',{className:'col-6 small',style:{alignSelf:'end'}},'CAS is identifier metadata. Public experimental lookup is available only after a valid CAS and exact structure verification.')]),
    smallMolecule?e(React.Fragment,{key:'editor'},[
     e('h3',{key:'title',style:{marginTop:'22px'}},'Draw Chemical Structure'),e('p',{key:'help',className:'small'},'Draw or edit the compound structure below. The SMILES field updates automatically while you draw.'),
     e('div',{className:'structure-editor-shell',key:'shell'},[

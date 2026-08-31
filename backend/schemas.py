@@ -33,6 +33,7 @@ class ProjectOut(ProjectCreate):
 class CompoundCreate(BaseModel):
     compound_id: str = Field(default="", max_length=50)
     name: str = ""
+    cas_number: str = Field(default="", max_length=12)
     smiles: str = ""
     notes: str = ""
     calculate: bool = True
@@ -40,6 +41,7 @@ class CompoundCreate(BaseModel):
 
 class CompoundUpdate(BaseModel):
     compound_id: Optional[str] = Field(default=None, max_length=50)
+    cas_number: Optional[str] = Field(default=None, max_length=12)
     name: Optional[str] = None
     notes: Optional[str] = None
     smiles: Optional[str] = None
@@ -51,6 +53,7 @@ class CompoundOut(BaseModel):
     row_id: int
     project_id: int
     compound_id: str
+    cas_number: str = ""
     name: str
     notes: str
     status: str = "CALCULATED"

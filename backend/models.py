@@ -30,6 +30,7 @@ class Compound(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
     compound_id: Mapped[str] = mapped_column(String(50), index=True)
+    cas_number: Mapped[str] = mapped_column(String(12), default="", index=True)
     name: Mapped[str] = mapped_column(String(200), default="")
     notes: Mapped[str] = mapped_column(Text, default="")
     status: Mapped[str] = mapped_column(String(40), default="CALCULATED", index=True)
@@ -42,6 +43,33 @@ class Compound(Base):
         back_populates="compound", cascade="all, delete-orphan", order_by="CompoundVersion.version_number"
     )
     __table_args__ = (UniqueConstraint("project_id", "compound_id", name="uq_compound_project_label"),)
+
+
+class ExternalExperimentalEvidence(Base):
+    """Immutable external experimental evidence; never replaces predictions or internal experiments."""
+    __tablename__ = "external_experimental_evidence"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    compound_version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    provenance_key: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    cas_number: Mapped[str] = mapped_column(String(12), default="")
+    raw_endpoint_name: Mapped[str] = mapped_column(String(120))
+    raw_value: Mapped[str] = mapped_column(Text)
+    raw_relation: Mapped[str] = mapped_column(String(12), default="=")
+    raw_unit: Mapped[str] = mapped_column(String(80), default="")
+    assay_type: Mapped[str] = mapped_column(String(80), default="")
+    assay_conditions_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    species: Mapped[str] = mapped_column(String(100), default="")
+    source_database: Mapped[str] = mapped_column(String(40))
+    source_record_id: Mapped[str] = mapped_column(String(160))
+    source_assay_id: Mapped[str] = mapped_column(String(160), default="")
+    source_document_id: Mapped[str] = mapped_column(String(160), default="")
+    reference_text: Mapped[str] = mapped_column(Text, default="")
+    source_url: Mapped[str] = mapped_column(Text, default="")
+    identity_match_status: Mapped[str] = mapped_column(String(50))
+    endpoint_match_status: Mapped[str] = mapped_column(String(50))
+    evidence_origin: Mapped[str] = mapped_column(String(40), default="EXPERIMENTAL_EXTERNAL")
+    retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 
 class CompoundVersion(Base):
@@ -130,5 +158,7 @@ def ensure_ui_schema(engine):
             connection.execute(text("ALTER TABLE projects ADD COLUMN molecule_type VARCHAR(40) NOT NULL DEFAULT 'Small Molecule'"))
         if "status" not in compound_columns:
             connection.execute(text("ALTER TABLE compounds ADD COLUMN status VARCHAR(40) NOT NULL DEFAULT 'CALCULATED'"))
+        if "cas_number" not in compound_columns:
+            connection.execute(text("ALTER TABLE compounds ADD COLUMN cas_number VARCHAR(12) NOT NULL DEFAULT ''"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))

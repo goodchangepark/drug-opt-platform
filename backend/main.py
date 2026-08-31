@@ -74,7 +74,7 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
                               STRATEGY_ONLY_TRANSFORMATIONS,
                               execute_proposal_run, process_user_candidate,
                               rank_candidates)
-from .models import (Compound, CompoundVersion, PredictionRun, Project,
+from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
@@ -100,9 +100,14 @@ from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STAT
                             CURRENT_STAGE_SUBSTATUS, GLOSSARY, LIMITATIONS, build_version,
                             latest_release_date, package_inventory, structure_modules,
                             version_history)
+from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
 
 
 CURRENT_STAGE = "5B-4"
+
+
+def _valid_cas_number(value: str) -> bool:
+    return valid_cas(value)
 
 
 @asynccontextmanager
@@ -625,7 +630,7 @@ def bulk_delete_projects(payload: dict, db: Session = Depends(get_db)):
 def compound_out(compound: Compound):
     current = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1] if compound.versions else None)
     return {
-        "row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id,
+        "row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id, "cas_number": compound.cas_number,
         "name": compound.name, "notes": compound.notes, "current_version": compound.current_version,
         "status": compound.status,
         "created_at": compound.created_at.isoformat(), "updated_at": compound.updated_at.isoformat(),
@@ -736,7 +741,10 @@ def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depe
         compound_id = f"{base_id[:45]}-{suffix}"; suffix += 1
     existing_label = db.scalar(select(Compound).where(Compound.project_id == project_id, Compound.compound_id == compound_id))
     if existing_label: raise HTTPException(status_code=409, detail="Compound ID already exists in project")
-    compound = Compound(project_id=project_id, compound_id=compound_id, name=name, notes=payload.notes, status="DRAFT")
+    cas_number = payload.cas_number.strip()
+    if cas_number and not _valid_cas_number(cas_number):
+        raise HTTPException(status_code=422, detail="Invalid CAS number checksum")
+    compound = Compound(project_id=project_id, compound_id=compound_id, name=name, cas_number=cas_number, notes=payload.notes, status="DRAFT")
     db.add(compound); db.flush()
     if not payload.smiles.strip():
         db.commit(); db.refresh(compound); return compound_out(compound)
@@ -971,6 +979,36 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
     return result
 
 
+@app.get("/api/compounds/{row_id}/external-experimental/search")
+def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
+    """Explicit CAS-only public lookup; no write occurs during search."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    status = cas_status(compound.cas_number)
+    if status != "VALID":
+        return {"status": "DISABLED_NO_CAS" if status == "EMPTY" else "DISABLED_INVALID_CAS", "cas_status": status, "records": []}
+    current = next((v for v in compound.versions if v.version_number == compound.current_version), None)
+    if not current:
+        return {"status": "STRUCTURE_MISMATCH", "cas_status": status, "records": []}
+    result = external_evidence_lookup(compound.cas_number, current.inchikey)
+    result["cas_status"] = status
+    result["compound_version_id"] = current.id
+    return result
+
+
+@app.get("/api/compounds/{row_id}/external-experimental")
+def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    version_ids = [v.id for v in compound.versions]
+    rows = db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(version_ids)).order_by(ExternalExperimentalEvidence.imported_at.desc())).all() if version_ids else []
+    return {"records": [{"id": row.id, "endpoint": row.raw_endpoint_name, "value": row.raw_value, "unit": row.raw_unit,
+                         "relation": row.raw_relation, "source": row.source_database, "reference": row.reference_text,
+                         "source_url": row.source_url, "evidence_origin": row.evidence_origin} for row in rows]}
+
+
 @app.patch("/api/compounds/{row_id}")
 def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
@@ -981,6 +1019,11 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
         compound.name = payload.name.strip()
     if payload.compound_id is not None:
         compound.compound_id = payload.compound_id.strip()
+    if payload.cas_number is not None:
+        cas_number = payload.cas_number.strip()
+        if cas_number and not _valid_cas_number(cas_number):
+            raise HTTPException(status_code=422, detail="Invalid CAS number checksum")
+        compound.cas_number = cas_number
     if payload.notes is not None: compound.notes = payload.notes
     compound.updated_at = utcnow()
     if payload.smiles:
