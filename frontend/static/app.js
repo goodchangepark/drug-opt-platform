@@ -704,7 +704,7 @@ function App(){
   const smiles=prompt('New SMILES (creates a new version)');if(!smiles)return;
   try{await api.patch('/compounds/'+detail.row_id,{smiles,change_note:'Manual structure edit'});await openDetail(detail.row_id);await loadProject(projectId);setAdmet(null);setMessage('Version created')}catch(error){setMessage(String(error))}
  };
- const openCompoundEdit=()=>{setCompoundForm({compound_id:detail.compound_id||'',name:detail.name||'',smiles:version?.canonical_smiles||'',notes:detail.notes||''});setEditingCompound(true);setAddCompoundOpen(true);setMessage('')};
+ const openCompoundEdit=()=>{const currentVersion=detail?.version||detail?.current_version;setCompoundForm({compound_id:detail?.compound_id||'',name:detail?.name||'',smiles:currentVersion?.canonical_smiles||'',notes:detail?.notes||''});setEditingCompound(true);setAddCompoundOpen(true);setMessage('')};
  const compare=async(event)=>{event?.preventDefault?.();event?.stopPropagation?.();try{const result=await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:''));setComparison(result);setProjectTab('compare');setDetail(null);setGlobalView('dashboard');setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
 
  const saveAdmet=async versionId=>{
