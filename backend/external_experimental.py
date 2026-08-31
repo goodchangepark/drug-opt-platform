@@ -80,9 +80,78 @@ def lookup(cas_number: str, local_inchikey: str) -> dict:
         _CACHE[cas_number] = (time.monotonic(), dict(identity))
     match = _identity_status(identity.get("isomeric_smiles") or identity.get("canonical_smiles", ""), local_inchikey)
     identity.update(match)
-    # PubChem calculated properties are deliberately excluded. Activity adapters
-    # will add only source-recorded values with a reference in future releases.
+    records = []
+    if match["status"] == "EXACT_STRUCTURE_MATCH" and identity.get("cid"):
+        records.extend(_pubchem_experimental_annotations(identity["cid"], cas_number))
+        records.extend(_chembl_activities(identity.get("public_inchikey", ""), cas_number))
     return {"status": "RESULTS_AVAILABLE" if match["status"] == "EXACT_STRUCTURE_MATCH" else match["status"],
-            "cas_number": cas_number, "identity": identity, "records": [],
-            "source_notice": "PubChem computed properties are not experimental evidence and are not shown as importable values.",
+            "cas_number": cas_number, "identity": identity, "records": records,
+            "source_notice": "PubChem computed properties are excluded. Activity values retain source assay context and are not silently mapped to project assays.",
             "retrieved_at": datetime.now(timezone.utc).isoformat()}
+
+
+def _walk(value):
+    if isinstance(value, dict):
+        yield value
+        for item in value.values():
+            yield from _walk(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _walk(item)
+
+
+def _pubchem_experimental_annotations(cid: int, cas_number: str) -> list[dict]:
+    body = _get_json(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug_view/data/compound/{cid}/JSON?heading=Experimental%20Properties")
+    if body.get("_error") or body.get("_not_found"):
+        return []
+    records = []
+    for section in _walk(body):
+        info = section.get("Information") if isinstance(section, dict) else None
+        heading = section.get("TOCHeading", "") if isinstance(section, dict) else ""
+        if not isinstance(info, list):
+            continue
+        for item in info:
+            value = item.get("Value", {}).get("StringWithMarkup", [])
+            raw_value = "; ".join(x.get("String", "") for x in value if x.get("String"))
+            refs = item.get("Reference", []) or []
+            reference = "; ".join((r.get("SourceName") or r.get("URL") or "") for r in refs if (r.get("SourceName") or r.get("URL")))
+            if not raw_value:
+                continue
+            records.append({"source": "PubChem", "source_record_id": f"CID:{cid}:{item.get('Name','Experimental property')}",
+                            "endpoint": item.get("Name") or heading or "Experimental property", "value": raw_value,
+                            "unit": "", "relation": "=", "conditions": item.get("Description", ""),
+                            "reference": reference or "REFERENCE_UNRESOLVED", "source_url": f"https://pubchem.ncbi.nlm.nih.gov/compound/{cid}",
+                            "reference_status": "REFERENCE_RESOLVED" if reference else "REFERENCE_UNRESOLVED",
+                            "identity_match_status": "EXACT_STRUCTURE_MATCH", "endpoint_match_status": "ASSAY_CONTEXT_REQUIRED",
+                            "import_eligible": False, "evidence_origin": "EXPERIMENTAL_EXTERNAL"})
+    return records
+
+
+def _chembl_activities(inchikey: str, cas_number: str) -> list[dict]:
+    if not inchikey:
+        return []
+    molecules = _get_json("https://www.ebi.ac.uk/chembl/api/data/molecule.json?format=json&limit=5&molecule_structures__standard_inchi_key=" + quote(inchikey))
+    molecule_rows = molecules.get("molecules", []) if isinstance(molecules, dict) else []
+    if not molecule_rows:
+        return []
+    chembl_id = molecule_rows[0].get("molecule_chembl_id")
+    if not chembl_id:
+        return []
+    data = _get_json("https://www.ebi.ac.uk/chembl/api/data/activity.json?format=json&limit=100&molecule_chembl_id=" + quote(chembl_id))
+    records = []
+    for row in data.get("activities", []) if isinstance(data, dict) else []:
+        value, unit, kind = row.get("standard_value"), row.get("standard_units"), row.get("standard_type")
+        if value in (None, "") or kind not in {"IC50", "EC50", "Ki", "Kd"}:
+            continue
+        activity_id = str(row.get("activity_id", ""))
+        assay_id, document_id = str(row.get("assay_chembl_id", "")), str(row.get("document_chembl_id", ""))
+        reference = "ChEMBL " + activity_id + (" · " + document_id if document_id else "")
+        records.append({"source": "ChEMBL", "source_record_id": activity_id, "endpoint": kind, "value": str(value), "unit": unit or "",
+                        "relation": row.get("standard_relation") or "=", "target": row.get("target_chembl_id", ""),
+                        "assay_id": assay_id, "document_id": document_id, "conditions": row.get("assay_description") or "",
+                        "species": row.get("target_organism") or "", "reference": reference if activity_id else "REFERENCE_UNRESOLVED",
+                        "source_url": "https://www.ebi.ac.uk/chembl/explore/activities/" + activity_id,
+                        "reference_status": "REFERENCE_RESOLVED" if activity_id else "REFERENCE_UNRESOLVED",
+                        "identity_match_status": "EXACT_STRUCTURE_MATCH", "endpoint_match_status": "ASSAY_CONTEXT_REQUIRED",
+                        "import_eligible": False, "evidence_origin": "EXPERIMENTAL_EXTERNAL"})
+    return records

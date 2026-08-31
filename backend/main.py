@@ -1007,6 +1007,34 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "source_url": row.source_url, "evidence_origin": row.evidence_origin} for row in rows]}
 
 
+@app.post("/api/compounds/{row_id}/external-experimental/import")
+def import_external_experimental_data(row_id: int, payload: dict, db: Session = Depends(get_db)):
+    """Explicit user import; raw source values and reference are immutable provenance."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    current = next((v for v in compound.versions if v.version_number == compound.current_version), None)
+    if not current:
+        raise HTTPException(status_code=400, detail="Compound has no structure version")
+    imported, duplicates = 0, 0
+    for row in payload.get("records") or []:
+        if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or row.get("reference_status") != "REFERENCE_RESOLVED":
+            continue
+        if not str(row.get("value", "")).strip() or not str(row.get("reference", "")).strip():
+            continue
+        fingerprint = hashlib.sha256(json.dumps({"version": current.inchikey, "source": row.get("source"), "record": row.get("source_record_id"), "endpoint": row.get("endpoint"), "value": row.get("value"), "unit": row.get("unit"), "relation": row.get("relation")}, sort_keys=True).encode()).hexdigest()
+        if db.scalar(select(ExternalExperimentalEvidence.id).where(ExternalExperimentalEvidence.provenance_key == fingerprint)):
+            duplicates += 1; continue
+        db.add(ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number,
+               raw_endpoint_name=str(row.get("endpoint", "")), raw_value=str(row.get("value", "")), raw_relation=str(row.get("relation", "=")), raw_unit=str(row.get("unit", "")),
+               assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
+               source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
+               reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED"))))
+        imported += 1
+    db.commit()
+    return {"imported": imported, "already_imported": duplicates, "evidence_origin": "EXPERIMENTAL_EXTERNAL"}
+
+
 @app.patch("/api/compounds/{row_id}")
 def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
