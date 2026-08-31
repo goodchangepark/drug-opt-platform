@@ -994,9 +994,12 @@ function App(){
    e('div',{className:'grid',key:'summary'},[group('Strengths',summary.strengths,'strengths'),group('Concerns',summary.concerns,'concerns')]),
    (summary.unknown||[]).length>0&&e('details',{key:'unavailable',className:'unavailable-collapse'},[e('summary',{},'Unavailable models ('+summary.unknown.length+')'),e('ul',{className:'small'},summary.unknown.map(text=>e('li',{key:text},text)))]),
    e('div',{key:'audit',className:profile.provenance_audit?.status==='PASS'?'pass':'fail'},'Provenance audit: '+profile.provenance_audit?.status+' · '+profile.provenance_audit?.checked+' latest endpoint predictions checked'),
-   projectAdaptation?.endpoints?.length>0&&e('details',{key:'project-adaptation'},[e('summary',{},'Project Adaptation'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Qualified N','Effective N','Status','Base error','Adapted error','Adapter'].map(x=>e('th',{key:x},x)))),e('tbody',{},projectAdaptation.endpoints.map(row=>e('tr',{key:row.endpoint_id},[e('td',{},row.endpoint_id),e('td',{},row.raw_n),e('td',{},row.effective_n),e('td',{},row.status),e('td',{},row.base_validation_error??'—'),e('td',{},row.adapted_validation_error??'—'),e('td',{},row.active_adapter_version||'Collecting data')])))]))])
+   projectAdaptation?.endpoints?.length>0&&e('details',{key:'project-adaptation'},[e('summary',{},'Prediction Maturity & Project Adaptation'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Maturity','Qualified N','Effective N','Status','Base error','Adapted error','Adapter'].map(x=>e('th',{key:x},x)))),e('tbody',{},projectAdaptation.endpoints.map(row=>e('tr',{key:row.endpoint_id},[e('td',{},row.endpoint_id),e('td',{},[MaturityStars({maturity:row.maturity}),e('span',{className:'small'},' '+row.maturity.label)]),e('td',{},row.raw_n),e('td',{},row.effective_n),e('td',{},row.status),e('td',{},row.base_validation_error??'—'),e('td',{},row.adapted_validation_error??'—'),e('td',{},row.active_adapter_version||'Collecting data')])))])),e('p',{className:'small'},'Stars indicate the maturity of project-specific experimental adaptation, not an absolute guarantee of predictive accuracy.')])
   ]);
  }
+
+ function maturityForEndpoint(endpoint){return projectAdaptation?.endpoints?.find(row=>row.endpoint_id===endpoint)?.maturity||{level:1,label:'Base Prediction',stars:'★☆☆☆☆',aria_label:'Prediction maturity 1 of 5 — Base Prediction'};}
+ function MaturityStars({maturity}){const item=maturity||{level:1,label:'Base Prediction',aria_label:'Prediction maturity 1 of 5 — Base Prediction'};return e('span',{className:'maturity-stars',role:'img','aria-label':item.aria_label,title:'Prediction Maturity · '+item.label+' · Stars indicate project-specific experimental adaptation maturity, not an absolute guarantee of predictive accuracy.'},[...Array(5)].map((_,index)=>e('span',{key:index,className:index<item.level?'maturity-star-filled':'maturity-star-empty'},'★')));}
 
  function admetPredictionTable(rows){
   if(!rows.length)return e('div',{className:'empty-state'},[StatusBadge({type:'Not predicted'}),e('p',{key:'text'},'Prediction not run for this CompoundVersion.'),e('button',{key:'run',className:'secondary',disabled:admetBusy||!detail?.version,onClick:()=>runPrediction(detail.version.id)},'Run Predictions')]);
@@ -1012,7 +1015,7 @@ function App(){
      e('td',{key:'compound',className:'mono'},versionLabel(prediction.version_id)),
      e('td',{key:'endpoint'},prediction.endpoint==='Permeability'?'Caco-2':prediction.endpoint),
      e('td',{key:'experimental'},experimental),
-     e('td',{key:'predicted',className:'mono'},Number(prediction.predicted_value).toFixed(3)+' '+prediction.unit+error+flag),
+     e('td',{key:'predicted',className:'mono'},[Number(prediction.predicted_value).toFixed(3)+' '+prediction.unit+error+flag,' ',MaturityStars({maturity:maturityForEndpoint(prediction.endpoint)})]),
      e('td',{key:'model',className:'small'},prediction.model?.model_name+' '+prediction.model?.model_version),
      e('td',{key:'confidence'},prediction.confidence),e('td',{key:'domain'},prediction.applicability_domain),
      e('td',{key:'details'},predictionDetails(prediction))
@@ -1031,7 +1034,7 @@ function App(){
    const consensus=consensusByEndpoint.get(endpoint),classification=consensus?.classification;
    return e('article',{className:'endpoint-prediction-card',key:endpoint},[
     e('div',{className:'row toolbar',key:'head'},[e('h4',{},endpoint==='Permeability'?'Caco-2 Permeability':endpoint),e('span',{className:'small'},'Individual Models: '+models.length)]),
-    e('div',{className:'consensus-result',key:'combined'},[e('span',{},'Combined Prediction'),e('strong',{className:'mono'},classification||((consensus?.combined_value??models[0].predicted_value).toFixed(3)+' '+(consensus?.unit||models[0].unit))),e('div',{className:'small'},'Confidence '+(consensus?.confidence||models[0].confidence)+' · Domain '+(consensus?.applicability_domain||models[0].applicability_domain))]),
+    e('div',{className:'consensus-result',key:'combined'},[e('span',{},'Combined Prediction'),e('strong',{className:'mono'},[classification||((consensus?.combined_value??models[0].predicted_value).toFixed(3)+' '+(consensus?.unit||models[0].unit)),' ',MaturityStars({maturity:maturityForEndpoint(endpoint)})]),e('div',{className:'small'},(maturityForEndpoint(endpoint).level>=2?'Experimental-informed · ':'')+'Confidence '+(consensus?.confidence||models[0].confidence)+' · Domain '+(consensus?.applicability_domain||models[0].applicability_domain))]),
     e('div',{className:'individual-models',key:'models'},models.map(row=>e('div',{className:'individual-model-row',key:row.id},[e('div',{},[e('strong',{},row.model.model_name),e('span',{className:'small'},' v'+row.model.model_version)]),e('span',{className:'mono'},(row.outputs?.classification||Number(row.predicted_value).toFixed(3))+(row.outputs?.classification?'':' '+row.unit)),e('span',{className:'small'},row.confidence+' · '+row.applicability_domain),predictionDetails(row)]))),
     consensus&&e('details',{key:'consensus-details'},[e('summary',{},'Consensus provenance'),e('div',{className:'small'},[e('div',{},consensus.provenance?.weighting_policy),...(consensus.models||[]).map(item=>e('div',{key:item.model_id},item.model_name+' '+item.model_version+' · weight '+Number(item.weight).toFixed(3)))])])
    ]);
@@ -4034,6 +4037,7 @@ function App(){
    hERG:'No cardiac liability preferred',Ames:'No mutagenicity preferred',DILI:'No clinical hepatotoxicity preferred'
   };
   const metrics=(comparison?.metrics||[]).filter(metric=>compareMetrics.includes(metric));
+  const maturityEndpoint={Solubility:'Solubility','Caco-2':'Permeability',PPB:'Plasma protein binding',HLM:'HLM intrinsic clearance',RLM:'RLM intrinsic clearance',MLM:'MLM intrinsic clearance'};
   const comparisonDirection={MW:'LOWER_IS_BETTER',cLogP:'LOWER_IS_BETTER',TPSA:'LOWER_IS_BETTER',QED:'HIGHER_IS_BETTER',Activity:'LOWER_IS_BETTER',Solubility:'HIGHER_IS_BETTER','Caco-2':'HIGHER_IS_BETTER',PPB:'INFORMATION_ONLY',fu:'INFORMATION_ONLY',HLM:'LOWER_IS_BETTER',RLM:'LOWER_IS_BETTER',MLM:'LOWER_IS_BETTER','CYP3A4 Inh':'LOWER_IS_BETTER','P-gp Inh':'LOWER_IS_BETTER',hERG:'LOWER_IS_BETTER',Ames:'LOWER_IS_BETTER',DILI:'LOWER_IS_BETTER'};
   const cellClass=(metric,value)=>{const dir=comparisonDirection[metric],n=Number(value),vals=(comparison?.compounds||[]).map(c=>Number(c[metric])).filter(Number.isFinite);if(!dir||dir==='INFORMATION_ONLY'||!Number.isFinite(n)||vals.length<2||Math.min(...vals)===Math.max(...vals))return 'comparison-value';const best=dir==='HIGHER_IS_BETTER'?Math.max(...vals):Math.min(...vals),worst=dir==='HIGHER_IS_BETTER'?Math.min(...vals):Math.max(...vals);return 'comparison-value '+(n===best?'comparison-value-best':n===worst?'comparison-value-worst':'');};
   return e('div',{},[
@@ -4061,7 +4065,7 @@ function App(){
      e('tbody',{},metrics.map(metric=>e('tr',{key:metric},[
       e('th',{scope:'row'},[e('div',{className:'comparison-metric-title'},metric),e('small',{className:'comparison-criteria'},metricCriteria[metric]||'Evidence shown below')]),
       ...(comparison.compounds||[]).map(compound=>e('td',{key:compound.row_id,className:cellClass(metric,compound[metric])},[
-       e('span',{className:'mono'},compound[metric]??'—'),
+       e('span',{className:'mono'},[compound[metric]??'—',maturityEndpoint[metric]&&compound.sources?.[metric]==='Predicted'?' ':null,maturityEndpoint[metric]&&compound.sources?.[metric]==='Predicted'?MaturityStars({maturity:maturityForEndpoint(maturityEndpoint[metric])}):null]),
        e('div',{className:'comparison-source'},StatusBadge({type:compound.sources?.[metric]||'Not measured'}))
       ]))
      ])))

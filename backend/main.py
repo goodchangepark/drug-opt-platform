@@ -107,6 +107,7 @@ from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, 
 from .experimental_harvester import harvest_public_evidence, resolve_public_identity
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
+from .prediction_maturity import maturity_for_adapter
 
 
 CURRENT_STAGE = "5B-4"
@@ -2196,8 +2197,10 @@ def project_adaptation_dashboard(project_id: int, db: Session = Depends(get_db))
     for endpoint_id in endpoints:
         preview, _ = _project_adapter_preview(db, project_id, endpoint_id)
         latest = db.scalar(select(ProjectAdapterVersion).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id).order_by(ProjectAdapterVersion.created_at.desc()))
-        rows.append(preview | {"active_adapter_version": latest.adapter_version if latest and latest.active else None,
-                               "active": bool(latest and latest.active)})
+        active = bool(latest and latest.active)
+        maturity = maturity_for_adapter(status=latest.status if active else "BASE_ONLY", effective_n=latest.effective_n if active else preview["effective_n"], activation_decision=latest.activation_decision if active else "BASE_RETAINED", stable_history_count=len(list(db.scalars(select(ProjectAdapterVersion.id).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id, ProjectAdapterVersion.activation_decision == "ACTIVATED")))), representative_series=(latest.effective_n if active else 0) >= 20)
+        rows.append(preview | {"active_adapter_version": latest.adapter_version if active else None,
+                               "active": active, "maturity": maturity.to_dict()})
     return {"project_id": project_id, "policy_version": ADAPTER_POLICY_VERSION, "activation_requires_explicit_action": True, "endpoints": rows}
 
 
@@ -2627,6 +2630,19 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     consensuses = _store_consensus_predictions(
         db, version, compound.project_id, list(refreshed_core_preds.values())
     )
+    # Capture maturity with this newly generated prediction.  Cached/historical
+    # predictions are deliberately not revisited when later evidence arrives.
+    for prediction in refreshed_core_preds.values():
+        adapter = db.scalar(select(ProjectAdapterVersion).where(
+            ProjectAdapterVersion.project_id == compound.project_id,
+            ProjectAdapterVersion.endpoint_id == prediction.model.endpoint_name,
+            ProjectAdapterVersion.active == True,
+        ).order_by(ProjectAdapterVersion.created_at.desc()))
+        maturity = maturity_for_adapter(status=adapter.status if adapter else "BASE_ONLY", effective_n=adapter.effective_n if adapter else 0.0,
+            activation_decision=adapter.activation_decision if adapter else "BASE_RETAINED", representative_series=bool(adapter and adapter.effective_n >= 20)).to_dict()
+        prediction.outputs_json = dict(prediction.outputs_json or {}) | {"prediction_maturity": maturity,
+            "prediction_maturity_adapter_version": adapter.adapter_version if adapter else "",
+            "prediction_maturity_calculated_at": datetime.now(timezone.utc).isoformat()}
     db.commit()
 
     # Refresh endpoint names after potential additions

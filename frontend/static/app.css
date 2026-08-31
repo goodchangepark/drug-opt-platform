@@ -1547,3 +1547,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .ivive-source-calc { border-left: 3px solid #059669; }
 .ivive-source-user-override { border-left: 3px solid #d97706; }
 .ivive-comparison { margin-top: 12px; }
+
+/* Project adaptation maturity: gold is reserved for filled stars. */
+.maturity-stars { display: inline-flex; gap: 1px; white-space: nowrap; font-size: 0.82em; vertical-align: baseline; }
+.maturity-star-filled { color: #F5B700; }
+.maturity-star-empty { color: #cbd5e1; }
