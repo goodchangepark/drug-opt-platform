@@ -991,6 +991,15 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
         except HTTPException: db.rollback(); raise
         except ChemistryError as exc: db.rollback(); raise HTTPException(status_code=400, detail=str(exc))
     else:
+        # Metadata edits invalidate cached prediction outputs for the current
+        # compound versions; the next explicit Predict run rebuilds them.
+        version_ids = [v.id for v in compound.versions]
+        if version_ids:
+            db.execute(delete(ADMETPrediction).where(ADMETPrediction.version_id.in_(version_ids)))
+            db.execute(delete(ADMETPredictionRun).where(ADMETPredictionRun.version_id.in_(version_ids)))
+            db.execute(delete(ActivityPrediction).where(ActivityPrediction.version_id.in_(version_ids)))
+            db.execute(delete(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id.in_(version_ids)))
+            db.execute(delete(PredictionRun).where(PredictionRun.version_id.in_(version_ids)))
         db.commit()
     db.refresh(compound); return compound_out(compound)
 
