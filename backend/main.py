@@ -979,6 +979,8 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
         if not payload.name.strip():
             raise HTTPException(status_code=400, detail="Compound Name is required")
         compound.name = payload.name.strip()
+    if payload.compound_id is not None:
+        compound.compound_id = payload.compound_id.strip()
     if payload.notes is not None: compound.notes = payload.notes
     compound.updated_at = utcnow()
     if payload.smiles:

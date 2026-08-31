@@ -39,6 +39,7 @@ class CompoundCreate(BaseModel):
 
 
 class CompoundUpdate(BaseModel):
+    compound_id: Optional[str] = Field(default=None, max_length=50)
     name: Optional[str] = None
     notes: Optional[str] = None
     smiles: Optional[str] = None

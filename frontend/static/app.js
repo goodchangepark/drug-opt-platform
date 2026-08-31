@@ -653,7 +653,8 @@ function App(){
   }
   try{
    if(editingCompound&&detail){
-    await api.patch('/compounds/'+detail.row_id,{name,compound_id:compoundForm.compound_id.trim(),notes:compoundForm.notes||''});
+    const changedSmiles=smilesToUse&&smilesToUse!==(version?.canonical_smiles||'');
+    await api.patch('/compounds/'+detail.row_id,{name,compound_id:compoundForm.compound_id.trim(),notes:compoundForm.notes||'',...(changedSmiles?{smiles:smilesToUse,change_note:'Manual structure edit'}:{})});
     setAddCompoundOpen(false);setEditingCompound(false);await openDetail(detail.row_id);await loadProject(projectId);setMessage('Compound information updated');return;
    }
    const saved=await api.post('/projects/'+projectId+'/compounds',{
