@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -30,7 +31,7 @@ class Compound(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
     compound_id: Mapped[str] = mapped_column(String(50), index=True)
-    cas_number: Mapped[str] = mapped_column(String(12), default="", index=True)
+    cas_number: Mapped[Optional[str]] = mapped_column(String(12), nullable=True, default=None, index=True)
     name: Mapped[str] = mapped_column(String(200), default="")
     notes: Mapped[str] = mapped_column(Text, default="")
     status: Mapped[str] = mapped_column(String(40), default="CALCULATED", index=True)

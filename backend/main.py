@@ -19,7 +19,7 @@ from pathlib import Path
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from rdkit import Chem
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, inspect, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -115,6 +115,20 @@ CURRENT_STAGE = "5B-4"
 
 def _valid_cas_number(value: str) -> bool:
     return valid_cas(value)
+
+
+def _normalize_cas(value: str | None) -> str | None:
+    """CAS is optional metadata; normalize all empty UI representations."""
+    cleaned = str(value or "").strip()
+    return cleaned or None
+
+
+def _cas_storage_value(db: Session, value: str | None) -> str | None:
+    """Use NULL on new schemas; safely preserve the legacy SQLite NOT NULL column."""
+    if value is not None:
+        return value
+    column = next((row for row in inspect(db.bind).get_columns("compounds") if row["name"] == "cas_number"), None)
+    return None if column and column.get("nullable") else ""
 
 
 @asynccontextmanager
@@ -637,7 +651,7 @@ def bulk_delete_projects(payload: dict, db: Session = Depends(get_db)):
 def compound_out(compound: Compound):
     current = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1] if compound.versions else None)
     return {
-        "row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id, "cas_number": compound.cas_number,
+        "row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id, "cas_number": compound.cas_number or None,
         "name": compound.name, "notes": compound.notes, "current_version": compound.current_version,
         "status": compound.status,
         "created_at": compound.created_at.isoformat(), "updated_at": compound.updated_at.isoformat(),
@@ -748,8 +762,8 @@ def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depe
         compound_id = f"{base_id[:45]}-{suffix}"; suffix += 1
     existing_label = db.scalar(select(Compound).where(Compound.project_id == project_id, Compound.compound_id == compound_id))
     if existing_label: raise HTTPException(status_code=409, detail="Compound ID already exists in project")
-    cas_number = payload.cas_number.strip()
-    compound = Compound(project_id=project_id, compound_id=compound_id, name=name, cas_number=cas_number, notes=payload.notes, status="DRAFT")
+    cas_number = _normalize_cas(payload.cas_number)
+    compound = Compound(project_id=project_id, compound_id=compound_id, name=name, cas_number=_cas_storage_value(db, cas_number), notes=payload.notes, status="DRAFT")
     db.add(compound); db.flush()
     if not payload.smiles.strip():
         db.commit(); db.refresh(compound); return compound_out(compound)
@@ -990,13 +1004,13 @@ def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)
     compound = db.get(Compound, row_id)
     if not compound:
         raise HTTPException(status_code=404, detail="Compound not found")
-    status = cas_status(compound.cas_number)
+    status = cas_status(compound.cas_number or "")
     if status != "VALID":
         return {"status": "DISABLED_NO_CAS" if status == "EMPTY" else "DISABLED_INVALID_CAS", "cas_status": status, "records": []}
     current = next((v for v in compound.versions if v.version_number == compound.current_version), None)
     if not current:
         return {"status": "STRUCTURE_MISMATCH", "cas_status": status, "records": []}
-    result = external_evidence_lookup(compound.cas_number, current.inchikey)
+    result = external_evidence_lookup(compound.cas_number or "", current.inchikey)
     assays = db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id, AssayDefinition.active == True)).all()
     result["project_assays"] = [{"id": assay.id, "name": assay.name, "measurement_type": assay.measurement_type, "target": assay.target, "species": assay.species, "cell_line": assay.cell_line, "unit": assay.unit} for assay in assays]
     molecular_weight = (current.properties_json or {}).get("molecular_weight")
@@ -1071,6 +1085,8 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
     imported, duplicates = 0, 0
     assay_ids = {assay.id: assay for assay in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
     for row in payload.get("records") or []:
+        if row.get("record_status") in {"LITERATURE_CANDIDATE", "REGULATORY_CANDIDATE", "PK_STUDY_CANDIDATE"}:
+            continue
         if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or not str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED"):
             continue
         if not str(row.get("value", "")).strip() or not str(row.get("reference", "")).strip():
@@ -1084,7 +1100,7 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         if assay and (assay.measurement_type.upper() != str(row.get("endpoint", "")).upper() or assay.unit.lower() != str(row.get("unit", "")).lower()):
             raise HTTPException(status_code=400, detail="External measurement type or unit does not match selected project assay")
         display = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("assay_type", ""), target=row.get("target", ""), mw=(current.properties_json or {}).get("molecular_weight"))
-        db.add(ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number,
+        db.add(ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number or "",
                raw_endpoint_name=str(row.get("endpoint", "")), raw_value=str(row.get("value", "")), raw_relation=str(row.get("relation", "=")), raw_unit=str(row.get("unit", "")),
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
@@ -1119,8 +1135,7 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
     if payload.compound_id is not None:
         compound.compound_id = payload.compound_id.strip()
     if payload.cas_number is not None:
-        cas_number = payload.cas_number.strip()
-        compound.cas_number = cas_number
+        compound.cas_number = _cas_storage_value(db, _normalize_cas(payload.cas_number))
     if payload.notes is not None: compound.notes = payload.notes
     compound.updated_at = utcnow()
     if payload.smiles:

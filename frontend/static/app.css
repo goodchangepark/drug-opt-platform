@@ -1549,6 +1549,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .ivive-comparison { margin-top: 12px; }
 
 /* Project adaptation maturity: gold is reserved for filled stars. */
-.maturity-stars { display: inline-flex; gap: 1px; white-space: nowrap; font-size: 0.82em; vertical-align: baseline; }
+.maturity-stars { display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; vertical-align: middle; min-width: 88px; overflow: visible; opacity: 1; }
+.maturity-stars svg { display: block; flex: 0 0 14px; width: 14px; height: 14px; }
 .maturity-star-filled { color: #F5B700; }
-.maturity-star-empty { color: #cbd5e1; }
+.maturity-star-empty { color: #94a3b8; }
+.maturity-level-text { color: #64748b; font-size: 0.78rem; font-weight: 600; margin-left: 3px; }
