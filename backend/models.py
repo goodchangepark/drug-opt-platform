@@ -67,6 +67,8 @@ class ExternalExperimentalEvidence(Base):
     source_url: Mapped[str] = mapped_column(Text, default="")
     identity_match_status: Mapped[str] = mapped_column(String(50))
     endpoint_match_status: Mapped[str] = mapped_column(String(50))
+    mapping_status: Mapped[str] = mapped_column(String(60), default="EXTERNAL_EVIDENCE_ONLY")
+    mapped_assay_id: Mapped[int | None] = mapped_column(ForeignKey("assay_definitions.id", ondelete="SET NULL"), nullable=True, index=True)
     evidence_origin: Mapped[str] = mapped_column(String(40), default="EXPERIMENTAL_EXTERNAL")
     retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
@@ -160,5 +162,11 @@ def ensure_ui_schema(engine):
             connection.execute(text("ALTER TABLE compounds ADD COLUMN status VARCHAR(40) NOT NULL DEFAULT 'CALCULATED'"))
         if "cas_number" not in compound_columns:
             connection.execute(text("ALTER TABLE compounds ADD COLUMN cas_number VARCHAR(12) NOT NULL DEFAULT ''"))
+        if "external_experimental_evidence" in tables:
+            evidence_columns = {row["name"] for row in inspector.get_columns("external_experimental_evidence")}
+            if "mapping_status" not in evidence_columns:
+                connection.execute(text("ALTER TABLE external_experimental_evidence ADD COLUMN mapping_status VARCHAR(60) NOT NULL DEFAULT 'EXTERNAL_EVIDENCE_ONLY'"))
+            if "mapped_assay_id" not in evidence_columns:
+                connection.execute(text("ALTER TABLE external_experimental_evidence ADD COLUMN mapped_assay_id INTEGER"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))

@@ -990,6 +990,14 @@ def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)
     if not current:
         return {"status": "STRUCTURE_MISMATCH", "cas_status": status, "records": []}
     result = external_evidence_lookup(compound.cas_number, current.inchikey)
+    assays = db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id, AssayDefinition.active == True)).all()
+    result["project_assays"] = [{"id": assay.id, "name": assay.name, "measurement_type": assay.measurement_type, "target": assay.target, "species": assay.species, "cell_line": assay.cell_line, "unit": assay.unit} for assay in assays]
+    for row in result.get("records", []):
+        if row.get("source") != "ChEMBL":
+            continue
+        matches = [assay for assay in assays if assay.measurement_type.upper() == str(row.get("endpoint", "")).upper() and assay.target and assay.target.lower() == str(row.get("target", "")).lower() and assay.unit.lower() == str(row.get("unit", "")).lower()]
+        row["mapping_status"] = "DIRECT_MATCH" if len(matches) == 1 else ("MANUAL_ASSAY_MAPPING_REQUIRED" if matches or assays else "EXTERNAL_EVIDENCE_ONLY")
+        row["compatible_assay_ids"] = [assay.id for assay in matches]
     result["cas_status"] = status
     result["compound_version_id"] = current.id
     return result
@@ -1017,6 +1025,7 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
     if not current:
         raise HTTPException(status_code=400, detail="Compound has no structure version")
     imported, duplicates = 0, 0
+    assay_ids = {assay.id: assay for assay in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
     for row in payload.get("records") or []:
         if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or row.get("reference_status") != "REFERENCE_RESOLVED":
             continue
@@ -1025,11 +1034,24 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         fingerprint = hashlib.sha256(json.dumps({"version": current.inchikey, "source": row.get("source"), "record": row.get("source_record_id"), "endpoint": row.get("endpoint"), "value": row.get("value"), "unit": row.get("unit"), "relation": row.get("relation")}, sort_keys=True).encode()).hexdigest()
         if db.scalar(select(ExternalExperimentalEvidence.id).where(ExternalExperimentalEvidence.provenance_key == fingerprint)):
             duplicates += 1; continue
+        mapped_assay_id = row.get("mapped_assay_id")
+        mapping_status = str(row.get("mapping_status", "EXTERNAL_EVIDENCE_ONLY"))
+        assay = assay_ids.get(int(mapped_assay_id)) if mapped_assay_id else None
+        if assay and (assay.measurement_type.upper() != str(row.get("endpoint", "")).upper() or assay.unit.lower() != str(row.get("unit", "")).lower()):
+            raise HTTPException(status_code=400, detail="External measurement type or unit does not match selected project assay")
         db.add(ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number,
                raw_endpoint_name=str(row.get("endpoint", "")), raw_value=str(row.get("value", "")), raw_relation=str(row.get("relation", "=")), raw_unit=str(row.get("unit", "")),
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
-               reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED"))))
+               reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None))
+        if assay:
+            try:
+                numeric = float(row["value"])
+                # External record becomes a project experimental observation only
+                # after explicit compatible assay selection; internal evidence is untouched.
+                db.add(ActivityMeasurement(assay_id=assay.id, version_id=current.id, raw_value=numeric, original_unit=str(row.get("unit", assay.unit)), normalized_value_nm=numeric, qualifier=str(row.get("relation", "=")), source="Experimental External", notes=str(row.get("reference", "")), provenance_json={"origin":"EXPERIMENTAL_EXTERNAL", "source":row.get("source"), "source_record_id":row.get("source_record_id")}))
+            except ValueError:
+                pass
         imported += 1
     db.commit()
     return {"imported": imported, "already_imported": duplicates, "evidence_origin": "EXPERIMENTAL_EXTERNAL"}
