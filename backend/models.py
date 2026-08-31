@@ -70,6 +70,12 @@ class ExternalExperimentalEvidence(Base):
     mapping_status: Mapped[str] = mapped_column(String(60), default="EXTERNAL_EVIDENCE_ONLY")
     mapped_assay_id: Mapped[int | None] = mapped_column(ForeignKey("assay_definitions.id", ondelete="SET NULL"), nullable=True, index=True)
     evidence_origin: Mapped[str] = mapped_column(String(40), default="EXPERIMENTAL_EXTERNAL")
+    canonical_endpoint_id: Mapped[str] = mapped_column(String(120), default="")
+    normalized_value: Mapped[str] = mapped_column(Text, default="")
+    normalized_unit: Mapped[str] = mapped_column(String(80), default="")
+    normalization_rule: Mapped[str] = mapped_column(String(240), default="")
+    normalization_version: Mapped[str] = mapped_column(String(80), default="")
+    comparability_status: Mapped[str] = mapped_column(String(60), default="UNSUPPORTED")
     retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -168,5 +174,15 @@ def ensure_ui_schema(engine):
                 connection.execute(text("ALTER TABLE external_experimental_evidence ADD COLUMN mapping_status VARCHAR(60) NOT NULL DEFAULT 'EXTERNAL_EVIDENCE_ONLY'"))
             if "mapped_assay_id" not in evidence_columns:
                 connection.execute(text("ALTER TABLE external_experimental_evidence ADD COLUMN mapped_assay_id INTEGER"))
+            for name, definition in {
+                "canonical_endpoint_id": "VARCHAR(120) NOT NULL DEFAULT ''",
+                "normalized_value": "TEXT NOT NULL DEFAULT ''",
+                "normalized_unit": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "normalization_rule": "VARCHAR(240) NOT NULL DEFAULT ''",
+                "normalization_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "comparability_status": "VARCHAR(60) NOT NULL DEFAULT 'UNSUPPORTED'",
+            }.items():
+                if name not in evidence_columns:
+                    connection.execute(text(f"ALTER TABLE external_experimental_evidence ADD COLUMN {name} {definition}"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))

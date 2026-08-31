@@ -101,6 +101,8 @@ from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STAT
                             latest_release_date, package_inventory, structure_modules,
                             version_history)
 from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
+from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
+                                   normalize_experimental)
 
 
 CURRENT_STAGE = "5B-4"
@@ -992,7 +994,10 @@ def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)
     result = external_evidence_lookup(compound.cas_number, current.inchikey)
     assays = db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id, AssayDefinition.active == True)).all()
     result["project_assays"] = [{"id": assay.id, "name": assay.name, "measurement_type": assay.measurement_type, "target": assay.target, "species": assay.species, "cell_line": assay.cell_line, "unit": assay.unit} for assay in assays]
+    molecular_weight = (current.properties_json or {}).get("molecular_weight")
     for row in result.get("records", []):
+        row["display"] = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("assay_type", ""), target=row.get("target", ""), mw=molecular_weight)
+        row["drugopt_representation"] = row["display"]
         if row.get("source") != "ChEMBL":
             continue
         matches = [assay for assay in assays if assay.measurement_type.upper() == str(row.get("endpoint", "")).upper() and assay.target and assay.target.lower() == str(row.get("target", "")).lower() and assay.unit.lower() == str(row.get("unit", "")).lower()]
@@ -1014,7 +1019,10 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "relation": row.raw_relation, "source": row.source_database, "reference": row.reference_text,
                          "source_url": row.source_url, "source_record_id": row.source_record_id,
                          "assay_id": row.source_assay_id, "document_id": row.source_document_id,
-                         "evidence_origin": row.evidence_origin} for row in rows]}
+                         "evidence_origin": row.evidence_origin, "evidence_label": evidence_label(row.evidence_origin),
+                         "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
+                         "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
+                         "normalization_version": row.normalization_version, "comparability_status": row.comparability_status} for row in rows]}
 
 
 @app.post("/api/compounds/{row_id}/external-experimental/import")
@@ -1041,11 +1049,13 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         assay = assay_ids.get(int(mapped_assay_id)) if mapped_assay_id else None
         if assay and (assay.measurement_type.upper() != str(row.get("endpoint", "")).upper() or assay.unit.lower() != str(row.get("unit", "")).lower()):
             raise HTTPException(status_code=400, detail="External measurement type or unit does not match selected project assay")
+        display = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("assay_type", ""), target=row.get("target", ""), mw=(current.properties_json or {}).get("molecular_weight"))
         db.add(ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number,
                raw_endpoint_name=str(row.get("endpoint", "")), raw_value=str(row.get("value", "")), raw_relation=str(row.get("relation", "=")), raw_unit=str(row.get("unit", "")),
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
-               reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None))
+               reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None,
+               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"]))
         if assay:
             try:
                 numeric = float(row["value"])
@@ -1057,6 +1067,11 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         imported += 1
     db.commit()
     return {"imported": imported, "already_imported": duplicates, "evidence_origin": "EXPERIMENTAL_EXTERNAL"}
+
+
+@app.get("/api/evidence/display-contract")
+def experimental_display_contract():
+    return contract_report()
 
 
 @app.patch("/api/compounds/{row_id}")
@@ -2854,6 +2869,10 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "type": "Predicted",
         } for row in activity_predictions],
     }
+    external_evidence = db.scalars(
+        select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == version_id)
+        .order_by(ExternalExperimentalEvidence.imported_at.desc())
+    ).all()
     admet_payload = _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)})
     metabolism_payload = _metabolism_payload(db, [version.id])
     pk_parameter_sets = db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id).order_by(PKParameterSet.created_at.desc())).all()
@@ -2867,6 +2886,18 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         "project": {"id": project.id, "name": project.name, "molecule_type": project.molecule_type},
         "compound": compound_out(compound), "version": serialize_version(version),
         "activity": activity,
+        "external_experimental_evidence": [{
+            "id": row.id, "endpoint": row.raw_endpoint_name, "raw_value": row.raw_value,
+            "raw_unit": row.raw_unit, "raw_relation": row.raw_relation, "source": row.source_database,
+            "reference": row.reference_text, "source_url": row.source_url,
+            "source_record_id": row.source_record_id, "assay_id": row.source_assay_id,
+            "document_id": row.source_document_id, "conditions": row.assay_conditions_json or {},
+            "evidence_label": evidence_label(row.evidence_origin),
+            "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
+            "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
+            "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
+            "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported"),
+        } for row in external_evidence],
         "admet": admet_payload,
         "metabolism": metabolism_payload,
         "pk": {"parameter_sets": pk_routes},

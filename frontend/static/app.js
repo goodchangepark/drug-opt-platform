@@ -1001,7 +1001,7 @@ function App(){
    e('thead',{key:'head'},e('tr',{},['Compound','Endpoint','Experimental','Predicted','Model','Confidence','Domain',''].map(label=>e('th',{key:label},label)))),
    e('tbody',{key:'body'},rows.map(prediction=>{
     const comparison=prediction.experimental_comparisons?.[0];
-    const experimental=comparison?(comparison.experimental_value+' '+comparison.experimental_unit):'Not measured';
+    const experimental=comparison?('Experimental — Internal: '+comparison.experimental_value+' '+comparison.experimental_unit):'Unavailable';
     const error=comparison?' · |error| '+comparison.absolute_error+' '+comparison.normalized_unit:'';
     const assessment=prediction.outputs?.experimental_metabolic_stability_assessment||prediction.outputs?.metabolic_stability_assessment;
     const flag=assessment?.metabolic_liability_flag?' · '+assessment.metabolic_liability_flag:'';
@@ -1038,7 +1038,7 @@ function App(){
  function experimentalComparisonPanel(versionId){
   const rows=(admet?.predictions||[]).filter(row=>row.version_id===Number(versionId)&&row.experimental_comparisons?.length);
   if(!rows.length)return e('div',{className:'empty-state'},[StatusBadge({type:'Not measured'}),e('p',{},'No unit-compatible Experimental vs Prediction comparison is available.')]);
-  return e('table',{},[e('thead',{},e('tr',{},['Endpoint','Experimental','Prediction','Difference','Model'].map(label=>e('th',{key:label},label)))),e('tbody',{},rows.map(row=>{const item=row.experimental_comparisons[0];return e('tr',{key:row.id},[e('td',{},row.endpoint),e('td',{className:'mono'},item.experimental_normalized+' '+item.normalized_unit),e('td',{className:'mono'},row.predicted_value+' '+row.unit),e('td',{className:'mono'},item.absolute_error==null?(item.classification_match?'AGREES':'DISAGREES'):(item.absolute_error+' '+item.normalized_unit)),e('td',{className:'small'},row.model.model_name+' '+row.model.model_version)])}))]);
+  return e('table',{},[e('thead',{},e('tr',{},['Endpoint','Experimental','Prediction','Comparison','Model'].map(label=>e('th',{key:label},label)))),e('tbody',{},rows.map(row=>{const item=row.experimental_comparisons[0];return e('tr',{key:row.id},[e('td',{},row.endpoint),e('td',{className:'mono'},'Experimental — Internal: '+item.experimental_normalized+' '+item.normalized_unit),e('td',{className:'mono'},'Prediction: '+row.predicted_value+' '+row.unit),e('td',{className:'mono'},item.absolute_error==null?(item.classification_match?'Directly Comparable · Concordant':'Directly Comparable · Discordant'):'Comparable · '+item.absolute_error+' '+item.normalized_unit),e('td',{className:'small'},row.model.model_name+' '+row.model.model_version)])}))]);
  }
 
  function unavailableModelsCollapsed(){
@@ -3705,8 +3705,15 @@ function App(){
     e('p',{className:'small'},'CAS '+(externalEvidence.cas_number||detail.cas_number||'—')+' · Status: '+externalEvidence.status),
     externalEvidence.identity&&e('p',{className:'small'},'PubChem CID: '+(externalEvidence.identity.cid||'—')+' · Identity: '+externalEvidence.identity.status),
     e('p',{className:'small'},externalEvidence.source_notice||externalEvidence.message||'Only source-recorded experimental values with a resolved reference can be imported. PubChem computed properties are excluded.'),
-    (externalEvidence.records||[]).length?e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Value','Unit','Target / Assay','Source','Reference','Status'].map(x=>e('th',{key:x},x)))),e('tbody',{},externalEvidence.records.map((row,index)=>e('tr',{key:row.source_record_id||index},[e('td',{},row.endpoint),e('td',{className:'mono'},row.relation+' '+row.value),e('td',{},row.unit),e('td',{},row.target||row.conditions||'—'),e('td',{},row.source),e('td',{},row.reference||'REFERENCE_UNRESOLVED'),e('td',{},row.mapping_status||row.reference_status)])))])):e('p',{className:'small'},'No source-recorded external experimental records were returned.'),
+    (externalEvidence.records||[]).length?e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Source value','Drug-OPT representation','Target / Assay','Evidence','Reference','Comparison'].map(x=>e('th',{key:x},x)))),e('tbody',{},externalEvidence.records.map((row,index)=>{const display=row.drugopt_representation||row.display||{};return e('tr',{key:row.source_record_id||index},[e('td',{},row.endpoint),e('td',{className:'mono'},row.relation+' '+row.value+' '+row.unit),e('td',{className:'mono'},display.normalized_value==null?'—':String(display.normalized_value)+' '+display.normalized_unit),e('td',{},row.target||row.conditions||'—'),e('td',{},'Experimental — External'),e('td',{},row.reference||'REFERENCE_UNRESOLVED'),e('td',{},display.comparability_label||row.mapping_status||row.reference_status)])}))])):e('p',{className:'small'},'No source-recorded external experimental records were returned.'),
     externalEvidence.import_result&&e('p',{className:'small'},'Imported: '+externalEvidence.import_result.imported+' · Already imported: '+externalEvidence.import_result.already_imported)
+   ]),
+   (workspace?.external_experimental_evidence||[]).length>0&&e('section',{className:'card',key:'imported-external-evidence'},[
+    e('div',{className:'eyebrow'},'EXPERIMENTAL — EXTERNAL'),e('h3',{},'Imported external observations ('+(workspace.external_experimental_evidence||[]).length+')'),
+    e('p',{className:'small'},'Raw source values are preserved. Normalized values are display-only; predictions remain frozen.'),
+    e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Prediction / Experimental representation','Raw source','Comparison','Reference'].map(x=>e('th',{key:x},x)))),e('tbody',{},workspace.external_experimental_evidence.map(row=>e('tr',{key:row.id},[
+     e('td',{},row.endpoint),e('td',{className:'mono'},row.normalized_value!==''?row.normalized_value+' '+row.normalized_unit:'—'),e('td',{className:'mono'},row.raw_relation+' '+row.raw_value+' '+row.raw_unit),e('td',{},row.comparability_label),e('td',{},e('details',{},[e('summary',{},'Reference'),e('div',{className:'small'},[e('div',{},row.source+' · '+row.source_record_id),e('div',{},'Assay: '+(row.assay_id||'—')+' · Document: '+(row.document_id||'—')),e('div',{},row.reference||'—'),row.source_url&&e('a',{href:row.source_url,target:'_blank',rel:'noreferrer'},'Open source')])]))
+    ])))]))
    ]),
    e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
     const storedStatus=workspace?.prediction_status?.[tab];

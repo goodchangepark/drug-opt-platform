@@ -1,0 +1,23 @@
+{
+  "normalization_version": "drugopt-experimental-normalization-v1",
+  "purpose": "Display and compare immutable predictions with immutable experimental evidence without changing model semantics.",
+  "evidence_labels": ["Prediction", "Rule Estimate", "Derived Estimate", "Experimental — Internal", "Experimental — External", "Unavailable"],
+  "comparability_states": {
+    "DIRECTLY_COMPARABLE": "Same endpoint and representation",
+    "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION": "Exact unit or log/fraction conversion recorded",
+    "CONDITIONALLY_COMPARABLE": "Value representation matches but required context is incomplete",
+    "RELATED_NOT_SAME_ENDPOINT": "Scientifically related but numerically different endpoint",
+    "NOT_COMPARABLE": "Known incompatible endpoint, species, direction, or matrix",
+    "UNSUPPORTED": "No approved mapping"
+  },
+  "rules": {
+    "activity": "IC50, EC50, Ki, and Kd are distinct; only like-for-like concentration units may be converted.",
+    "solubility": "Molar values may convert to log10(mol/L); mass conversion requires exact compatible MW and remains condition-dependent.",
+    "caco2": "Only Caco-2 A→B Papp is eligible; linear cm/s may convert by log10.",
+    "ppb": "Human % bound and explicit fu/fraction may convert; other species are not comparable.",
+    "clearance": "HLM, RLM, and MLM remain isolated; no protein-to-kg scaling is introduced.",
+    "classifiers": "CYP, P-gp, and hERG probabilities never convert to IC50/Ki/Kd. Explicit categorical evidence can be compared separately.",
+    "logd": "Only compatible logD at pH 7.4 is direct; logP is related evidence.",
+    "raw_evidence": "raw_value, raw_unit, raw_relation, source and reference remain immutable."
+  }
+}
