@@ -3601,7 +3601,9 @@ function App(){
   const hasExpPk=studyCount>0;
   const matchedF=(pkData?.bioavailability||[]).find(b=>b.status==='MATCHED');
   const latestNca=studies[0]?.latest_nca;
-  const iviveRun=iviveData?.latest_run;
+ const iviveRun=iviveData?.latest_run;
+  const casDigits=(detail.cas_number||'').replace(/-/g,'');
+  const casValid=/^\d{2,7}-\d{2}-\d$/.test(detail.cas_number||'')&&casDigits.split('').slice(0,-1).reverse().reduce((sum,digit,index)=>sum+Number(digit)*(index+1),0)%10===Number(casDigits.slice(-1));
 
   const lastAudit=workspace?.prediction_audit?.[0]||detail?.prediction_history?.[0];
   const lastPredictionTime=lastAudit?.created_at?lastAudit.created_at.substring(0,16).replace('T',' '):null;
@@ -3668,7 +3670,7 @@ function App(){
      ]),
      e('div',{className:'row',style:{marginTop:'8px',alignItems:'center',gap:'8px'}},[
       e('span',{className:'small'},'CAS No. '),e('strong',{className:'mono small'},detail.cas_number||'Not provided'),
-      e('button',{type:'button',className:'secondary',disabled:!detail.cas_number||externalEvidenceBusy,onClick:searchExternalEvidence,title:detail.cas_number?'Search public experimental evidence after identity verification.':'CAS number is required to search external experimental data.'},externalEvidenceBusy?'Searching…':'Search Experimental Data')
+      e('button',{type:'button',className:'secondary',disabled:!casValid||externalEvidenceBusy,onClick:searchExternalEvidence,title:!detail.cas_number?'CAS number is required to search external experimental data.':(!casValid?'Enter a valid CAS number with checksum.':'Search public experimental evidence after identity verification.')},externalEvidenceBusy?'Searching…':'Search Experimental Data')
      ]),
      e('div',{className:'row',style:{marginTop:'12px',alignItems:'center',flexWrap:'wrap',gap:'10px'}},[
       e('button',{className:'btn-predict-primary',disabled:admetBusy||!version,onClick:runFullPredict},[

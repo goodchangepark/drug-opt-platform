@@ -742,8 +742,6 @@ def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depe
     existing_label = db.scalar(select(Compound).where(Compound.project_id == project_id, Compound.compound_id == compound_id))
     if existing_label: raise HTTPException(status_code=409, detail="Compound ID already exists in project")
     cas_number = payload.cas_number.strip()
-    if cas_number and not _valid_cas_number(cas_number):
-        raise HTTPException(status_code=422, detail="Invalid CAS number checksum")
     compound = Compound(project_id=project_id, compound_id=compound_id, name=name, cas_number=cas_number, notes=payload.notes, status="DRAFT")
     db.add(compound); db.flush()
     if not payload.smiles.strip():
@@ -1021,8 +1019,6 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
         compound.compound_id = payload.compound_id.strip()
     if payload.cas_number is not None:
         cas_number = payload.cas_number.strip()
-        if cas_number and not _valid_cas_number(cas_number):
-            raise HTTPException(status_code=422, detail="Invalid CAS number checksum")
         compound.cas_number = cas_number
     if payload.notes is not None: compound.notes = payload.notes
     compound.updated_at = utcnow()
