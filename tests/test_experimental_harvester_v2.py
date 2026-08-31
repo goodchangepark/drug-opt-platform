@@ -1,4 +1,6 @@
 from backend import experimental_harvester as h
+import json
+from pathlib import Path
 
 
 def test_public_identity_does_not_require_or_send_local_structure(monkeypatch):
@@ -49,3 +51,37 @@ def test_regulatory_documents_and_candidates_remain_separate(monkeypatch):
     rows = adapter.harvest(h.PublicIdentity(name="PUBLIC"))
     assert any(row["record_status"] == "DOCUMENT_DISCOVERED" for row in rows)
     assert any(row["record_status"] == "REGULATORY_CANDIDATE" and row["value"] for row in rows)
+
+
+def test_regulatory_table_context_prefers_ppb_over_incidental_cmax():
+    endpoint, value, unit = h.RegulatoryAdapter.endpoint_value_from_context(
+        "91.62%, respectively, bound to human plasma protein at 1 µM; mean Cmax was 412 ng/mL"
+    )
+    assert (endpoint, value, unit) == ("protein binding", "91.62", "%")
+
+
+def test_supplement_csv_parser_is_in_memory_and_reports_parse_state(monkeypatch):
+    monkeypatch.setattr(h, "_get_document_bytes", lambda _url, max_bytes=0: (b"endpoint,value\nCmax,12 ng/mL\n", "text/csv"))
+    text, file_type, state = h._supplement_text("https://example.test/table.csv")
+    assert file_type == "CSV" and state == "SUPPLEMENT_PARSED" and "Cmax" in text
+
+
+def test_supplement_download_failure_is_explicit(monkeypatch):
+    monkeypatch.setattr(h, "_get_document_bytes", lambda _url, max_bytes=0: (b"", ""))
+    _text, _file_type, state = h._supplement_text("https://example.test/table.pdf")
+    assert state == "SUPPLEMENT_DOWNLOAD_FAILED"
+
+
+def test_nmpa_official_approval_is_not_inferred_from_a_generic_hit(monkeypatch):
+    monkeypatch.setattr(h, "_get_json", lambda _url: {"data": [{"id": 1, "title": "Public drug approved for marketing", "abstractdesc": "Official approval notice", "pubUrl": "https://nmpa.test/1", "pubTime": "2023-08-23"}]})
+    identity = h.PublicIdentity(name="Public drug")
+    rows = h.NMPAAdapter().harvest(identity)
+    assert identity.approval["NMPA"]["status"] == "APPROVED"
+    assert rows[0]["record_status"] == "NMPA_APPROVAL_CONFIRMED_DOCUMENT_NOT_PUBLICLY_ACCESSIBLE"
+
+
+def test_approved_drug_coverage_artifact_has_five_public_controls():
+    artifact = json.loads((Path(__file__).parents[1] / "validation" / "approved_drug_harvester_v3_coverage.json").read_text())
+    names = {row["identity"]["name"] for row in artifact["drugs"]}
+    assert len(artifact["drugs"]) >= 5
+    assert {"sunvozertinib", "osimertinib", "midazolam", "warfarin", "metformin"}.issubset(names)

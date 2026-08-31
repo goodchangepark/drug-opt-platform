@@ -1,0 +1,322 @@
+{
+  "artifact_version": "approved-drug-harvester-v3.1",
+  "harvester_search_version": "experimental-harvester-v3.1",
+  "scope": "public, read-only regulatory validation; no evidence imported",
+  "drugs": [
+    {
+      "identity": {
+        "name": "sunvozertinib",
+        "pubchem_cid": "139377809",
+        "inchikey": "BTMKEDDEMKKSEF-QGZVFWFLSA-N",
+        "chembl_id": "CHEMBL5314564",
+        "dtxsid": "DTXSID701376536"
+      },
+      "approval": {
+        "FDA": {
+          "status": "APPROVED",
+          "application_number": "NDA219839"
+        },
+        "NMPA": {
+          "status": "APPROVED",
+          "approval_date": "2023-08-23",
+          "source_id": "964025"
+        }
+      },
+      "regulatory_documents": {
+        "DOCUMENT_DISCOVERED": 3,
+        "DOCUMENT_PARSED": 2,
+        "DOCUMENT_NO_RELEVANT_SECTION": 2,
+        "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENTARY_DISCOVERED": 0,
+        "SUPPLEMENT_PARSED": 0,
+        "SUPPLEMENT_DOWNLOAD_FAILED": 0,
+        "SUPPLEMENT_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENT_UNSUPPORTED_FORMAT": 0,
+        "LITERATURE_CANDIDATE": 0,
+        "LITERATURE_NUMERIC_CANDIDATE": 0
+      },
+      "primary_literature": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "supplements": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "metrics": {
+        "raw_records": 266,
+        "unique_records": 266,
+        "numeric_observations": 257,
+        "qualified_numeric_observations": 257,
+        "directly_comparable": 5,
+        "importable": 3,
+        "imported": 0
+      },
+      "endpoint_coverage": {
+        "Solubility": "NOT_FOUND",
+        "Caco2": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "PPB": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "HLM": "NOT_FOUND",
+        "Hepatocyte": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "CYP": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Transporters": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "hERG": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "pKa": "NOT_FOUND",
+        "logD": "NOT_FOUND",
+        "Metabolism": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Metabolites": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Cmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Tmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "AUC": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Half-life": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "CL": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Vd": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Bioavailability": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Excretion": "FOUND_NUMERIC_MANUAL_REVIEW"
+      }
+    },
+    {
+      "identity": {
+        "name": "osimertinib",
+        "pubchem_cid": "71496458",
+        "inchikey": "DUYJMQONPNNFPI-UHFFFAOYSA-N",
+        "chembl_id": "CHEMBL3353410",
+        "dtxsid": "DTXSID501025961"
+      },
+      "approval": {
+        "FDA": {
+          "status": "APPROVED",
+          "application_number": "NDA208065"
+        }
+      },
+      "regulatory_documents": {
+        "DOCUMENT_DISCOVERED": 46,
+        "DOCUMENT_PARSED": 22,
+        "DOCUMENT_NO_RELEVANT_SECTION": 24,
+        "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENTARY_DISCOVERED": 0,
+        "SUPPLEMENT_PARSED": 0,
+        "SUPPLEMENT_DOWNLOAD_FAILED": 0,
+        "SUPPLEMENT_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENT_UNSUPPORTED_FORMAT": 0,
+        "LITERATURE_CANDIDATE": 0,
+        "LITERATURE_NUMERIC_CANDIDATE": 0
+      },
+      "primary_literature": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "supplements": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "metrics": {
+        "raw_records": 725,
+        "unique_records": 725,
+        "numeric_observations": 633,
+        "qualified_numeric_observations": 633,
+        "directly_comparable": 0,
+        "importable": 0,
+        "imported": 0
+      },
+      "endpoint_coverage": {
+        "Solubility": "NOT_FOUND",
+        "Caco2": "NOT_FOUND",
+        "PPB": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "HLM": "NOT_FOUND",
+        "Hepatocyte": "NOT_FOUND",
+        "CYP": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Transporters": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "hERG": "NOT_FOUND",
+        "pKa": "NOT_FOUND",
+        "logD": "NOT_FOUND",
+        "Metabolism": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Metabolites": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Cmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Tmax": "NOT_FOUND",
+        "AUC": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Half-life": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "CL": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Vd": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Bioavailability": "NOT_FOUND",
+        "Excretion": "FOUND_NUMERIC_MANUAL_REVIEW"
+      }
+    },
+    {
+      "identity": {
+        "name": "midazolam",
+        "pubchem_cid": "4192",
+        "inchikey": "DDLIGBOFAVUZHB-UHFFFAOYSA-N",
+        "chembl_id": "CHEMBL655",
+        "dtxsid": "DTXSID5023320"
+      },
+      "approval": {
+        "FDA": {
+          "status": "APPROVED",
+          "application_number": "NDA211321"
+        }
+      },
+      "regulatory_documents": {
+        "DOCUMENT_DISCOVERED": 23,
+        "DOCUMENT_PARSED": 7,
+        "DOCUMENT_NO_RELEVANT_SECTION": 16,
+        "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENTARY_DISCOVERED": 0,
+        "SUPPLEMENT_PARSED": 0,
+        "SUPPLEMENT_DOWNLOAD_FAILED": 0,
+        "SUPPLEMENT_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENT_UNSUPPORTED_FORMAT": 0,
+        "LITERATURE_CANDIDATE": 0,
+        "LITERATURE_NUMERIC_CANDIDATE": 0
+      },
+      "primary_literature": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "supplements": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "metrics": {
+        "raw_records": 334,
+        "unique_records": 334,
+        "numeric_observations": 288,
+        "qualified_numeric_observations": 288,
+        "directly_comparable": 3,
+        "importable": 2,
+        "imported": 0
+      },
+      "endpoint_coverage": {
+        "Solubility": "NOT_FOUND",
+        "Caco2": "NOT_FOUND",
+        "PPB": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "HLM": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Hepatocyte": "NOT_FOUND",
+        "CYP": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Transporters": "NOT_FOUND",
+        "hERG": "NOT_FOUND",
+        "pKa": "NOT_FOUND",
+        "logD": "NOT_FOUND",
+        "Metabolism": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Metabolites": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Cmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Tmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "AUC": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Half-life": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "CL": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Vd": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Bioavailability": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Excretion": "FOUND_NUMERIC_MANUAL_REVIEW"
+      }
+    },
+    {
+      "identity": {
+        "name": "warfarin",
+        "pubchem_cid": "54678486",
+        "inchikey": "PJVWKTKQMONHTI-UHFFFAOYSA-N",
+        "chembl_id": "",
+        "dtxsid": ""
+      },
+      "approval": {
+        "FDA": {
+          "status": "APPROVED",
+          "application_number": "ANDA040416"
+        }
+      },
+      "regulatory_documents": {
+        "DOCUMENT_DISCOVERED": 3,
+        "DOCUMENT_PARSED": 0,
+        "DOCUMENT_NO_RELEVANT_SECTION": 2,
+        "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED": 1,
+        "SUPPLEMENTARY_DISCOVERED": 0,
+        "SUPPLEMENT_PARSED": 0,
+        "SUPPLEMENT_DOWNLOAD_FAILED": 0,
+        "SUPPLEMENT_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENT_UNSUPPORTED_FORMAT": 0,
+        "LITERATURE_CANDIDATE": 0,
+        "LITERATURE_NUMERIC_CANDIDATE": 0
+      },
+      "primary_literature": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "supplements": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "metrics": {
+        "raw_records": 6,
+        "unique_records": 6,
+        "numeric_observations": 0,
+        "qualified_numeric_observations": 0,
+        "directly_comparable": 0,
+        "importable": 0,
+        "imported": 0
+      },
+      "endpoint_coverage": {
+        "Solubility": "NOT_FOUND",
+        "Caco2": "NOT_FOUND",
+        "PPB": "NOT_FOUND",
+        "HLM": "NOT_FOUND",
+        "Hepatocyte": "NOT_FOUND",
+        "CYP": "NOT_FOUND",
+        "Transporters": "NOT_FOUND",
+        "hERG": "NOT_FOUND",
+        "pKa": "NOT_FOUND",
+        "logD": "NOT_FOUND",
+        "Metabolism": "NOT_FOUND",
+        "Metabolites": "NOT_FOUND",
+        "Cmax": "NOT_FOUND",
+        "Tmax": "NOT_FOUND",
+        "AUC": "NOT_FOUND",
+        "Half-life": "NOT_FOUND",
+        "CL": "NOT_FOUND",
+        "Vd": "NOT_FOUND",
+        "Bioavailability": "NOT_FOUND",
+        "Excretion": "NOT_FOUND"
+      }
+    },
+    {
+      "identity": {
+        "name": "metformin",
+        "pubchem_cid": "4091",
+        "inchikey": "XZWYZXLIPXDOLR-UHFFFAOYSA-N",
+        "chembl_id": "CHEMBL1431",
+        "dtxsid": "DTXSID2023270"
+      },
+      "approval": {
+        "FDA": {
+          "status": "APPROVED",
+          "application_number": "NDA216743"
+        },
+        "NMPA": {
+          "status": "APPROVED",
+          "approval_date": "2024-01-19",
+          "source_id": "986543"
+        }
+      },
+      "regulatory_documents": {
+        "DOCUMENT_DISCOVERED": 56,
+        "DOCUMENT_PARSED": 25,
+        "DOCUMENT_NO_RELEVANT_SECTION": 29,
+        "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED": 2,
+        "SUPPLEMENTARY_DISCOVERED": 0,
+        "SUPPLEMENT_PARSED": 0,
+        "SUPPLEMENT_DOWNLOAD_FAILED": 0,
+        "SUPPLEMENT_TEXT_EXTRACTION_FAILED": 0,
+        "SUPPLEMENT_UNSUPPORTED_FORMAT": 0,
+        "LITERATURE_CANDIDATE": 0,
+        "LITERATURE_NUMERIC_CANDIDATE": 0
+      },
+      "primary_literature": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "supplements": "SOURCE_NOT_QUERIED_IN_REGULATORY_VALIDATION",
+      "metrics": {
+        "raw_records": 1552,
+        "unique_records": 1552,
+        "numeric_observations": 1438,
+        "qualified_numeric_observations": 1438,
+        "directly_comparable": 72,
+        "importable": 3,
+        "imported": 0
+      },
+      "endpoint_coverage": {
+        "Solubility": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Caco2": "NOT_FOUND",
+        "PPB": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "HLM": "NOT_FOUND",
+        "Hepatocyte": "NOT_FOUND",
+        "CYP": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Transporters": "NOT_FOUND",
+        "hERG": "NOT_FOUND",
+        "pKa": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "logD": "NOT_FOUND",
+        "Metabolism": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Metabolites": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Cmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Tmax": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "AUC": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Half-life": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "CL": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Vd": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Bioavailability": "FOUND_NUMERIC_MANUAL_REVIEW",
+        "Excretion": "FOUND_NUMERIC_MANUAL_REVIEW"
+      }
+    }
+  ]
+}

@@ -1054,11 +1054,22 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         traceable = str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED")
         endpoint_qualified = bool(row.get("endpoint")) and numeric and bool(str(row.get("unit", "")).strip())
         comparable = display.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}
+        # A contextual phrase can mention a model endpoint incidentally (for
+        # example a Cmax explanation beside a PPB table).  Importability is
+        # therefore gated by the source-classified endpoint family as well as
+        # the display normalizer; PK is preserved as evidence but cannot be
+        # mistaken for a model-comparable ADMET measurement.
+        source_family = row.get("canonical_endpoint_candidate", "")
+        contract_family = {
+            "solubility_aqueous_logs": "SOLUBILITY", "permeability_caco2_logpapp": "CACO2_PAPP_AB",
+            "ppb_human_percent_bound": "PPB", "pka": "PKA", "logd_7_4": "LOGD",
+        }.get(display.get("canonical_endpoint_id", ""))
+        endpoint_semantics_match = bool(contract_family and source_family == contract_family)
         # Candidates remain explicit/manual unless their raw source has a
         # numeric unit, traceable reference, and deterministic endpoint map.
         row["numeric_observation"] = numeric
         row["endpoint_qualified"] = endpoint_qualified
-        row["import_eligible"] = bool(traceable and endpoint_qualified and comparable and row.get("duplicate_status") != "SAME_MEASUREMENT")
+        row["import_eligible"] = bool(traceable and endpoint_qualified and comparable and endpoint_semantics_match and row.get("duplicate_status") != "SAME_MEASUREMENT")
         row["qualification_state"] = "IMPORTABLE" if row["import_eligible"] else ("MANUAL_REVIEW" if numeric and traceable else "CANDIDATE")
     records = result["records"]
     summary = result.setdefault("summary", {})

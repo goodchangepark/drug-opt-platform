@@ -6,9 +6,11 @@ never promote literature text or predicted public values to experimental data.
 from __future__ import annotations
 
 import hashlib
+import io
 import os
 import re
 import subprocess
+import zipfile
 from urllib.request import Request, urlopen
 from dataclasses import dataclass, field
 from typing import Any, Protocol
@@ -21,6 +23,9 @@ QUALITY_A = "A"
 QUALITY_B = "B"
 QUALITY_C = "C"
 QUALITY_D = "D"
+HARVESTER_SEARCH_VERSION = "experimental-harvester-v3.1"
+DOCUMENT_PARSER_VERSION = "regulatory-supplement-parser-v1"
+QUALIFICATION_VERSION = "experimental-qualification-v1"
 
 
 @dataclass
@@ -121,20 +126,57 @@ def resolve_public_identity(*, cas: str = "", name: str = "", pubchem_cid: str =
     return identity
 
 
-def _get_document_text(url: str, max_bytes: int = 30_000_000) -> str:
-    """Bounded public document extraction; raw files are never persisted."""
+def _get_document_bytes(url: str, max_bytes: int = 30_000_000) -> tuple[bytes, str]:
+    """Fetch a bounded public document in memory only (never persisted)."""
     try:
         req = Request(url, headers={"User-Agent": "Drug-OPT/1.0 public-evidence harvester"})
         with urlopen(req, timeout=8) as response:
             body = response.read(max_bytes + 1)
             content_type = response.headers.get("Content-Type", "")
-        if len(body) > max_bytes: return ""
-        if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
+        return (b"", content_type) if len(body) > max_bytes else (body, content_type)
+    except Exception:
+        return b"", ""
+
+
+def _get_document_text(url: str, max_bytes: int = 30_000_000) -> str:
+    """Bounded public document extraction; raw files are never persisted."""
+    body, content_type = _get_document_bytes(url, max_bytes)
+    if not body:
+        return ""
+    if "pdf" in content_type.lower() or url.lower().endswith(".pdf"):
+        try:
             proc = subprocess.run(["pdftotext", "-layout", "-", "-"], input=body, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=12, check=False)
             return proc.stdout.decode("utf-8", errors="replace") if proc.returncode == 0 else ""
-        return body.decode("utf-8", errors="replace")
-    except Exception:
-        return ""
+        except (OSError, subprocess.TimeoutExpired):
+            return ""
+    return body.decode("utf-8", errors="replace")
+
+
+def _supplement_text(url: str) -> tuple[str, str, str]:
+    """Return text, file type, and deterministic parse state for public supplements."""
+    body, content_type = _get_document_bytes(url, max_bytes=12_000_000)
+    suffix = url.rsplit("?", 1)[0].rsplit(".", 1)[-1].lower() if "." in url.rsplit("?", 1)[0] else ""
+    file_type = "PDF" if suffix == "pdf" or "pdf" in content_type.lower() else ("CSV" if suffix == "csv" else ("XLSX" if suffix == "xlsx" else ("DOCX" if suffix == "docx" else "OTHER")))
+    if not body:
+        return "", file_type, "SUPPLEMENT_DOWNLOAD_FAILED"
+    if file_type == "PDF":
+        try:
+            proc = subprocess.run(["pdftotext", "-layout", "-", "-"], input=body, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=12, check=False)
+            text = proc.stdout.decode("utf-8", errors="replace") if proc.returncode == 0 else ""
+            return text, file_type, "SUPPLEMENT_PARSED" if text.strip() else "SUPPLEMENT_TEXT_EXTRACTION_FAILED"
+        except (OSError, subprocess.TimeoutExpired):
+            return "", file_type, "SUPPLEMENT_TEXT_EXTRACTION_FAILED"
+    if file_type == "CSV":
+        return body.decode("utf-8", errors="replace"), file_type, "SUPPLEMENT_PARSED"
+    if file_type in {"XLSX", "DOCX"}:
+        try:
+            with zipfile.ZipFile(io.BytesIO(body)) as archive:
+                xml = "\n".join(archive.read(name).decode("utf-8", errors="replace") for name in archive.namelist() if name.endswith(".xml"))
+            text = re.sub(r"<[^>]+>", " ", xml)
+            return text, file_type, "SUPPLEMENT_PARSED" if text.strip() else "SUPPLEMENT_TEXT_EXTRACTION_FAILED"
+        except (zipfile.BadZipFile, KeyError):
+            return "", file_type, "SUPPLEMENT_UNSUPPORTED_FORMAT"
+    return "", file_type, "SUPPLEMENT_UNSUPPORTED_FORMAT"
 
 
 class PubChemPUGViewAdapter:
@@ -248,12 +290,48 @@ class EuropePMCAdapter:
             doi = item.get("doi") or ""
             pmcid = item.get("pmcid", "")
             rows.append(_record(self.name, pmid or item.get("id", ""), "Literature candidate", "", "", pmid=pmid, pmcid=pmcid, doi=doi, publication_title=item.get("title", ""), journal=item.get("journalTitle", ""), publication_year=item.get("pubYear", ""), abstract=item.get("abstractText", ""), oa_fulltext=bool(item.get("isOpenAccess") == "Y"), reference=(f"PMID: {pmid}" if pmid else f"DOI: {doi}"), reference_status="REFERENCE_RESOLVED_PMID" if pmid else ("REFERENCE_RESOLVED_DOI" if doi else "REFERENCE_UNRESOLVED"), source_quality_class=QUALITY_C, record_status="LITERATURE_CANDIDATE"))
-            if pmcid and item.get("isOpenAccess") == "Y" and ("selective egfr inhibitor" in str(item.get("title", "")).lower() or supplement_lookups < 1):
+            title_text = re.sub(r"<[^>]+>", "", str(item.get("title", ""))).lower()
+            is_identity_paper = any(alias and alias.lower() in (title_text + " " + str(item.get("abstractText", "")).lower()) for alias in [identity.name, *codes])
+            is_primary_identity_paper = bool(identity.name and title_text.startswith(identity.name.lower()))
+            # PMCID is the authoritative availability signal for the PMC
+            # full-text endpoint; Europe PMC's search-level OA flag can be
+            # absent for author manuscripts that nevertheless expose JATS
+            # supplementary links.
+            if pmcid and supplement_lookups < 3 and is_primary_identity_paper:
                 supplement_lookups += 1
-                xml = _get_document_text(f"https://www.ncbi.nlm.nih.gov/pmc/articles/{quote(pmcid)}/?report=xml", max_bytes=5_000_000)
-                for href in sorted(set(re.findall(r"(?:href|xlink:href)=['\"]([^'\"]+(?:supp|table|data)[^'\"]*)", xml, re.I)))[:12]:
-                    url = href if href.startswith("http") else f"https://www.ncbi.nlm.nih.gov/pmc/articles/{pmcid}/bin/{href.split('/')[-1]}"
-                    rows.append(_record(self.name, f"{pmcid}:SUP:{len(rows)}", "Supplementary file", "", "", evidence_category="LITERATURE", context_qualified=False, record_status="SUPPLEMENTARY_DISCOVERED", parent_pmcid=pmcid, parent_doi=doi, supplement_url=url, reference=f"PMCID: {pmcid}" + (f" · DOI: {doi}" if doi else ""), reference_status="REFERENCE_RESOLVED_PMID" if pmid else "REFERENCE_RESOLVED_SOURCE_RECORD", source_quality_class="A2", source_url=url))
+                # Europe PMC's fullTextXML includes JATS supplementary-media
+                # links.  It is more reliable than an HTML ``?report=xml``
+                # rendition and gives an auditable parent publication.
+                xml = _get_document_text(f"https://www.ebi.ac.uk/europepmc/webservices/rest/{quote(pmcid)}/fullTextXML", max_bytes=5_000_000)
+                hrefs = sorted(set(re.findall(r"xlink:href=['\"]([^'\"]+\.(?:pdf|csv|xlsx|docx))", xml, re.I)))[:12]
+                for href in hrefs:
+                    # PMC mirrors occasionally omit author-hosted files.  We
+                    # still record the discovered source and its exact parse
+                    # state; inaccessible material is never presented as data.
+                    url = href if href.startswith("http") else f"https://pmc.ncbi.nlm.nih.gov/articles/{pmcid}/bin/{href.split('/')[-1]}"
+                    source_id = f"{pmcid}:SUP:{len(rows)}"
+                    base = dict(evidence_category="LITERATURE", context_qualified=False, parent_pmcid=pmcid, parent_doi=doi,
+                                parent_pmid=pmid, publication_title=item.get("title", ""), supplement_filename=href.split("/")[-1],
+                                supplement_url=url, reference=f"PMCID: {pmcid}" + (f" · DOI: {doi}" if doi else ""),
+                                reference_status="REFERENCE_RESOLVED_PMID" if pmid else "REFERENCE_RESOLVED_SOURCE_RECORD",
+                                source_quality_class="A2", source_url=url)
+                    rows.append(_record(self.name, source_id, "Supplementary file", "", "", record_status="SUPPLEMENTARY_DISCOVERED", **base))
+                    text, file_type, parse_state = _supplement_text(url)
+                    rows.append(_record(self.name, source_id + ":PARSE", "Supplementary file", "", "", record_status=parse_state, supplement_file_type=file_type, **base))
+                    if parse_state != "SUPPLEMENT_PARSED":
+                        continue
+                    for line_no, line in enumerate(text.splitlines(), 1):
+                        context = line.strip()
+                        if not context or not RegulatoryAdapter._terms.search(context) or not RegulatoryAdapter._value.search(context):
+                            continue
+                        endpoint, value, unit = RegulatoryAdapter.endpoint_value_from_context(context)
+                        if not endpoint or not value or not unit:
+                            continue
+                        category = RegulatoryAdapter.category_for_endpoint(endpoint)
+                        rows.append(_record(self.name, source_id + f":L{line_no}", endpoint, value, unit,
+                                            evidence_category=category, record_status="LITERATURE_NUMERIC_CANDIDATE",
+                                            page_or_line=f"line {line_no}", raw_context=context, conditions=context,
+                                            supplement_file_type=file_type, **base))
         return rows
 
 
@@ -279,6 +357,34 @@ class RegulatoryAdapter:
     _terms = re.compile(r"\b(Cmax|Tmax|AUC|half[- ]life|clearance|CL/F|volume of distribution|Vd/F|bioavailability|protein binding|Caco-?2|permeability|solubility|hepatocyte|microsomal|CYP\d[A-Z0-9]+|P-?gp|BCRP|metabolite|feces|urine|excret)\b", re.I)
     _value = re.compile(r"(?:<|>|≤|≥)?\s*\d+(?:[.,]\d+)?\s*(?:ng/mL|µg/mL|mg/L|µM|nM|%|h(?:ours?)?|min(?:utes)?|mL/min(?:/kg)?|µL/min(?:/mg|/10\s*\^?6\s*cells)?|L(?:/kg)?|×\s*10\s*[−-]?\s*\d+\s*cm/s)", re.I)
     def status(self): return "CONFIGURED"
+
+    @classmethod
+    def endpoint_value_from_context(cls, context: str) -> tuple[str, str, str]:
+        """Choose the measurement label nearest the value, not the first word.
+
+        FDA table rows regularly include a distant Cmax reference beside a
+        plasma-binding percentage.  Selecting the first term caused a PPB
+        value to masquerade as Cmax.  This deterministic rule is generic and
+        retains the full source context for review.
+        """
+        numeric = cls._value.search(context)
+        if not numeric:
+            return "", "", ""
+        raw_numeric = numeric.group(0).strip()
+        numeric_match = re.match(r"([<>≤≥]?\s*\d+(?:[.,]\d+)?)\s*(.*)", raw_numeric)
+        value = numeric_match.group(1).replace(" ", "") if numeric_match else raw_numeric
+        unit = numeric_match.group(2).strip() if numeric_match else ""
+        terms = list(cls._terms.finditer(context))
+        # A percentage in a plasma-protein context is PPB even when a nearby
+        # explanatory Cmax mentions a different value/units.
+        if "%" in unit and re.search(r"plasma protein|protein binding|fraction unbound", context, re.I):
+            return "protein binding", value, unit
+        endpoint = min(terms, key=lambda m: abs(m.start() - numeric.start())).group(1) if terms else ""
+        return endpoint, value, unit
+
+    @staticmethod
+    def category_for_endpoint(endpoint: str) -> str:
+        return "PK" if endpoint.lower() in {"cmax", "tmax", "auc", "half-life", "clearance", "cl/f", "volume of distribution", "vd/f", "bioavailability"} else ("METABOLISM" if re.search(r"cyp|hepatocyte|microsomal|metabolite|feces|urine|excret", endpoint, re.I) else "ADMET")
     def harvest(self, identity):
         short_aliases = [x for x in identity.synonyms if x and len(x) <= 16 and re.fullmatch(r"[\w\-]+", x) and not re.fullmatch(r"\d{2,}-\d{2}-\d", x)]
         aliases = list(dict.fromkeys([identity.name, identity.unii, *short_aliases]))[:12]
@@ -302,7 +408,14 @@ class RegulatoryAdapter:
                     doc_id = str(doc.get("id") or hashlib.sha256(url.encode()).hexdigest()[:12])
                     rows.append(_record(self.name, f"{app_number}:DOC:{doc_id}", "Regulatory document", "", "", evidence_category="REGULATORY", record_status="DOCUMENT_DISCOVERED", context_qualified=False, application_id=app_number, document_type=document_class, document_date=doc.get("date", ""), reference=f"Drugs@FDA {app_number} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url))
                     text = _get_document_text(url)
-                    rows.extend(self._extract_document(app_number, document_class, doc_id, url, text))
+                    parse_state = "DOCUMENT_PARSED" if text else "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED"
+                    # A document with text but no qualified measurement terms
+                    # is still transparently accounted for.
+                    extracted = self._extract_document(app_number, document_class, doc_id, url, text)
+                    if text and not extracted:
+                        parse_state = "DOCUMENT_NO_RELEVANT_SECTION"
+                    rows.append(_record(self.name, f"{app_number}:DOC:{doc_id}:PARSE", "Regulatory document", "", "", evidence_category="REGULATORY", record_status=parse_state, context_qualified=False, application_id=app_number, document_type=document_class, document_date=doc.get("date", ""), reference=f"Drugs@FDA {app_number} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url))
+                    rows.extend(extracted)
                 # The Drugs@FDA review TOC deterministically exposes public
                 # review classes for an approved application.
                 if submission.get("submission_type") == "ORIG" and submission.get("submission_status") == "AP":
@@ -326,20 +439,57 @@ class RegulatoryAdapter:
             # Tables often wrap a row label and its value over adjacent lines.
             context = " ".join(lines[line_no - 1:line_no + 2]).strip()
             if not self._terms.search(context) or not self._value.search(context): continue
-            endpoint = self._terms.search(context).group(1)
-            raw_numeric = self._value.search(context).group(0).strip()
-            numeric_match = re.match(r"([<>≤≥]?\s*\d+(?:[.,]\d+)?)\s*(.*)", raw_numeric)
-            value = numeric_match.group(1).replace(" ", "") if numeric_match else raw_numeric
-            unit = numeric_match.group(2).strip() if numeric_match else ""
-            category = "PK" if endpoint.lower() in {"cmax", "tmax", "auc", "half-life", "clearance", "cl/f", "volume of distribution", "vd/f", "bioavailability"} else ("METABOLISM" if re.search(r"cyp|hepatocyte|microsomal|metabolite|feces|urine|excret", endpoint, re.I) else "ADMET")
+            endpoint, value, unit = self.endpoint_value_from_context(context)
+            if not endpoint or not value or not unit:
+                continue
+            category = self.category_for_endpoint(endpoint)
             species = "Human" if re.search(r"\bhuman|patients?|healthy subjects?\b", context, re.I) else ""
             rows.append(_record(self.name, f"{app}:{doc_id}:L{line_no}", endpoint, value, unit, evidence_category=category, context_qualified=False, record_status="REGULATORY_CANDIDATE", application_id=app, document_type=doc_type, page_or_line=f"line {line_no}", raw_context=context, species=species, reference=f"Drugs@FDA {app} · {doc_type}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_quality_class="A1", source_url=url, conditions=context))
             if len(rows) >= 400: break
         return rows
 
 
+class NMPAAdapter:
+    """Official NMPA English-site approval discovery (no third-party index)."""
+    name = "NMPA / Regulatory"
+
+    def status(self): return "CONFIGURED"
+
+    def harvest(self, identity):
+        aliases = list(dict.fromkeys([identity.name, *identity.synonyms]))
+        rows = []
+        seen = set()
+        for alias in aliases[:12]:
+            if not alias or alias in seen:
+                continue
+            seen.add(alias)
+            data = _get_json("https://english.nmpa.gov.cn/dataservice/api/search?index=2%40NMPA&keywords=" + quote(alias) + "&limit=20&page=1")
+            for item in data.get("data", []) or []:
+                title = re.sub(r"<[^>]+>", "", str(item.get("title", "")))
+                abstract = re.sub(r"<[^>]+>", "", str(item.get("abstractdesc", "")))
+                text = f"{title} {abstract}".lower()
+                # Do not infer approval from a mere search hit.  The official
+                # article itself must explicitly state the marketing decision.
+                if "approved" not in text or "marketing" not in text:
+                    continue
+                url = item.get("pubUrl", "")
+                key = str(item.get("id") or url)
+                if not key or key in seen:
+                    continue
+                seen.add(key)
+                identity.approval["NMPA"] = {"status": "APPROVED", "approval_date": str(item.get("pubTime", ""))[:10], "source_id": key}
+                rows.append(_record(self.name, f"NMPA:{key}", "NMPA approval", "", "", evidence_category="REGULATORY",
+                                    record_status="NMPA_APPROVAL_CONFIRMED_DOCUMENT_NOT_PUBLICLY_ACCESSIBLE", context_qualified=False,
+                                    approval_date=str(item.get("pubTime", ""))[:10], approval_title=title, source_quality_class="A1",
+                                    reference=f"NMPA official notice {key}", reference_status="REFERENCE_RESOLVED_REGULATORY", source_url=url,
+                                    conditions=abstract))
+            if rows:
+                break
+        return rows
+
+
 def configured_adapters() -> list[EvidenceSource]:
-    return [PubChemPUGViewAdapter(), PubChemBioAssayAdapter(), ChEMBLAdapter(), CompToxAdapter(), BindingDBAdapter(), EuropePMCAdapter(), PKDBAdapter(), RegulatoryAdapter()]
+    return [PubChemPUGViewAdapter(), PubChemBioAssayAdapter(), ChEMBLAdapter(), CompToxAdapter(), BindingDBAdapter(), EuropePMCAdapter(), PKDBAdapter(), RegulatoryAdapter(), NMPAAdapter()]
 
 
 def harvest_public_evidence(identity: PublicIdentity, enabled_sources: set[str] | None = None) -> dict:
@@ -355,11 +505,16 @@ def harvest_public_evidence(identity: PublicIdentity, enabled_sources: set[str] 
     related = [r for r in unique if r.get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT"]
     literature = [r for r in unique if r.get("record_status") == "LITERATURE_CANDIDATE" or r.get("source") == "Europe PMC"]
     categories = {category: sum(1 for row in unique if row.get("evidence_category") == category) for category in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "REGULATORY", "LITERATURE")}
-    documents = {kind: sum(1 for row in unique if row.get("record_status") == kind) for kind in ("DOCUMENT_DISCOVERED", "DOCUMENT_PARSED", "SUPPLEMENTARY_DISCOVERED", "LITERATURE_CANDIDATE")}
+    documents = {kind: sum(1 for row in unique if row.get("record_status") == kind) for kind in (
+        "DOCUMENT_DISCOVERED", "DOCUMENT_PARSED", "DOCUMENT_NO_RELEVANT_SECTION", "DOCUMENT_DOWNLOAD_OR_TEXT_EXTRACTION_FAILED",
+        "SUPPLEMENTARY_DISCOVERED", "SUPPLEMENT_PARSED", "SUPPLEMENT_DOWNLOAD_FAILED", "SUPPLEMENT_TEXT_EXTRACTION_FAILED",
+        "SUPPLEMENT_UNSUPPORTED_FORMAT", "LITERATURE_CANDIDATE", "LITERATURE_NUMERIC_CANDIDATE",
+    )}
     source_counts = {key: {"found": 0 if value in {"NOT_CONFIGURED", "ADAPTER_READY"} else sum(1 for r in rows if r.get("source") == key), "qualified": sum(1 for r in unique if r.get("source") == key and r.get("context_qualified") and str(r.get("reference_status", "")).startswith("REFERENCE_RESOLVED"))} for key, value in statuses.items()}
     return {"identity": identity.to_dict(), "sources": statuses, "records": unique,
             "summary": {"sources_searched": sum(1 for v in statuses.values() if v not in {"NOT_CONFIGURED", "ADAPTER_READY"}),
-                        "raw_records": len(rows), "unique_records": len(unique),
+                        "harvester_search_version": HARVESTER_SEARCH_VERSION, "document_parser_version": DOCUMENT_PARSER_VERSION,
+                        "qualification_version": QUALIFICATION_VERSION, "raw_records": len(rows), "raw_found": len(rows), "unique_records": len(unique),
                         "reference_qualified": len(reference_qualified), "directly_comparable": len(comparable),
                         "related_evidence": len(related), "literature_candidates": len(literature),
                         "duplicates_removed": len(rows) - len(unique), "imported": 0, "categories": categories, "documents": documents},
