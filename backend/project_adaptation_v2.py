@@ -29,6 +29,8 @@ class QualifiedEvidencePair:
     source_quality: str = "A"
     comparability_status: str = "DIRECTLY_COMPARABLE"
     duplicate_status: str = "DISTINCT_MEASUREMENT"
+    # Optional validation metadata; production callers remain backward compatible.
+    series_id: str = ""
 
     @property
     def quality_weight(self) -> float:
@@ -112,7 +114,9 @@ def fit_project_adapter(endpoint_id: str, evidence: Iterable[QualifiedEvidencePa
     weights = _normalise({m: (1-beta)*global_weights[m] + beta*fitted[m] for m in global_weights})
     status = _tier(effective_n)
     base_error, adapted_error = _loo_error(selected, global_weights, beta)
-    activate = status != "BASE_ONLY" and base_error is not None and adapted_error is not None and adapted_error <= base_error
+    # Equality is not evidence of learning.  Require a strict, leakage-safe
+    # validation improvement before an adapter can be activated.
+    activate = status != "BASE_ONLY" and base_error is not None and adapted_error is not None and adapted_error < base_error - 1e-12
     if not activate:
         weights, status = global_weights, "BASE_ONLY" if effective_n < 5 else "NO_IMPROVEMENT_BASE_RETAINED"
     return ProjectAdapterResult(endpoint_id, status, len(selected), effective_n, global_weights, weights, beta if activate else 0.0, base_error, adapted_error, "ACTIVATED" if activate else "BASE_RETAINED")

@@ -4525,6 +4525,53 @@ function integratedProfile(versionId){
 
   function projectLearningPanel(){
    const rows=projectAdaptation?.endpoints||[];
+   function learningCurveGraph(curve){
+    const points=(curve?.aggregate||[]).filter(point=>point.base_mae!=null);
+    if(points.length<2)return e('div',{className:'learning-curve-empty small'},'Learning curve unavailable — need at least 2 leakage-safe holdout points.');
+    const width=360,height=132,pad={left:38,right:12,top:12,bottom:26};
+    const values=points.flatMap(point=>[point.base_mae,point.adapted_mae].filter(value=>value!=null));
+    const max=Math.max(...values,0.001), min=Math.min(...values,0);
+    const x=point=>pad.left+(point.n/(Math.max(...points.map(item=>item.n),1)))*(width-pad.left-pad.right);
+    const y=value=>pad.top+((max-value)/(max-min||1))*(height-pad.top-pad.bottom);
+    const base=points.map(point=>x(point)+','+y(point.base_mae)).join(' ');
+    const adapted=points.filter(point=>point.adapted_mae!=null).map(point=>x(point)+','+y(point.adapted_mae)).join(' ');
+    return e('div',{className:'learning-curve-wrap'},[
+     e('svg',{key:'svg',className:'learning-curve-graph',viewBox:'0 0 '+width+' '+height,role:'img','aria-label':'Leakage-safe project learning curve showing base and adapted holdout error'},[
+      e('line',{key:'axis-x',x1:pad.left,y1:height-pad.bottom,x2:width-pad.right,y2:height-pad.bottom,className:'learning-curve-axis'}),
+      e('line',{key:'axis-y',x1:pad.left,y1:pad.top,x2:pad.left,y2:height-pad.bottom,className:'learning-curve-axis'}),
+      e('polyline',{key:'base',points:base,fill:'none',className:'learning-curve-base'}),
+      adapted&&e('polyline',{key:'adapted',points:adapted,fill:'none',className:'learning-curve-adapted'}),
+      points.map(point=>e('circle',{key:'b'+point.n,cx:x(point),cy:y(point.base_mae),r:2.5,className:'learning-curve-base'})),
+      points.filter(point=>point.adapted_mae!=null).map(point=>e('circle',{key:'a'+point.n,cx:x(point),cy:y(point.adapted_mae),r:2.5,className:'learning-curve-adapted'})),
+      e('text',{key:'xlabel',x:width/2,y:height-4,className:'learning-curve-label'},'Independent compounds (N)'),
+      e('text',{key:'ylabel',x:10,y:height/2,transform:'rotate(-90 10 '+height/2+')',className:'learning-curve-label'},'Holdout MAE')
+     ]),
+     e('div',{key:'legend',className:'learning-curve-legend small'},[
+      e('span',{key:'base'},[e('i',{className:'learning-curve-swatch base'}),' Base holdout MAE']),
+      e('span',{key:'adapted'},[e('i',{className:'learning-curve-swatch adapted'}),' Project candidate holdout MAE'])
+     ])
+    ]);
+   }
+   function learningCurveDetails(row){
+    const curve=row.learning_curve;
+    return e('details',{className:'learning-curve-details',key:'curve-'+row.endpoint_id},[
+     e('summary',{key:'summary'},'Learning curve / leakage-safe validation'),
+     curve?.aggregate?.length?e('div',{key:'content'},[
+      learningCurveGraph(curve),
+      e('div',{className:'table-scroll',key:'table'},e('table',{className:'learning-curve-table'},[
+       e('thead',{},e('tr',{},['N','Base holdout MAE','Project holdout MAE','Delta','Holdouts improved','Decision'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},curve.aggregate.map(point=>e('tr',{key:point.n},[
+        e('td',{className:'mono'},point.n),e('td',{className:'mono'},point.base_mae==null?'—':Number(point.base_mae).toFixed(4)),
+        e('td',{className:'mono'},point.adapted_mae==null?'—':Number(point.adapted_mae).toFixed(4)),
+        e('td',{className:'mono'},point.delta_mae==null?'—':Number(point.delta_mae).toFixed(4)),
+        e('td',{className:'mono'},point.fraction_holdouts_improved==null?'—':Math.round(point.fraction_holdouts_improved*100)+'%'),
+        e('td',{},(point.validation_decisions||[]).join(', '))
+       ])))
+      ])),
+      e('p',{className:'small',key:'note'},'Only held-out compounds are scored. Training error is not used; the evaluated compound is excluded from adapter fitting.')
+     ]):e('p',{className:'small',key:'empty'},'Learning curve unavailable — need at least 2 leakage-safe holdout points.')
+    ]);
+   }
    return e('section',{className:'card project-learning-panel',key:'project-learning'},[
     e('div',{className:'eyebrow'},'PROJECT LEARNING'),
     e('h2',{},'Prediction / Experimental Learning'),
@@ -4541,7 +4588,7 @@ function integratedProfile(versionId){
       e('td',{},row.status||'Collecting data'),
       e('td',{},row.activation_decision==='ACTIVATED'&&!row.active?e('button',{className:'secondary',onClick:()=>activateProjectAdapter(row.endpoint_id)},'Activate'):row.active?e('span',{className:'pass'},'Active'):e('span',{className:'small'},'No activation'))
      ])))
-    ])):e('div',{className:'empty-state'},[e('p',{},'No qualified project endpoint pairs yet.'),e('p',{className:'small'},'Predictions remain Base Prediction ★☆☆☆☆ until a validated adapter is explicitly activated.')])
+    ]),rows.length&&e('div',{className:'learning-curve-list'},rows.map(learningCurveDetails))):e('div',{className:'empty-state'},[e('p',{},'No qualified project endpoint pairs yet.'),e('p',{className:'small'},'Predictions remain Base Prediction ★☆☆☆☆ until a validated adapter is explicitly activated.')])
    ]);
   }
 

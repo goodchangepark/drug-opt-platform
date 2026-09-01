@@ -1563,6 +1563,21 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .project-learning-panel { margin-top: 16px; }
 .project-learning-table { font-size: 12px; }
 .project-learning-table th, .project-learning-table td { vertical-align: top; padding: 7px 8px; }
+.learning-curve-list { margin-top: 12px; display: grid; gap: 8px; }
+.learning-curve-details { border-top: 1px solid var(--border, #e2e8f0); padding-top: 8px; }
+.learning-curve-details summary { cursor: pointer; font-weight: 600; }
+.learning-curve-wrap { max-width: 390px; margin: 10px 0 6px; }
+.learning-curve-graph { display: block; width: 100%; height: auto; overflow: visible; }
+.learning-curve-axis { stroke: #cbd5e1; stroke-width: 1; }
+.learning-curve-base { stroke: #64748b; fill: #64748b; stroke-width: 2; }
+.learning-curve-adapted { stroke: #2563eb; fill: #2563eb; stroke-width: 2; }
+.learning-curve-label { fill: #64748b; font-size: 8px; text-anchor: middle; }
+.learning-curve-legend { display: flex; flex-wrap: wrap; gap: 10px; }
+.learning-curve-swatch { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: 3px; background: #64748b; }
+.learning-curve-swatch.adapted { background: #2563eb; }
+.learning-curve-empty { padding: 8px 0; color: #64748b; }
+.learning-curve-table { font-size: 12px; }
+.learning-curve-table th, .learning-curve-table td { padding: 5px 7px; }
 @media (max-width: 760px) {
   .compact-evidence-table { min-width: 720px; }
   .project-learning-table { min-width: 760px; }

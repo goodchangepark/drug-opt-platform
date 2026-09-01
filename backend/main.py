@@ -109,6 +109,7 @@ from .experimental_evidence_router import ROUTER_VERSION, route_evidence, route_
 from .evidence_display_dedup import deduplicate_for_display
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
+from .project_learning_curve import build_learning_curve
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 
@@ -2398,6 +2399,9 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
     preview["independent_compounds"] = len({pair.compound_version_id for pair in pairs})
     preview["adaptation_eligible_n"] = len({pair.compound_version_id for pair in pairs if pair.eligible})
     preview["activation_requires_explicit_action"] = True
+    # Read-only validation detail for the project dashboard.  This does not
+    # activate an adapter or rewrite any historical prediction snapshot.
+    preview["learning_curve"] = build_learning_curve(endpoint_id, pairs, weights)
     return preview, pairs
 
 
@@ -2408,6 +2412,19 @@ def project_adaptation_dashboard(project_id: int, db: Session = Depends(get_db))
     endpoints = set(db.scalars(select(ADMETExperimentalFeedbackEvent.endpoint_name).where(
         ADMETExperimentalFeedbackEvent.project_id == project_id
     )))
+    # Keep the dashboard useful at N=0: an endpoint with a valid project
+    # prediction still has a Base Prediction maturity state before any
+    # experiment is imported.  This is read-only and does not create an
+    # adapter or alter prediction history.
+    for endpoint_name in db.scalars(
+        select(ADMETModelRegistry.endpoint_name)
+        .join(ADMETPrediction, ADMETPrediction.model_id == ADMETModelRegistry.id)
+        .join(CompoundVersion, CompoundVersion.id == ADMETPrediction.version_id)
+        .join(Compound, Compound.id == CompoundVersion.compound_row_id)
+        .where(Compound.project_id == project_id)
+    ):
+        if endpoint_name:
+            endpoints.add(endpoint_name)
     external_endpoint_names = {
         "solubility_aqueous_logs": "Solubility", "permeability_caco2_logpapp": "Permeability",
         "ppb_human_percent_bound": "Plasma protein binding", "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance",

@@ -1,0 +1,42 @@
+{
+  "policy_version": "drugopt-project-maturity-policy-v1",
+  "meaning": "Project-specific experimental adaptation maturity, not an absolute guarantee of accuracy.",
+  "calibration_basis": {
+    "validation_artifact": "project_learning_curve_v3_6.json",
+    "validation_type": "controlled synthetic disposable validation",
+    "endpoints": ["PPB", "Solubility", "Caco2", "HLM"],
+    "compounds_per_endpoint": 12,
+    "repeat_orderings": 20,
+    "observed_level_2_candidate_gate": "At N=5, candidate weights were evaluated only after leakage-safe LOO and were retained as a candidate only when holdout-compatible validation improved strictly over base.",
+    "interpretation": "The controlled fixture demonstrates the gate and learning-curve machinery; it is not a claim about real-drug accuracy."
+  },
+  "rules": {
+    "level_1": {
+      "label": "Base Prediction",
+      "gate": "Valid prediction with no explicitly activated validated project adapter."
+    },
+    "level_2": {
+      "label": "Early Adaptation",
+      "gate": "At least five independent qualified comparable compounds, leakage-safe holdout/LOO validation, non-degradation or improvement, and explicit activation."
+    },
+    "level_3": {
+      "label": "Project Adapted",
+      "gate": "Stronger endpoint-specific evidence, repeated validation and stable improvement beyond the Level 2 gate; not N alone."
+    },
+    "level_4": {
+      "label": "Series Adapted",
+      "gate": "Validated scaffold/series-aware improvement on held-out compounds in addition to project-global validation."
+    },
+    "level_5": {
+      "label": "Mature Project Prediction",
+      "gate": "Substantial independent evidence, repeated successful out-of-sample cycles, low instability, representative coverage, and adapter-history consistency; never N alone."
+    }
+  },
+  "hard_gates": [
+    "same-compound leakage blocked",
+    "pre-experimental frozen prediction required",
+    "raw/duplicate/related evidence cannot increase maturity",
+    "weights non-negative and sum to one",
+    "explicit user activation required"
+  ]
+}
