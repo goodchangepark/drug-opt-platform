@@ -31,9 +31,10 @@ def _items(view):
 def _persisted_summary(view, latest_run=None):
     q = dict(view.get("summary", {}).get("qualification", {}))
     if latest_run:
-        q["raw_source_records"] = latest_run.raw_count
         q["search_run_unique_records"] = latest_run.unique_count
         q["search_run_endpoint_qualified"] = latest_run.qualified_count
+        q["latest_search_raw_source_records"] = latest_run.raw_count
+        q["latest_search_importable"] = latest_run.importable_count
     q["canonical_endpoint_rows"] = len(view.get("endpoints", []))
     return q
 

@@ -3886,6 +3886,7 @@ function integratedProfile(versionId){
      'Adaptation eligible: '+(qualificationSummary.global?.adaptation_eligible||0),
      'Needs review: '+(qualificationSummary.global?.manual_review||0)
     ].map(text=>e('span',{key:text,className:'badge-intermediate'},text))),
+    qualificationSummary.global?.latest_search_run&&e('p',{className:'small'},'Latest search run · Raw source records: '+qualificationSummary.global.latest_search_run.raw_source_records+' · Unique: '+qualificationSummary.global.latest_search_run.unique_records+' · Endpoint-qualified: '+qualificationSummary.global.latest_search_run.endpoint_qualified+' · Ready to Import: '+qualificationSummary.global.latest_search_run.importable),
     e('div',{className:'source-qualification-table'},[
      e('strong',{key:'source-title'},'Persisted source stages'),
      ...Object.entries(qualificationSummary.sources||{}).map(([source,count])=>e('div',{key:source,className:'small'},source+' · Found '+count.found+' · Unique '+count.unique+' · Endpoint-qualified '+count.endpoint_qualified+' · Context-qualified '+count.context_qualified+' · Prediction-pairable '+count.prediction_pairable+' · Direct '+count.direct+' · Ready '+count.ready_to_import))

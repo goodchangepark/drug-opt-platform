@@ -1338,7 +1338,14 @@ def compound_qualification_summary(row_id: int, db: Session = Depends(get_db)):
         ExperimentalSearchRun.compound_id == row_id
     ).order_by(ExperimentalSearchRun.started_at.desc()))
     result = dict(view.get("summary", {}).get("qualification", {}))
-    result["raw_source_records"] = latest_run.raw_count if latest_run else result.get("unique_scientific_observations", 0)
+    if latest_run:
+        result["latest_search_run"] = {
+            "search_run_id": latest_run.search_run_id,
+            "raw_source_records": latest_run.raw_count,
+            "unique_records": latest_run.unique_count,
+            "endpoint_qualified": latest_run.qualified_count,
+            "importable": latest_run.importable_count,
+        }
     result["qualification_version"] = QUALIFICATION_CONTRACT_VERSION
     return {"compound_id": row_id, "compound_version_id": current.id, "qualification_version": QUALIFICATION_CONTRACT_VERSION,
             "global": result, "sources": view.get("summary", {}).get("source_qualification", {}),
