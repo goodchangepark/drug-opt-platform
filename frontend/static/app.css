@@ -1554,3 +1554,6 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .maturity-star-filled { color: #F5B700; }
 .maturity-star-empty { color: #94a3b8; }
 .maturity-level-text { color: #64748b; font-size: 0.78rem; font-weight: 600; margin-left: 3px; }
+.compact-evidence-table { font-size: 12px; }
+.compact-evidence-table th, .compact-evidence-table td { vertical-align: top; padding: 7px 8px; }
+.compact-evidence-table .comparison-result { color: #1d4ed8; margin-top: 3px; }

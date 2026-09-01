@@ -106,6 +106,7 @@ from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, 
                                    normalize_experimental)
 from .experimental_harvester import harvest_public_evidence, resolve_public_identity
 from .experimental_evidence_router import ROUTER_VERSION, route_evidence, route_records
+from .evidence_display_dedup import deduplicate_for_display
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
 from .prediction_maturity import maturity_for_adapter
@@ -1073,10 +1074,14 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         row["endpoint_qualified"] = endpoint_qualified
         row["import_eligible"] = bool(traceable and endpoint_qualified and comparable and endpoint_semantics_match and row.get("duplicate_status") != "SAME_MEASUREMENT")
         row["qualification_state"] = "IMPORTABLE" if row["import_eligible"] else ("MANUAL_REVIEW" if numeric and traceable else "CANDIDATE")
-    route_records(result["records"])
-    records = result["records"]
+    raw_records = route_records(result["records"])
+    display_records, display_duplicates = deduplicate_for_display(raw_records)
+    result["records"] = display_records
+    records = display_records
     summary = result.setdefault("summary", {})
     summary.update({
+        "raw_records": len(raw_records),
+        "unique_records": len(display_records),
         "numeric_observations": sum(bool(r.get("numeric_observation")) for r in records),
         "endpoint_qualified": sum(bool(r.get("endpoint_qualified")) for r in records),
         "directly_comparable": sum(r["display"].get("comparability_status") == "DIRECTLY_COMPARABLE" for r in records),
@@ -1084,6 +1089,7 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         "related_evidence": sum(r["display"].get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT" for r in records),
         "manual_review": sum(r.get("qualification_state") == "MANUAL_REVIEW" for r in records),
         "importable": sum(bool(r.get("import_eligible")) for r in records),
+        "display_duplicates_collapsed": display_duplicates,
         "routing_version": ROUTER_VERSION,
         "routed_sections": {section: sum(1 for r in records if r.get("routing", {}).get("section") == section) for section in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED")},
     })
@@ -2287,12 +2293,55 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
         ADMETExperimentalFeedbackEvent.is_valid == True,
     )).all())
     pairs = []
+    used_versions = set()
     for event in events:
         version = db.get(CompoundVersion, event.version_id)
         predictions = event.frozen_predictions_json or {}
         if version and predictions:
             pairs.append(QualifiedEvidencePair(event.event_id, event.version_id, version.canonical_smiles, endpoint_id,
                          event.experimental_value, predictions, origin="EXPERIMENTAL_INTERNAL", source_quality="A"))
+            used_versions.add(event.version_id)
+    canonical_for_endpoint = {
+        "Solubility": "solubility_aqueous_logs",
+        "Permeability": "permeability_caco2_logpapp",
+        "Plasma protein binding": "ppb_human_percent_bound",
+        "HLM intrinsic clearance": "hlm_intrinsic_clearance_scaled_log10",
+        "RLM intrinsic clearance": "rlm_intrinsic_clearance_scaled_log10",
+        "MLM intrinsic clearance": "mlm_intrinsic_clearance_scaled_log10",
+    }.get(endpoint_id)
+    if canonical_for_endpoint:
+        imported = list(db.scalars(select(ExternalExperimentalEvidence).join(CompoundVersion).join(Compound).where(
+            Compound.project_id == project_id,
+            ExternalExperimentalEvidence.canonical_endpoint_id == canonical_for_endpoint,
+            ExternalExperimentalEvidence.comparability_status.in_(("DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION")),
+            ExternalExperimentalEvidence.duplicate_status == "DISTINCT_MEASUREMENT",
+        ).order_by(ExternalExperimentalEvidence.imported_at)).all())
+        for evidence in imported:
+            if evidence.compound_version_id in used_versions:
+                continue
+            try:
+                value = float(evidence.normalized_value)
+            except (TypeError, ValueError):
+                continue
+            version = db.get(CompoundVersion, evidence.compound_version_id)
+            if not version:
+                continue
+            predictions = {}
+            for prediction in db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(
+                ADMETPrediction.version_id == version.id,
+                ADMETModelRegistry.endpoint_name == endpoint_id,
+                ADMETPrediction.created_at < evidence.imported_at,
+            )).all():
+                if prediction.predicted_value is None:
+                    continue
+                model_name = prediction.model.model_name.lower()
+                model_key = ("admetica_solubility" if "admetica" in model_name else ("esol_delaney_v1" if "esol" in model_name else "rdkit_gbr_solubility_v1")) if endpoint_id == "Solubility" else f"{endpoint_id}:{prediction.model_id}"
+                predictions[model_key] = float(prediction.predicted_value)
+            if predictions:
+                pairs.append(QualifiedEvidencePair(f"EXT-{evidence.id}", version.id, version.canonical_smiles, endpoint_id,
+                    value, predictions, origin="EXPERIMENTAL_EXTERNAL", source_quality=evidence.source_quality_class,
+                    comparability_status=evidence.comparability_status, duplicate_status=evidence.duplicate_status))
+                used_versions.add(version.id)
     model_ids = sorted({key for pair in pairs for key in pair.frozen_predictions})
     weights = {key: 1.0 / len(model_ids) for key in model_ids} if model_ids else {}
     result = fit_project_adapter(endpoint_id, pairs, weights)
@@ -2303,9 +2352,18 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
 def project_adaptation_dashboard(project_id: int, db: Session = Depends(get_db)):
     if not db.get(Project, project_id):
         raise HTTPException(status_code=404, detail="Project not found")
-    endpoints = sorted(set(db.scalars(select(ADMETExperimentalFeedbackEvent.endpoint_name).where(
+    endpoints = set(db.scalars(select(ADMETExperimentalFeedbackEvent.endpoint_name).where(
         ADMETExperimentalFeedbackEvent.project_id == project_id
-    ))))
+    )))
+    external_endpoint_names = {
+        "solubility_aqueous_logs": "Solubility", "permeability_caco2_logpapp": "Permeability",
+        "ppb_human_percent_bound": "Plasma protein binding", "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance",
+        "rlm_intrinsic_clearance_scaled_log10": "RLM intrinsic clearance", "mlm_intrinsic_clearance_scaled_log10": "MLM intrinsic clearance",
+    }
+    for canonical in db.scalars(select(ExternalExperimentalEvidence.canonical_endpoint_id).join(CompoundVersion).join(Compound).where(Compound.project_id == project_id)):
+        if canonical in external_endpoint_names:
+            endpoints.add(external_endpoint_names[canonical])
+    endpoints = sorted(endpoints)
     rows = []
     for endpoint_id in endpoints:
         preview, _ = _project_adapter_preview(db, project_id, endpoint_id)
