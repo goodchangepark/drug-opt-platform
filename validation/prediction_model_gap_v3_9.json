@@ -1,0 +1,205 @@
+{
+  "gaps": [
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "DOG_PK_F_ORAL",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "EXCRETION_FECAL",
+      "experimental_observations": 6,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "METABOLISM"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "EXCRETION_URINARY",
+      "experimental_observations": 9,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "METABOLISM"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "HEPATOCYTE_CLINT",
+      "experimental_observations": 3,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "METABOLISM"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [
+        "PK context or unit is incomplete"
+      ],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "METABOLITE_OBSERVATION",
+      "experimental_observations": 12,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "METABOLISM"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "RAT_PK_F_UNSPECIFIED",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "RAT_PK_TMAX_ORAL",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "RAT_PK_TMAX_UNSPECIFIED",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "RAT_PK_T_HALF_UNSPECIFIED",
+      "experimental_observations": 2,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "HIGH",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "UNSPECIFIED_PK_F_UNSPECIFIED",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "UNSPECIFIED_PK_TMAX_UNSPECIFIED",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "UNSPECIFIED_PK_T_HALF_ORAL",
+      "experimental_observations": 1,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [
+        "PK context or unit is incomplete"
+      ],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    },
+    {
+      "compounds": 1,
+      "current_prediction_availability": "NO_MATCHING_PREDICTION",
+      "endpoint": "UNSPECIFIED_PK_T_HALF_UNSPECIFIED",
+      "experimental_observations": 2,
+      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
+      "priority": "MEDIUM",
+      "remaining_reasons": [],
+      "sections": [
+        "PK"
+      ],
+      "source_quality": "persisted qualified/candidate evidence audit"
+    }
+  ],
+  "policy": "no fabricated prediction values",
+  "version": "v3.9"
+}

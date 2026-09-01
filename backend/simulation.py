@@ -1384,6 +1384,14 @@ def register_simulation_routes(app):
         db: Session = Depends(get_db),
     ):
         run = run_pk_simulation(db, version_id, request)
+        # The simulation record remains the calculation source of truth.  The
+        # canonical snapshot index makes its endpoint outputs available to
+        # comparison/reload APIs without relabelling them as Engine-v1 model
+        # predictions.
+        from .endpoint_comparison import persist_pk_prediction_snapshots
+        persist_pk_prediction_snapshots(db, version_id)
+        db.commit()
+        db.refresh(run)
         return run
 
     @app.post("/api/compound-versions/{version_id}/pk-simulation/fit-extravascular")

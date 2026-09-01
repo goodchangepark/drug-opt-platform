@@ -117,7 +117,7 @@ from .project_learning import (ledger_out, project_learning_summary,
                                record_external_evidence_pair, record_internal_measurement_pair)
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
-from .endpoint_comparison import build_endpoint_comparison
+from .endpoint_comparison import build_endpoint_comparison, ensure_pk_prediction_snapshot_index, persist_pk_prediction_snapshots
 from .canonical_endpoints import (CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION,
                                   normalize_experimental_observation, registry_report,
                                   reindex_persisted_evidence)
@@ -163,6 +163,10 @@ async def lifespan(app_instance: FastAPI):
         # evidence. This never re-searches sources or changes raw provenance.
         with SessionLocal() as canonical_db:
             reindex_persisted_evidence(canonical_db)
+            # IVIVE, Stage-5 simulation, and persisted metabolism outputs
+            # predate the canonical snapshot index.  Index existing values
+            # without re-running or changing any calculation.
+            ensure_pk_prediction_snapshot_index(canonical_db)
             canonical_db.commit()
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
@@ -840,6 +844,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
     completed_endpoints = []
     unavailable_endpoints = []
     failed_endpoints = []
+    auxiliary_prediction_run_id = None
 
     try:
         steps["properties"] = {"status": "RUNNING"}
@@ -853,6 +858,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
     try:
         steps["admet"] = {"status": "RUNNING", "endpoints": []}
         result = run_admet_predictions(version.id, db)
+        auxiliary_prediction_run_id = result.get("run_id")
         steps["admet"] = {"status": "COMPLETE" if result["status"] in {"COMPLETE", "CACHED"} else result["status"],
                           "message": result.get("message", ""), "endpoints": result.get("endpoint_statuses", []),
                           "consensus_count": len(result.get("consensus_predictions", []))}
@@ -947,6 +953,10 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
             completed_endpoints.append("PK parameter foundation (IV/PO/SC/IP)")
         else:
             unavailable_endpoints.append("PK parameter foundation")
+        # Persist/index every Stage-5 and IVIVE value produced or already
+        # present for this Predict workflow.  This is an overlay index; the
+        # frozen Engine v1 output remains untouched.
+        persist_pk_prediction_snapshots(db, version.id, auxiliary_prediction_run_id)
     except Exception as exc:
         steps["pk"] = {"status": "FAILED", "message": str(getattr(exc, "detail", exc)), "routes": []}
         failed_endpoints.append("PK Prediction")
@@ -2105,6 +2115,8 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
             ),
         }
         snapshot["prediction_type"] = MODEL_SPECS.get(endpoint_name, {}).get("prediction_type", "REGRESSION")
+        snapshot["source_type"] = "MODEL"
+        snapshot["source_label"] = "Model Prediction"
         snapshot["adapter_strategy"] = getattr(adapter, "strategy_type", "BASE_ONLY") if adapter else "BASE_ONLY"
         for row in rows:
             row.outputs_json = dict(row.outputs_json or {}) | {
@@ -3587,6 +3599,8 @@ def run_metabolism_predictions(version_id: int, db: Session = Depends(get_db)):
         ).order_by(MetabolicPredictionRun.started_at.desc())
     )
     if cached:
+        persist_pk_prediction_snapshots(db, version_id)
+        db.commit()
         return {"status": "CACHED", "cache_hit": True, "message": "Cached soft spots and metabolite hypotheses reused.", "run": _metabolic_run_out(cached)}
 
     run = MetabolicPredictionRun(
@@ -3640,6 +3654,8 @@ def run_metabolism_predictions(version_id: int, db: Session = Depends(get_db)):
         run.message = f"Stored {len(result['spots'])} ranked soft spots and {len(result['metabolites'])} unique sanitized metabolite hypotheses."
         run.completed_at = datetime.now(timezone.utc)
         db.commit(); db.refresh(run)
+        persist_pk_prediction_snapshots(db, version_id)
+        db.commit()
     except Exception as exc:
         run.status, run.message = "FAILED", f"Metabolic hypothesis generation failed: {exc}"
         run.completed_at = datetime.now(timezone.utc)

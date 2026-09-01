@@ -1036,11 +1036,12 @@ function integratedProfile(versionId){
  function unifiedPredictionCell(prediction){
   if(!prediction)return e('span',{className:'small'},'—');
   const adapted=prediction.project_adapted_prediction;
-  if(!adapted)return e('div',{className:'mono'},unifiedPredictionValue(prediction));
+  const sourceLabel=prediction.prediction_source_label||prediction.source_label||({MODEL:'Model Prediction',MECHANISTIC_ESTIMATE:'Mechanistic Estimate',RULE_ESTIMATE:'Rule Estimate',DERIVED_ESTIMATE:'Derived Estimate',MODEL_UNAVAILABLE:'Model Unavailable'}[prediction.prediction_source_type||prediction.source_type]||'Prediction');
+  if(!adapted)return e('div',{},[e('div',{className:'mono'},unifiedPredictionValue(prediction)),e('div',{className:'small'},sourceLabel)]);
   return e('div',{},[
    e('div',{className:'mono bold'},'Project: '+Number(adapted.value).toFixed(3)+' '+(adapted.unit||prediction.unit||'')),
    e('div',{className:'small'},'Base: '+unifiedPredictionValue(prediction)),
-   e('div',{className:'small'},'Adapter '+adapted.adapter_version)
+   e('div',{className:'small'},'Adapter '+adapted.adapter_version),e('div',{className:'small'},sourceLabel)
   ]);
  }
  function unifiedEndpointPrediction(endpoint,section='ADMET'){
@@ -1080,7 +1081,7 @@ function integratedProfile(versionId){
   const ready=observedExperiments.some(row=>row.import_eligible===true&&!imported);
   const values=observedExperiments.map(row=>Number((row.display||{}).normalized_value??row.normalized_value??row.value)).filter(Number.isFinite);
   const row=observedExperiments[0]||reviewExperiments[0]||{};
-  const experimental=observedExperiments.length?(values.length>1?values.length+' observations · '+Math.min(...values)+'–'+Math.max(...values):((observedExperiments[0].relation||observedExperiments[0].raw_relation||'=')+' '+((observedExperiments[0].display||{}).normalized_value??observedExperiments[0].normalized_value??observedExperiments[0].value)+' '+((observedExperiments[0].display||{}).normalized_unit||observedExperiments[0].normalized_unit||observedExperiments[0].unit||''))):(reviewExperiments.length?'Needs review ('+reviewExperiments.length+')':'—');
+  const experimental=observedExperiments.length?(values.length>1?values.length+' observations · '+Math.min(...values)+'–'+Math.max(...values):((observedExperiments[0].relation||observedExperiments[0].raw_relation||'=')+' '+((observedExperiments[0].display||{}).normalized_value??observedExperiments[0].normalized_value??observedExperiments[0].value)+' '+((observedExperiments[0].display||{}).normalized_unit||observedExperiments[0].normalized_unit||observedExperiments[0].unit||''))):(reviewExperiments.length?'Needs review ('+reviewExperiments.length+')':prediction?'Not measured / no qualified value':'—');
   const state=prediction&&observedExperiments.length?'BOTH':prediction?'PREDICTION_ONLY':'EXPERIMENTAL_ONLY';
   const source=experiments.length?[...new Set(experiments.flatMap(row=>row.display_sources||[row.source||'External']))].join(' · '):'—';
   const status=unifiedStatus(row,prediction,pair,comparison);
@@ -1088,7 +1089,7 @@ function integratedProfile(versionId){
   return e('tr',{className:'unified-endpoint-comparison',key:endpoint},[
    e('td',{key:'endpoint'},[e('strong',{},endpoint),e('div',{className:'small'},state==='BOTH'?'Experimental + Prediction':state==='PREDICTION_ONLY'?'No experimental value yet':'No matching prediction endpoint')]),
    e('td',{key:'experimental',className:'mono'},[experimental,state==='EXPERIMENTAL_ONLY'&&observedExperiments.length&&e('div',{className:'small'},'Experimental only'),observedExperiments.length>1&&e('div',{className:'small'},'Individual observations preserved'),reviewExperiments.length>0&&e('div',{className:'small'},'Needs review: '+reviewExperiments.length)]),
-   e('td',{key:'prediction'},prediction?[unifiedPredictionCell(prediction),MaturityStars({maturity:maturityForPrediction(prediction)}),e('div',{className:'small'},maturityForPrediction(prediction).label||'Base Prediction'),maturityForPrediction(prediction).level>=2&&e('div',{className:'small'},'Experimental-informed')]:e('span',{className:'small'},'—')),
+   e('td',{key:'prediction'},prediction?[unifiedPredictionCell(prediction),MaturityStars({maturity:maturityForPrediction(prediction)}),e('div',{className:'small'},maturityForPrediction(prediction).label||'Base Prediction'),maturityForPrediction(prediction).level>=2&&e('div',{className:'small'},'Experimental-informed')]:e('span',{className:'small'},'Not available')),
    e('td',{key:'difference',className:'mono'},effectiveComparison?.absolute_error!=null?[(effectiveComparison.preview?'Preview Difference: ':'Difference: '),effectiveComparison.comparison_metric_type==='PERCENTAGE_POINTS'?Number(effectiveComparison.absolute_error).toFixed(2)+' percentage points':Number(effectiveComparison.absolute_error).toFixed(3)+' '+(effectiveComparison.experimental_normalized_unit||effectiveComparison.normalized_unit||'')]:effectiveComparison?.status&&effectiveComparison.status!=='DIRECTLY_COMPARABLE'&&effectiveComparison.status!=='COMPARABLE_AFTER_DETERMINISTIC_CONVERSION'?e('span',{className:'small'},effectiveComparison.reason||'Not directly comparable'):'—'),
    e('td',{key:'learning',className:'small'},[e('strong',{},'Project Learning'),prediction&&e('div',{},maturityForPrediction(prediction).level>=2?'Active adapter':'Base model'),prediction&&e('div',{},'Maturity '+(maturityForPrediction(prediction).level||1)+'/5')]),
    e('td',{key:'status'},[e('div',{className:'small'},reviewExperiments.length&&!observedExperiments.length?'Needs Review':status),reviewExperiments.length>0&&e('div',{className:'small'},reviewExperiments[0].routing_reason||'Qualification requires review'),ready&&e('div',{className:'small'},'External candidate · not imported'),imported&&e('div',{className:'small'},'External Imported'),importButton]),
@@ -1108,6 +1109,8 @@ function integratedProfile(versionId){
    return {endpoint:row.display_name,predicted_value:snapshot.display_value,unit:snapshot.unit,
     prediction_maturity:snapshot.maturity||{level:1,label:'Base Prediction',stars:'★☆☆☆☆'},
     prediction_source:snapshot.project_value!=null?'Project-adapted Prediction':'Base Prediction',
+    prediction_source_type:snapshot.source_type||snapshot.prediction_type,
+    prediction_source_label:snapshot.source_label,
     project_adapted_prediction:snapshot.project_value!=null?{value:snapshot.project_value,unit:snapshot.unit,adapter_version:snapshot.adapter||''}:null,
     base_prediction:{value:snapshot.base_value,unit:snapshot.unit},outputs:{},model:{model_name:'Persisted prediction',model_version:'frozen'}};
   };

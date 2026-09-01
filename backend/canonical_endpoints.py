@@ -16,6 +16,15 @@ CANONICAL_ENDPOINT_VERSION = "drugopt-canonical-endpoint-v1"
 COMPARISON_UNIT_VERSION = "drugopt-comparison-unit-v1"
 EXPERIMENTAL_NORMALIZATION_VERSION = "drugopt-experimental-normalization-v1"
 
+# Prediction outputs are deliberately classified separately from the frozen
+# Engine v1 policy.  These labels describe the provenance of an output; they
+# never promote a mechanistic or rule calculation to a model prediction.
+PREDICTION_MODEL = "MODEL"
+PREDICTION_MECHANISTIC = "MECHANISTIC_ESTIMATE"
+PREDICTION_RULE = "RULE_ESTIMATE"
+PREDICTION_DERIVED = "DERIVED_ESTIMATE"
+PREDICTION_UNAVAILABLE = "MODEL_UNAVAILABLE"
+
 DIRECT = "DIRECTLY_COMPARABLE"
 CONVERTED = "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"
 CONDITIONAL = "CONDITIONALLY_COMPARABLE"
@@ -74,6 +83,8 @@ REGISTRY: dict[str, CanonicalEndpoint] = {
     "METABOLITE_OBSERVATION": _ep("METABOLITE_OBSERVATION", "METABOLISM", "Metabolite", "observed metabolite identity or exposure", "numeric_or_qualitative", "", "MIXED", experimental_endpoint_aliases=("metabolite", "metabolites")),
     "EXCRETION_FECAL": _ep("EXCRETION_FECAL", "METABOLISM", "Fecal excretion", "dose recovered in feces", "numeric", "% dose", "PERCENT", experimental_endpoint_aliases=("feces", "fecal excretion")),
     "EXCRETION_URINARY": _ep("EXCRETION_URINARY", "METABOLISM", "Urinary excretion", "dose recovered in urine", "numeric", "% dose", "PERCENT", experimental_endpoint_aliases=("urine", "urinary excretion")),
+    "METABOLIC_SOFT_SPOTS": _ep("METABOLIC_SOFT_SPOTS", "METABOLISM", "Metabolic soft spots", "ranked atom-level metabolic transformation hypotheses", "ranking", "ranked sites", "RANKING", prediction_endpoint_aliases=("soft spots", "metabolic soft spots")),
+    "METABOLITE_HYPOTHESES": _ep("METABOLITE_HYPOTHESES", "METABOLISM", "Metabolite hypotheses", "rule-generated predicted metabolite structures", "ranking", "hypotheses", "RANKING", prediction_endpoint_aliases=("metabolite hypotheses", "predicted metabolites")),
 }
 
 _SPECIES_ALIASES = {
@@ -153,6 +164,7 @@ def _pk_key(raw: str, species: str, route: str, context: str) -> tuple[str, str]
     elif "cl/f" in text or ("apparent" in text + " " + context and "clearance" in text + " " + context): parameter = "CLF_ORAL"
     elif "clearance" in text or re.search(r"\bcl\b", text): parameter = "CL"
     elif "vd/f" in text or ("apparent" in text + " " + context and "volume" in text + " " + context): parameter = "VDF_ORAL"
+    elif "vss" in text or "volume of distribution at steady state" in text: parameter = "VSS"
     elif "volume" in text or re.search(r"\bvd\b", text): parameter = "VD"
     elif "bioavailability" in text or re.search(r"\bF\b", raw): parameter = "F"
     else: parameter = "UNSPECIFIED"
@@ -233,7 +245,7 @@ def normalize_experimental_observation(raw_endpoint: Any, raw_value: Any = None,
     elif "pka" in all_text: endpoint = "PKA"
     elif re.search(r"\b(?:cmax|tmax|auc[0-9a-z_-]*|half[- ]?life|t1/2|clearance|cl|cl/f|volume of distribution|vd|vd/f|bioavailability|f)\b", raw.lower()):
         key, parameter = _pk_key(raw, normalized_species, route, context_s)
-        unit_map = {"CMAX": "ng/mL", "AUC": "ng*h/mL", "AUC0_T": "ng*h/mL", "AUC0_INF": "ng*h/mL", "AUC_TAU": "ng*h/mL", "TMAX": "hours", "T_HALF": "hours", "CL": "mL/min/kg", "CLF_ORAL": "mL/min/kg", "VD": "L/kg", "VDF_ORAL": "L/kg", "F": "%"}
+        unit_map = {"CMAX": "ng/mL", "AUC": "ng*h/mL", "AUC0_T": "ng*h/mL", "AUC0_INF": "ng*h/mL", "AUC_TAU": "ng*h/mL", "TMAX": "hours", "T_HALF": "hours", "CL": "mL/min/kg", "CLF_ORAL": "mL/min/kg", "VD": "L/kg", "VSS": "L/kg", "VDF_ORAL": "L/kg", "F": "%"}
         unit = unit_map.get(parameter, str(raw_unit or ""))
         converted, converted_unit, rule, status = _convert_pk(number, str(raw_unit), parameter, unit)
         if number is None: status = UNSUPPORTED
@@ -268,7 +280,7 @@ def _convert_pk(value: float | None, unit: str, parameter: str, preferred: str) 
     if parameter in {"CL", "CLF_ORAL"}:
         if u in {"ml/min/kg", "mlmin/kg"}: return value, "mL/min/kg", "identity", DIRECT
         if u in {"l/h/kg", "l/hr/kg"}: return value * 1000 / 60, "mL/min/kg", "l/h/kg_to_ml/min/kg", CONVERTED
-    if parameter in {"VD", "VDF_ORAL"}:
+    if parameter in {"VD", "VSS", "VDF_ORAL"}:
         if u in {"l/kg", "l/kg"}: return value, "L/kg", "identity", DIRECT
         if u in {"ml/kg"}: return value / 1000, "L/kg", "ml/kg_to_l/kg", CONVERTED
     if parameter == "F":
@@ -288,6 +300,8 @@ def canonicalize_prediction_endpoint(endpoint: Any, *, species: Any = "", route:
         "pka": "PKA", "pka (quantitative ml)": "PKA", "logd7.4": "LOGD_7_4", "logd7.4 (quantitative ml)": "LOGD_7_4",
         "cyp3a4 inhibitor": "CYP3A4_INHIBITION", "cyp3a4 substrate": "CYP3A4_SUBSTRATE", "p-gp inhibitor": "PGP_INHIBITION",
         "herg liability": "HERG_LIABILITY", "ames mutagenicity": "AMES_MUTAGENICITY", "dili clinical liability": "DILI_LIABILITY",
+        "soft spots": "METABOLIC_SOFT_SPOTS", "metabolic soft spots": "METABOLIC_SOFT_SPOTS",
+        "metabolite hypotheses": "METABOLITE_HYPOTHESES", "predicted metabolites": "METABOLITE_HYPOTHESES",
     }
     endpoint_id = mapping.get(text)
     if endpoint_id is None:
@@ -295,10 +309,41 @@ def canonicalize_prediction_endpoint(endpoint: Any, *, species: Any = "", route:
         if isoform:
             iso = isoform.group(1).upper()
             endpoint_id = f"CYP{iso}_INHIBITION" if re.search(r"inhib|block", text) else (f"CYP{iso}_SUBSTRATE" if "substr" in text else f"CYP{iso}_METABOLIC_CONTRIBUTION")
-    if endpoint_id is None and re.match(r"^(cmax|tmax|auc|half|clearance|cl/f|vd|vd/f|bioavailability)", text):
+    if endpoint_id is None and re.match(r"^(cmax|tmax|auc|half|terminal|clearance|cl$|cl/f|vd|vd/f|vss|volume|apparent|bioavailability|f$)", text):
         endpoint_id, parameter = _pk_key(raw, sp, rt, _context_text(context))
     else: parameter = ""
     return {"canonical_endpoint_id": endpoint_id or raw.upper().replace(" ", "_"), "species": sp, "route": rt, "parameter": parameter, "raw_endpoint": raw, "comparison_key": f"{endpoint_id or raw}|{sp}|{rt}"}
+
+
+def prediction_source_type(*, source: Any = "", prediction_type: Any = "", endpoint: Any = "", default: str = PREDICTION_MODEL) -> str:
+    """Return the scientific provenance class for a persisted calculation.
+
+    This is intentionally conservative.  Unknown ADMET registry outputs are
+    model outputs, while explicit IVIVE/simulation/SyGMa provenance is kept
+    visibly distinct in the comparison contract.
+    """
+    text = " ".join(str(value or "") for value in (source, prediction_type, endpoint)).upper()
+    if "UNAVAILABLE" in text or "NOT_AVAILABLE" in text:
+        return PREDICTION_UNAVAILABLE
+    if any(token in text for token in ("SYGMA", "SOFT_SPOT", "METABOLITE_HYPOTHESIS", "RULE")):
+        return PREDICTION_RULE
+    if any(token in text for token in ("SIMULATION", "MECHANISTIC", "IVIVE", "HEPATIC_IVIVE", "PK_FOUNDATION", "STAGE5")):
+        return PREDICTION_MECHANISTIC
+    if any(token in text for token in ("DERIVED", "CALCULATED", "NORMALIZED", "CONSENSUS")):
+        return PREDICTION_DERIVED
+    if any(token in text for token in ("MODEL", "REGRESSION", "CLASSIFIER", "PREDICTION")):
+        return PREDICTION_MODEL
+    return default
+
+
+def prediction_source_label(source_type: str) -> str:
+    return {
+        PREDICTION_MODEL: "Model Prediction",
+        PREDICTION_MECHANISTIC: "Mechanistic Estimate",
+        PREDICTION_RULE: "Rule Estimate",
+        PREDICTION_DERIVED: "Derived Estimate",
+        PREDICTION_UNAVAILABLE: "Model Unavailable",
+    }.get(source_type, "Prediction")
 
 
 def endpoint_contract(endpoint_id: str) -> CanonicalEndpoint | None:
