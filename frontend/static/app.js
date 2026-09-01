@@ -1082,11 +1082,13 @@ function integratedProfile(versionId){
   if(!prediction)return e('span',{className:'small'},'—');
   const adapted=prediction.project_adapted_prediction;
   const sourceLabel=prediction.prediction_source_label||prediction.source_label||({MODEL:'Model Prediction',MECHANISTIC_ESTIMATE:'Mechanistic Estimate',RULE_ESTIMATE:'Rule Estimate',DERIVED_ESTIMATE:'Derived Estimate',MODEL_UNAVAILABLE:'Model Unavailable'}[prediction.prediction_source_type||prediction.source_type]||'Prediction');
-  if(!adapted)return e('div',{},[e('div',{className:'mono'},unifiedPredictionValue(prediction)),e('div',{className:'small'},sourceLabel)]);
+  const inputStatus=prediction.input_status&&prediction.input_status!=='UNKNOWN'&&prediction.input_status!=='COMPLETE'?e('div',{className:'small'},'Input completeness: '+prediction.input_status):null;
+  const assumptions=(prediction.assumptions||[]).slice(0,2).map((item,index)=>e('div',{className:'small',key:'assumption-'+index},'Assumption: '+item));
+  if(!adapted)return e('div',{},[e('div',{className:'mono'},unifiedPredictionValue(prediction)),e('div',{className:'small'},sourceLabel),inputStatus,...assumptions]);
   return e('div',{},[
    e('div',{className:'mono bold'},'Project: '+Number(adapted.value).toFixed(3)+' '+(adapted.unit||prediction.unit||'')),
    e('div',{className:'small'},'Base: '+unifiedPredictionValue(prediction)),
-   e('div',{className:'small'},'Adapter '+adapted.adapter_version),e('div',{className:'small'},sourceLabel)
+   e('div',{className:'small'},'Adapter '+adapted.adapter_version),e('div',{className:'small'},sourceLabel),inputStatus,...assumptions
   ]);
  }
  function unifiedEndpointPrediction(endpoint,section='ADMET'){
@@ -1135,7 +1137,7 @@ function integratedProfile(versionId){
    e('td',{key:'endpoint'},[e('strong',{},endpoint),e('div',{className:'small'},state==='BOTH'?'Experimental + Prediction':state==='PREDICTION_ONLY'?'No experimental value yet':'No matching prediction endpoint')]),
    e('td',{key:'experimental',className:'mono'},[experimental,state==='EXPERIMENTAL_ONLY'&&observedExperiments.length&&e('div',{className:'small'},'Experimental only'),observedExperiments.length>1&&e('div',{className:'small'},'Individual observations preserved'),reviewExperiments.length>0&&e('div',{className:'small'},'Needs review: '+reviewExperiments.length)]),
    e('td',{key:'prediction'},prediction?[unifiedPredictionCell(prediction),MaturityStars({maturity:maturityForPrediction(prediction)}),e('div',{className:'small'},maturityForPrediction(prediction).label||'Base Prediction'),maturityForPrediction(prediction).level>=2&&e('div',{className:'small'},'Experimental-informed')]:e('span',{className:'small'},'Not available')),
-   e('td',{key:'difference',className:'mono'},effectiveComparison?.absolute_error!=null?[(effectiveComparison.preview?'Preview Difference: ':'Difference: '),effectiveComparison.comparison_metric_type==='PERCENTAGE_POINTS'?Number(effectiveComparison.absolute_error).toFixed(2)+' percentage points':Number(effectiveComparison.absolute_error).toFixed(3)+' '+(effectiveComparison.experimental_normalized_unit||effectiveComparison.normalized_unit||'')]:effectiveComparison?.status&&effectiveComparison.status!=='DIRECTLY_COMPARABLE'&&effectiveComparison.status!=='COMPARABLE_AFTER_DETERMINISTIC_CONVERSION'?e('span',{className:'small'},effectiveComparison.reason||'Not directly comparable'):'—'),
+   e('td',{key:'difference',className:'mono'},effectiveComparison?.absolute_error!=null?[e('div',{key:'value'},[(effectiveComparison.preview?'Preview Difference: ':'Difference: '),effectiveComparison.error_metric_type==='percentage_points'||effectiveComparison.comparison_metric_type==='PERCENTAGE_POINTS'?Number(effectiveComparison.absolute_error).toFixed(2)+' percentage points':Number(effectiveComparison.absolute_error).toFixed(3)+' '+(effectiveComparison.experimental_normalized_unit||effectiveComparison.normalized_unit||'')]),e('div',{key:'policy',className:'small'},'Performance: not calibrated')]:effectiveComparison?.status&&effectiveComparison.status!=='DIRECTLY_COMPARABLE'&&effectiveComparison.status!=='COMPARABLE_AFTER_DETERMINISTIC_CONVERSION'?e('span',{className:'small'},effectiveComparison.reason||'Not directly comparable'):'—'),
    e('td',{key:'learning',className:'small'},[e('strong',{},'Project Learning'),prediction&&e('div',{},maturityForPrediction(prediction).level>=2?'Active adapter':'Base model'),prediction&&e('div',{},'Maturity '+(maturityForPrediction(prediction).level||1)+'/5')]),
    e('td',{key:'status'},[e('div',{className:'small'},reviewExperiments.length&&!observedExperiments.length?'Needs Review':status),reviewExperiments.length>0&&e('div',{className:'small'},reviewExperiments[0].routing_reason||'Qualification requires review'),ready&&e('div',{className:'small'},'External candidate · not imported'),imported&&e('div',{className:'small'},'External Imported'),importButton]),
    e('td',{key:'reference'},experiments.length?e('details',{},[e('summary',{},'Reference'),e('div',{className:'small'},row.reference||'Reference unavailable'),row.source_url&&e('a',{href:row.source_url,target:'_blank',rel:'noreferrer'},'Open source'),source&&e('div',{className:'small'},'Sources: '+source)]):e('span',{className:'small'},'—'))
@@ -1156,6 +1158,7 @@ function integratedProfile(versionId){
     prediction_source:snapshot.project_value!=null?'Project-adapted Prediction':'Base Prediction',
     prediction_source_type:snapshot.source_type||snapshot.prediction_type,
     prediction_source_label:snapshot.source_label,
+    input_status:snapshot.input_status,assumptions:snapshot.assumptions||[],provenance:snapshot.provenance||{},
     project_adapted_prediction:snapshot.project_value!=null?{value:snapshot.project_value,unit:snapshot.unit,adapter_version:snapshot.adapter||''}:null,
     base_prediction:{value:snapshot.base_value,unit:snapshot.unit},outputs:{},model:{model_name:'Persisted prediction',model_version:'frozen'}};
   };
@@ -4159,7 +4162,14 @@ function integratedProfile(versionId){
       e('tbody',{},workspace.prediction_audit.map(row=>e('tr',{key:row.prediction_id},[
        e('td',{},'#'+row.prediction_id),e('td',{},row.stage),e('td',{},row.model_name+' '+row.model_version),e('td',{},row.confidence)
       ])))
-     ]):e('p',{},'No prediction audit record for this CompoundVersion.')
+     ]):e('p',{},'No prediction audit record for this CompoundVersion.'),
+     e('h4',{style:{marginTop:'18px'}},'Persisted Prediction History'),
+     (workspace?.prediction_history||[]).length?e('table',{},[
+      e('thead',{},e('tr',{},['Run','Status','Snapshots','Fingerprint','Created'].map(x=>e('th',{key:x},x)))),
+      e('tbody',{},workspace.prediction_history.map(row=>e('tr',{key:'persisted-'+row.prediction_run_id},[
+       e('td',{},'#'+row.prediction_run_id),e('td',{},row.status),e('td',{},String(row.endpoint_snapshot_count)),e('td',{className:'mono small'},String(row.fingerprint||'').slice(0,12)),e('td',{className:'small'},row.completed_at||row.started_at||'—')
+      ])))
+     ]):e('p',{className:'small'},'No persisted endpoint prediction run for this CompoundVersion.')
     ])
    ])
   ]);
@@ -4452,7 +4462,14 @@ function integratedProfile(versionId){
    e('section',{className:'card help-section',id:'help-overview',key:'overview'},[
     e('div',{className:'eyebrow'},'PLATFORM OVERVIEW'),e('h2',{},'Drug-OPT Platform Help'),
     e('p',{},'Drug-OPT is a structure-to-PK medicinal chemistry optimization platform supporting project-based compound registration, physicochemical properties, activity, ADMET, metabolism, optimization, experimental PK, IVIVE, simulation and translational PK. Where scientific functions live: access project and compound workspaces from the left navigation to run calculations, models and simulations.'),
-    e('p',{className:'help-caution'},'Results are decision-support predictions and calculations. They do not replace fit-for-purpose experimental studies or expert scientific review.')
+    e('p',{className:'help-caution'},'Results are decision-support predictions and calculations. They do not replace fit-for-purpose experimental studies or expert scientific review.'),
+    e('h3',{},'Scientific data principles'),
+    e('ul',{},[
+      e('li',{key:'provenance'},'Experimental provenance and references are preserved; searched external evidence is not automatically treated as an internal experiment.'),
+      e('li',{key:'types'},'Prediction provenance distinguishes Model, Mechanistic Estimate, Rule Estimate and Derived Estimate.'),
+      e('li',{key:'direct'},'Direct comparison means semantic comparability, not guaranteed prediction accuracy; numeric error is shown separately.'),
+      e('li',{key:'learning'},'Project learning requires qualified evidence and explicit activation. Historical prediction snapshots remain immutable.')
+    ])
    ]),
    e('section',{className:'card help-section',id:'help-workflow',key:'workflow-guide'},[
     e('div',{className:'eyebrow'},'WORKFLOW GUIDE'),
@@ -4470,9 +4487,9 @@ function integratedProfile(versionId){
       e('thead',{},e('tr',{},['Version','Release Date','Stage','Key Scientific Capabilities'].map(label=>e('th',{key:label},label)))),
       e('tbody',{},(helpRegistry.version_history||[]).map(vh=>e('tr',{key:vh.version,style:vh.version===appInfo.version?{background:'#f0f7ff',fontWeight:'bold'}:{}},[
        e('td',{className:'mono'},vh.version),
-       e('td',{},vh.date),
+       e('td',{},vh.date||vh.release_date),
        e('td',{},e('span',{className:'badge-favorable'},vh.stage)),
-       e('td',{className:'small'},vh.highlights)
+       e('td',{className:'small'},vh.highlights||vh.improvements)
       ])))
      ]))
     ]),

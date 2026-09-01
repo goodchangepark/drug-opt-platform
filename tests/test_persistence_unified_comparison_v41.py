@@ -86,4 +86,4 @@ def test_v41_frontend_uses_canonical_db_comparison_on_reload():
     html = (Path(__file__).parents[1] / "frontend/static/index.html").read_text()
     assert "/scientific-comparison" in js
     assert "persisted_observations" in js
-    assert "persistence-v4-1" in html
+    assert "scientific-v4-2" in html

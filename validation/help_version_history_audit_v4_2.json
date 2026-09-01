@@ -1,0 +1,351 @@
+{
+  "basis": "Curated user-visible milestones supported by git history and validation artifacts; individual maintenance commits are grouped.",
+  "current_product_version": "Drug-OPT v1.0",
+  "engine_version": "drugopt-prediction-engine-v1@1.0.0",
+  "entries": [
+    {
+      "date": "2026-08-20",
+      "highlights": "Compound registration, CHEM_STANDARDIZER_V1, 2D structure rendering, physicochemical descriptor calculations (MW, cLogP, TPSA, HBD, HBA, RotB, QED).",
+      "improvements": "Compound registration, CHEM_STANDARDIZER_V1, 2D structure rendering, physicochemical descriptor calculations (MW, cLogP, TPSA, HBD, HBA, RotB, QED).",
+      "milestone": "Core Cheminformatics & Compound Workspace",
+      "release_date": "2026-08-20",
+      "stage": "Stage 1",
+      "version": "0.1.0"
+    },
+    {
+      "date": "2026-08-22",
+      "highlights": "Interactive molecular structure drawing, substructure filtering, Morgan and RDKit fingerprint similarity search, compound versioning.",
+      "improvements": "Interactive molecular structure drawing, substructure filtering, Morgan and RDKit fingerprint similarity search, compound versioning.",
+      "milestone": "Interactive Structure Editor & Similarity Search",
+      "release_date": "2026-08-22",
+      "stage": "Stage 2",
+      "version": "0.2.0"
+    },
+    {
+      "date": "2026-08-24",
+      "highlights": "OpenADMET and Chemprop model inference for solubility, permeability, PPB, microsomal stability, CYP450 panel, and cardiac/liver safety (hERG, DILI, Ames).",
+      "improvements": "OpenADMET and Chemprop model inference for solubility, permeability, PPB, microsomal stability, CYP450 panel, and cardiac/liver safety (hERG, DILI, Ames).",
+      "milestone": "ADMET Prediction Suite & Model Registry",
+      "release_date": "2026-08-24",
+      "stage": "Stage 3",
+      "version": "0.3.0"
+    },
+    {
+      "date": "2026-08-25",
+      "highlights": "Lead optimization strategy generation, liability identification, protected vs modifiable atom mapping, matched molecular pair (MMP) transforms.",
+      "improvements": "Lead optimization strategy generation, liability identification, protected vs modifiable atom mapping, matched molecular pair (MMP) transforms.",
+      "milestone": "Optimization Strategy Engine & MMP Evidence",
+      "release_date": "2026-08-25",
+      "stage": "Stage 4A",
+      "version": "0.4.0"
+    },
+    {
+      "date": "2026-08-25",
+      "highlights": "Rule-based and fragment-based analog generation, multi-parameter optimization (MPO), Pareto frontier scoring, candidate ranking workspace.",
+      "improvements": "Rule-based and fragment-based analog generation, multi-parameter optimization (MPO), Pareto frontier scoring, candidate ranking workspace.",
+      "milestone": "Analog Generation Engine & Pareto Ranking",
+      "release_date": "2026-08-25",
+      "stage": "Stage 4B",
+      "version": "0.4.1"
+    },
+    {
+      "date": "2026-08-26",
+      "highlights": "Conformal prediction intervals, applicability domain verification, pKa ionization engine and pH-dependent Henderson-Hasselbalch profiles.",
+      "improvements": "Conformal prediction intervals, applicability domain verification, pKa ionization engine and pH-dependent Henderson-Hasselbalch profiles.",
+      "milestone": "Scientific Hardening & Conformal Uncertainty",
+      "release_date": "2026-08-26",
+      "stage": "Stage 4C",
+      "version": "0.4.2"
+    },
+    {
+      "date": "2026-08-26",
+      "highlights": "Noncompartmental analysis (NCA) engine for concentration-time curves, physiological scaling, well-stirred hepatic clearance IVIVE.",
+      "improvements": "Noncompartmental analysis (NCA) engine for concentration-time curves, physiological scaling, well-stirred hepatic clearance IVIVE.",
+      "milestone": "Experimental PK, NCA & Mechanistic IVIVE",
+      "release_date": "2026-08-26",
+      "stage": "Stage 5A",
+      "version": "0.5.0"
+    },
+    {
+      "date": "2026-08-27",
+      "highlights": "1-compartment and 2-compartment pharmacokinetic differential simulation for IV, PO, SC, and IP dosing; absorption rate (ka) parameter estimation.",
+      "improvements": "1-compartment and 2-compartment pharmacokinetic differential simulation for IV, PO, SC, and IP dosing; absorption rate (ka) parameter estimation.",
+      "milestone": "Multi-Route PK Simulation & Absorption Kinetics",
+      "release_date": "2026-08-27",
+      "stage": "Stage 5B-1/2",
+      "version": "0.5.1"
+    },
+    {
+      "date": "2026-08-27",
+      "highlights": "Allometric scaling across mouse, rat, dog, monkey; Leave-One-Species-Out (LOSO) cross-validation and fold-error evaluation.",
+      "improvements": "Allometric scaling across mouse, rat, dog, monkey; Leave-One-Species-Out (LOSO) cross-validation and fold-error evaluation.",
+      "milestone": "Cross-Species Translation & LOSO Validation",
+      "release_date": "2026-08-27",
+      "stage": "Stage 5B-3",
+      "version": "0.5.2"
+    },
+    {
+      "date": "2026-08-27",
+      "highlights": "Human clearance assembly hierarchy (Experimental > Allometry > IVIVE), clinical simulation, prospective snapshot freezing, database audit.",
+      "improvements": "Human clearance assembly hierarchy (Experimental > Allometry > IVIVE), clinical simulation, prospective snapshot freezing, database audit.",
+      "milestone": "Human Translational PK & Platform Stabilization",
+      "release_date": "2026-08-27",
+      "stage": "Stage 5B-4",
+      "version": "0.6.0-stage5b4-stable"
+    },
+    {
+      "date": "2026-08-27",
+      "highlights": "Main dashboard simplification, Noto Sans KR typography standard, centralized interpretation registry, multi-species comparative PK summary and interactive curves.",
+      "improvements": "Main dashboard simplification, Noto Sans KR typography standard, centralized interpretation registry, multi-species comparative PK summary and interactive curves.",
+      "milestone": "Scientific UI/UX Refinement & Multi-Species Visualization",
+      "release_date": "2026-08-27",
+      "stage": "Stage 5B-4 Refinement",
+      "version": "0.6.1-stage5b4-ui"
+    },
+    {
+      "date": "2026-08-27",
+      "highlights": "Dashboard card grid redesign, compound overview primary predict workflow, tab-level re-predict actions, PK overview summary, global Noto Sans KR font, and test project cleanup.",
+      "improvements": "Dashboard card grid redesign, compound overview primary predict workflow, tab-level re-predict actions, PK overview summary, global Noto Sans KR font, and test project cleanup.",
+      "milestone": "UI Polish & Unified Prediction Workflow",
+      "release_date": "2026-08-27",
+      "stage": "Stage 5B-4 Refinement 2",
+      "version": "0.6.2-stage5b4-ui"
+    },
+    {
+      "date": "2026-08-27",
+      "highlights": "Clean 3-column scientific workspace dashboard, streamlined single-card platform overview, restored robust compound save and initial versioning workflow with instant property calculation.",
+      "improvements": "Clean 3-column scientific workspace dashboard, streamlined single-card platform overview, restored robust compound save and initial versioning workflow with instant property calculation.",
+      "milestone": "Dashboard Redesign & Compound Save Workflow Restoration",
+      "release_date": "2026-08-27",
+      "stage": "Stage 5B-4 Refinement 3",
+      "version": "0.6.3-stage5b4-ui"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Independent external evaluation, threshold and Platt calibration research candidate audit; identified secondary model limitations while keeping production hERG single-core strategy strictly unchanged.",
+      "improvements": "Independent external evaluation, threshold and Platt calibration research candidate audit; identified secondary model limitations while keeping production hERG single-core strategy strictly unchanged.",
+      "milestone": "hERG Calibration & Model Quality Audit",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4D-3B2A",
+      "version": "0.6.4-stage4d3b2a"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Finalized 49 endpoint-specific prediction policies across 22 endpoint contracts and 40 runtime endpoints; codified single-core, rank-fusion, rule/derived estimates, and mechanistic PK isolation without modifying production predictions.",
+      "improvements": "Finalized 49 endpoint-specific prediction policies across 22 endpoint contracts and 40 runtime endpoints; codified single-core, rank-fusion, rule/derived estimates, and mechanistic PK isolation without modifying production predictions.",
+      "milestone": "Endpoint-Specific Prediction Strategy Governance",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4D-4",
+      "version": "0.6.5-stage4d4"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Prospective qualification lifecycle (SHADOW -> VALIDATED -> PRODUCTION_CANDIDATE -> ACTIVE -> ROLLBACK), promotion gates, drift review policy, immutable qualification evidence, strategy cards, and verified scientific readiness (READY_FOR_INTERNAL_VALIDATION).",
+      "improvements": "Prospective qualification lifecycle (SHADOW -> VALIDATED -> PRODUCTION_CANDIDATE -> ACTIVE -> ROLLBACK), promotion gates, drift review policy, immutable qualification evidence, strategy cards, and verified scientific readiness (READY_FOR_INTERNAL_VALIDATION).",
+      "milestone": "Production Qualification & Prospective Validation Governance",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4D-5",
+      "version": "0.6.6-stage4d5"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Connected Stage 4D multimodel scientific governance to the real Save & Predict runtime. New canonical PredictionOrchestrator executes all endpoint-authorized CORE + SHADOW/secondary models per EndpointStrategyPolicy (ESOL M2 for Solubility, physchem Caco-2 M2, Morgan CYP3A4 M2, physchem hERG M2). Authorized secondary outputs execute each prediction run and are recorded in immutable qualification prediction-freeze provenance without becoming legacy primary registry rows. Research-only constraints enforced: CYP3A4 fixed blend (0.9578/0.0422) shadow-only, hERG raw M1 remains production (threshold 0.50), RDKIT-GBR M3 ADAPTIVE_EXCLUDED. Multimodel-provenance endpoint enhanced with shadow_model_count, core_model_count. Legacy single-model path preserved as fallback.",
+      "improvements": "Connected Stage 4D multimodel scientific governance to the real Save & Predict runtime. New canonical PredictionOrchestrator executes all endpoint-authorized CORE + SHADOW/secondary models per EndpointStrategyPolicy (ESOL M2 for Solubility, physchem Caco-2 M2, Morgan CYP3A4 M2, physchem hERG M2). Authorized secondary outputs execute each prediction run and are recorded in immutable qualification prediction-freeze provenance without becoming legacy primary registry rows. Research-only constraints enforced: CYP3A4 fixed blend (0.9578/0.0422) shadow-only, hERG raw M1 remains production (threshold 0.50), RDKIT-GBR M3 ADAPTIVE_EXCLUDED. Multimodel-provenance endpoint enhanced with shadow_model_count, core_model_count. Legacy single-model path preserved as fallback.",
+      "milestone": "Prediction Runtime Integration — Real Multi-Model Execution",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4D-6",
+      "version": "0.6.7-stage4d6"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Independently audited endpoint-specific initial-prediction candidates using existing leakage-safe Stage 4D evidence. Production changes occur only after Stage 4D-5 qualification gates pass; this review retained current policies where evidence or configured promotion requirements were insufficient.",
+      "improvements": "Independently audited endpoint-specific initial-prediction candidates using existing leakage-safe Stage 4D evidence. Production changes occur only after Stage 4D-5 qualification gates pass; this review retained current policies where evidence or configured promotion requirements were insufficient.",
+      "milestone": "Pre-Experimental Prediction Optimization",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4D-7",
+      "version": "0.6.8-stage4d7"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Prioritized model gaps; audited candidate model and dataset sources, licenses, overlap risk, and ARM64 feasibility; defined a Stage 4E-2 qualification queue without installing models or changing production predictions.",
+      "improvements": "Prioritized model gaps; audited candidate model and dataset sources, licenses, overlap risk, and ARM64 feasibility; defined a Stage 4E-2 qualification queue without installing models or changing production predictions.",
+      "milestone": "Model Landscape & Qualification Planning",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-1",
+      "version": "0.6.9-stage4e1"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Audited candidate licenses, checkpoints, endpoint compatibility, and Xavier ARM64 feasibility; finalized a fail-closed Stage 4E-3 benchmark gate with no production prediction change.",
+      "improvements": "Audited candidate licenses, checkpoints, endpoint compatibility, and Xavier ARM64 feasibility; finalized a fail-closed Stage 4E-3 benchmark gate with no production prediction change.",
+      "milestone": "Candidate Acquisition & Runtime Feasibility Qualification",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-2",
+      "version": "0.7.0-stage4e2"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Re-evaluated blocked candidates, acquired a pinned licensed Caco-2 external benchmark, and documented unresolved model gates; production prediction engine unchanged.",
+      "improvements": "Re-evaluated blocked candidates, acquired a pinned licensed Caco-2 external benchmark, and documented unresolved model gates; production prediction engine unchanged.",
+      "milestone": "Model Acquisition Blocker Resolution",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-2R",
+      "version": "0.7.1-stage4e2r"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Benchmarked the existing Caco-2 CORE and authorized SHADOW on the pinned ExpansionRx Papp A→B cohort without refitting; completed overlap, censor, duplicate, AD, scaffold, disagreement, and complementarity analyses. No numeric consensus existed or was created, and production policy remains unchanged.",
+      "improvements": "Benchmarked the existing Caco-2 CORE and authorized SHADOW on the pinned ExpansionRx Papp A→B cohort without refitting; completed overlap, censor, duplicate, AD, scaffold, disagreement, and complementarity analyses. No numeric consensus existed or was created, and production policy remains unchanged.",
+      "milestone": "Caco-2 Independent Scientific Benchmark",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-3A",
+      "version": "0.7.2-stage4e3a"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Completed the final targeted Caco-2 candidate search under license, checkpoint, endpoint, lineage, and ARM64 gates; no qualified replacement was found, so the current CORE is frozen for Engine-v1. No candidate was installed, registered, benchmarked, or promoted.",
+      "improvements": "Completed the final targeted Caco-2 candidate search under license, checkpoint, endpoint, lineage, and ARM64 gates; no qualified replacement was found, so the current CORE is frozen for Engine-v1. No candidate was installed, registered, benchmarked, or promoted.",
+      "milestone": "Caco-2 Final Model Expansion & Closure",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-3B",
+      "version": "0.7.3-stage4e3b"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Reviewed raw hERG M1 and the historical leakage-safe Platt holdout, separated calibration from discrimination, and completed the final secondary-model acquisition attempt. No qualified replacement or production calibration was found; raw M1 at threshold 0.50 remains frozen for Engine-v1.",
+      "improvements": "Reviewed raw hERG M1 and the historical leakage-safe Platt holdout, separated calibration from discrimination, and completed the final secondary-model acquisition attempt. No qualified replacement or production calibration was found; raw M1 at threshold 0.50 remains frozen for Engine-v1.",
+      "milestone": "hERG Final Qualification & Closure",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-3C",
+      "version": "0.7.4-stage4e3c"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "HLM/RLM/MLM contracts and external evidence audited; species-specific Engine-v1 limitations frozen; production unchanged.",
+      "improvements": "HLM/RLM/MLM contracts and external evidence audited; species-specific Engine-v1 limitations frozen; production unchanged.",
+      "milestone": "Clearance Final Qualification & Closure",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-3D",
+      "version": "0.7.5-stage4e3d"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Quantitative pKa/logD candidates reviewed with strict checkpoint and endpoint gates; rule/derived Engine-v1 limitations frozen; production unchanged.",
+      "improvements": "Quantitative pKa/logD candidates reviewed with strict checkpoint and endpoint gates; rule/derived Engine-v1 limitations frozen; production unchanged.",
+      "milestone": "pKa / logD Final Qualification & Closure",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-3E",
+      "version": "0.7.6-stage4e3e"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Finalized 49 endpoint-specific policies, model roles, reliability dimensions, unavailable states, deterministic policy hash, and Engine-v1 prospective-freeze provenance. Ready for controlled internal prospective validation; not clinical or regulatory validation.",
+      "improvements": "Finalized 49 endpoint-specific policies, model roles, reliability dimensions, unavailable states, deterministic policy hash, and Engine-v1 prospective-freeze provenance. Ready for controlled internal prospective validation; not clinical or regulatory validation.",
+      "milestone": "Prediction Engine v1 Freeze",
+      "release_date": "2026-08-29",
+      "stage": "Stage 4E-4",
+      "version": "0.8.0-engine-v1"
+    },
+    {
+      "date": "2026-08-29",
+      "highlights": "Created internal prospective validation framework for Engine v1: campaign entity (IVC-engine-v1-2026-08-29), 3 GLP-1 compound cohort enrollment, 18 prediction freezes registered, blinding enforcement (prediction-before-experiment), evidence classification (TRUE_PROSPECTIVE / BLINDED_RETROSPECTIVE / HISTORICAL_VISIBLE), endpoint compatibility contracts, experiment import pipeline, analysis engine (regression/classification/bootstrap/AD/reliability/scaffold), 14 validation artifacts, 48 new tests (all passing). Framework status: READY. Scientific validation: COLLECTING — awaiting internal experimental data.",
+      "improvements": "Created internal prospective validation framework for Engine v1: campaign entity (IVC-engine-v1-2026-08-29), 3 GLP-1 compound cohort enrollment, 18 prediction freezes registered, blinding enforcement (prediction-before-experiment), evidence classification (TRUE_PROSPECTIVE / BLINDED_RETROSPECTIVE / HISTORICAL_VISIBLE), endpoint compatibility contracts, experiment import pipeline, analysis engine (regression/classification/bootstrap/AD/reliability/scaffold), 14 validation artifacts, 48 new tests (all passing). Framework status: READY. Scientific validation: COLLECTING — awaiting internal experimental data.",
+      "milestone": "Engine v1 Internal Prospective Validation Framework",
+      "release_date": "2026-08-29",
+      "stage": "Stage 6 — Internal Validation",
+      "version": "0.8.1-validation-framework"
+    },
+    {
+      "date": "2026-08-30",
+      "highlights": "Prediction Engine v1 frozen with 49 endpoint policies; endpoint-specific model, rule, derived, mechanistic and MODEL_UNAVAILABLE states finalized; immutable prospective prediction freeze and same-compound leakage protection enabled; internal prospective validation framework ready for data collection; test/demo projects removed while scientific provenance was preserved.",
+      "improvements": "Prediction Engine v1 frozen with 49 endpoint policies; endpoint-specific model, rule, derived, mechanistic and MODEL_UNAVAILABLE states finalized; immutable prospective prediction freeze and same-compound leakage protection enabled; internal prospective validation framework ready for data collection; test/demo projects removed while scientific provenance was preserved.",
+      "milestone": "Drug-OPT v1.0 — Prediction Engine v1 Baseline",
+      "release_date": "2026-08-30",
+      "stage": "Product Release",
+      "version": "1.0.0"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "Unified experimental, prediction, difference and project-learning presentation with immutable comparison context.",
+      "improvements": "Unified experimental, prediction, difference and project-learning presentation with immutable comparison context.",
+      "milestone": "Unified Experimental × Prediction UX",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v3.5"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "Leakage-safe repeated holdout learning curves and conservative endpoint-specific adaptation evidence.",
+      "improvements": "Leakage-safe repeated holdout learning curves and conservative endpoint-specific adaptation evidence.",
+      "milestone": "Project Learning Curve Validation",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v3.6"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "Persisted experiment feedback, candidate adapter validation, explicit activation, rollback and future-only learning.",
+      "improvements": "Persisted experiment feedback, candidate adapter validation, explicit activation, rollback and future-only learning.",
+      "milestone": "Continuous Project Learning",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v3.7"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "External search candidates, immutable prediction snapshots and a DB-backed endpoint comparison contract that survives reload and restart.",
+      "improvements": "External search candidates, immutable prediction snapshots and a DB-backed endpoint comparison contract that survives reload and restart.",
+      "milestone": "Persisted Experimental × Prediction Foundation",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v3.8A"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "Versioned semantic endpoint and unit registries for ADMET, metabolism and species/route-aware PK comparisons.",
+      "improvements": "Versioned semantic endpoint and unit registries for ADMET, metabolism and species/route-aware PK comparisons.",
+      "milestone": "Canonical Endpoint Harmonization",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v3.8B"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "Prediction inventory, Stage-5 output indexing and explicit MODEL, MECHANISTIC, RULE and DERIVED provenance states.",
+      "improvements": "Prediction inventory, Stage-5 output indexing and explicit MODEL, MECHANISTIC, RULE and DERIVED provenance states.",
+      "milestone": "Prediction Coverage Expansion",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v3.9"
+    },
+    {
+      "date": "2026-09-01",
+      "highlights": "Layered identity, reference, numeric, endpoint, context, pairability, comparability, import and adaptation qualification stages.",
+      "improvements": "Layered identity, reference, numeric, endpoint, context, pairability, comparability, import and adaptation qualification stages.",
+      "milestone": "Qualification Contract",
+      "release_date": "2026-09-01",
+      "stage": "Development milestone",
+      "version": "v4.0"
+    },
+    {
+      "date": "2026-09-02",
+      "highlights": "Navigation-safe restoration and canonical Activity, ADMET, Metabolism and species-first PK comparison tables.",
+      "improvements": "Navigation-safe restoration and canonical Activity, ADMET, Metabolism and species-first PK comparison tables.",
+      "milestone": "Persistence + Unified Scientific Comparison",
+      "release_date": "2026-09-02",
+      "stage": "Development milestone",
+      "version": "v4.1"
+    },
+    {
+      "date": "2026-09-02",
+      "highlights": "PK mechanistic provenance and input-completeness audit, endpoint-specific numeric error reporting, prediction history audit and transparent performance limitations.",
+      "improvements": "PK mechanistic provenance and input-completeness audit, endpoint-specific numeric error reporting, prediction history audit and transparent performance limitations.",
+      "milestone": "Scientific Prediction Validation & PK Accuracy Profiling",
+      "release_date": "2026-09-02",
+      "stage": "Scientific validation milestone",
+      "version": "v4.2"
+    }
+  ],
+  "first_post_release_milestone": "v3.5",
+  "latest_entry": "v4.2"
+}

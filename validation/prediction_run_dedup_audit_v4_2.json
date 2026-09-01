@@ -1,0 +1,251 @@
+{
+  "compound": "Sunvozertinib",
+  "future_policy": "Identical workflow requests reuse a completed workflow fingerprint by default; force_rerun=true creates an explicit immutable rerun.",
+  "generated_at": "2026-09-01T21:44:38.171994+00:00",
+  "identical_fingerprint_duplicates": 0,
+  "prediction_runs": 30,
+  "runs": [
+    {
+      "completed_at": "2026-08-31 21:12:21.329508",
+      "fingerprint": "5ba21543d0d38fdd907d7e2547c5822c9eca8d70c4c4471b8ca06427aa0df85a",
+      "requested_by": "user",
+      "run_id": 15,
+      "started_at": "2026-08-31 21:12:17.270029",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 11:11:30.320099",
+      "fingerprint": "d4de99593a127fdd335821a374ee82ff7df1927bdf546772a1841986c14b4b89",
+      "requested_by": "user",
+      "run_id": 19,
+      "started_at": "2026-09-01 11:11:30.320097",
+      "status": "CACHED"
+    },
+    {
+      "completed_at": "2026-09-01 12:54:41.960613",
+      "fingerprint": "c0382a693fbf83dd754fc4cf7089e51d2d2c999ac68b17fb73b9d2a8c37d79be",
+      "requested_by": "user",
+      "run_id": 20,
+      "started_at": "2026-09-01 12:54:41.960611",
+      "status": "CACHED"
+    },
+    {
+      "completed_at": "2026-09-01 13:02:23.227044",
+      "fingerprint": "0b8ac6e2796a9acb07bf53b68b1518ecc1361f9121bcde2e6c04d803c7c87a0c",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 27,
+      "started_at": "2026-09-01 13:02:23.227042",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:02:47.363044",
+      "fingerprint": "b5a31164d16237d3753d6f88fbeea7ce225da3378570003d292e82d510fc35cb",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 50,
+      "started_at": "2026-09-01 13:02:47.363043",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:02:55.751498",
+      "fingerprint": "3e8ed9053e915b4043977942b8e2217e38f8bca345a08a6a7cf47a68ef192573",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 73,
+      "started_at": "2026-09-01 13:02:55.751497",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:03:11.327572",
+      "fingerprint": "94d3fe9b8b1368ae6e84530aaadb512d57df2679ddd0cf85202a0c1312237c1d",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 96,
+      "started_at": "2026-09-01 13:03:11.327570",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:03:34.869008",
+      "fingerprint": "f258e39e0149e98f8e36ff7f4a2f2dc6b5c78bda7f83ec14c0e6417ff59487b8",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 119,
+      "started_at": "2026-09-01 13:03:34.869006",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:03:58.366082",
+      "fingerprint": "aeb862d76f294ef9601b8f8d7243b466862e01bb0e53f1917cbeb4eec3327c10",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 142,
+      "started_at": "2026-09-01 13:03:58.366079",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:04:21.727463",
+      "fingerprint": "752d5f49c8e6537cce1d24bdfaf2ce7b9f8406498f599250394602ee9c8ac80b",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 165,
+      "started_at": "2026-09-01 13:04:21.727461",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:04:45.571612",
+      "fingerprint": "04548282da2d9abff938e0874a4a8ddf9b1ebd6fd427e895cd809a729b97d884",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 188,
+      "started_at": "2026-09-01 13:04:45.571610",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:05:09.343025",
+      "fingerprint": "79834895ee83cec2c8bdbaa0e700978b218ea05a13eb1b529e128e64b65a6862",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 211,
+      "started_at": "2026-09-01 13:05:09.343023",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:05:32.846574",
+      "fingerprint": "bccd4f3dd33be53445feefd26d76ac06272a0255ca4c27bd5919efc6a8eb441b",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 234,
+      "started_at": "2026-09-01 13:05:32.846572",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:05:56.420119",
+      "fingerprint": "5e56424ccaab1c7c72fe12a0074b78e4585eb95f4851b078d50879e71a5ef11a",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 257,
+      "started_at": "2026-09-01 13:05:56.420117",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:06:19.957406",
+      "fingerprint": "7685ddb31e6fd24641f57f89e7e86c9217e9a3f8bd87a8f009baf4edcb3445a9",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 280,
+      "started_at": "2026-09-01 13:06:19.957404",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:06:43.783943",
+      "fingerprint": "6d70d77cacc4377e5aa81c111d22b701dcb74be3fbfcdd4c393e80caed1123f1",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 303,
+      "started_at": "2026-09-01 13:06:43.783941",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:07:08.032483",
+      "fingerprint": "ccf292b730d5d64bb8c180d2d3b9d2a69a0376872ab0d2657aec3ac3b0cc2e1f",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 326,
+      "started_at": "2026-09-01 13:07:08.032481",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:07:31.234541",
+      "fingerprint": "812ed2dc617560effa74e02dc118587edb8d9786eefcbd2fe35290d886200506",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 349,
+      "started_at": "2026-09-01 13:07:31.234540",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:07:54.766947",
+      "fingerprint": "700de8f3822bd41c4f3d68a4e889b5324d35e8764301aa54a8d383b7e855363b",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 372,
+      "started_at": "2026-09-01 13:07:54.766945",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:08:19.070301",
+      "fingerprint": "8f060c7fec1712f57d5044c192a4a1c65dc21a0b753b1d3f0f94afad0273f3ff",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 395,
+      "started_at": "2026-09-01 13:08:19.070299",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:08:25.797527",
+      "fingerprint": "ae67d179e3e546247f5c5fcb6cb57baf4455ce2f3cb4eb494f9fe82986c822ee",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 418,
+      "started_at": "2026-09-01 13:08:25.797525",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:12:44.009180",
+      "fingerprint": "bac97e58a15b0d61c4cd2e466c44469dfeb0160de2897384ff3fe420961b8844",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 441,
+      "started_at": "2026-09-01 13:12:44.009177",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:12:48.618453",
+      "fingerprint": "337a786a0657fd9e39f24f9127fa50d5c0d0cef52d48b373b6e8480f4571a4c4",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 464,
+      "started_at": "2026-09-01 13:12:48.618451",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 13:12:53.254965",
+      "fingerprint": "d8758c926a510b2d5ebc8a8372b1f45ef21fc036ac858afeb7970fb298bb9edd",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 487,
+      "started_at": "2026-09-01 13:12:53.254963",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 14:46:54.957918",
+      "fingerprint": "e64ed50992ab25b5acd8ed0e240c068cab7b2b3dece381be11b7eaa26038f500",
+      "requested_by": "user",
+      "run_id": 497,
+      "started_at": "2026-09-01 14:46:54.957916",
+      "status": "CACHED"
+    },
+    {
+      "completed_at": "2026-09-01 14:46:55.111545",
+      "fingerprint": "7e2d6141ea84a8b122a322badd9d17d4ea8761dd83ab33cc4e524efa2d2a7ccc",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 498,
+      "started_at": "2026-09-01 14:46:55.111542",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 14:53:07.468108",
+      "fingerprint": "be7118df1243a69feaa3653f06e4ea6468d2847973566d8f064c0f97591e5711",
+      "requested_by": "user",
+      "run_id": 503,
+      "started_at": "2026-09-01 14:53:07.468106",
+      "status": "CACHED"
+    },
+    {
+      "completed_at": "2026-09-01 14:53:08.370071",
+      "fingerprint": "e0fc52160262b0f91f5e7eaa246f8f7930a3062abd96e81b5bb844bc5587511f",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 504,
+      "started_at": "2026-09-01 14:53:08.370069",
+      "status": "COMPLETE"
+    },
+    {
+      "completed_at": "2026-09-01 21:08:13.541030",
+      "fingerprint": "1d623692e07e27e779ee700520248ff188dea2b69e3ed539f5045322b9a18a45",
+      "requested_by": "user",
+      "run_id": 505,
+      "started_at": "2026-09-01 21:08:13.541027",
+      "status": "CACHED"
+    },
+    {
+      "completed_at": "2026-09-01 21:08:27.237028",
+      "fingerprint": "8df1d3d596897424e6498a562476d7882f7f986cdb584c4c2a31d8e7f4d4972d",
+      "requested_by": "system:canonical-prediction-index",
+      "run_id": 506,
+      "started_at": "2026-09-01 21:08:27.237025",
+      "status": "COMPLETE"
+    }
+  ],
+  "unique_fingerprints": 30,
+  "version_id": 13
+}

@@ -1,0 +1,123 @@
+{
+  "compound": "Sunvozertinib",
+  "direct_pair_count": 1,
+  "direct_pairs": [
+    {
+      "comparison": {
+        "absolute_error": 0.36107727050780625,
+        "comparability": "DIRECTLY_COMPARABLE",
+        "difference": -0.36107727050780625,
+        "error_metric_type": "percentage_points",
+        "error_value": 0.36107727050780625,
+        "experimental_id": 41,
+        "experimental_value": 91.46,
+        "matches": [
+          {
+            "absolute_error": 0.36107727050780625,
+            "comparability": "DIRECTLY_COMPARABLE",
+            "difference": -0.36107727050780625,
+            "experimental_id": 41,
+            "experimental_value": 91.46,
+            "prediction_value": 91.09892272949219,
+            "preview": true,
+            "signed_error": -0.36107727050780625,
+            "status": "DIRECT",
+            "unit": "% bound"
+          },
+          {
+            "absolute_error": 0.521077270507817,
+            "comparability": "DIRECTLY_COMPARABLE",
+            "difference": -0.521077270507817,
+            "experimental_id": 42,
+            "experimental_value": 91.62,
+            "prediction_value": 91.09892272949219,
+            "preview": true,
+            "signed_error": -0.521077270507817,
+            "status": "DIRECT",
+            "unit": "% bound"
+          },
+          {
+            "absolute_error": 2.0989227294921875,
+            "comparability": "DIRECTLY_COMPARABLE",
+            "difference": 2.0989227294921875,
+            "experimental_id": 73,
+            "experimental_value": 89.0,
+            "prediction_value": 91.09892272949219,
+            "preview": true,
+            "signed_error": 2.0989227294921875,
+            "status": "DIRECT",
+            "unit": "% bound"
+          },
+          {
+            "absolute_error": 0.36107727050780625,
+            "comparability": "DIRECTLY_COMPARABLE",
+            "difference": -0.36107727050780625,
+            "experimental_id": 469,
+            "experimental_value": 91.46,
+            "prediction_value": 91.09892272949219,
+            "preview": true,
+            "signed_error": -0.36107727050780625,
+            "status": "DIRECT",
+            "unit": "% bound"
+          },
+          {
+            "absolute_error": 2.0989227294921875,
+            "comparability": "DIRECTLY_COMPARABLE",
+            "difference": 2.0989227294921875,
+            "experimental_id": 506,
+            "experimental_value": 89.0,
+            "prediction_value": 91.09892272949219,
+            "preview": true,
+            "signed_error": 2.0989227294921875,
+            "status": "DIRECT",
+            "unit": "% bound"
+          }
+        ],
+        "performance_policy": "PERFORMANCE_NOT_CALIBRATED",
+        "performance_status": "PERFORMANCE_NOT_CALIBRATED",
+        "prediction_value": 91.09892272949219,
+        "preview": true,
+        "signed_error": -0.36107727050780625,
+        "status": "DIRECT",
+        "unit": "% bound"
+      },
+      "endpoint": "HUMAN_PPB",
+      "prediction": {
+        "adapter": "",
+        "assumptions": [],
+        "available": true,
+        "base_value": 91.09892272949219,
+        "canonical_comparison_key": "HUMAN_PPB|HUMAN|UNSPECIFIED",
+        "canonical_endpoint_id": "HUMAN_PPB",
+        "display_value": 91.09892272949219,
+        "input_status": "UNKNOWN",
+        "maturity": {
+          "label": "Base Prediction",
+          "level": 1,
+          "stars": "★☆☆☆☆"
+        },
+        "model_count": 1,
+        "model_predictions": {
+          "3": 91.09892272949219
+        },
+        "ood": "BORDERLINE",
+        "prediction_run_id": 505,
+        "prediction_snapshot_id": 11960,
+        "prediction_type": "MODEL",
+        "project_value": null,
+        "provenance": {},
+        "raw_endpoint": "Plasma protein binding",
+        "route": "UNSPECIFIED",
+        "source_label": "Model Prediction",
+        "source_type": "MODEL",
+        "species": "HUMAN",
+        "timestamp": "2026-09-01T21:08:13.549689",
+        "unit": "% bound"
+      }
+    }
+  ],
+  "generated_at": "2026-09-01T21:44:38.170556+00:00",
+  "note": "Numeric error is reported without arbitrary good/moderate/bad labels; independent external observations remain individually preserved.",
+  "performance_policy": "PERFORMANCE_NOT_CALIBRATED",
+  "semantic_match_is_not_accuracy": true
+}

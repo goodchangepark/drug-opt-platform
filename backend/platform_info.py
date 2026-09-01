@@ -316,6 +316,69 @@ VERSION_HISTORY = [
             "collection; test/demo projects removed while scientific provenance was preserved."
         ),
     },
+    {
+        "version": "v3.5",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Unified Experimental × Prediction UX",
+        "improvements": "Unified experimental, prediction, difference and project-learning presentation with immutable comparison context.",
+    },
+    {
+        "version": "v3.6",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Project Learning Curve Validation",
+        "improvements": "Leakage-safe repeated holdout learning curves and conservative endpoint-specific adaptation evidence.",
+    },
+    {
+        "version": "v3.7",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Continuous Project Learning",
+        "improvements": "Persisted experiment feedback, candidate adapter validation, explicit activation, rollback and future-only learning.",
+    },
+    {
+        "version": "v3.8A",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Persisted Experimental × Prediction Foundation",
+        "improvements": "External search candidates, immutable prediction snapshots and a DB-backed endpoint comparison contract that survives reload and restart.",
+    },
+    {
+        "version": "v3.8B",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Canonical Endpoint Harmonization",
+        "improvements": "Versioned semantic endpoint and unit registries for ADMET, metabolism and species/route-aware PK comparisons.",
+    },
+    {
+        "version": "v3.9",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Prediction Coverage Expansion",
+        "improvements": "Prediction inventory, Stage-5 output indexing and explicit MODEL, MECHANISTIC, RULE and DERIVED provenance states.",
+    },
+    {
+        "version": "v4.0",
+        "release_date": "2026-09-01",
+        "stage": "Development milestone",
+        "milestone": "Qualification Contract",
+        "improvements": "Layered identity, reference, numeric, endpoint, context, pairability, comparability, import and adaptation qualification stages.",
+    },
+    {
+        "version": "v4.1",
+        "release_date": "2026-09-02",
+        "stage": "Development milestone",
+        "milestone": "Persistence + Unified Scientific Comparison",
+        "improvements": "Navigation-safe restoration and canonical Activity, ADMET, Metabolism and species-first PK comparison tables.",
+    },
+    {
+        "version": "v4.2",
+        "release_date": "2026-09-02",
+        "stage": "Scientific validation milestone",
+        "milestone": "Scientific Prediction Validation & PK Accuracy Profiling",
+        "improvements": "PK mechanistic provenance and input-completeness audit, endpoint-specific numeric error reporting, prediction history audit and transparent performance limitations.",
+    },
 ]
 
 
@@ -370,7 +433,13 @@ def structure_modules(inventory: list[dict]) -> list[dict]:
 
 def version_history() -> list[dict[str, Any]]:
     """Return the curated product evolution history."""
-    return list(VERSION_HISTORY)
+    # The frontend historically used ``date``/``highlights`` while the
+    # backend contract uses the more explicit names below.  Return both so
+    # old clients and the current Help page render the same audited history.
+    return [
+        {**row, "date": row["release_date"], "highlights": row["improvements"]}
+        for row in VERSION_HISTORY
+    ]
 
 
 def latest_release_date() -> str:

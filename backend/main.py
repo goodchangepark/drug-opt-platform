@@ -119,7 +119,7 @@ from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 from .endpoint_comparison import (build_endpoint_comparison, ensure_admet_prediction_snapshot_index,
                                   ensure_pk_prediction_snapshot_index, persist_pk_prediction_snapshots,
-                                  requalify_persisted_evidence)
+                                  requalify_persisted_evidence, pk_f_prediction_is_quantitative)
 from .qualification_contract import (QUALIFICATION_VERSION as QUALIFICATION_CONTRACT_VERSION,
                                      aggregate_qualification, qualification_contract_report,
                                      qualify_record, ENDPOINT_QUALIFIED, CONTEXT_QUALIFIED,
@@ -833,7 +833,7 @@ def calculate_compound_properties(row_id: int, db: Session = Depends(get_db)):
 
 
 @app.post("/api/compounds/{row_id}/predict-workflow", status_code=202)
-def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db)):
+def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db), force_rerun: bool = False):
     """Save-following and Overview prediction orchestration. Activity is intentionally excluded unless configured."""
     compound = db.get(Compound, row_id)
     if not compound:
@@ -843,6 +843,32 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
         raise HTTPException(status_code=400, detail="A validated CompoundVersion is required before prediction")
     if compound.project.molecule_type != "Small Molecule":
         raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
+    active_adapters = db.scalars(select(ProjectAdapterVersion).where(
+        ProjectAdapterVersion.project_id == compound.project_id,
+        ProjectAdapterVersion.active.is_(True),
+    )).all()
+    request_fingerprint = hashlib.sha256(json.dumps({
+        "workflow": "prediction_workflow",
+        "compound_version_id": version.id,
+        "canonical_smiles": version.canonical_smiles,
+        "engine_policy": ENGINE_V1_POLICY,
+        "engine_hash": ENGINE_V1_HASH,
+        "stage": CURRENT_STAGE,
+        "active_adapters": sorted((row.endpoint_id, row.adapter_version) for row in active_adapters),
+        "calculation_policy": "properties+admet+metabolism+pk-foundation+default-simulations",
+    }, sort_keys=True).encode()).hexdigest()
+    if not force_rerun:
+        existing_workflow = db.scalar(select(PredictionRun).where(
+            PredictionRun.version_id == version.id,
+            PredictionRun.stage == "prediction_workflow",
+            PredictionRun.inputs_hash == request_fingerprint,
+        ).order_by(PredictionRun.created_at.desc()))
+        if existing_workflow:
+            saved = dict(existing_workflow.outputs_json or {})
+            saved["prediction_run_id"] = existing_workflow.id
+            saved["request_fingerprint"] = request_fingerprint
+            saved["reused_existing_run"] = True
+            return saved
     steps = {
         "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
         "properties": {"status": "PENDING"},
@@ -988,12 +1014,17 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
         stage="prediction_workflow",
         model_name="Properties + ADMET + Metabolism + PK workflow",
         model_version=CURRENT_STAGE,
-        inputs_hash=hashlib.sha256(f"{version.id}|{version.canonical_smiles}|{completed_at.isoformat()}".encode()).hexdigest(),
+        inputs_hash=request_fingerprint,
         outputs_json=workflow_output,
-        provenance_json={"orchestrator": "predict-workflow", "pk_species": "Rat", "persisted": True},
+        provenance_json={"orchestrator": "predict-workflow", "pk_species": "Rat", "persisted": True, "request_fingerprint": request_fingerprint, "force_rerun": force_rerun},
         confidence="High" if status == "COMPLETE" else "Limited",
     ))
     db.commit()
+    workflow_run_id = db.scalar(select(PredictionRun.id).where(
+        PredictionRun.version_id == version.id,
+        PredictionRun.stage == "prediction_workflow",
+        PredictionRun.inputs_hash == request_fingerprint,
+    ).order_by(PredictionRun.created_at.desc()))
 
     return {
         "status": status,
@@ -1008,6 +1039,9 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db))
         "failed_count": len(failed_endpoints),
         "timestamp": timestamp,
         "steps": steps,
+        "prediction_run_id": workflow_run_id,
+        "request_fingerprint": request_fingerprint,
+        "reused_existing_run": False,
         "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
     }
 
@@ -3908,6 +3942,20 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         select(PredictionRun).where(PredictionRun.version_id == version_id)
         .order_by(PredictionRun.created_at.desc())
     ).all()
+    persisted_prediction_runs = db.scalars(
+        select(ADMETPredictionRun).where(ADMETPredictionRun.version_id == version_id)
+        .order_by(ADMETPredictionRun.started_at.desc())
+    ).all()
+    persisted_prediction_history = [{
+        "prediction_run_id": run.id,
+        "requested_by": run.requested_by,
+        "fingerprint": run.inputs_hash,
+        "status": run.status,
+        "started_at": run.started_at.isoformat() if run.started_at else None,
+        "completed_at": run.completed_at.isoformat() if run.completed_at else None,
+        "endpoint_snapshot_count": db.scalar(select(func.count(PredictionEndpointSnapshot.id)).where(PredictionEndpointSnapshot.prediction_run_id == run.id)) or 0,
+        "message": run.message,
+    } for run in persisted_prediction_runs]
     activity = {
         "measurements": [{
             "id": row.id, "version_id": row.version_id, "assay_id": row.assay_id,
@@ -3932,7 +3980,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     metabolism_payload = _metabolism_payload(db, [version.id])
     project_learning_rows, project_learning_ledger_rows = project_learning_summary(db, project.id)
     pk_parameter_sets = db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id).order_by(PKParameterSet.created_at.desc())).all()
-    pk_routes = [{"id": row.id, "species": row.species, "route": row.route, "cl_value": row.cl_value, "v_value": row.v_value, "f_predicted": row.f_predicted, "f_experimental": row.f_experimental, "ka_value": row.ka_value, "confidence": row.confidence} for row in pk_parameter_sets]
+    pk_routes = [{"id": row.id, "species": row.species, "route": row.route, "cl_value": row.cl_value, "v_value": row.v_value, "f_predicted": row.f_predicted if pk_f_prediction_is_quantitative(row) else None, "f_experimental": row.f_experimental if str(row.route).upper() == "PO" else None, "ka_value": row.ka_value, "confidence": row.confidence, "f_prediction_status": "QUANTITATIVE" if pk_f_prediction_is_quantitative(row) else ("REFERENCE_ARM" if str(row.route).upper() == "IV" else "INSUFFICIENT_INPUT"), "f_input_status": "COMPLETE" if pk_f_prediction_is_quantitative(row) else "INSUFFICIENT"} for row in pk_parameter_sets]
     latest_workflow = next((row for row in audit_runs if row.stage == "prediction_workflow"), None)
     saved_steps = ((latest_workflow.outputs_json or {}).get("steps", {}) if latest_workflow else {})
     search_runs = db.scalars(select(ExperimentalSearchRun).where(
@@ -4010,6 +4058,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "confidence": row.confidence, "provenance": row.provenance_json,
             "outputs": row.outputs_json,
         } for row in audit_runs],
+        "prediction_history": persisted_prediction_history,
     }
 
 

@@ -102,7 +102,7 @@ def _prediction_object(snapshot, rows, endpoint_id, raw_endpoint, species="", ro
     source_type = snap.get("source_type") or prediction_source_type(
         source=first.model.model_name, prediction_type=snap.get("prediction_type"), endpoint=raw_endpoint
     )
-    return {"available": True, "prediction_snapshot_id": snapshot.id if snapshot else None, "prediction_run_id": snapshot.prediction_run_id if snapshot else first.run_id, "raw_endpoint": raw_endpoint, "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": f"{endpoint_id}|{species}|{route}", "base_value": base, "project_value": project, "display_value": display, "unit": unit, "prediction_type": snap.get("prediction_type", "MODEL"), "source_type": source_type, "source_label": prediction_source_label(source_type), "adapter": snap.get("adapter_version", ""), "maturity": snap.get("maturity") or {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "ood": first.applicability_domain, "timestamp": _iso(snapshot.created_at if snapshot else first.created_at), "model_count": len(rows), "model_predictions": {str(row.model_id): row.predicted_value for row in rows}, "species": species, "route": route}
+    return {"available": True, "prediction_snapshot_id": snapshot.id if snapshot else None, "prediction_run_id": snapshot.prediction_run_id if snapshot else first.run_id, "raw_endpoint": raw_endpoint, "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": f"{endpoint_id}|{species}|{route}", "base_value": base, "project_value": project, "display_value": display, "unit": unit, "prediction_type": snap.get("prediction_type", "MODEL"), "source_type": source_type, "source_label": prediction_source_label(source_type), "adapter": snap.get("adapter_version", ""), "maturity": snap.get("maturity") or {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "ood": first.applicability_domain, "timestamp": _iso(snapshot.created_at if snapshot else first.created_at), "model_count": len(rows), "model_predictions": {str(row.model_id): row.predicted_value for row in rows}, "species": species, "route": route, "provenance": snap.get("provenance", {}), "input_status": snap.get("input_status", "UNKNOWN"), "assumptions": snap.get("assumptions", [])}
 
 
 def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", route="", dose=None, dose_unit=""):
@@ -136,6 +136,9 @@ def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", rou
         "dose": dose if dose is not None else data.get("dose"),
         "dose_unit": dose_unit or data.get("dose_unit", ""),
         "provenance": data.get("provenance", {}),
+        "input_status": data.get("input_status", "UNKNOWN"),
+        "assumptions": data.get("assumptions", []),
+        "fallback_status": data.get("fallback_status", "NONE"),
     }
 
 
@@ -145,6 +148,16 @@ def _pk_prediction_source(source: str, *, simulation: bool = False) -> str:
     return prediction_source_type(source=source, endpoint="PK foundation", default=PREDICTION_DERIVED)
 
 
+def pk_f_prediction_is_quantitative(pset) -> bool:
+    """Return whether a PK parameter set contains a valid oral F estimate."""
+    absorption = (pset.provenance_json or {}).get("absorption_info") or {}
+    return (
+        str(pset.route).upper() == "PO"
+        and pset.f_predicted is not None
+        and all(absorption.get(key) is not None for key in ("fa_value", "fg_value", "fh_value"))
+    )
+
+
 def _pk_snapshot_values(pset):
     """Yield only actual non-experimental PK foundation outputs."""
     route = "ORAL" if str(pset.route).upper() == "PO" else str(pset.route).upper()
@@ -152,8 +165,13 @@ def _pk_snapshot_values(pset):
     values = [
         ("CLF_ORAL" if route == "ORAL" else "CL", pset.cl_value, pset.cl_unit, pset.cl_source_type),
         ("VDF_ORAL" if route == "ORAL" else ("VSS" if "VSS" in v_type else "VD"), pset.v_value, pset.v_unit, pset.v_source_type),
-        ("F", pset.f_predicted, "%" if pset.f_predicted is not None and abs(float(pset.f_predicted)) > 1 else "fraction", (pset.provenance_json or {}).get("f_source_type", "MECHANISTIC_ASSEMBLY")),
     ]
+    # The IV parameter set is a reference arm, not an F prediction.  Oral F
+    # is quantitative only when the persisted absorption decomposition has
+    # Fa, Fg, and Fh; historical rows with Fg assumed/defaulted are not
+    # exposed as normal predictions.
+    if pk_f_prediction_is_quantitative(pset):
+        values.append(("F", pset.f_predicted, "%", (pset.provenance_json or {}).get("f_source_type", "MECHANISTIC_ASSEMBLY")))
     for parameter, value, unit, source in values:
         if value is None or prediction_source_type(source=source, endpoint=parameter) == PREDICTION_UNAVAILABLE:
             continue
@@ -169,6 +187,26 @@ def _simulation_values(sim):
         ("AUC0_INF", metrics.get("auc_inf_analytical_ng_h_ml"), "ng*h/mL"),
         ("T_HALF", metrics.get("half_life_hours"), "hours"),
     ]
+
+
+def _snapshot_is_valid_for_current_comparison(snapshot, endpoint_id, pk_routes=None):
+    """Exclude historical reference/default rows from current comparison.
+
+    Immutable snapshots remain auditable, but an IV reference F=100 or an
+    older Fg=1 fallback must not be presented as a current oral F prediction.
+    """
+    if not str(endpoint_id).endswith("_PK_F_ORAL"):
+        return True
+    data = dict(snapshot.snapshot_json or {})
+    pset_id = data.get("pk_parameter_set_id")
+    if pset_id is not None and pk_routes is not None and str(pk_routes.get(int(pset_id), "")).upper() != "PO":
+        return False
+    if str(data.get("route", "")).upper() != "ORAL":
+        return False
+    absorption = data.get("provenance", {}).get("absorption_info", {})
+    if absorption and not all(absorption.get(key) is not None for key in ("fa_value", "fg_value", "fh_value")):
+        return False
+    return data.get("input_status", "COMPLETE") not in {"PARTIAL", "DEFAULTED", "INSUFFICIENT"} and data.get("fallback_status", "NONE") not in {"FALLBACK", "ASSUMPTION"}
 
 
 def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int | None = None, *, reuse_existing: bool = False) -> dict:
@@ -213,7 +251,9 @@ def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int 
             else:
                 mapped = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
                 normalized_value, normalized_unit, snapshot_route = mapped.get("normalized_value", value), mapped.get("normalized_unit", unit), route
-            snapshot = {"source": "IVIVE PK foundation", "source_type": source_type, "prediction_type": source_type, "species": species, "route": snapshot_route, "reference_route": "IV" if parameter == "F" else "", "dose": pset.dose_value, "dose_unit": pset.dose_unit, "v_type": pset.v_type, "provenance": pset.provenance_json or {}, "pk_parameter_set_id": pset.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
+            absorption = (pset.provenance_json or {}).get("absorption_info") or {}
+            input_status = "COMPLETE" if parameter != "F" or all(absorption.get(key) is not None for key in ("fa_value", "fg_value", "fh_value")) else "INSUFFICIENT"
+            snapshot = {"source": "IVIVE PK foundation", "source_type": source_type, "prediction_type": source_type, "species": species, "route": snapshot_route, "reference_route": "IV" if parameter == "F" else "", "dose": pset.dose_value, "dose_unit": pset.dose_unit, "v_type": pset.v_type, "provenance": pset.provenance_json or {}, "pk_parameter_set_id": pset.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "input_status": input_status, "fallback_status": "NONE" if input_status == "COMPLETE" else "INSUFFICIENT_INPUT", "assumptions": pset.assumptions_json or [], "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
             db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=normalized_value, base_unit=normalized_unit, prediction_type=source_type, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=pset.created_at))
             existing.add((run.id, eid)); created += 1
     for sim in sims:
@@ -376,7 +416,17 @@ def _comparison(prediction, experiments):
             diff = pv - ev
             direct.append({"status": "DIRECT" if experiment["comparability"] == DIRECT else "CONVERTED", "comparability": experiment["comparability"], "prediction_value": pv, "experimental_value": ev, "difference": diff, "signed_error": diff, "absolute_error": abs(diff), "preview": experiment.get("state") == "EXTERNAL_CANDIDATE", "experimental_id": experiment.get("id"), "unit": prediction.get("unit") or experiment.get("normalized_unit")})
         elif experiment.get("comparability") == RELATED: related.append(experiment)
-    if direct: return {"status": direct[0]["status"], "comparability": direct[0]["comparability"], "matches": direct, **direct[0]}
+    if direct:
+        endpoint = str(prediction.get("canonical_endpoint_id", "")).upper()
+        if endpoint.endswith("_PPB") or endpoint.endswith("_F_ORAL"):
+            metric = "percentage_points"
+        elif endpoint.startswith("CACO2_"):
+            metric = "log10_absolute"
+        elif endpoint.startswith("PK_") or "_PK_" in endpoint:
+            metric = "absolute_and_fold"
+        else:
+            metric = "absolute"
+        return {"status": direct[0]["status"], "comparability": direct[0]["comparability"], "matches": direct, "error_metric_type": metric, "error_value": direct[0]["absolute_error"], "performance_policy": "PERFORMANCE_NOT_CALIBRATED", "performance_status": "PERFORMANCE_NOT_CALIBRATED", **direct[0]}
     if related: return {"status": "RELATED_SAME_SCIENTIFIC_GROUP", "reason": "Related measurement semantics; no numeric error calculated", "difference": None, "related_observation_count": len(related)}
     return None
 
@@ -431,11 +481,14 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     if not version: raise ValueError("CompoundVersion not found")
     compound = db.get(Compound, version.compound_row_id)
     endpoint_rows = {}
+    pk_routes_by_id = {row.id: row.route for row in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id)).all()}
     predictions = db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(ADMETPrediction.version_id == version_id, ADMETPrediction.execution_status == "SUCCESS").order_by(ADMETPrediction.created_at.desc())).all()
     latest_snapshots = {}
     for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == version_id).order_by(PredictionEndpointSnapshot.created_at.desc())).all(): latest_snapshots.setdefault(snap.endpoint_name, snap)
     latest_canonical_snapshots = {}
-    for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == version_id).order_by(PredictionEndpointSnapshot.created_at.desc())).all(): latest_canonical_snapshots.setdefault(snap.endpoint_id, snap)
+    for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == version_id).order_by(PredictionEndpointSnapshot.created_at.desc())).all():
+        if _snapshot_is_valid_for_current_comparison(snap, snap.endpoint_id, pk_routes_by_id):
+            latest_canonical_snapshots.setdefault(snap.endpoint_id, snap)
     by_raw = defaultdict(list)
     for pred in predictions: by_raw[pred.model.endpoint_name].append(pred)
     for raw_endpoint, rows in by_raw.items():

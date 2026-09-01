@@ -1,0 +1,206 @@
+{
+  "contract_version": "drugopt-pk-scientific-contract-v4.2",
+  "endpoints": [
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "only matching species, parameter, route and context",
+      "dose_requirement": "not dose-normalized",
+      "fallback_possible": false,
+      "known_limitations": [
+        "renal/non-hepatic clearance is not modeled"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "CL",
+      "prediction_type": "MECHANISTIC_ESTIMATE",
+      "required_inputs": [
+        "species physiology",
+        "scaled Clint",
+        "fu,b",
+        "hepatic blood flow"
+      ],
+      "route": "systemic route context",
+      "scientific_definition": "Systemic clearance for the assembled route; not CL/F.",
+      "source_module": "backend.ivive",
+      "species": "endpoint-specific",
+      "unit": "mL/min/kg"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching oral apparent-clearance context only",
+      "dose_requirement": "context retained; no implicit dose scaling",
+      "fallback_possible": false,
+      "known_limitations": [
+        "not interchangeable with systemic CL"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "CL/F",
+      "prediction_type": "MECHANISTIC_ESTIMATE",
+      "required_inputs": [
+        "systemic CL",
+        "oral route"
+      ],
+      "route": "PO",
+      "scientific_definition": "Apparent oral clearance only when the oral route is explicit.",
+      "source_module": "backend.ivive",
+      "species": "endpoint-specific",
+      "unit": "mL/min/kg"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching parameter and species only",
+      "dose_requirement": "not dose-normalized",
+      "fallback_possible": false,
+      "known_limitations": [
+        "do not merge with Vd/F"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "Vd/Vss",
+      "prediction_type": "DERIVED_ESTIMATE",
+      "required_inputs": [
+        "lipophilicity/ionization",
+        "binding",
+        "species physiology"
+      ],
+      "route": "systemic",
+      "scientific_definition": "Systemic volume/distribution estimate.",
+      "source_module": "backend.ivive",
+      "species": "endpoint-specific",
+      "unit": "L/kg"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching oral apparent-volume context only",
+      "dose_requirement": "context retained",
+      "fallback_possible": false,
+      "known_limitations": [
+        "not interchangeable with systemic Vd/Vss"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "Vd/F",
+      "prediction_type": "DERIVED_ESTIMATE",
+      "required_inputs": [
+        "systemic volume",
+        "oral route"
+      ],
+      "route": "PO",
+      "scientific_definition": "Apparent extravascular volume only when route semantics support it.",
+      "source_module": "backend.ivive",
+      "species": "endpoint-specific",
+      "unit": "L/kg"
+    },
+    {
+      "bounded_or_clipped": true,
+      "comparison_allowed": "matching species, oral route, analyte and context",
+      "dose_requirement": "route/dose context retained",
+      "fallback_possible": false,
+      "known_limitations": [
+        "missing Fg must not be replaced by 1.0",
+        "IV F=100% is not an oral prediction"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE / INSUFFICIENT_INPUT",
+      "parameter": "F",
+      "prediction_type": "MECHANISTIC_ESTIMATE",
+      "required_inputs": [
+        "quantitative Fa",
+        "quantitative Fg",
+        "quantitative Fh"
+      ],
+      "route": "PO; IV is reference arm only",
+      "scientific_definition": "Absolute oral bioavailability F = Fa × Fg × Fh relative to an IV reference.",
+      "source_module": "backend.ivive",
+      "species": "endpoint-specific",
+      "unit": "%"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching dose/regimen/context",
+      "dose_requirement": "required",
+      "fallback_possible": false,
+      "known_limitations": [
+        "not fabricated from static foundation parameters"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "Cmax",
+      "prediction_type": "MECHANISTIC_ESTIMATE",
+      "required_inputs": [
+        "PK simulation run",
+        "dose",
+        "route",
+        "concentration-time model"
+      ],
+      "route": "simulation-specific",
+      "scientific_definition": "Maximum concentration from persisted concentration-time simulation.",
+      "source_module": "backend.simulation",
+      "species": "simulation-specific",
+      "unit": "ng/mL"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching AUC subtype and regimen",
+      "dose_requirement": "required",
+      "fallback_possible": false,
+      "known_limitations": [
+        "AUC0-t, AUC0-inf and AUCtau remain distinct"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "AUC",
+      "prediction_type": "MECHANISTIC_ESTIMATE",
+      "required_inputs": [
+        "PK simulation run",
+        "dose",
+        "route",
+        "concentration-time model"
+      ],
+      "route": "simulation-specific",
+      "scientific_definition": "Exposure integral from persisted concentration-time simulation.",
+      "source_module": "backend.simulation",
+      "species": "simulation-specific",
+      "unit": "ng*h/mL"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching dose/regimen/context",
+      "dose_requirement": "required",
+      "fallback_possible": false,
+      "known_limitations": [
+        "not derived from an unpersisted curve"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "Tmax",
+      "prediction_type": "MECHANISTIC_ESTIMATE",
+      "required_inputs": [
+        "PK simulation run",
+        "dose",
+        "route",
+        "absorption model"
+      ],
+      "route": "simulation-specific",
+      "scientific_definition": "Time of maximum concentration from simulation.",
+      "source_module": "backend.simulation",
+      "species": "simulation-specific",
+      "unit": "hours"
+    },
+    {
+      "bounded_or_clipped": false,
+      "comparison_allowed": "matching half-life subtype",
+      "dose_requirement": "model-specific",
+      "fallback_possible": false,
+      "known_limitations": [
+        "terminal and other half-life semantics must not be collapsed"
+      ],
+      "missing_input_behavior": "MODEL_UNAVAILABLE",
+      "parameter": "t1/2",
+      "prediction_type": "DERIVED_ESTIMATE",
+      "required_inputs": [
+        "persisted simulation or valid CL/V context"
+      ],
+      "route": "context-specific",
+      "scientific_definition": "Terminal or model half-life with explicit subtype.",
+      "source_module": "backend.simulation",
+      "species": "context-specific",
+      "unit": "hours"
+    }
+  ],
+  "engine_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "engine_policy": "drugopt-prediction-engine-v1@1.0.0"
+}

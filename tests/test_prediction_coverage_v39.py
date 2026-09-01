@@ -35,8 +35,16 @@ def test_pk_parameter_set_emits_only_real_non_unavailable_outputs():
         v_source_type="PREDICTED_VD", v_type="Vss", f_predicted=100.0,
     )
     emitted = list(_pk_snapshot_values(pset))
-    assert {row[0] for row in emitted} == {"CL", "VSS", "F"}
+    # IV is the reference arm for absolute bioavailability, not an F
+    # prediction.  It must never be indexed as an oral F endpoint.
+    assert {row[0] for row in emitted} == {"CL", "VSS"}
     assert all(row[3] in {PREDICTION_MECHANISTIC, PREDICTION_DERIVED} for row in emitted)
+    oral = PKParameterSet(
+        project_id=1, compound_row_id=1, version_id=1, species="Rat", route="PO",
+        f_predicted=40.0,
+        provenance_json={"absorption_info": {"fa_value": .8, "fg_value": .9, "fh_value": .7}},
+    )
+    assert [row[0] for row in _pk_snapshot_values(oral)] == ["F"]
     unavailable = PKParameterSet(project_id=1, compound_row_id=1, version_id=1, species="Rat", route="PO", cl_source_type="MODEL_UNAVAILABLE")
     assert list(_pk_snapshot_values(unavailable)) == []
 

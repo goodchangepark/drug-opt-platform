@@ -1304,12 +1304,20 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
 
     # 4. Predicted Absolute F
     f_pred = None
-    f_pred_message = "Predicted absolute bioavailability unavailable because Fa/Fh is not quantitatively supported."
+    f_pred_status = "MODEL_UNAVAILABLE"
+    f_pred_message = "Predicted absolute bioavailability unavailable because Fa, Fg, and Fh are not all quantitatively supported."
 
-    if fa_val is not None and fh_val is not None:
-        fg_eff = fg_val if fg_val is not None else 1.0
-        f_pred = round(fa_val * fg_eff * fh_val * 100.0, 1)
-        f_pred_message = f"Estimated oral bioavailability F = Fa ({round(fa_val*100,1)}%) * Fg ({round(fg_eff*100,1)}%) * Fh ({round(fh_val*100,1)}%) = {f_pred}%" + (" (Fg assumed 1.0)" if fg_val is None else "")
+    # F = Fa * Fg * Fh is only a quantitative prediction when all three
+    # components are available.  In particular, Fg is not a harmless
+    # constant: replacing a missing intestinal first-pass estimate with 1.0
+    # silently assumes no intestinal extraction and materially overstates F.
+    if fa_val is not None and fg_val is not None and fh_val is not None:
+        f_pred = round(fa_val * fg_val * fh_val * 100.0, 1)
+        f_pred_status = "CALCULATED"
+        f_pred_message = f"Estimated oral bioavailability F = Fa ({round(fa_val*100,1)}%) * Fg ({round(fg_val*100,1)}%) * Fh ({round(fh_val*100,1)}%) = {f_pred}%"
+    else:
+        missing = [name for name, value in (("Fa", fa_val), ("Fg", fg_val), ("Fh", fh_val)) if value is None]
+        f_pred_message = f"Predicted oral bioavailability unavailable: missing quantitative {', '.join(missing)}."
 
     # 5. Experimental Matched Bioavailability
     ba_res = calculate_bioavailability_for_version(version_id, db)
@@ -1330,6 +1338,7 @@ def estimate_absorption_components(db: Session, project_id: int, version_id: int
         "fg_status": fg_status,
         "fg_message": fg_message,
         "f_predicted": f_pred,
+        "f_predicted_status": f_pred_status,
         "f_predicted_message": f_pred_message,
         "f_experimental": exp_f_val,
         "f_experimental_detail": exp_f_detail,
@@ -1555,6 +1564,11 @@ def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat"
     Uses cached database records when available for fast loading (<1ms).
     """
     version, compound = _version_and_compound(db, version_id)
+
+    def quantitative_oral_f(pset):
+        absorption = (pset.provenance_json or {}).get("absorption_info") or {}
+        return (str(pset.route).upper() == "PO" and pset.f_predicted is not None
+                and all(absorption.get(key) is not None for key in ("fa_value", "fg_value", "fh_value")))
     species_clean = normalize_species(species)
 
     cached_sets = list(db.scalars(select(PKParameterSet).where(
@@ -1585,8 +1599,8 @@ def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat"
                 "fa_status": pset.fa_status,
                 "fg_value": pset.fg_value,
                 "fg_status": pset.fg_status,
-                "f_predicted": pset.f_predicted,
-                "f_experimental": pset.f_experimental,
+                "f_predicted": pset.f_predicted if quantitative_oral_f(pset) else None,
+                "f_experimental": pset.f_experimental if str(pset.route).upper() == "PO" else None,
                 "ka_value": pset.ka_value,
                 "ka_source_type": pset.ka_source_type,
                 "fu_p": pset.fu_p,
@@ -1641,8 +1655,8 @@ def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat"
             "fa_status": pset.fa_status,
             "fg_value": pset.fg_value,
             "fg_status": pset.fg_status,
-            "f_predicted": pset.f_predicted,
-            "f_experimental": pset.f_experimental,
+            "f_predicted": pset.f_predicted if quantitative_oral_f(pset) else None,
+            "f_experimental": pset.f_experimental if str(pset.route).upper() == "PO" else None,
             "ka_value": pset.ka_value,
             "ka_source_type": pset.ka_source_type,
             "fu_p": pset.fu_p,
@@ -1690,7 +1704,8 @@ def get_multi_species_pk_profile(db: Session, version_id: int, force_refresh: bo
             
             fa_val = po_set.get("fa_value")
             fh_val = po_set.get("fh_value")
-            f_calc = round(fa_val * fh_val * 100.0, 1) if (fa_val is not None and fh_val is not None) else None
+            fg_val = po_set.get("fg_value")
+            f_calc = round(fa_val * fg_val * fh_val * 100.0, 1) if (fa_val is not None and fg_val is not None and fh_val is not None) else None
             f_val = po_set.get("f_experimental") if po_set.get("f_experimental") is not None else (po_set.get("f_predicted") if po_set.get("f_predicted") is not None else f_calc)
             f_src = "EXPERIMENTAL" if po_set.get("f_experimental") is not None else ("PREDICTED" if po_set.get("f_predicted") is not None else ("PREDICTED (Fa*Fh)" if f_calc is not None else "UNAVAILABLE"))
             
@@ -1796,5 +1811,3 @@ def refresh_pk_and_ivive_for_version(db: Session, version_id: int, force: bool =
         pass
 
     db.commit()
-
-
