@@ -1503,7 +1503,7 @@
           "related_endpoint_groups": 2,
           "unique_scientific_observations": 138
         },
-        "ready_to_import": 44,
+        "ready_to_import": 31,
         "related": 46,
         "source_qualification": {
           "ChEMBL": {
@@ -3096,7 +3096,7 @@
           "related_endpoint_groups": 2,
           "unique_scientific_observations": 138
         },
-        "ready_to_import": 44,
+        "ready_to_import": 31,
         "related": 46,
         "source_qualification": {
           "ChEMBL": {

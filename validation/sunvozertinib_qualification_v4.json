@@ -4994,7 +4994,7 @@
   },
   "qualification_version": "drugopt-experimental-qualification-v4",
   "search_run": {
-    "id": 4,
+    "id": 6,
     "legacy_summary": {
       "adaptation_eligible": 0,
       "canonical_routing": {
@@ -5040,7 +5040,7 @@
       "identity_qualified": 375,
       "importable": 80,
       "imported": 0,
-      "last_search": "2026-09-01T14:47:20.565152+00:00",
+      "last_search": "2026-09-01T14:53:32.329589+00:00",
       "literature_candidates": 110,
       "manual_review": 229,
       "numeric_observations": 271,
@@ -5065,7 +5065,7 @@
       "unique_records": 375
     },
     "raw_count": 411,
-    "search_run_id": "search-v3.8a-e357be0984404fed828f7d50d0a9ac7a",
+    "search_run_id": "search-v3.8a-ca64198b62ce4caa8a21dfcbe11d2dab",
     "unique_count": 375
   },
   "version": "v4.0"
