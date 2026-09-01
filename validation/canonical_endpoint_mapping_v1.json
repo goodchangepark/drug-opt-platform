@@ -1,0 +1,538 @@
+{
+  "canonical_endpoint_version": "drugopt-canonical-endpoint-v1",
+  "comparison_unit_version": "drugopt-comparison-unit-v1",
+  "endpoints": [
+    {
+      "canonical_endpoint_id": "SOLUBILITY_GENERIC",
+      "section": "ADMET",
+      "display_name": "Solubility",
+      "scientific_definition": "aqueous solubility without a validated solid-state subtype",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mol/L)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "solubility"
+      ],
+      "experimental_endpoint_aliases": [
+        "solubility",
+        "aqueous solubility"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "SOLUBILITY_KINETIC",
+      "section": "ADMET",
+      "display_name": "Kinetic solubility",
+      "scientific_definition": "kinetic aqueous solubility",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mol/L)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "kinetic",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "kinetic solubility"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "SOLUBILITY_THERMODYNAMIC",
+      "section": "ADMET",
+      "display_name": "Thermodynamic solubility",
+      "scientific_definition": "thermodynamic aqueous solubility",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mol/L)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "thermodynamic",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "thermodynamic solubility"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "SOLUBILITY_INTRINSIC",
+      "section": "ADMET",
+      "display_name": "Intrinsic solubility",
+      "scientific_definition": "intrinsic solubility of the neutral form",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mol/L)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "intrinsic",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "intrinsic solubility"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "CACO2_PAPP_AB",
+      "section": "ADMET",
+      "display_name": "Caco-2 Papp A→B",
+      "scientific_definition": "Caco-2 apparent permeability from apical to basolateral",
+      "value_type": "numeric",
+      "canonical_unit": "log10(cm/s)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "",
+      "matrix_requirement": "Caco-2",
+      "assay_requirement": "",
+      "direction_requirement": "A→B",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "permeability",
+        "caco-2 permeability"
+      ],
+      "experimental_endpoint_aliases": [
+        "caco-2 permeability",
+        "caco2 permeability",
+        "caco-2 papp a-b",
+        "papp a-b"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "CACO2_PAPP_BA",
+      "section": "ADMET",
+      "display_name": "Caco-2 Papp B→A",
+      "scientific_definition": "Caco-2 apparent permeability from basolateral to apical",
+      "value_type": "numeric",
+      "canonical_unit": "log10(cm/s)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "",
+      "matrix_requirement": "Caco-2",
+      "assay_requirement": "",
+      "direction_requirement": "B→A",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "caco-2 papp b-a",
+        "papp b-a"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "CACO2_EFFLUX_RATIO",
+      "section": "ADMET",
+      "display_name": "Caco-2 efflux ratio",
+      "scientific_definition": "ratio of B→A to A→B permeability",
+      "value_type": "numeric",
+      "canonical_unit": "ratio",
+      "canonical_scale": "LINEAR",
+      "species_requirement": "",
+      "matrix_requirement": "Caco-2",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "efflux ratio"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "HUMAN_PPB",
+      "section": "ADMET",
+      "display_name": "Human plasma protein binding",
+      "scientific_definition": "fraction of compound bound to human plasma protein",
+      "value_type": "numeric",
+      "canonical_unit": "% bound",
+      "canonical_scale": "PERCENT",
+      "species_requirement": "HUMAN",
+      "matrix_requirement": "plasma",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "plasma protein binding",
+        "ppb"
+      ],
+      "experimental_endpoint_aliases": [
+        "ppb",
+        "plasma protein binding",
+        "protein binding",
+        "fraction bound",
+        "fu"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "RAT_PPB",
+      "section": "ADMET",
+      "display_name": "Rat plasma protein binding",
+      "scientific_definition": "fraction bound to rat plasma protein",
+      "value_type": "numeric",
+      "canonical_unit": "% bound",
+      "canonical_scale": "PERCENT",
+      "species_requirement": "RAT",
+      "matrix_requirement": "plasma",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": []
+    },
+    {
+      "canonical_endpoint_id": "MOUSE_PPB",
+      "section": "ADMET",
+      "display_name": "Mouse plasma protein binding",
+      "scientific_definition": "fraction bound to mouse plasma protein",
+      "value_type": "numeric",
+      "canonical_unit": "% bound",
+      "canonical_scale": "PERCENT",
+      "species_requirement": "MOUSE",
+      "matrix_requirement": "plasma",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": []
+    },
+    {
+      "canonical_endpoint_id": "HLM_CLINT",
+      "section": "ADMET",
+      "display_name": "HLM intrinsic clearance",
+      "scientific_definition": "human liver microsomal intrinsic clearance",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mL/min/kg)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "HUMAN",
+      "matrix_requirement": "microsomes",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "hlm intrinsic clearance"
+      ],
+      "experimental_endpoint_aliases": [
+        "hlm clint",
+        "human microsomal intrinsic clearance"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "RLM_CLINT",
+      "section": "ADMET",
+      "display_name": "RLM intrinsic clearance",
+      "scientific_definition": "rat liver microsomal intrinsic clearance",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mL/min/kg)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "RAT",
+      "matrix_requirement": "microsomes",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "rlm intrinsic clearance"
+      ],
+      "experimental_endpoint_aliases": [
+        "rlm clint",
+        "rat microsomal intrinsic clearance"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "MLM_CLINT",
+      "section": "ADMET",
+      "display_name": "MLM intrinsic clearance",
+      "scientific_definition": "mouse liver microsomal intrinsic clearance",
+      "value_type": "numeric",
+      "canonical_unit": "log10(mL/min/kg)",
+      "canonical_scale": "LOG10",
+      "species_requirement": "MOUSE",
+      "matrix_requirement": "microsomes",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "mlm intrinsic clearance"
+      ],
+      "experimental_endpoint_aliases": [
+        "mlm clint",
+        "mouse microsomal intrinsic clearance"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "HEPATOCYTE_CLINT",
+      "section": "METABOLISM",
+      "display_name": "Hepatocyte intrinsic clearance",
+      "scientific_definition": "intrinsic clearance measured in intact hepatocytes",
+      "value_type": "numeric",
+      "canonical_unit": "µL/min/10^6 cells",
+      "canonical_scale": "LINEAR",
+      "species_requirement": "",
+      "matrix_requirement": "hepatocytes",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "hepatocyte",
+        "hepatocyte clint",
+        "clh"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "PKA",
+      "section": "ADMET",
+      "display_name": "pKa",
+      "scientific_definition": "acid/base dissociation constant",
+      "value_type": "numeric",
+      "canonical_unit": "pKa",
+      "canonical_scale": "LINEAR",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "pka",
+        "pka (quantitative ml)"
+      ],
+      "experimental_endpoint_aliases": [
+        "pka"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "LOGD_7_4",
+      "section": "ADMET",
+      "display_name": "logD 7.4",
+      "scientific_definition": "distribution coefficient measured at pH 7.4",
+      "value_type": "numeric",
+      "canonical_unit": "logD",
+      "canonical_scale": "LINEAR",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "logd7.4",
+        "logd7.4 (quantitative ml)"
+      ],
+      "experimental_endpoint_aliases": [
+        "logd"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "LOGP_RELATED",
+      "section": "ADMET",
+      "display_name": "logP (related)",
+      "scientific_definition": "partition coefficient; not logD 7.4",
+      "value_type": "numeric",
+      "canonical_unit": "logP",
+      "canonical_scale": "LINEAR",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "logp"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "CYP3A4_INHIBITION",
+      "section": "METABOLISM",
+      "display_name": "CYP3A4 inhibition",
+      "scientific_definition": "CYP3A4 inhibition evidence, including quantitative potency",
+      "value_type": "numeric_or_probability",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "cyp3a4 inhibitor"
+      ],
+      "experimental_endpoint_aliases": [
+        "cyp3a4",
+        "cyp3a",
+        "cyp3a4 inhibition"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "CYP3A4_SUBSTRATE",
+      "section": "METABOLISM",
+      "display_name": "CYP3A4 substrate",
+      "scientific_definition": "CYP3A4 substrate evidence",
+      "value_type": "numeric_or_probability",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "cyp3a4 substrate"
+      ],
+      "experimental_endpoint_aliases": []
+    },
+    {
+      "canonical_endpoint_id": "CYP3A4_METABOLIC_CONTRIBUTION",
+      "section": "METABOLISM",
+      "display_name": "CYP3A4 metabolic contribution",
+      "scientific_definition": "evidence for CYP3A-mediated metabolism or fm",
+      "value_type": "numeric_or_qualitative",
+      "canonical_unit": "%",
+      "canonical_scale": "PERCENT",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "cyp3a",
+        "cyp3a4",
+        "fm cyp3a"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "PGP_INHIBITION",
+      "section": "METABOLISM",
+      "display_name": "P-gp interaction",
+      "scientific_definition": "P-glycoprotein interaction evidence",
+      "value_type": "numeric_or_qualitative",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "p-gp inhibitor"
+      ],
+      "experimental_endpoint_aliases": [
+        "p-gp",
+        "pgp"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "HERG_LIABILITY",
+      "section": "TOXICITY",
+      "display_name": "hERG liability",
+      "scientific_definition": "hERG channel liability evidence",
+      "value_type": "numeric_or_probability",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "herg liability"
+      ],
+      "experimental_endpoint_aliases": [
+        "herg"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "AMES_MUTAGENICITY",
+      "section": "TOXICITY",
+      "display_name": "Ames mutagenicity",
+      "scientific_definition": "Ames mutagenicity evidence",
+      "value_type": "numeric_or_categorical",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "ames mutagenicity"
+      ],
+      "experimental_endpoint_aliases": [
+        "ames"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "DILI_LIABILITY",
+      "section": "TOXICITY",
+      "display_name": "DILI clinical liability",
+      "scientific_definition": "drug-induced liver injury evidence",
+      "value_type": "numeric_or_categorical",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [
+        "dili clinical liability"
+      ],
+      "experimental_endpoint_aliases": []
+    },
+    {
+      "canonical_endpoint_id": "METABOLITE_OBSERVATION",
+      "section": "METABOLISM",
+      "display_name": "Metabolite",
+      "scientific_definition": "observed metabolite identity or exposure",
+      "value_type": "numeric_or_qualitative",
+      "canonical_unit": "",
+      "canonical_scale": "MIXED",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "metabolite",
+        "metabolites"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "EXCRETION_FECAL",
+      "section": "METABOLISM",
+      "display_name": "Fecal excretion",
+      "scientific_definition": "dose recovered in feces",
+      "value_type": "numeric",
+      "canonical_unit": "% dose",
+      "canonical_scale": "PERCENT",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "feces",
+        "fecal excretion"
+      ]
+    },
+    {
+      "canonical_endpoint_id": "EXCRETION_URINARY",
+      "section": "METABOLISM",
+      "display_name": "Urinary excretion",
+      "scientific_definition": "dose recovered in urine",
+      "value_type": "numeric",
+      "canonical_unit": "% dose",
+      "canonical_scale": "PERCENT",
+      "species_requirement": "",
+      "matrix_requirement": "",
+      "assay_requirement": "",
+      "direction_requirement": "",
+      "route_requirement": "",
+      "prediction_endpoint_aliases": [],
+      "experimental_endpoint_aliases": [
+        "urine",
+        "urinary excretion"
+      ]
+    }
+  ]
+}

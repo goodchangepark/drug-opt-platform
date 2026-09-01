@@ -118,6 +118,9 @@ from .project_learning import (ledger_out, project_learning_summary,
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 from .endpoint_comparison import build_endpoint_comparison
+from .canonical_endpoints import (CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION,
+                                  normalize_experimental_observation, registry_report,
+                                  reindex_persisted_evidence)
 
 
 CURRENT_STAGE = "5B-4"
@@ -156,6 +159,11 @@ async def lifespan(app_instance: FastAPI):
         ensure_translational_schema(engine)
         ensure_human_pk_schema(engine)
         ensure_qualification_schema(engine)
+        # Re-index derived endpoint/unit metadata for already persisted public
+        # evidence. This never re-searches sources or changes raw provenance.
+        with SessionLocal() as canonical_db:
+            reindex_persisted_evidence(canonical_db)
+            canonical_db.commit()
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -1137,6 +1145,7 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
             evidence_state="EXTERNAL_CANDIDATE", search_run_id=search_run_id, first_seen_at=now, last_seen_at=now,
             accepted_at=None, search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION,
             qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION,
+            canonical_endpoint_version=CANONICAL_ENDPOINT_VERSION, unit_normalization_version=COMPARISON_UNIT_VERSION,
             qualification_status=str(routing.get("qualification_status") or item.get("qualification_state") or ""),
             routing_section=str(routing.get("section") or ""), routing_reason=str(routing.get("routing_reason") or ""),
             retrieved_at=now, imported_at=now,
@@ -1181,6 +1190,23 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
     molecular_weight = (current.properties_json or {}).get("molecular_weight") if current else None
     for row in result["records"]:
         row["display"] = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("measurement_type", row.get("assay_type", "")), target=row.get("target", ""), mw=molecular_weight)
+        # v3.8B semantic normalization supersedes raw-label classification for
+        # new searches while preserving the legacy display fields/API shape.
+        semantic = normalize_experimental_observation(
+            row.get("endpoint", ""), row.get("value"), row.get("unit", ""),
+            species=row.get("species", ""), context=row.get("conditions", ""),
+            assay_type=row.get("measurement_type", row.get("assay_type", "")),
+            target=row.get("target", ""), canonical_hint=row["display"].get("canonical_endpoint_id"),
+        )
+        if semantic.get("canonical_endpoint_id") != "UNRESOLVED":
+            row["display"].update({
+                "canonical_endpoint_id": semantic["canonical_endpoint_id"],
+                "normalized_value": semantic.get("normalized_value"),
+                "normalized_unit": semantic.get("normalized_unit", ""),
+                "normalization_rule": semantic.get("normalization_rule", ""),
+                "comparability_status": semantic.get("comparability_status", row["display"].get("comparability_status")),
+                "reason": semantic.get("reason", ""),
+            })
         display = row["display"]
         numeric = display.get("normalized_value") is not None or bool(__import__("re").search(r"\d", str(row.get("value", ""))))
         traceable = str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED")
@@ -1192,11 +1218,7 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         # the display normalizer; PK is preserved as evidence but cannot be
         # mistaken for a model-comparable ADMET measurement.
         source_family = row.get("canonical_endpoint_candidate", "")
-        contract_family = {
-            "solubility_aqueous_logs": "SOLUBILITY", "permeability_caco2_logpapp": "CACO2_PAPP_AB",
-            "ppb_human_percent_bound": "PPB", "pka": "PKA", "logd_7_4": "LOGD",
-        }.get(display.get("canonical_endpoint_id", ""))
-        endpoint_semantics_match = bool(contract_family and source_family == contract_family)
+        endpoint_semantics_match = display.get("canonical_endpoint_id") not in {None, "", "UNRESOLVED"}
         # Candidates remain explicit/manual unless their raw source has a
         # numeric unit, traceable reference, and deterministic endpoint map.
         row["numeric_observation"] = numeric
@@ -1415,12 +1437,28 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         if assay and (assay.measurement_type.upper() != str(row.get("endpoint", "")).upper() or assay.unit.lower() != str(row.get("unit", "")).lower()):
             raise HTTPException(status_code=400, detail="External measurement type or unit does not match selected project assay")
         display = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("assay_type", ""), target=row.get("target", ""), mw=(current.properties_json or {}).get("molecular_weight"))
+        # Persist the semantic v3.8B mapping alongside the legacy display
+        # normalization.  The raw source label/value/unit remain immutable.
+        semantic = normalize_experimental_observation(
+            row.get("endpoint", ""), row.get("value"), row.get("unit", ""),
+            species=row.get("species", ""), context=row.get("conditions", ""),
+            assay_type=row.get("assay_type", ""), target=row.get("target", ""),
+            canonical_hint=display.get("canonical_endpoint_id", ""),
+        )
+        display.update({
+            "canonical_endpoint_id": semantic["canonical_endpoint_id"],
+            "normalized_value": semantic.get("normalized_value"),
+            "normalized_unit": semantic.get("normalized_unit", display.get("normalized_unit", "")),
+            "normalization_rule": semantic.get("normalization_rule", display.get("normalization_rule", "")),
+            "normalization_version": "drugopt-experimental-normalization-v1",
+            "comparability_status": semantic.get("comparability_status", display.get("comparability_status", "UNSUPPORTED")),
+        })
         evidence_row = ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number or "",
                raw_endpoint_name=str(row.get("endpoint", "")), raw_value=str(row.get("value", "")), raw_relation=str(row.get("relation", "=")), raw_unit=str(row.get("unit", "")),
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
                reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None,
-               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", "")), evidence_state="EXTERNAL_IMPORTED", evidence_origin="EXTERNAL_IMPORTED", accepted_at=utcnow(), first_seen_at=utcnow(), last_seen_at=utcnow(), search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION, qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION, qualification_status=str(row.get("qualification_state", "")), routing_section=str((row.get("routing") or {}).get("section", "")), routing_reason=str((row.get("routing") or {}).get("routing_reason", "")))
+               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", "")), evidence_state="EXTERNAL_IMPORTED", evidence_origin="EXTERNAL_IMPORTED", accepted_at=utcnow(), first_seen_at=utcnow(), last_seen_at=utcnow(), search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION, qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION, canonical_endpoint_version=CANONICAL_ENDPOINT_VERSION, unit_normalization_version=COMPARISON_UNIT_VERSION, qualification_status=str(row.get("qualification_state", "")), routing_section=str((row.get("routing") or {}).get("section", "")), routing_reason=str((row.get("routing") or {}).get("routing_reason", "")))
         db.add(evidence_row); db.flush()
         record_external_evidence_pair(db, compound.project_id, evidence_row)
         if display.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}:
@@ -1451,6 +1489,12 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
 @app.get("/api/evidence/display-contract")
 def experimental_display_contract():
     return contract_report()
+
+
+@app.get("/api/evidence/canonical-endpoints")
+def canonical_endpoint_registry():
+    """Versioned semantic endpoint and comparison-unit contract."""
+    return registry_report()
 
 
 @app.patch("/api/compounds/{row_id}")

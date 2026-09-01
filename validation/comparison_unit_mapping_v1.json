@@ -1,0 +1,86 @@
+{
+  "artifact": "comparison_unit_mapping_v1",
+  "comparison_unit_version": "drugopt-comparison-unit-v1",
+  "rules": [
+    {
+      "endpoint": "HUMAN_PPB / RAT_PPB / MOUSE_PPB",
+      "canonical_unit": "% bound",
+      "conversions": [
+        "fu -> (1-fu)*100",
+        "fraction bound -> fraction*100"
+      ],
+      "forbidden": [
+        "ambiguous binding fraction"
+      ]
+    },
+    {
+      "endpoint": "CACO2_PAPP_AB / CACO2_PAPP_BA",
+      "canonical_unit": "log10(cm/s)",
+      "conversions": [
+        "cm/s -> log10(cm/s)",
+        "10^-6 cm/s -> log10(cm/s)"
+      ],
+      "forbidden": [
+        "A->B with B->A",
+        "efflux ratio with Papp"
+      ]
+    },
+    {
+      "endpoint": "PK Cmax",
+      "canonical_unit": "ng/mL",
+      "conversions": [
+        "µg/L -> ng/mL",
+        "mg/L -> ng/mL"
+      ],
+      "forbidden": [
+        "different route/species/analyte without contract"
+      ]
+    },
+    {
+      "endpoint": "PK AUC",
+      "canonical_unit": "ng*h/mL",
+      "conversions": [
+        "µg*h/L -> ng*h/mL"
+      ],
+      "forbidden": [
+        "AUC0-inf with AUCtau"
+      ]
+    },
+    {
+      "endpoint": "PK CL / CLF",
+      "canonical_unit": "mL/min/kg",
+      "conversions": [
+        "L/h/kg -> mL/min/kg"
+      ],
+      "forbidden": [
+        "CL with CL/F"
+      ]
+    },
+    {
+      "endpoint": "PK Vd / VdF",
+      "canonical_unit": "L/kg",
+      "conversions": [
+        "mL/kg -> L/kg"
+      ],
+      "forbidden": [
+        "Vd with Vd/F",
+        "L without body weight -> L/kg"
+      ]
+    },
+    {
+      "endpoint": "PK Tmax / half-life",
+      "canonical_unit": "hours",
+      "conversions": [
+        "minutes -> hours",
+        "days -> hours"
+      ]
+    },
+    {
+      "endpoint": "PK F",
+      "canonical_unit": "%",
+      "conversions": [
+        "fraction -> percent"
+      ]
+    }
+  ]
+}

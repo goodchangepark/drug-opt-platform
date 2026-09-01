@@ -530,6 +530,12 @@ function App(){
   if(detail&&['overview','pk'].includes(detailTab)&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id,iviveSpecies]);
  useEffect(()=>{
+  // Detail can open while project selection is still settling.  Once the
+  // version is resolved, always hydrate the canonical comparison from the
+  // persisted workspace instead of relying on transient session state.
+  if(detail?.version?.id)loadWorkspace(detail.version.id,detail.row_id).catch(error=>setMessage(String(error)));
+ },[detail?.row_id,detail?.version?.id]);
+ useEffect(()=>{
   if(globalView!=='optimization')return;
   const requestedProject=Number(optimizationWorkspace.project_id);
   if(requestedProject&&requestedProject!==Number(projectId)){setProjectId(requestedProject);return}
@@ -1050,6 +1056,7 @@ function integratedProfile(versionId){
  }
  function unifiedStatus(row,prediction,pair,comparison){
   const effective=pair||comparison;
+  if(effective?.status==='RELATED_SAME_SCIENTIFIC_GROUP')return 'Related Evidence — Different Measurement Semantics';
   if(effective?.status==='RELATED_NOT_SAME_ENDPOINT'||effective?.status==='NOT_COMPARABLE')return effective.reason?'Related Evidence — '+effective.reason:'Related Evidence — Not Directly Comparable';
   if(effective?.status==='CONDITIONALLY_COMPARABLE')return 'Condition-dependent';
   if(effective?.absolute_error!=null)return 'Direct Comparison';

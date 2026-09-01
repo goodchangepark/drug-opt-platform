@@ -92,6 +92,8 @@ class ExternalExperimentalEvidence(Base):
     parser_version: Mapped[str] = mapped_column(String(80), default="")
     qualification_version: Mapped[str] = mapped_column(String(80), default="")
     routing_version: Mapped[str] = mapped_column(String(80), default="")
+    canonical_endpoint_version: Mapped[str] = mapped_column(String(80), default="")
+    unit_normalization_version: Mapped[str] = mapped_column(String(80), default="")
     qualification_status: Mapped[str] = mapped_column(String(60), default="")
     routing_section: Mapped[str] = mapped_column(String(30), default="")
     routing_reason: Mapped[str] = mapped_column(Text, default="")
@@ -291,6 +293,8 @@ def ensure_ui_schema(engine):
                 "qualification_status": "VARCHAR(60) NOT NULL DEFAULT ''",
                 "routing_section": "VARCHAR(30) NOT NULL DEFAULT ''",
                 "routing_reason": "TEXT NOT NULL DEFAULT ''",
+                "canonical_endpoint_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "unit_normalization_version": "VARCHAR(80) NOT NULL DEFAULT ''",
             }.items():
                 if name not in evidence_columns:
                     connection.execute(text(f"ALTER TABLE external_experimental_evidence ADD COLUMN {name} {definition}"))
