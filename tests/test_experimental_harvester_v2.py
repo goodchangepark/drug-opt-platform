@@ -85,3 +85,13 @@ def test_approved_drug_coverage_artifact_has_five_public_controls():
     names = {row["identity"]["name"] for row in artifact["drugs"]}
     assert len(artifact["drugs"]) >= 5
     assert {"sunvozertinib", "osimertinib", "midazolam", "warfarin", "metformin"}.issubset(names)
+
+
+def test_evidence_router_assigns_one_primary_section_and_preserves_gap_reason():
+    from backend.experimental_evidence_router import route_evidence
+    activity = route_evidence({"endpoint": "IC50", "target": "EGFR", "reference_status": "REFERENCE_RESOLVED_SOURCE_RECORD"}, {"comparability_status": "RELATED_NOT_SAME_ENDPOINT", "reason": "Needs assay mapping"})
+    pk = route_evidence({"endpoint": "Cmax", "reference_status": "REFERENCE_RESOLVED_REGULATORY"}, {"comparability_status": "UNSUPPORTED", "reason": "PK context is not a model endpoint"})
+    assert activity["section"] == "ACTIVITY" and pk["section"] == "PK"
+    assert activity["qualification_status"] == "QUALIFIED_RELATED"
+    assert pk["qualification_status"] == "UNSUPPORTED" and pk["qualification_label"] == "PK context is not a model endpoint"
+    assert activity["section"] in {"ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED"}

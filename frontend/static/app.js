@@ -712,7 +712,7 @@ function App(){
  const openCompoundEdit=()=>{const currentVersion=detail?.version||detail?.current_version;setCompoundForm({compound_id:detail?.compound_id||'',name:detail?.name||'',smiles:currentVersion?.canonical_smiles||'',cas_number:detail?.cas_number||'',notes:detail?.notes||''});setEditingCompound(true);setAddCompoundOpen(true);setMessage('')};
  const searchExternalEvidence=async()=>{if(!detail)return;setExternalEvidenceBusy(true);try{setExternalEvidence(await api.post('/compounds/'+detail.row_id+'/experimental-harvest/preview',{confirm_public_identifier_search:true,cas:detail.cas_number||'',name:detail.name||'',sources:harvestSources}))}catch(error){setExternalEvidence({status:'ERROR',message:String(error),records:[]})}finally{setExternalEvidenceBusy(false)}};
  const harvestProjectPublicData=async()=>{if(!project||!window.confirm('Search explicitly supplied public identifiers only. No private structures are transmitted.'))return;setExternalEvidenceBusy(true);try{const rows=(project.compounds||[]).filter(row=>row.cas_number||row.name);const results=[];for(const row of rows){results.push({compound:row.name, ...(await api.post('/compounds/'+row.row_id+'/experimental-harvest/preview',{confirm_public_identifier_search:true,cas:row.cas_number||'',name:row.name||'',sources:harvestSources}))});}setMessage('Public harvest complete: '+results.length+' compound(s) processed');}catch(error){setMessage(String(error))}finally{setExternalEvidenceBusy(false)}};
- const importExternalEvidence=async()=>{const records=(externalEvidence?.records||[]).filter(row=>row.identity_match_status==='EXACT_STRUCTURE_MATCH'&&String(row.reference_status||'').startsWith('REFERENCE_RESOLVED')&&!['LITERATURE_CANDIDATE','REGULATORY_CANDIDATE','PK_STUDY_CANDIDATE'].includes(row.record_status));if(!records.length)return;setExternalEvidenceBusy(true);try{const result=await api.post('/compounds/'+detail.row_id+'/external-experimental/import',{records});setExternalEvidence(current=>({...current,import_result:result}));setMessage(result.imported+' external evidence record(s) imported')}catch(error){setMessage(String(error))}finally{setExternalEvidenceBusy(false)}};
+ const importExternalEvidence=async()=>{const records=(externalEvidence?.records||[]).filter(row=>row.import_eligible===true&&row.identity_match_status==='EXACT_STRUCTURE_MATCH'&&String(row.reference_status||'').startsWith('REFERENCE_RESOLVED'));if(!records.length)return;setExternalEvidenceBusy(true);try{const result=await api.post('/compounds/'+detail.row_id+'/external-experimental/import',{records});setExternalEvidence(current=>({...current,import_result:result}));setMessage(result.imported+' external evidence record(s) imported')}catch(error){setExternalEvidence(current=>({...current,import_error:String(error)}));setMessage(String(error))}finally{setExternalEvidenceBusy(false)}};
  const compare=async(event)=>{event?.preventDefault?.();event?.stopPropagation?.();try{const result=await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:''));setComparison(result);setProjectTab('compare');setDetail(null);setGlobalView('dashboard');setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
 
  const saveAdmet=async versionId=>{
@@ -1004,6 +1004,29 @@ function App(){
  function maturityForPrediction(prediction){return prediction?.prediction_maturity||maturityForEndpoint(prediction?.endpoint);}
  function renderPredictionMaturity(level,label,metadata={}){const normalized=Math.max(1,Math.min(5,Number(level)||1)),text=label||'Base Prediction',aria='Prediction maturity '+normalized+' of 5 — '+text;return e('span',{className:'maturity-stars',role:'img','aria-label':aria,title:'Prediction Maturity · '+text+' · Stars indicate project-specific experimental adaptation maturity, not an absolute guarantee of predictive accuracy.'},[...Array(5)].map((_,index)=>e('svg',{key:index,className:index<normalized?'maturity-star-filled':'maturity-star-empty',width:'14',height:'14',viewBox:'0 0 24 24','aria-hidden':'true',focusable:'false'},e('path',{d:'M12 2.5l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.48l-5.86 3.08 1.12-6.54-4.75-4.63 6.56-.95L12 2.5z',fill:'currentColor'}))),e('span',{className:'maturity-level-text'},normalized+'/5'));}
  function MaturityStars({maturity}){const item=maturity||{level:1,label:'Base Prediction'};return renderPredictionMaturity(item.level,item.label,item);}
+
+ function routedEvidenceSection(section,title){
+  const rows=(externalEvidence?.records||[]).filter(row=>row.routing?.section===section && !['DOCUMENT_DISCOVERED','DOCUMENT_PARSED','SUPPLEMENTARY_DISCOVERED','SUPPLEMENT_PARSED'].includes(row.record_status));
+  if(!rows.length)return null;
+  return e('section',{className:'card routed-evidence-section',key:'routed-'+section},[
+   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title)]),e('span',{className:'badge-intermediate'},rows.length+' observation'+(rows.length===1?'':'s'))]),
+   e('div',{className:'routed-evidence-grid',key:'items'},rows.map((row,index)=>{
+    const d=row.display||row.drugopt_representation||{};
+    return e('article',{className:'endpoint-evidence-card',key:row.source_record_id||index},[
+     e('h4',{key:'endpoint'},row.endpoint||row.routing.display_group),
+     e('div',{className:'row evidence-value-row',key:'value'},[
+      e('div',{className:'mono bold'},row.relation+' '+(d.normalized_value==null?row.value:(d.normalized_value+' '+d.normalized_unit))),
+      row.import_eligible&&e('span',{className:'badge-intermediate'},'Ready to Import')
+     ]),
+     d.normalized_value!=null&&e('div',{className:'small',key:'raw'},'Raw: '+row.relation+' '+row.value+' '+row.unit),
+     e('div',{className:'small',key:'source'},(row.source||'External')+' · '+(row.evidence_category||row.routing.display_group)),
+     e('div',{className:'small',key:'qualification'},row.routing.qualification_label+(row.routing.adaptation_eligibility?' · Eligible for Project Adaptation':' · Not used for adaptation')),
+     row.conditions&&e('details',{key:'context'},[e('summary',{},'Conditions / context'),e('div',{className:'small'},row.conditions)]),
+     e('details',{key:'reference'},[e('summary',{},'Reference'),e('div',{className:'small'},[e('div',{},row.reference||'Reference unavailable'),row.source_url&&e('a',{href:row.source_url,target:'_blank',rel:'noreferrer'},'Open source')])])
+    ]);
+   }))
+  ]);
+ }
 
  function admetPredictionTable(rows){
   if(!rows.length)return e('div',{className:'empty-state'},[StatusBadge({type:'Not predicted'}),e('p',{key:'text'},'Prediction not run for this CompoundVersion.'),e('button',{key:'run',className:'secondary',disabled:admetBusy||!detail?.version,onClick:()=>runPrediction(detail.version.id)},'Run Predictions')]);
@@ -3712,16 +3735,20 @@ function App(){
    ])
    ]),
    externalEvidence&&e('section',{className:'card',key:'external-evidence'},[
-    e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'EXTERNAL EXPERIMENTAL DATA'),e('h3',{},'Public identifier evidence preview')]),e('div',{className:'row'},[e('button',{type:'button',disabled:externalEvidenceBusy||!(externalEvidence.records||[]).some(row=>row.identity_match_status==='EXACT_STRUCTURE_MATCH'&&String(row.reference_status||'').startsWith('REFERENCE_RESOLVED')&&!['LITERATURE_CANDIDATE','REGULATORY_CANDIDATE','PK_STUDY_CANDIDATE'].includes(row.record_status)),onClick:importExternalEvidence},externalEvidenceBusy?'Importing…':'Import Qualified Values'),e('button',{type:'button',className:'secondary',onClick:()=>setExternalEvidence(null)},'Close')])]),
+    e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'EXTERNAL EXPERIMENTAL DATA'),e('h3',{},'Public identifier evidence preview')]),e('div',{className:'row'},[e('button',{type:'button',disabled:externalEvidenceBusy||!(externalEvidence.records||[]).some(row=>row.import_eligible===true&&row.identity_match_status==='EXACT_STRUCTURE_MATCH'&&String(row.reference_status||'').startsWith('REFERENCE_RESOLVED')),onClick:importExternalEvidence},externalEvidenceBusy?'Importing…':'Import Qualified Values'),e('button',{type:'button',className:'secondary',onClick:()=>setExternalEvidence(null)},'Close')])]),
     e('p',{className:'small'},'Public identity status: '+(externalEvidence.identity?.identity_status||externalEvidence.status)+' · No private structure was transmitted.'),
     e('div',{className:'row small',style:{gap:'8px',flexWrap:'wrap'}},['PubChem PUG View','PubChem BioAssay','ChEMBL','CompTox','BindingDB','Europe PMC','PK-DB','FDA / Regulatory'].map(source=>e('label',{key:source},[e('input',{type:'checkbox',checked:harvestSources.includes(source),onChange:event=>setHarvestSources(current=>event.target.checked?[...current,source]:current.filter(x=>x!==source))}),' '+source+(externalEvidence.sources?.[source]==='NOT_CONFIGURED'?' (Not configured)':'')]))),
     externalEvidence.identity&&e('p',{className:'small'},'PubChem CID: '+(externalEvidence.identity.cid||'—')+' · Identity: '+externalEvidence.identity.status),
     e('p',{className:'small'},externalEvidence.source_notice||externalEvidence.message||'Only source-recorded experimental values with a resolved reference can be imported. PubChem computed properties are excluded.'),
     externalEvidence.summary&&e('div',{className:'harvest-summary'},['Found: '+externalEvidence.summary.raw_records,'Unique: '+externalEvidence.summary.unique_records,'Numeric: '+externalEvidence.summary.numeric_observations,'Endpoint-qualified: '+externalEvidence.summary.endpoint_qualified,'Reference-qualified: '+externalEvidence.summary.reference_qualified,'Directly comparable: '+externalEvidence.summary.directly_comparable,'Conditionally comparable: '+externalEvidence.summary.conditionally_comparable,'Related evidence: '+externalEvidence.summary.related_evidence,'Manual review: '+externalEvidence.summary.manual_review,'Importable: '+externalEvidence.summary.importable,'Imported: '+(externalEvidence.import_result?.imported||0),'Last search: '+(externalEvidence.summary.last_search||'—')].map(text=>e('span',{key:text,className:'badge-intermediate'},text))),
+    externalEvidence.summary?.routed_sections&&e('div',{className:'harvest-summary routed-counts'},[
+     e('strong',{key:'complete'},'Experimental Evidence Search Complete'),
+     ...['ACTIVITY','ADMET','METABOLISM','PK','TOXICITY','UNCLASSIFIED'].map(section=>e('button',{key:section,className:'secondary',onClick:()=>setDetailTab(section==='ACTIVITY'?'activity':section==='ADMET'||section==='TOXICITY'||section==='UNCLASSIFIED'?'admet':section.toLowerCase())},section+': '+externalEvidence.summary.routed_sections[section]))
+    ]),
     externalEvidence.summary?.categories&&e('div',{className:'harvest-summary'},Object.entries(externalEvidence.summary.categories).map(([category,count])=>e('span',{key:category,className:'badge-intermediate'},category[0]+category.slice(1).toLowerCase()+': '+count))),
     externalEvidence.summary?.documents&&e('div',{className:'harvest-summary'},Object.entries(externalEvidence.summary.documents).map(([kind,count])=>e('span',{key:kind,className:'badge-intermediate'},kind.replaceAll('_',' ').toLowerCase()+': '+count))),
     externalEvidence.source_counts&&e('div',{className:'small'},Object.entries(externalEvidence.source_counts).map(([source,count])=>e('div',{key:source},source+': '+(externalEvidence.sources?.[source]==='NOT_CONFIGURED'?'Not configured':count.found+' found · '+count.qualified+' qualified')))),
-    (externalEvidence.records||[]).length?e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Source value','Drug-OPT representation','Target / Assay','Evidence','Reference','Comparison'].map(x=>e('th',{key:x},x)))),e('tbody',{},externalEvidence.records.map((row,index)=>{const display=row.drugopt_representation||row.display||{};return e('tr',{key:row.source_record_id||index},[e('td',{},row.endpoint),e('td',{className:'mono'},row.relation+' '+row.value+' '+row.unit),e('td',{className:'mono'},display.normalized_value==null?'—':String(display.normalized_value)+' '+display.normalized_unit),e('td',{},row.target||row.conditions||'—'),e('td',{},'Experimental — External'),e('td',{},row.reference||'REFERENCE_UNRESOLVED'),e('td',{},display.comparability_label||row.mapping_status||row.reference_status)])}))])):e('p',{className:'small'},'No source-recorded external experimental records were returned.'),
+    externalEvidence.records?.length?e('p',{className:'small'},'Results are routed to Activity, ADMET, Metabolism, PK, Toxicity, or Needs Review. Open the corresponding tab to inspect observations and references.'):e('p',{className:'small'},'No source-recorded external experimental records were returned.'),
     externalEvidence.import_result&&e('p',{className:'small'},'Imported: '+externalEvidence.import_result.imported+' · Already imported: '+externalEvidence.import_result.already_imported)
    ]),
    (workspace?.external_experimental_evidence||[]).length>0&&e('section',{className:'card',key:'imported-external-evidence'},[
@@ -3769,42 +3796,42 @@ function App(){
      e('div',{className:'admet-highlights-grid'},[
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Aqueous Solubility'),
-       e('div',{className:'mono bold'},detailPredictions.find(p=>p.endpoint==='Solubility')?Number(detailPredictions.find(p=>p.endpoint==='Solubility').predicted_value).toFixed(1)+' µM':'—'),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Solubility')?Number(detailPredictions.find(p=>p.endpoint==='Solubility').predicted_value).toFixed(1)+' µM':'—',detailPredictions.find(p=>p.endpoint==='Solubility')&&MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge(getInterpretation('solubility',detailPredictions.find(p=>p.endpoint==='Solubility')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Caco-2 Permeability'),
-       e('div',{className:'mono bold'},detailPredictions.find(p=>p.endpoint==='Permeability')?Number(detailPredictions.find(p=>p.endpoint==='Permeability').predicted_value).toFixed(2)+' log cm/s':'—'),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Permeability')?Number(detailPredictions.find(p=>p.endpoint==='Permeability').predicted_value).toFixed(2)+' log cm/s':'—',detailPredictions.find(p=>p.endpoint==='Permeability')&&MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge(getInterpretation('caco2',detailPredictions.find(p=>p.endpoint==='Permeability')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Human Microsomal Stab (HLM)'),
-       e('div',{className:'mono bold'},detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')?Number(detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance').predicted_value).toFixed(1)+' mL/min/kg':'—'),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')?Number(detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance').predicted_value).toFixed(1)+' mL/min/kg':'—',detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')&&MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge(getInterpretation('hlm_clint',detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Plasma Protein Binding (fu)'),
-       e('div',{className:'mono bold'},detailPredictions.find(p=>p.endpoint==='Plasma protein binding')?'fu '+Number(detailPredictions.find(p=>p.endpoint==='Plasma protein binding').predicted_value).toFixed(3):'—'),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Plasma protein binding')?'fu '+Number(detailPredictions.find(p=>p.endpoint==='Plasma protein binding').predicted_value).toFixed(3):'—',detailPredictions.find(p=>p.endpoint==='Plasma protein binding')&&MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge(getInterpretation('ppb',detailPredictions.find(p=>p.endpoint==='Plasma protein binding')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'hERG Cardiac Safety'),
-       e('div',{className:'mono bold'},detailPredictions.find(p=>p.endpoint==='hERG liability')?(detailPredictions.find(p=>p.endpoint==='hERG liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—'),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='hERG liability')?(detailPredictions.find(p=>p.endpoint==='hERG liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—',detailPredictions.find(p=>p.endpoint==='hERG liability')&&MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge(getInterpretation('herg',detailPredictions.find(p=>p.endpoint==='hERG liability')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'DILI / Ames Safety'),
-       e('div',{className:'mono bold'},detailPredictions.find(p=>p.endpoint==='DILI clinical liability')?(detailPredictions.find(p=>p.endpoint==='DILI clinical liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—'),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='DILI clinical liability')?(detailPredictions.find(p=>p.endpoint==='DILI clinical liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—',detailPredictions.find(p=>p.endpoint==='DILI clinical liability')&&MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge(getInterpretation('dili',detailPredictions.find(p=>p.endpoint==='DILI clinical liability')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'P-gp Transporter'),
-       e('div',{className:'mono bold'},'Non-inhibitor'),
+       e('div',{className:'mono bold'},['Non-inhibitor',MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge({assessment:'FAVORABLE',colorClass:'favorable',label:'Low Liability'})
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'CYP Liability Summary'),
-       e('div',{className:'mono bold'},'3A4 / 2D6 / 2C9 / 2C19 / 1A2'),
+       e('div',{className:'mono bold'},['3A4 / 2D6 / 2C9 / 2C19 / 1A2',MaturityStars({level:1,label:'Base Prediction'})]),
        ScientificBadge({assessment:'FAVORABLE',colorClass:'favorable',label:'Low Inhibition Risk'})
       ])
      ])
@@ -3879,7 +3906,8 @@ function App(){
      e('div',{},[e('h3',{},'Activity & SAR Workbench'),e('p',{className:'small'},'Assay-specific activity predictions, similarity search, and matched molecular pairs.')]),
      e('button',{className:'tab-repredict-btn',onClick:()=>{if(assays.length>0){setMessage('Activity prediction evaluated for configured assays.')}else{setMessage('ACTIVITY MODEL NOT READY: Configure an assay and record ≥10 experimental activity measurements.')}}},'↺ PREDICT / RE-PREDICT')
     ]),
-    e('div',{className:'card',key:'activity'},activityTable)
+    e('div',{className:'card',key:'activity'},activityTable),
+    routedEvidenceSection('ACTIVITY','External Activity Evidence')
    ]),
    detailTab==='admet'&&e('div',{key:'admet'},[
     e('div',{className:'card row toolbar'},[
@@ -3895,6 +3923,9 @@ function App(){
      e('h3',{},'Experimental Results'),
      detailMeasurements.length?admetMeasurementTable(detailMeasurements):e('div',{className:'empty-state'},[StatusBadge({type:'Not measured'}),e('p',{},'No experimental measurement entered.'),e('button',{className:'secondary',onClick:()=>setExperimentalOpen(true)},'Add Experimental Data')])
     ]),
+    routedEvidenceSection('ADMET','External ADMET Evidence'),
+    routedEvidenceSection('TOXICITY','External Toxicity Evidence'),
+    routedEvidenceSection('UNCLASSIFIED','Needs Review'),
     e('section',{className:'card',key:'prediction-results'},[
      e('div',{className:'eyebrow'},'2 · PREDICTION RESULTS'),
      e('h3',{},'Prediction Results · Consensus and Individual Models'),
@@ -3923,6 +3954,7 @@ function App(){
      e('div',{},[e('h3',{},'Metabolism & Transporter Profile'),e('p',{className:'small'},'Microsomal stability across species, CYP450 panel, and SyGMa metabolic soft spots.')]),
      e('button',{className:'tab-repredict-btn',disabled:admetBusy,onClick:()=>runMetabolism(version.id)},admetBusy?'Predicting…':'↺ RE-PREDICT')
     ]),
+    routedEvidenceSection('METABOLISM','External Metabolism Evidence'),
     speciesMetabolicStabilityTable(detailPredictions,detailMeasurements),
     e('div',{className:'card',key:'cyp'},[
      e('div',{className:'eyebrow'},'CYP450 ENZYME PANEL'),
@@ -3942,6 +3974,7 @@ function App(){
      e('div',{},[e('h3',{},'Pharmacokinetics & Translational Profile'),e('p',{className:'small'},'In vivo PK studies, NCA analysis, mechanistic IVIVE, and multi-species translational projections.')]),
      e('button',{className:'tab-repredict-btn',onClick:async()=>{if(window.__pkMultiCache)delete window.__pkMultiCache[version.id];await Promise.all([loadPkData(version.id),loadIviveData(version.id,iviveSpecies)]);setMessage('PK analysis updated');}},'↺ UPDATE PK ANALYSIS')
     ]),
+    routedEvidenceSection('PK','External PK Evidence'),
     e(MultiSpeciesPkSummaryTable,{key:'multi-pk-summary',versionId:version.id,studies:pkData?.studies,iviveData}),
     pkProfile(version.id)
    ]),

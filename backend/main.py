@@ -105,6 +105,7 @@ from .external_experimental import cas_status, lookup as external_evidence_looku
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
 from .experimental_harvester import harvest_public_evidence, resolve_public_identity
+from .experimental_evidence_router import ROUTER_VERSION, route_evidence, route_records
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
 from .prediction_maturity import maturity_for_adapter
@@ -1071,6 +1072,7 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         row["endpoint_qualified"] = endpoint_qualified
         row["import_eligible"] = bool(traceable and endpoint_qualified and comparable and endpoint_semantics_match and row.get("duplicate_status") != "SAME_MEASUREMENT")
         row["qualification_state"] = "IMPORTABLE" if row["import_eligible"] else ("MANUAL_REVIEW" if numeric and traceable else "CANDIDATE")
+    route_records(result["records"])
     records = result["records"]
     summary = result.setdefault("summary", {})
     summary.update({
@@ -1081,6 +1083,8 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         "related_evidence": sum(r["display"].get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT" for r in records),
         "manual_review": sum(r.get("qualification_state") == "MANUAL_REVIEW" for r in records),
         "importable": sum(bool(r.get("import_eligible")) for r in records),
+        "routing_version": ROUTER_VERSION,
+        "routed_sections": {section: sum(1 for r in records if r.get("routing", {}).get("section") == section) for section in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED")},
     })
     result["status"] = "RESULTS_AVAILABLE"
     result.setdefault("summary", {})["last_search"] = datetime.now(timezone.utc).isoformat()
@@ -1095,7 +1099,7 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Compound not found")
     version_ids = [v.id for v in compound.versions]
     rows = db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(version_ids)).order_by(ExternalExperimentalEvidence.imported_at.desc())).all() if version_ids else []
-    return {"records": [{"id": row.id, "endpoint": row.raw_endpoint_name, "value": row.raw_value, "unit": row.raw_unit,
+    records = [{"id": row.id, "endpoint": row.raw_endpoint_name, "value": row.raw_value, "unit": row.raw_unit,
                          "relation": row.raw_relation, "source": row.source_database, "reference": row.reference_text,
                          "source_url": row.source_url, "source_record_id": row.source_record_id,
                          "assay_id": row.source_assay_id, "document_id": row.source_document_id,
@@ -1103,7 +1107,13 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
                          "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
                          "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
-                         "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status} for row in rows]}
+                         "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status,
+                         "routing": route_evidence({"endpoint": row.raw_endpoint_name, "conditions": row.assay_conditions_json,
+                             "reference_status": "REFERENCE_RESOLVED_IMPORTED", "import_eligible": True},
+                             {"canonical_endpoint_id": row.canonical_endpoint_id,
+                              "comparability_status": row.comparability_status,
+                              "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported")})} for row in rows]
+    return {"records": records}
 
 
 @app.post("/api/compounds/{row_id}/external-experimental/import")
@@ -1118,7 +1128,11 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
     imported, duplicates = 0, 0
     assay_ids = {assay.id: assay for assay in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
     for row in payload.get("records") or []:
-        if row.get("record_status") in {"LITERATURE_CANDIDATE", "REGULATORY_CANDIDATE", "PK_STUDY_CANDIDATE"}:
+        # Search candidates become importable only through the server-side
+        # qualification contract.  Regulatory candidates may be importable
+        # after deterministic normalization; record_status alone is not a
+        # sufficient reason to discard them.
+        if row.get("import_eligible") is not True:
             continue
         if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or not str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED"):
             continue
