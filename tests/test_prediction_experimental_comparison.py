@@ -23,10 +23,11 @@ def exp(value=-1.0, endpoint="Solubility", status="DIRECTLY_COMPARABLE", importe
 
 
 def test_log_scale_pair_error_and_prospective_gate():
-    pair = compare_prediction_experiment(pred(), exp())
+    pair = compare_prediction_experiment(pred() | {"model_predictions": {"A": 1.2, "B": 0.8}}, exp())
     assert pair.pair_class == "TRUE_PROSPECTIVE"
     assert pair.comparison_metric_type == "LOG_ABSOLUTE_ERROR"
     assert pair.signed_error == 2.0 and pair.absolute_error == 2.0
+    assert pair.model_errors == {"A": 2.2, "B": 1.8}
     assert pair.adaptation_eligibility
 
 

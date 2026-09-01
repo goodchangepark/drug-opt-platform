@@ -7,7 +7,7 @@ recalculates a prediction and never activates a project adapter.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from statistics import median
 from typing import Any, Iterable
@@ -100,6 +100,8 @@ class PredictionExperimentalPair:
     eligibility_reason: str
     prediction_created_at: str | None
     experimental_created_at: str | None
+    model_predictions: dict[str, float] = field(default_factory=dict)
+    model_errors: dict[str, float] = field(default_factory=dict)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -156,6 +158,8 @@ def compare_prediction_experiment(prediction: dict, evidence: dict, *, project_i
         reason = "Duplicate measurement excluded"
     elif pred is None or exp is None:
         reason = "Prediction or normalized experimental value is unavailable"
+    model_predictions = {str(key): float(value) for key, value in (prediction.get("model_predictions") or {}).items() if _num(value) is not None}
+    model_errors = {key: abs(value - exp) for key, value in model_predictions.items()} if exp is not None and status in DIRECT else {}
     return PredictionExperimentalPair(
         pair_id=f"PAIR-{prediction.get('id', 'p')}-{evidence.get('id', evidence.get('source_record_id', 'e'))}",
         project_id=project_id, compound_id=compound_id, compound_version_id=compound_version_id or prediction.get("version_id") or evidence.get("compound_version_id"),
@@ -169,6 +173,7 @@ def compare_prediction_experiment(prediction: dict, evidence: dict, *, project_i
         independent_experiment_group_id=str(evidence.get("independent_experiment_group_id") or evidence.get("source_document_id") or evidence.get("source_record_id") or "unknown"),
         pair_class=pair_class, eligibility_reason=reason,
         prediction_created_at=pred_at.isoformat() if pred_at else None, experimental_created_at=exp_at.isoformat() if exp_at else None,
+        model_predictions=model_predictions, model_errors=model_errors,
     )
 
 
@@ -194,6 +199,10 @@ def performance_summary(pairs: Iterable[PredictionExperimentalPair]) -> dict:
     errors = [p.absolute_error for p in selected]
     signed = [p.signed_error for p in selected if p.signed_error is not None]
     compounds = independent_compound_count(selected)
+    model_error_values = {}
+    for pair in selected:
+        for model, error in pair.model_errors.items():
+            model_error_values.setdefault(model, []).append(error)
     return {
         "pair_count": len(selected), "independent_compounds": compounds,
         "effective_n": float(compounds),
@@ -201,5 +210,6 @@ def performance_summary(pairs: Iterable[PredictionExperimentalPair]) -> dict:
         "rmse": math.sqrt(sum(e * e for e in errors) / len(errors)) if errors else None,
         "bias": sum(signed) / len(signed) if signed else None,
         "median_absolute_error": median(errors) if errors else None,
+        "model_mae": {model: sum(values) / len(values) for model, values in model_error_values.items()},
         "status": "Collecting" if compounds < 5 else "Eligible — validation required",
     }
