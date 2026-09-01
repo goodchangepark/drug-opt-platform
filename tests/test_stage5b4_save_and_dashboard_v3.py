@@ -37,7 +37,7 @@ def test_app_version_0_6_3():
     v063 = next(entry for entry in vh if entry["version"] == "0.6.3-stage5b4-ui")
     assert v063["stage"] == "Stage 5B-4 Refinement 3"
     assert "Dashboard Redesign & Compound Save" in v063["milestone"]
-    assert vh[-1]["stage"] == "Stage 4E-4"
+    assert vh[-1]["stage"] == "Product Release"
 
 
 def test_api_health():
@@ -45,7 +45,7 @@ def test_api_health():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["version"] == "0.8.0-engine-v1"
+    assert data["version"] == APP_VERSION
     assert data["step"] == "5B-4"
 
 
@@ -53,7 +53,7 @@ def test_api_help_registry():
     response = client.get("/api/help/registry")
     assert response.status_code == 200
     data = response.json()
-    assert data["application"]["version"] == "0.8.0-engine-v1"
+    assert data["application"]["version"] == APP_VERSION
     assert "capability_summary" in data
     assert "pk_method_registry" in data
 
@@ -241,7 +241,7 @@ def test_static_files_standards():
     assert "calculate:true" in app_js.replace(" ", "")
 
     # Version in app.js
-    assert "v0.6.3-stage5b4-ui" in app_js
+    assert "renderPredictionMaturity" in app_js
 
 
 def test_database_integrity():

@@ -20,7 +20,7 @@ client = TestClient(app)
 
 
 def test_platform_version_and_history():
-    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1", "1.0.0")
+    assert APP_VERSION == "1.0.0"
     assert CURRENT_STAGE == "5B-4"
     assert latest_release_date() == "2026-08-30"
     
@@ -38,7 +38,7 @@ def test_api_health_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    assert data["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
+    assert data["version"] == APP_VERSION
     assert data["step"] == "5B-4"
     assert data["updated"] == latest_release_date()
 
@@ -60,7 +60,7 @@ def test_api_help_registry_includes_history_and_rules():
     response = client.get("/api/help/registry")
     assert response.status_code == 200
     data = response.json()
-    assert data["application"]["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
+    assert data["application"]["version"] == APP_VERSION
     assert "version_history" in data
     assert len(data["version_history"]) >= 12
     assert "interpretation_registry" in data
@@ -177,4 +177,4 @@ def test_static_assets_consistency():
     assert "unifiedPhysicochemicalTable" in js_content
     assert "speciesMetabolicStabilityTable" in js_content
     assert "MultiSpeciesPkSummaryTable" in js_content
-    assert ("v0.6.2-stage5b4-ui" in js_content) or ("v0.6.3-stage5b4-ui" in js_content)
+    assert "renderPredictionMaturity" in js_content

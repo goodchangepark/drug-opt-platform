@@ -102,6 +102,7 @@ def ensure_admet_schema(engine):
             ADMETModelRegistry.__table__, ADMETPredictionRun.__table__, ADMETPrediction.__table__,
             ADMETConsensusPrediction.__table__, ADMETModelComparison.__table__, ADMETModelPerformance.__table__,
             ADMETExperimentalFeedbackEvent.__table__, ADMETAdaptivePrediction.__table__, ProjectAdapterVersion.__table__,
+            PredictionExperimentalPairRecord.__table__,
         ],
     )
     with engine.begin() as connection:
@@ -441,6 +442,47 @@ class ProjectAdapterVersion(Base):
     project_weights_json: Mapped[dict] = mapped_column(JSON, default=dict)
     validation_json: Mapped[dict] = mapped_column(JSON, default=dict)
     activation_decision: Mapped[str] = mapped_column(String(60), default="BASE_RETAINED")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class PredictionExperimentalPairRecord(Base):
+    """Immutable, auditable lifecycle record for one prediction/experiment pair.
+
+    This is deliberately an overlay table.  Raw experiments and frozen
+    predictions remain in their source tables; this record stores the
+    comparison decision and the exact provenance needed by the project
+    learning ledger.
+    """
+    __tablename__ = "prediction_experimental_pairs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    pair_key: Mapped[str] = mapped_column(String(160), unique=True, index=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    compound_version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    endpoint_name: Mapped[str] = mapped_column(String(120), index=True)
+    prediction_record_id: Mapped[int | None] = mapped_column(ForeignKey("admet_predictions.id", ondelete="SET NULL"), nullable=True, index=True)
+    experiment_id: Mapped[int | None] = mapped_column(ForeignKey("admet_measurements.id", ondelete="SET NULL"), nullable=True, index=True)
+    external_evidence_id: Mapped[int | None] = mapped_column(ForeignKey("external_experimental_evidence.id", ondelete="SET NULL"), nullable=True, index=True)
+    evidence_origin: Mapped[str] = mapped_column(String(40), default="INTERNAL_EXPERIMENTAL")
+    prediction_created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    experiment_created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    pair_class: Mapped[str] = mapped_column(String(40), default="HISTORICAL_VISIBLE")
+    comparability_status: Mapped[str] = mapped_column(String(60), default="NOT_COMPARABLE")
+    adaptation_eligibility: Mapped[bool] = mapped_column(default=False)
+    independent_experiment_group_id: Mapped[str] = mapped_column(String(160), default="")
+    base_prediction: Mapped[float | None] = mapped_column(Float, nullable=True)
+    project_prediction: Mapped[float | None] = mapped_column(Float, nullable=True)
+    experimental_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    experimental_unit: Mapped[str] = mapped_column(String(80), default="")
+    raw_value: Mapped[str] = mapped_column(Text, default="")
+    raw_unit: Mapped[str] = mapped_column(String(80), default="")
+    relation: Mapped[str] = mapped_column(String(12), default="=")
+    absolute_error: Mapped[float | None] = mapped_column(Float, nullable=True)
+    signed_error: Mapped[float | None] = mapped_column(Float, nullable=True)
+    project_absolute_error: Mapped[float | None] = mapped_column(Float, nullable=True)
+    adapter_version: Mapped[str] = mapped_column(String(80), default="")
+    included_in_future_adapter: Mapped[bool] = mapped_column(default=False)
+    exclusion_reason: Mapped[str] = mapped_column(Text, default="")
+    snapshot_json: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
 

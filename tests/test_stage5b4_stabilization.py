@@ -8,6 +8,7 @@ from pathlib import Path
 from backend.admet_predictor import MODEL_SPECS, predict_endpoint
 from backend.database import SessionLocal
 from backend.main import app, dashboard_summary, health, help_registry
+from backend.platform_info import APP_VERSION
 from backend.stabilization import classify_project
 
 
@@ -19,7 +20,7 @@ def test_help_registry_endpoint_uses_runtime_registries_and_versions():
     with SessionLocal() as db:
         payload = help_registry(db)
     assert payload["application"]["current_stage"] == "5B-4"
-    assert payload["application"]["version"] in ("0.6.0-stage5b4-stable", "0.6.1-stage5b4-ui", "0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1")
+    assert payload["application"]["version"] == APP_VERSION
     versions = {row["package"]: row["version"] for row in payload["package_inventory"]}
     assert versions["RDKit"] == importlib.metadata.version("rdkit")
     assert versions["Chemprop"] == importlib.metadata.version("chemprop")

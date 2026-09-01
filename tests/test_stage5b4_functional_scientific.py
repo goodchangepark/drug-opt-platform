@@ -1,4 +1,5 @@
 import pytest
+import uuid
 from fastapi.testclient import TestClient
 from backend.main import app
 from backend.database import SessionLocal
@@ -105,7 +106,7 @@ def test_pk_simulation_normalized_dose_and_routes():
 def test_two_compound_comparison_api_expanded_fields():
     """Verify two-compound comparison API includes ADME, Metabolism, and PK metrics."""
     with SessionLocal() as db:
-        proj = Project(name="Comparison Test Project Dedicated", target="EGFR", molecule_type="Small Molecule")
+        proj = Project(name="Comparison Test Project Dedicated " + uuid.uuid4().hex[:8], target="EGFR", molecule_type="Small Molecule")
         db.add(proj)
         db.commit()
         db.refresh(proj)

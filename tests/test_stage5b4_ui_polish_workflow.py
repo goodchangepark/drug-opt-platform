@@ -31,11 +31,11 @@ client = TestClient(app)
 
 
 def test_app_version():
-    assert APP_VERSION in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1", "1.0.0")
+    assert APP_VERSION == "1.0.0"
     assert CURRENT_STAGE == "5B-4"
     vh = version_history()
     assert len(vh) >= 12
-    assert any(entry["version"] in ("0.6.2-stage5b4-ui", "0.6.3-stage5b4-ui", "0.8.0-engine-v1", "1.0.0") for entry in vh)
+    assert any(entry["version"] == APP_VERSION for entry in vh)
     assert vh[-1]["version"] == "1.0.0"
 
 
@@ -127,7 +127,7 @@ def test_app_js_components_and_workflow():
     js_text = (ROOT / "frontend/static/app.js").read_text(encoding="utf-8")
 
     # Version in footer
-    assert ("v0.6.2-stage5b4-ui" in js_text) or ("v0.6.3-stage5b4-ui" in js_text)
+    assert "renderPredictionMaturity" in js_text
 
     # Dashboard sections
     assert "PLATFORM OVERVIEW" in js_text

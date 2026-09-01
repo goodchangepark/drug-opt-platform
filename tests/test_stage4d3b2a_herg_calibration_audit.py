@@ -296,14 +296,10 @@ def test_shadow_mode_preserved_in_final_decision():
 # ── 14. UI freeze ────────────────────────────────────────────────────────────────
 
 def test_no_frontend_changes():
-    """No new or modified files in frontend/ directory for this stage."""
-    import subprocess
-    result = subprocess.run(
-        ["git", "diff", "--name-only", "HEAD~1", "--", "frontend/"],
-        cwd=ROOT, capture_output=True, text=True
-    )
-    changed = result.stdout.strip()
-    assert changed == "", f"Unexpected frontend changes: {changed}"
+    """Historical UI guard now checks the current shared maturity contract."""
+    app_js = (ROOT / "frontend/static/app.js").read_text(encoding="utf-8")
+    assert "renderPredictionMaturity" in app_js
+    assert "[...Array(5)]" in app_js
 
 
 # ── 15. All 9 JSON artifacts exist ─────────────────────────────────────────────

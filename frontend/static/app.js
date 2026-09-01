@@ -344,7 +344,7 @@ function App(){
  const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false);
  const [projectTab,setProjectTab]=useState('dashboard'),[detailTab,setDetailTab]=useState('overview');
  const [admet,setAdmet]=useState(null),[admetVersionId,setAdmetVersionId]=useState(''),[admetForm,setAdmetForm]=useState({...EMPTY_ADMET_FORM});
- const [projectAdaptation,setProjectAdaptation]=useState(null);
+ const [projectAdaptation,setProjectAdaptation]=useState(null),[learningLedger,setLearningLedger]=useState(null);
  const [admetCsv,setAdmetCsv]=useState(''),[admetCsvPreview,setAdmetCsvPreview]=useState(null),[admetBusy,setAdmetBusy]=useState(false);
  const [metabolism,setMetabolism]=useState(null),[metabolismBusy,setMetabolismBusy]=useState(false),[metabolicTop,setMetabolicTop]=useState(3),[selectedSpotId,setSelectedSpotId]=useState(null);
  const [metaboliteForm,setMetaboliteForm]=useState({...EMPTY_METABOLITE_FORM});
@@ -393,14 +393,15 @@ function App(){
   const loadDashboard=async()=>{const data=await api.get('/dashboard');setDashboard(data);return data};
   const loadHelpRegistry=async()=>{setHelpBusy(true);try{const data=await api.get('/help/registry');setHelpRegistry(data);return data}finally{setHelpBusy(false)}};
   const loadProject=async id=>{
-   if(!id){setProject(null);return null;}
+   if(!id){setProject(null);setLearningLedger(null);return null;}
    try{
     const data=await api.get('/projects/'+id);setProject(data);
     api.get('/projects/'+id+'/project-adaptation').then(setProjectAdaptation).catch(()=>setProjectAdaptation(null));
+    api.get('/projects/'+id+'/learning-ledger').then(setLearningLedger).catch(()=>setLearningLedger(null));
     setAdmetVersionId(current=>data.compounds?.some(item=>item.version?.id===Number(current))?current:(data.compounds?.find(item=>item.version)?.version.id||''));
     return data;
    }catch(err){
-    setProject(null);
+    setProject(null);setLearningLedger(null);
     return null;
    }
   };
@@ -717,6 +718,7 @@ function App(){
  const importExternalEvidence=async()=>{const records=(externalEvidence?.records||[]).filter(row=>row.import_eligible===true&&row.identity_match_status==='EXACT_STRUCTURE_MATCH'&&String(row.reference_status||'').startsWith('REFERENCE_RESOLVED'));if(!records.length)return;setExternalEvidenceBusy(true);try{const result=await api.post('/compounds/'+detail.row_id+'/external-experimental/import',{records});await loadWorkspace(detail.version?.id);setExternalEvidence(current=>({...current,import_result:result}));setMessage(result.imported+' external evidence record(s) imported')}catch(error){setExternalEvidence(current=>({...current,import_error:String(error)}));setMessage(String(error))}finally{setExternalEvidenceBusy(false)}};
  const importOneExternalEvidence=async row=>{if(!row?.import_eligible)return;setExternalEvidenceBusy(true);try{const result=await api.post('/compounds/'+detail.row_id+'/external-experimental/import',{records:[row]});await loadWorkspace(detail.version?.id);setExternalEvidence(current=>({...current,import_result:result}));setMessage(result.imported+' external evidence record(s) imported')}catch(error){setMessage(String(error))}finally{setExternalEvidenceBusy(false)}};
  const activateProjectAdapter=async endpoint=>{if(!projectId)return;try{await api.post('/projects/'+projectId+'/project-adaptation/'+encodeURIComponent(endpoint)+'/activate',{confirm_activation:true});const refreshed=await api.get('/projects/'+projectId+'/project-adaptation');setProjectAdaptation(refreshed);setMessage('Project adapter activated for '+endpoint+'; historical predictions remain unchanged.')}catch(error){setMessage(String(error))}};
+ const deactivateProjectAdapter=async endpoint=>{if(!projectId)return;try{await api.post('/projects/'+projectId+'/project-adaptation/'+encodeURIComponent(endpoint)+'/deactivate');const refreshed=await api.get('/projects/'+projectId+'/project-adaptation');setProjectAdaptation(refreshed);setMessage('Returned '+endpoint+' to Base Prediction; adapter history was preserved.')}catch(error){setMessage(String(error))}};
  const compare=async(event)=>{event?.preventDefault?.();event?.stopPropagation?.();try{const result=await api.get('/projects/'+projectId+'/compare?ids='+selected.join(',')+(compareAssay?'&assay_id='+compareAssay:''));setComparison(result);setProjectTab('compare');setDetail(null);setGlobalView('dashboard');setMessage('')}catch(error){setComparison(null);setMessage(String(error))}};
 
  const saveAdmet=async versionId=>{
@@ -3776,6 +3778,12 @@ function integratedProfile(versionId){
       e('button',{type:'button',className:'secondary',disabled:externalEvidenceBusy,onClick:searchExternalEvidence,title:'Explicitly search public sources using supplied public identifiers only. No private structure is sent.'},externalEvidenceBusy?'Searching…':'Search Experimental Data')
      ]),
      e('div',{className:'experimental-evidence-status small'},['Experimental Evidence · Imported: ',String((workspace?.external_experimental_evidence||[]).length),' · Public search available: ',detail.cas_number?'YES':'NO',' · Last search: ',externalEvidence?.summary?.last_search||'Not searched']),
+     e('div',{className:'project-learning-inline small'},[
+      e('strong',{},'Project learning · '),
+      workspace?.project_learning?.ledger?.length
+       ? String(workspace.project_learning.ledger.length)+' lifecycle record(s) · '+String(workspace.project_learning.ledger.filter(row=>row.adaptation_eligibility).length)+' adaptation eligible'
+       : 'No experiment/prediction pair recorded yet · new predictions retain an immutable freeze'
+     ]),
      e('div',{className:'row',style:{marginTop:'12px',alignItems:'center',flexWrap:'wrap',gap:'10px'}},[
       e('button',{className:'btn-predict-primary',disabled:admetBusy||!version,onClick:runFullPredict},[
        admetBusy?'⏳ PREDICTING…':'▶ PREDICT'
@@ -4572,23 +4580,46 @@ function integratedProfile(versionId){
      ]):e('p',{className:'small',key:'empty'},'Learning curve unavailable — need at least 2 leakage-safe holdout points.')
     ]);
    }
+   const endpointTable=rows.length
+    ?e('div',{className:'table-scroll'},[
+      e('table',{className:'project-learning-table',key:'table'},[
+       e('thead',{},e('tr',{},['Endpoint','Independent compounds','Effective N','Base error','Candidate error','Maturity','Status','Action'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},rows.map(row=>e('tr',{key:row.endpoint_id},[
+        e('td',{},e('strong',{},row.endpoint_id)),
+        e('td',{className:'mono'},row.independent_compounds??row.raw_n??0),
+        e('td',{className:'mono'},row.effective_n??0),
+        e('td',{className:'mono'},row.base_validation_error==null?'—':row.base_validation_error),
+        e('td',{className:'mono'},row.adapted_validation_error==null?'—':row.adapted_validation_error),
+        e('td',{},[MaturityStars({maturity:row.maturity}),e('div',{className:'small'},(row.maturity?.level||1)+'/5 · '+(row.maturity?.label||'Base Prediction'))]),
+        e('td',{},row.status||'Collecting data'),
+        e('td',{},row.activation_decision==='ACTIVATED'&&!row.active?e('button',{className:'secondary',onClick:()=>activateProjectAdapter(row.endpoint_id)},'Activate'):row.active?e('button',{className:'secondary',onClick:()=>deactivateProjectAdapter(row.endpoint_id)},'Deactivate'):e('span',{className:'small'},'No activation'))
+       ])))
+      ]),
+      e('div',{className:'learning-curve-list',key:'curves'},rows.map(learningCurveDetails))
+     ])
+    :e('div',{className:'empty-state'},[
+      e('p',{},'No qualified project endpoint pairs yet.'),
+      e('p',{className:'small'},'Predictions remain Base Prediction ★☆☆☆☆ until a validated adapter is explicitly activated.')
+     ]);
+   const ledgerTable=learningLedger?.ledger?.length
+    ?e('div',{className:'table-scroll'},e('table',{className:'learning-ledger-table'},[
+      e('thead',{},e('tr',{},['Compound version','Endpoint','Origin','Pair class','Comparability','Base error','Eligible','Exclusion'].map(label=>e('th',{key:label},label)))),
+      e('tbody',{},learningLedger.ledger.map(row=>e('tr',{key:row.id},[
+       e('td',{className:'mono'},row.compound_version_id),e('td',{},row.endpoint),e('td',{},row.evidence_origin),e('td',{},row.pair_class),
+       e('td',{},row.comparability),e('td',{className:'mono'},row.absolute_error==null?'—':Number(row.absolute_error).toFixed(4)),
+       e('td',{},row.adaptation_eligibility?'Yes':'No'),e('td',{className:'small'},row.exclusion_reason||'—')
+      ])))
+     ]))
+    :e('p',{className:'small'},'No experiment/prediction lifecycle records yet. New predictions freeze their context; later internal or imported experiments are recorded here without rewriting history.');
    return e('section',{className:'card project-learning-panel',key:'project-learning'},[
     e('div',{className:'eyebrow'},'PROJECT LEARNING'),
     e('h2',{},'Prediction / Experimental Learning'),
     e('p',{className:'small'},'Learning is endpoint-specific. Only imported, qualified, non-duplicate evidence with a valid pre-experimental freeze contributes to effective N or maturity.'),
-    rows.length?e('div',{className:'table-scroll'},e('table',{className:'project-learning-table'},[
-     e('thead',{},e('tr',{},['Endpoint','Independent compounds','Effective N','Base error','Candidate error','Maturity','Status','Action'].map(label=>e('th',{key:label},label)))),
-     e('tbody',{},rows.map(row=>e('tr',{key:row.endpoint_id},[
-      e('td',{},e('strong',{},row.endpoint_id)),
-      e('td',{className:'mono'},row.independent_compounds??row.raw_n??0),
-      e('td',{className:'mono'},row.effective_n??0),
-      e('td',{className:'mono'},row.base_validation_error==null?'—':row.base_validation_error),
-      e('td',{className:'mono'},row.adapted_validation_error==null?'—':row.adapted_validation_error),
-      e('td',{},[MaturityStars({maturity:row.maturity}),e('div',{className:'small'},(row.maturity?.level||1)+'/5 · '+(row.maturity?.label||'Base Prediction'))]),
-      e('td',{},row.status||'Collecting data'),
-      e('td',{},row.activation_decision==='ACTIVATED'&&!row.active?e('button',{className:'secondary',onClick:()=>activateProjectAdapter(row.endpoint_id)},'Activate'):row.active?e('span',{className:'pass'},'Active'):e('span',{className:'small'},'No activation'))
-     ])))
-    ]),rows.length&&e('div',{className:'learning-curve-list'},rows.map(learningCurveDetails))):e('div',{className:'empty-state'},[e('p',{},'No qualified project endpoint pairs yet.'),e('p',{className:'small'},'Predictions remain Base Prediction ★☆☆☆☆ until a validated adapter is explicitly activated.')])
+    endpointTable,
+    e('details',{className:'learning-ledger-details',key:'ledger'},[
+     e('summary',{},'Auditable experiment learning ledger ('+String(learningLedger?.ledger?.length||0)+')'),
+     ledgerTable
+    ])
    ]);
   }
 

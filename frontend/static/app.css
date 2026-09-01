@@ -1582,3 +1582,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .compact-evidence-table { min-width: 720px; }
   .project-learning-table { min-width: 760px; }
 }
+.project-learning-inline {
+  margin-top: 6px;
+  color: #475569;
+}

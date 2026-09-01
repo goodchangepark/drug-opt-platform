@@ -164,7 +164,58 @@ def ensure_ui_schema(engine):
     if "projects" not in tables or "compounds" not in tables:
         return
     project_columns = {row["name"] for row in inspector.get_columns("projects")}
-    compound_columns = {row["name"] for row in inspector.get_columns("compounds")}
+    compound_schema = inspector.get_columns("compounds")
+    compound_columns = {row["name"] for row in compound_schema}
+    cas_column = next((row for row in compound_schema if row["name"] == "cas_number"), None)
+
+    # SQLite cannot alter a column's nullability in place.  The original UI
+    # migration created CAS as NOT NULL, while CAS is optional product
+    # metadata.  Rebuild only this table, transactionally, preserving every
+    # row/ID and the project/version foreign-key contract.  This is an
+    # idempotent schema migration, not a database replacement.
+    if engine.dialect.name == "sqlite" and cas_column and not cas_column.get("nullable", True):
+        raw = engine.raw_connection()
+        try:
+            raw.execute("PRAGMA foreign_keys=OFF")
+            raw.execute("BEGIN")
+            raw.execute("""
+                CREATE TABLE compounds__cas_nullable (
+                    id INTEGER NOT NULL PRIMARY KEY,
+                    project_id INTEGER NOT NULL,
+                    compound_id VARCHAR(50) NOT NULL,
+                    cas_number VARCHAR(12),
+                    name VARCHAR(200) NOT NULL,
+                    notes TEXT NOT NULL,
+                    status VARCHAR(40) NOT NULL,
+                    current_version INTEGER NOT NULL,
+                    created_at DATETIME NOT NULL,
+                    updated_at DATETIME NOT NULL,
+                    CONSTRAINT uq_compound_project_label UNIQUE (project_id, compound_id),
+                    FOREIGN KEY(project_id) REFERENCES projects (id) ON DELETE CASCADE
+                )
+            """)
+            raw.execute("""
+                INSERT INTO compounds__cas_nullable
+                (id, project_id, compound_id, cas_number, name, notes, status, current_version, created_at, updated_at)
+                SELECT id, project_id, compound_id, NULLIF(trim(cas_number), ''), name, notes, status, current_version, created_at, updated_at
+                FROM compounds
+            """)
+            raw.execute("DROP TABLE compounds")
+            raw.execute("ALTER TABLE compounds__cas_nullable RENAME TO compounds")
+            raw.execute("CREATE INDEX IF NOT EXISTS ix_compounds_project_id ON compounds (project_id)")
+            raw.execute("CREATE INDEX IF NOT EXISTS ix_compounds_status ON compounds (status)")
+            raw.execute("CREATE INDEX IF NOT EXISTS ix_compounds_compound_id ON compounds (compound_id)")
+            raw.execute("CREATE INDEX IF NOT EXISTS ix_compounds_cas_number ON compounds (cas_number)")
+            raw.commit()
+        except Exception:
+            raw.rollback()
+            raise
+        finally:
+            raw.execute("PRAGMA foreign_keys=ON")
+            raw.close()
+        inspector = inspect(engine)
+        compound_schema = inspector.get_columns("compounds")
+        compound_columns = {row["name"] for row in compound_schema}
     with engine.begin() as connection:
         if "molecule_type" not in project_columns:
             connection.execute(text("ALTER TABLE projects ADD COLUMN molecule_type VARCHAR(40) NOT NULL DEFAULT 'Small Molecule'"))

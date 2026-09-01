@@ -88,4 +88,4 @@ def test_dashboard_frontend_consumes_summary_and_busts_stale_assets():
     assert "const modules=[" not in dashboard
     assert "Confidence: " in dashboard and "Conformal: " in dashboard
     assert "PK / DMPK is planned" not in source
-    assert "stage5b4-stable-1" in index
+    assert "ux-v3-7-4" in index

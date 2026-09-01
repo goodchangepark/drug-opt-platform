@@ -28,7 +28,7 @@ from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefin
 from .admet import (ADMETAssayDefinition, ADMETConsensusPrediction, ADMETEndpoint, ADMETMeasurement,
                     ADMETModelComparison, ADMETModelPerformance, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     ADMETExperimentalFeedbackEvent, ADMETAdaptivePrediction,
-                    ProjectAdapterVersion,
+                    ProjectAdapterVersion, PredictionExperimentalPairRecord,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
 from .adaptive_weighting import (ADAPTIVE_POLICY_VERSION, AdaptiveConsensusResult, AdaptiveReasonCode,
@@ -110,6 +110,8 @@ from .evidence_display_dedup import deduplicate_for_display
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
 from .project_learning_curve import build_learning_curve
+from .project_learning import (ledger_out, project_learning_summary,
+                               record_external_evidence_pair, record_internal_measurement_pair)
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 
@@ -999,6 +1001,12 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
         "model_version": run.model_version, "confidence": run.confidence, "provenance": run.provenance_json,
         "inputs_hash": run.inputs_hash, "outputs": run.outputs_json,
     } for run in runs]
+    learning_summary, learning_rows = project_learning_summary(db, compound.project_id)
+    result["project_learning"] = {
+        "compound_version_ids": [version.id for version in compound.versions],
+        "summary": learning_summary,
+        "ledger": [row for row in learning_rows if row["compound_version_id"] in {version.id for version in compound.versions}],
+    }
     return result
 
 
@@ -1161,6 +1169,29 @@ def prediction_experimental_comparisons(row_id: int, db: Session = Depends(get_d
             "prediction_freeze_required": True, "adapter_activation": "EXPLICIT_USER_ACTION_REQUIRED"}
 
 
+@app.get("/api/compound-versions/{version_id}/learning-ledger")
+def compound_learning_ledger(version_id: int, db: Session = Depends(get_db)):
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    compound = db.get(Compound, version.compound_row_id)
+    summary, rows = project_learning_summary(db, compound.project_id)
+    scoped = [row for row in rows if row["compound_version_id"] == version_id]
+    return {"project_id": compound.project_id, "compound_version_id": version_id,
+            "summary": summary, "ledger": scoped}
+
+
+@app.get("/api/projects/{project_id}/learning-ledger")
+def project_learning_ledger(project_id: int, db: Session = Depends(get_db)):
+    if not db.get(Project, project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    summary, rows = project_learning_summary(db, project_id)
+    return {"project_id": project_id, "summary": summary, "ledger": rows,
+            "policy": {"minimum_independent_compounds": 5,
+                       "activation_requires_explicit_action": True,
+                       "engine_policy": ENGINE_V1_POLICY, "engine_hash": ENGINE_V1_HASH}}
+
+
 @app.post("/api/compounds/{row_id}/external-experimental/import")
 def import_external_experimental_data(row_id: int, payload: dict, db: Session = Depends(get_db)):
     """Explicit user import; raw source values and reference are immutable provenance."""
@@ -1171,6 +1202,7 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
     if not current:
         raise HTTPException(status_code=400, detail="Compound has no structure version")
     imported, duplicates = 0, 0
+    candidate_endpoints = set()
     assay_ids = {assay.id: assay for assay in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
     for row in payload.get("records") or []:
         # Search candidates become importable only through the server-side
@@ -1192,12 +1224,23 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         if assay and (assay.measurement_type.upper() != str(row.get("endpoint", "")).upper() or assay.unit.lower() != str(row.get("unit", "")).lower()):
             raise HTTPException(status_code=400, detail="External measurement type or unit does not match selected project assay")
         display = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("assay_type", ""), target=row.get("target", ""), mw=(current.properties_json or {}).get("molecular_weight"))
-        db.add(ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number or "",
+        evidence_row = ExternalExperimentalEvidence(compound_version_id=current.id, provenance_key=fingerprint, cas_number=compound.cas_number or "",
                raw_endpoint_name=str(row.get("endpoint", "")), raw_value=str(row.get("value", "")), raw_relation=str(row.get("relation", "=")), raw_unit=str(row.get("unit", "")),
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
                reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None,
-               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", ""))))
+               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", "")))
+        db.add(evidence_row); db.flush()
+        record_external_evidence_pair(db, compound.project_id, evidence_row)
+        if display.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}:
+            candidate_endpoints.add({
+                "solubility_aqueous_logs": "Solubility",
+                "permeability_caco2_logpapp": "Permeability",
+                "ppb_human_percent_bound": "Plasma protein binding",
+                "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance",
+                "rlm_intrinsic_clearance_scaled_log10": "RLM intrinsic clearance",
+                "mlm_intrinsic_clearance_scaled_log10": "MLM intrinsic clearance",
+            }.get(display.get("canonical_endpoint_id"), str(row.get("endpoint", ""))))
         if assay:
             try:
                 numeric = float(row["value"])
@@ -1207,6 +1250,9 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
             except ValueError:
                 pass
         imported += 1
+    for endpoint_name in sorted(candidate_endpoints):
+        if endpoint_name:
+            _persist_project_adapter_candidate(db, compound.project_id, endpoint_name)
     db.commit()
     return {"imported": imported, "already_imported": duplicates, "evidence_origin": "EXPERIMENTAL_EXTERNAL"}
 
@@ -1756,8 +1802,88 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
         "adapter_version": outputs.get("prediction_maturity_adapter_version", ""),
         "effective_n": maturity.get("effective_n", 0.0),
         "adaptation_status": maturity.get("status", "BASE_ONLY"),
+        "prediction_snapshot": outputs.get("prediction_snapshot"),
+        "prediction_source": ((outputs.get("prediction_snapshot") or {}).get("project_prediction") is not None
+                              and "Project-adapted Prediction" or "Base Prediction"),
         "created_at": prediction.created_at.isoformat(), "type": "Predicted", "provenance": provenance,
     }
+
+
+def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id: int, predictions: dict):
+    """Freeze base/project context on newly-created predictions only.
+
+    The JSON snapshot is append-only provenance for the prediction row.  Later
+    experiments can create pairs and adapters, but cannot rewrite this state.
+    """
+    adapters = {
+        row.endpoint_id: row for row in db.scalars(select(ProjectAdapterVersion).where(
+            ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.active == True
+        )).all()
+    }
+    by_endpoint = {}
+    for prediction in predictions.values():
+        by_endpoint.setdefault(prediction.model.endpoint_name, []).append(prediction)
+    now = datetime.now(timezone.utc)
+    for endpoint_name, rows in by_endpoint.items():
+        values = {}
+        for row in rows:
+            if row.predicted_value is None:
+                continue
+            values[_model_key_for_prediction(row)] = float(row.predicted_value)
+        if not values:
+            continue
+        base = sum(values.values()) / len(values)
+        adapter = adapters.get(endpoint_name)
+        project_value = base
+        project_weights = {}
+        if adapter and adapter.project_weights_json:
+            weighted = [(float(adapter.project_weights_json.get(key, 0.0)), value) for key, value in values.items()]
+            weighted = [(weight, value) for weight, value in weighted if weight > 0]
+            total = sum(weight for weight, _ in weighted)
+            if total > 0:
+                project_value = sum(weight * value for weight, value in weighted) / total
+                project_weights = dict(adapter.project_weights_json)
+        maturity = maturity_for_adapter(
+            status=adapter.status if adapter else "BASE_ONLY",
+            effective_n=adapter.effective_n if adapter else 0.0,
+            activation_decision=adapter.activation_decision if adapter else "BASE_RETAINED",
+            representative_series=bool(adapter and adapter.effective_n >= 20),
+        ).to_dict()
+        snapshot = {
+            "compound_version_id": version_id, "project_id": project_id,
+            "endpoint": endpoint_name, "base_prediction": base,
+            "project_prediction": project_value if adapter else None,
+            "model_predictions": values, "global_weights": {key: 1.0 / len(values) for key in values},
+            "project_weights": project_weights, "adapter_version": adapter.adapter_version if adapter else "",
+            "effective_n": adapter.effective_n if adapter else 0.0,
+            "training_compound_version_ids": adapter.training_compound_version_ids_json if adapter else [],
+            "maturity": maturity, "ood_applicability": rows[0].applicability_domain,
+            "engine_policy": ENGINE_V1_POLICY, "engine_hash": ENGINE_V1_HASH,
+            "created_at": now.isoformat(), "experiment_known_at_prediction_time": bool(
+                db.scalar(select(ADMETMeasurement.id).where(
+                    ADMETMeasurement.version_id == version_id,
+                    ADMETMeasurement.created_at <= now,
+                ))
+            ),
+        }
+        for row in rows:
+            row.outputs_json = dict(row.outputs_json or {}) | {
+                "prediction_snapshot": snapshot,
+                "prediction_maturity": maturity,
+                "prediction_maturity_adapter_version": adapter.adapter_version if adapter else "",
+                "prediction_maturity_calculated_at": now.isoformat(),
+            }
+
+
+def _model_key_for_prediction(prediction):
+    model_name = str(prediction.model.model_name or "").lower()
+    if "admetica" in model_name:
+        return "admetica_solubility"
+    if "esol" in model_name:
+        return "esol_delaney_v1"
+    if prediction.model.endpoint_name == "Solubility":
+        return "rdkit_gbr_solubility_v1"
+    return f"{prediction.model.endpoint_name}:{prediction.model_id}"
 
 
 def _integrated_admet_profile(version_id: int, predictions: list[dict], models: list[dict]) -> dict:
@@ -2149,6 +2275,8 @@ def _register_experimental_feedback_event(db: Session, project_id: int, version:
     endpoint_name = measurement_row.endpoint.name if measurement_row.endpoint else ""
     if endpoint_name != "Solubility":
         return
+    if measurement_row.value is None:
+        return
     is_compat, quality, msg = evaluate_experimental_compatibility(
         endpoint_name=endpoint_name,
         value=measurement_row.value,
@@ -2169,7 +2297,7 @@ def _register_experimental_feedback_event(db: Session, project_id: int, version:
         .where(
             ADMETPrediction.version_id == version.id,
             ADMETModelRegistry.endpoint_name == endpoint_name,
-            ADMETPrediction.created_at <= measurement_row.created_at,
+            ADMETPrediction.created_at < measurement_row.created_at,
         )
     ).all())
 
@@ -2405,6 +2533,39 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
     return preview, pairs
 
 
+def _persist_project_adapter_candidate(db: Session, project_id: int, endpoint_id: str):
+    """Persist a new read-only candidate snapshot after evidence changes.
+
+    Candidate rows are never active and are never used to rewrite an existing
+    prediction.  A later explicit activation creates a separate immutable
+    active version.
+    """
+    preview, pairs = _project_adapter_preview(db, project_id, endpoint_id)
+    if preview["effective_n"] < 5:
+        return None
+    count = db.scalar(select(func.count(ProjectAdapterVersion.id)).where(
+        ProjectAdapterVersion.project_id == project_id,
+        ProjectAdapterVersion.endpoint_id == endpoint_id,
+    )) or 0
+    row = ProjectAdapterVersion(
+        project_id=project_id, endpoint_id=endpoint_id,
+        adapter_version=f"{ADAPTER_POLICY_VERSION}:{endpoint_id}:candidate-{count + 1}",
+        status=preview["status"], active=False, base_engine_policy=ENGINE_V1_POLICY,
+        base_engine_hash=ENGINE_V1_HASH,
+        training_compound_version_ids_json=[pair.compound_version_id for pair in pairs],
+        training_evidence_ids_json=[pair.evidence_id for pair in pairs], raw_n=preview["raw_n"],
+        effective_n=preview["effective_n"], global_weights_json=preview["global_weights"],
+        project_weights_json=preview["project_weights"],
+        validation_json={"base_error": preview["base_validation_error"],
+                         "adapted_error": preview["adapted_validation_error"],
+                         "candidate": True},
+        activation_decision=preview["activation_decision"],
+    )
+    db.add(row)
+    db.flush()
+    return row
+
+
 @app.get("/api/projects/{project_id}/project-adaptation")
 def project_adaptation_dashboard(project_id: int, db: Session = Depends(get_db)):
     if not db.get(Project, project_id):
@@ -2437,12 +2598,18 @@ def project_adaptation_dashboard(project_id: int, db: Session = Depends(get_db))
     rows = []
     for endpoint_id in endpoints:
         preview, _ = _project_adapter_preview(db, project_id, endpoint_id)
-        latest = db.scalar(select(ProjectAdapterVersion).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id).order_by(ProjectAdapterVersion.created_at.desc()))
-        active = bool(latest and latest.active)
-        maturity = maturity_for_adapter(status=latest.status if active else "BASE_ONLY", effective_n=latest.effective_n if active else preview["effective_n"], activation_decision=latest.activation_decision if active else "BASE_RETAINED", stable_history_count=len(list(db.scalars(select(ProjectAdapterVersion.id).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id, ProjectAdapterVersion.activation_decision == "ACTIVATED")))), representative_series=(latest.effective_n if active else 0) >= 20)
-        rows.append(preview | {"active_adapter_version": latest.adapter_version if active else None,
+        active_row = db.scalar(select(ProjectAdapterVersion).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id, ProjectAdapterVersion.active == True).order_by(ProjectAdapterVersion.created_at.desc()))
+        candidate = db.scalar(select(ProjectAdapterVersion).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id, ProjectAdapterVersion.active == False).order_by(ProjectAdapterVersion.created_at.desc()))
+        active = bool(active_row)
+        maturity = maturity_for_adapter(status=active_row.status if active_row else "BASE_ONLY", effective_n=active_row.effective_n if active_row else preview["effective_n"], activation_decision=active_row.activation_decision if active_row else "BASE_RETAINED", stable_history_count=len(list(db.scalars(select(ProjectAdapterVersion.id).where(ProjectAdapterVersion.project_id == project_id, ProjectAdapterVersion.endpoint_id == endpoint_id, ProjectAdapterVersion.activation_decision == "ACTIVATED")))), representative_series=(active_row.effective_n if active_row else 0) >= 20)
+        rows.append(preview | {"active_adapter_version": active_row.adapter_version if active_row else None,
+                               "candidate_adapter_version": candidate.adapter_version if candidate else None,
+                               "candidate_status": candidate.status if candidate else ("INSUFFICIENT_EVIDENCE" if preview["effective_n"] < 5 else "CANDIDATE_NOT_PERSISTED"),
                                "active": active, "maturity": maturity.to_dict()})
-    return {"project_id": project_id, "policy_version": ADAPTER_POLICY_VERSION, "activation_requires_explicit_action": True, "endpoints": rows}
+    learning_summary, _ = project_learning_summary(db, project_id)
+    return {"project_id": project_id, "policy_version": ADAPTER_POLICY_VERSION,
+            "activation_requires_explicit_action": True, "endpoints": rows,
+            "learning_summary": learning_summary}
 
 
 @app.post("/api/projects/{project_id}/project-adaptation/{endpoint_id}/activate")
@@ -2465,6 +2632,24 @@ def activate_project_adapter(project_id: int, endpoint_id: str, payload: dict, d
     return {"id": row.id, **preview, "active": True}
 
 
+@app.post("/api/projects/{project_id}/project-adaptation/{endpoint_id}/deactivate")
+def deactivate_project_adapter(project_id: int, endpoint_id: str, db: Session = Depends(get_db)):
+    """Rollback to base predictions without deleting adapter history."""
+    if not db.get(Project, project_id):
+        raise HTTPException(status_code=404, detail="Project not found")
+    active = list(db.scalars(select(ProjectAdapterVersion).where(
+        ProjectAdapterVersion.project_id == project_id,
+        ProjectAdapterVersion.endpoint_id == endpoint_id,
+        ProjectAdapterVersion.active == True,
+    )).all())
+    for row in active:
+        row.active = False
+    db.commit()
+    return {"project_id": project_id, "endpoint": endpoint_id, "active": False,
+            "status": "BASE_ONLY", "adapter_history_preserved": True,
+            "deactivated_count": len(active)}
+
+
 @app.post("/api/projects/{project_id}/admet/measurements", status_code=201)
 def create_admet_measurement(project_id: int, payload: dict, db: Session = Depends(get_db)):
     project = db.get(Project, project_id)
@@ -2476,6 +2661,9 @@ def create_admet_measurement(project_id: int, payload: dict, db: Session = Depen
     m_row = db.get(ADMETMeasurement, result["id"])
     if version and m_row:
         _register_experimental_feedback_event(db, project_id, version, m_row)
+        record_internal_measurement_pair(db, project_id, version, m_row)
+        if m_row.endpoint:
+            _persist_project_adapter_candidate(db, project_id, m_row.endpoint.name)
     _refresh_model_feedback(db, project_id, [version_id])
     refresh_pk_and_ivive_for_version(db, version_id, force=True)
     db.commit()
@@ -2518,8 +2706,14 @@ def admet_import(project_id: int, payload: dict, db: Session = Depends(get_db)):
         compound = labels[str(item["compound_id"]).strip()]
         version_number = int(item.get("version_number") or compound.current_version)
         version = next(version for version in compound.versions if version.version_number == version_number)
-        created.append(add_admet_measurement(db, project_id, {**item, "version_id": version.id}))
+        created_row = add_admet_measurement(db, project_id, {**item, "version_id": version.id})
+        created.append(created_row)
+        measurement_row = db.get(ADMETMeasurement, created_row["id"])
+        _register_experimental_feedback_event(db, project_id, version, measurement_row)
+        record_internal_measurement_pair(db, project_id, version, measurement_row)
         version_ids.add(version.id)
+    for endpoint_name in db.scalars(select(ADMETEndpoint.name).where(ADMETEndpoint.project_id == project_id)).all():
+        _persist_project_adapter_candidate(db, project_id, endpoint_name)
     _refresh_model_feedback(db, project_id)
     for vid in version_ids:
         refresh_pk_and_ivive_for_version(db, vid, force=True)
@@ -2687,6 +2881,7 @@ def _run_admet_predictions_legacy(
     db.flush()
     _refresh_model_feedback(db, compound.project_id, [row_id])
     consensuses = _store_consensus_predictions(db, version, compound.project_id, list(selected_predictions.values()))
+    _freeze_admet_prediction_snapshots(db, compound.project_id, row_id, selected_predictions)
     db.commit()
     db.refresh(run)
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
@@ -2871,6 +3066,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     consensuses = _store_consensus_predictions(
         db, version, compound.project_id, list(refreshed_core_preds.values())
     )
+    _freeze_admet_prediction_snapshots(db, compound.project_id, row_id, refreshed_core_preds)
     # Capture maturity with this newly generated prediction.  Cached/historical
     # predictions are deliberately not revisited when later evidence arrives.
     for prediction in refreshed_core_preds.values():
@@ -3219,6 +3415,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     ).all()
     admet_payload = _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)})
     metabolism_payload = _metabolism_payload(db, [version.id])
+    project_learning_rows, project_learning_ledger_rows = project_learning_summary(db, project.id)
     pk_parameter_sets = db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id).order_by(PKParameterSet.created_at.desc())).all()
     pk_routes = [{"id": row.id, "species": row.species, "route": row.route, "cl_value": row.cl_value, "v_value": row.v_value, "f_predicted": row.f_predicted, "f_experimental": row.f_experimental, "ka_value": row.ka_value, "confidence": row.confidence} for row in pk_parameter_sets]
     latest_workflow = next((row for row in audit_runs if row.stage == "prediction_workflow"), None)
@@ -3255,6 +3452,10 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         "admet": admet_payload,
         "metabolism": metabolism_payload,
         "pk": {"parameter_sets": pk_routes},
+        "project_learning": {
+            "summary": project_learning_rows,
+            "ledger": [row for row in project_learning_ledger_rows if row["compound_version_id"] == version.id],
+        },
         "prediction_status": {
             "properties": saved_status("properties", "COMPLETE" if version.properties_json else "NOT_STARTED"),
             "activity": saved_status("activity", "COMPLETE" if (activity["measurements"] or activity["predictions"]) else "NOT_STARTED"),
