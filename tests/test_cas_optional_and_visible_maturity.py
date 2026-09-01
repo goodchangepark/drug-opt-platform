@@ -41,6 +41,16 @@ def test_shared_maturity_component_uses_five_inline_svg_stars():
     assert "#F5B700" in css and "min-width: 88px" in css
 
 
+def test_external_observations_route_to_endpoint_sections_not_compound_information():
+    js = (Path(__file__).parents[1] / "frontend/static/app.js").read_text()
+    assert "routedEvidenceSection('ACTIVITY'" in js
+    assert "routedEvidenceSection('ADMET'" in js
+    assert "routedEvidenceSection('METABOLISM'" in js
+    assert "routedEvidenceSection('PK'" in js
+    assert "Imported external observations are displayed in their canonical" in js
+    assert "Imported external observations (" not in js
+
+
 def test_harvester_categories_and_regulatory_adapter_are_exposed(monkeypatch):
     from backend import experimental_harvester as h
     monkeypatch.setattr(h, "configured_adapters", lambda: [h.RegulatoryAdapter()])

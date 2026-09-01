@@ -3059,24 +3059,33 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     saved_steps = ((latest_workflow.outputs_json or {}).get("steps", {}) if latest_workflow else {})
     def saved_status(stage: str, fallback: str) -> str:
         return str((saved_steps.get(stage) or {}).get("status") or fallback)
-    return {
-        "scope": {"project_id": project.id, "compound_id": compound.id, "version_id": version.id},
-        "project": {"id": project.id, "name": project.name, "molecule_type": project.molecule_type},
-        "compound": compound_out(compound), "version": serialize_version(version),
-        "activity": activity,
-        "external_experimental_evidence": [{
+    def imported_external_out(row):
+        item = {
             "id": row.id, "endpoint": row.raw_endpoint_name, "raw_value": row.raw_value,
             "raw_unit": row.raw_unit, "raw_relation": row.raw_relation, "source": row.source_database,
             "reference": row.reference_text, "source_url": row.source_url,
             "source_record_id": row.source_record_id, "assay_id": row.source_assay_id,
             "document_id": row.source_document_id, "conditions": row.assay_conditions_json or {},
-            "evidence_label": evidence_label(row.evidence_origin),
-            "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
-            "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
-            "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
-            "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status,
+            "evidence_label": evidence_label(row.evidence_origin), "canonical_endpoint_id": row.canonical_endpoint_id,
+            "normalized_value": row.normalized_value, "normalized_unit": row.normalized_unit,
+            "normalization_rule": row.normalization_rule, "normalization_version": row.normalization_version,
+            "comparability_status": row.comparability_status, "source_quality_class": row.source_quality_class,
+            "duplicate_status": row.duplicate_status,
             "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported"),
-        } for row in external_evidence],
+            "reference_status": "REFERENCE_RESOLVED_IMPORTED", "import_eligible": True,
+        }
+        item["routing"] = route_evidence(item, {
+            "canonical_endpoint_id": row.canonical_endpoint_id,
+            "comparability_status": row.comparability_status,
+            "comparability_label": item["comparability_label"],
+        })
+        return item
+    return {
+        "scope": {"project_id": project.id, "compound_id": compound.id, "version_id": version.id},
+        "project": {"id": project.id, "name": project.name, "molecule_type": project.molecule_type},
+        "compound": compound_out(compound), "version": serialize_version(version),
+        "activity": activity,
+        "external_experimental_evidence": [imported_external_out(row) for row in external_evidence],
         "admet": admet_payload,
         "metabolism": metabolism_payload,
         "pk": {"parameter_sets": pk_routes},
