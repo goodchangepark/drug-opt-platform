@@ -483,7 +483,7 @@ function App(){
     navigationPop.current=true;
     setGlobalView(saved.globalView||'dashboard'); setProjectId(saved.projectId||null);
     setProjectTab(saved.projectTab||'dashboard'); setDetailTab(saved.detailTab||'overview');
-    if(saved.detailId)openDetail(saved.detailId); else setDetail(null);
+    if(saved.detailId)openDetail(saved.detailId,{preserveTab:true}); else setDetail(null);
     navigationReady.current=true; navigationKey.current=JSON.stringify(saved); return;
    }
    window.history.replaceState({...state,appNavigation:true},'',window.location.href);
@@ -500,7 +500,7 @@ function App(){
    navigationPop.current=true;
    setGlobalView(state.globalView||'dashboard'); setProjectId(state.projectId||null);
    setProjectTab(state.projectTab||'dashboard'); setDetailTab(state.detailTab||'overview');
-   if(state.detailId)openDetail(state.detailId); else setDetail(null);
+   if(state.detailId)openDetail(state.detailId,{preserveTab:true}); else setDetail(null);
   };
   window.addEventListener('popstate',onPop);
   return()=>window.removeEventListener('popstate',onPop);
@@ -702,9 +702,9 @@ function App(){
    if(predict)setAdmetBusy(false);
   }
  };
- const openDetail=async rowId=>{
+ const openDetail=async(rowId,options={})=>{
   try{
-   const compound=await api.get('/compounds/'+rowId+'?include_versions=true');setDetail(compound);setDetailTab('overview');setExperimentalOpen(false);
+   const compound=await api.get('/compounds/'+rowId+'?include_versions=true');setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
    const assayData=await api.get('/projects/'+compound.project_id+'/assays');setAssays(assayData.assays||assayData||[]);
    if(compound.version)await loadWorkspace(compound.version.id,compound.row_id);else{setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null)}
    setMessage('');
