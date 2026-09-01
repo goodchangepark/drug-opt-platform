@@ -62,6 +62,10 @@ for endpoint, label, key in (("pgp_inhibitor_prob", "P-gp Inhibition", "P-gp inh
 
 def evidence_label(origin: str | None, prediction_kind: str | None = None) -> str:
     if origin == "EXPERIMENTAL_INTERNAL": return "Experimental — Internal"
+    if origin in {"EXTERNAL_CANDIDATE", "EXTERNAL_EVIDENCE_CANDIDATE"}: return "External Evidence — Candidate"
+    if origin in {"EXTERNAL_IMPORTED", "IMPORTED_EXPERIMENTAL"}: return "Experimental — External — Imported"
+    if origin == "RELATED_EVIDENCE": return "External Evidence — Related"
+    if origin == "NEEDS_REVIEW": return "External Evidence — Needs Review"
     if origin == "EXPERIMENTAL_EXTERNAL": return "Experimental — External"
     if prediction_kind == "RULE_ESTIMATE": return "Rule Estimate"
     if prediction_kind == "DERIVED_ESTIMATE": return "Derived Estimate"

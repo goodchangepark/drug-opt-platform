@@ -1,0 +1,47 @@
+{
+  "policy_version": "drugopt-project-adaptation-strategy-v3.8",
+  "engine_policy": "drugopt-prediction-engine-v1@1.0.0",
+  "engine_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "fixtures": [
+    {
+      "name": "single_model_systematic_bias_positive_control",
+      "model_count": 1,
+      "strategy_selected": "SINGLE_MODEL_RESIDUAL_CALIBRATION",
+      "n": 6,
+      "effective_n": 6.0,
+      "base_mae": 0.3,
+      "candidate_mae": 0.1846153846,
+      "observed_bias": 0.3,
+      "shrinkage_factor": 0.4285714286,
+      "adjustment": 0.1285714286,
+      "validation": "LOO_PASS",
+      "activation_eligibility": true,
+      "maturity": 2
+    },
+    {
+      "name": "single_model_random_residual_negative_control",
+      "model_count": 1,
+      "strategy_selected": "SINGLE_MODEL_RESIDUAL_CALIBRATION",
+      "n": 6,
+      "effective_n": 6.0,
+      "base_mae": 0.2,
+      "candidate_mae": 0.2,
+      "validation": "BASE_RETAINED_NO_STABLE_PROJECT_BIAS",
+      "activation_eligibility": false,
+      "maturity": 1
+    },
+    {
+      "name": "multi_model_regularized_positive_control",
+      "model_count": 3,
+      "strategy_selected": "MULTI_MODEL_ENSEMBLE_ADAPTATION",
+      "n": 6,
+      "effective_n": 6.0,
+      "constraints": ["non_negative_weights", "weights_sum_to_one", "strong_shrinkage"],
+      "validation": "LOO_REQUIRED",
+      "activation_eligibility": "DATA_DEPENDENT",
+      "maturity": 1
+    }
+  ],
+  "real_project_activation": false,
+  "historical_predictions_mutated": false
+}

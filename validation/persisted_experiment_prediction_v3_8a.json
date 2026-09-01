@@ -1,0 +1,43 @@
+{
+  "artifact_version": "persisted-experiment-prediction-v3.8a",
+  "workflow": "disposable served HTTP/API persistence acceptance",
+  "project_id": 123,
+  "compound": {"row_id": 86, "version_id": 89, "label": "SUNVOZERTINIB-V38A", "name": "Sunvozertinib"},
+  "search_run": {
+    "status": "COMPLETE",
+    "latest_search_run_id": "search-v3.8a-450b80cc904a4c0e94fc4a3bfabd7804",
+    "persisted_candidate_ids": [55, 56, 87],
+    "raw_source_records": 411,
+    "unique_source_records": 375,
+    "candidate_rows_after_idempotent_search": 138,
+    "before_reload": {"candidate_rows": 138, "comparison_rows": 32},
+    "after_reload": {"candidate_rows": 138, "comparison_rows": 32},
+    "after_navigation": {"candidate_rows": 138, "comparison_rows": 32},
+    "after_service_restart": {"candidate_rows": 138, "comparison_rows": 32}
+  },
+  "prediction_run": {
+    "status": "COMPLETE",
+    "successful_initial_run_id": 20,
+    "repeat_predict_audit_run_id": 21,
+    "prediction_snapshot_ids": "runtime-generated",
+    "endpoint_snapshots_across_runs": 36,
+    "latest_endpoint_snapshot_run": 21
+  },
+  "comparison": {
+    "endpoint": "Plasma protein binding",
+    "section": "ADMET",
+    "prediction": 91.09892272949219,
+    "experimental_candidate_preview": 91.46,
+    "experimental_imported": 91.46,
+    "difference": -0.36107727050780625,
+    "candidate_preview_visible": true,
+    "prediction_visible": true,
+    "difference_visible": true,
+    "reference_visible": true,
+    "candidate_not_auto_imported": true,
+    "pair_created_after_explicit_import": true
+  },
+  "pass": true,
+  "raw_evidence_deleted": false,
+  "real_project_modified": false
+}

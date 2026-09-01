@@ -21,7 +21,7 @@ def maturity_for_adapter(*, status: str, effective_n: float, activation_decision
     """N is necessary but never sufficient: a validated active adapter is required."""
     active = activation_decision == "ACTIVATED" and compatible_evidence_only
     level = 1
-    if active and effective_n >= 5 and status == "LIGHT_PROJECT_ADAPTATION": level = 2
+    if active and effective_n >= 5 and status in {"LIGHT_PROJECT_ADAPTATION", "CANDIDATE_VALIDATED_IMPROVEMENT", "CANDIDATE_VALIDATED_NONDEGRADATION"}: level = 2
     if active and effective_n >= 10 and status == "REGULARIZED_PROJECT_ENSEMBLE": level = 3
     if active and effective_n >= 20 and status == "LOCAL_SERIES_ADAPTATION" and representative_series: level = 4
     if level == 4 and effective_n >= 40 and representative_series and stable_history_count >= 3: level = 5

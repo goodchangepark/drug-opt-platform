@@ -80,6 +80,21 @@ class ExternalExperimentalEvidence(Base):
     source_quality_class: Mapped[str] = mapped_column(String(4), default="D")
     duplicate_status: Mapped[str] = mapped_column(String(40), default="DISTINCT_MEASUREMENT")
     provenance_fingerprint: Mapped[str] = mapped_column(String(64), default="", index=True)
+    # v3.8A: search results are durable candidates before explicit import.
+    # ``imported_at`` is retained for compatibility; lifecycle state is the
+    # authoritative distinction between searched and accepted evidence.
+    evidence_state: Mapped[str] = mapped_column(String(40), default="EXTERNAL_IMPORTED", index=True)
+    search_run_id: Mapped[str] = mapped_column(String(80), default="", index=True)
+    first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    search_version: Mapped[str] = mapped_column(String(80), default="")
+    parser_version: Mapped[str] = mapped_column(String(80), default="")
+    qualification_version: Mapped[str] = mapped_column(String(80), default="")
+    routing_version: Mapped[str] = mapped_column(String(80), default="")
+    qualification_status: Mapped[str] = mapped_column(String(60), default="")
+    routing_section: Mapped[str] = mapped_column(String(30), default="")
+    routing_reason: Mapped[str] = mapped_column(Text, default="")
     retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
@@ -155,6 +170,31 @@ class PredictionRun(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     version: Mapped[CompoundVersion] = relationship(back_populates="prediction_runs")
+
+
+class ExperimentalSearchRun(Base):
+    """Immutable audit header for an explicit public evidence search."""
+    __tablename__ = "experimental_search_runs"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    search_run_id: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    compound_id: Mapped[int] = mapped_column(ForeignKey("compounds.id", ondelete="CASCADE"), index=True)
+    compound_version_id: Mapped[int | None] = mapped_column(ForeignKey("compound_versions.id", ondelete="SET NULL"), nullable=True, index=True)
+    query_identity_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    identity_graph_version: Mapped[str] = mapped_column(String(80), default="")
+    harvester_version: Mapped[str] = mapped_column(String(80), default="")
+    parser_version: Mapped[str] = mapped_column(String(80), default="")
+    qualification_version: Mapped[str] = mapped_column(String(80), default="")
+    routing_version: Mapped[str] = mapped_column(String(80), default="")
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(40), default="RUNNING")
+    raw_count: Mapped[int] = mapped_column(Integer, default=0)
+    unique_count: Mapped[int] = mapped_column(Integer, default=0)
+    qualified_count: Mapped[int] = mapped_column(Integer, default=0)
+    importable_count: Mapped[int] = mapped_column(Integer, default=0)
+    source_status_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    summary_json: Mapped[dict] = mapped_column(JSON, default=dict)
 
 
 def ensure_ui_schema(engine):
@@ -239,8 +279,24 @@ def ensure_ui_schema(engine):
                 "source_quality_class": "VARCHAR(4) NOT NULL DEFAULT 'D'",
                 "duplicate_status": "VARCHAR(40) NOT NULL DEFAULT 'DISTINCT_MEASUREMENT'",
                 "provenance_fingerprint": "VARCHAR(64) NOT NULL DEFAULT ''",
+                "evidence_state": "VARCHAR(40) NOT NULL DEFAULT 'EXTERNAL_IMPORTED'",
+                "search_run_id": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "first_seen_at": "DATETIME",
+                "last_seen_at": "DATETIME",
+                "accepted_at": "DATETIME",
+                "search_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "parser_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "qualification_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "routing_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "qualification_status": "VARCHAR(60) NOT NULL DEFAULT ''",
+                "routing_section": "VARCHAR(30) NOT NULL DEFAULT ''",
+                "routing_reason": "TEXT NOT NULL DEFAULT ''",
             }.items():
                 if name not in evidence_columns:
                     connection.execute(text(f"ALTER TABLE external_experimental_evidence ADD COLUMN {name} {definition}"))
+            # Existing rows were created only by the explicit import endpoint;
+            # preserve that meaning when the lifecycle columns are introduced.
+            connection.execute(text("UPDATE external_experimental_evidence SET evidence_state='EXTERNAL_IMPORTED' WHERE evidence_state IS NULL OR trim(evidence_state)=''"))
+            connection.execute(text("UPDATE external_experimental_evidence SET first_seen_at=COALESCE(first_seen_at, imported_at), last_seen_at=COALESCE(last_seen_at, imported_at)"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))

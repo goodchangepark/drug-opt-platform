@@ -102,7 +102,7 @@ def ensure_admet_schema(engine):
             ADMETModelRegistry.__table__, ADMETPredictionRun.__table__, ADMETPrediction.__table__,
             ADMETConsensusPrediction.__table__, ADMETModelComparison.__table__, ADMETModelPerformance.__table__,
             ADMETExperimentalFeedbackEvent.__table__, ADMETAdaptivePrediction.__table__, ProjectAdapterVersion.__table__,
-            PredictionExperimentalPairRecord.__table__,
+            PredictionExperimentalPairRecord.__table__, PredictionEndpointSnapshot.__table__,
         ],
     )
     with engine.begin() as connection:
@@ -193,6 +193,18 @@ def ensure_admet_schema(engine):
                         ADMETModelRegistry.__table__.update().where(ADMETModelRegistry.id == canonical)
                         .values(**{key: value for key, value in values.items() if key != "endpoint_name"})
                     )
+
+        adapter_columns = {row["name"] for row in inspect(connection).get_columns("project_adapter_versions")}
+        for name, definition in {
+            "strategy_type": "VARCHAR(60) NOT NULL DEFAULT 'BASE_ONLY'",
+            "bias_estimate": "FLOAT NOT NULL DEFAULT 0.0",
+            "shrinkage_factor": "FLOAT NOT NULL DEFAULT 0.0",
+            "calibration_adjustment": "FLOAT NOT NULL DEFAULT 0.0",
+            "calibration_scale": "VARCHAR(80) NOT NULL DEFAULT ''",
+            "strategy_details_json": "JSON NOT NULL DEFAULT '{}'",
+        }.items():
+            if name not in adapter_columns:
+                connection.execute(text(f"ALTER TABLE project_adapter_versions ADD COLUMN {name} {definition}"))
 
 ADMET_CSV_COLUMNS = [
     "compound_id", "version_number", "endpoint", "species", "matrix", "value", "qualitative_value", "unit",
@@ -440,6 +452,12 @@ class ProjectAdapterVersion(Base):
     effective_n: Mapped[float] = mapped_column(Float, default=0.0)
     global_weights_json: Mapped[dict] = mapped_column(JSON, default=dict)
     project_weights_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    strategy_type: Mapped[str] = mapped_column(String(60), default="BASE_ONLY")
+    bias_estimate: Mapped[float] = mapped_column(Float, default=0.0)
+    shrinkage_factor: Mapped[float] = mapped_column(Float, default=0.0)
+    calibration_adjustment: Mapped[float] = mapped_column(Float, default=0.0)
+    calibration_scale: Mapped[str] = mapped_column(String(80), default="")
+    strategy_details_json: Mapped[dict] = mapped_column(JSON, default=dict)
     validation_json: Mapped[dict] = mapped_column(JSON, default=dict)
     activation_decision: Mapped[str] = mapped_column(String(60), default="BASE_RETAINED")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
@@ -484,6 +502,29 @@ class PredictionExperimentalPairRecord(Base):
     exclusion_reason: Mapped[str] = mapped_column(Text, default="")
     snapshot_json: Mapped[dict] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class PredictionEndpointSnapshot(Base):
+    """Durable per-endpoint index for an immutable ADMET prediction run."""
+    __tablename__ = "prediction_endpoint_snapshots"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    prediction_run_id: Mapped[int] = mapped_column(ForeignKey("admet_prediction_runs.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    compound_version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
+    endpoint_id: Mapped[str] = mapped_column(String(120), index=True)
+    endpoint_name: Mapped[str] = mapped_column(String(120), index=True)
+    base_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    base_unit: Mapped[str] = mapped_column(String(80), default="")
+    project_value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    project_unit: Mapped[str] = mapped_column(String(80), default="")
+    prediction_type: Mapped[str] = mapped_column(String(60), default="REGRESSION")
+    adapter_version: Mapped[str] = mapped_column(String(80), default="")
+    effective_n: Mapped[float] = mapped_column(Float, default=0.0)
+    maturity_level: Mapped[int] = mapped_column(Integer, default=1)
+    maturity_label: Mapped[str] = mapped_column(String(120), default="Base Prediction")
+    snapshot_json: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    __table_args__ = (UniqueConstraint("prediction_run_id", "endpoint_id", name="uq_prediction_endpoint_snapshot"),)
 
 
 def measurement_out(row: ADMETMeasurement):

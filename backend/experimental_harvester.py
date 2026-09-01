@@ -498,7 +498,13 @@ def harvest_public_evidence(identity: PublicIdentity, enabled_sources: set[str] 
     for adapter in configured_adapters():
         statuses[adapter.name] = adapter.status()
         if adapter.name in enabled and adapter.status() in {"CONFIGURED", "ADAPTER_READY"}:
-            rows.extend(adapter.harvest(identity))
+            try:
+                rows.extend(adapter.harvest(identity))
+            except Exception as exc:
+                # A source outage or parser defect must not discard successful
+                # evidence from other adapters or be reported as zero data.
+                statuses[adapter.name] = "ERROR"
+                statuses[f"{adapter.name} error"] = f"{exc.__class__.__name__}: {exc}"
     unique = deduplicate(identity, rows)
     reference_qualified = [r for r in unique if str(r.get("reference_status", "")).startswith("REFERENCE_RESOLVED")]
     comparable = [r for r in unique if r.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}]

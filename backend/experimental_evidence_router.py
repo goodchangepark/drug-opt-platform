@@ -35,9 +35,33 @@ def route_evidence(row: dict, display: dict | None = None) -> dict:
     primary_text = " ".join(str(row.get(k, "")) for k in ("endpoint", "measurement_type", "assay_type")).lower()
     context_text = " ".join(str(row.get(k, "")) for k in ("target", "conditions", "raw_context", "document_type")).lower()
     text = primary_text + " " + context_text
+    # A persisted canonical endpoint is authoritative.  In particular,
+    # "protein binding" can occur in a narrative containing a target/binding
+    # term, but it is ADMET PPB rather than Activity.
+    canonical = str(display.get("canonical_endpoint_id") or row.get("canonical_endpoint_id") or "").lower()
+    explicit_sections = {
+        "ppb_human_percent_bound": "ADMET",
+        "solubility_aqueous_logs": "ADMET",
+        "permeability_caco2_logpapp": "ADMET",
+        "pka": "ADMET",
+        "logd_7_4": "ADMET",
+        "hlm_intrinsic_clearance_scaled_log10": "METABOLISM",
+        "rlm_intrinsic_clearance_scaled_log10": "METABOLISM",
+        "mlm_intrinsic_clearance_scaled_log10": "METABOLISM",
+    }
+    if canonical in explicit_sections:
+        section = explicit_sections[canonical]
+    elif canonical.startswith(("cyp", "pgp", "bcrp", "bsep", "oatp", "oct", "mate", "metabolite")):
+        section = "METABOLISM"
+    elif canonical.startswith(("herg", "ames", "dili")):
+        section = "TOXICITY"
+    elif canonical.startswith("activity:"):
+        section = "ACTIVITY"
+    elif canonical.startswith(("cmax", "tmax", "auc", "half", "clearance", "cl/", "vd", "bioavailability", "excretion")):
+        section = "PK"
     # Prefer the explicitly classified endpoint.  Context may mention a
     # reference value such as Cmax next to a distinct PPB observation.
-    if _PK.search(primary_text):
+    elif _PK.search(primary_text):
         section = "PK"
     elif _TOX.search(primary_text):
         section = "TOXICITY"

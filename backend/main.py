@@ -1,6 +1,7 @@
 import hashlib
 import json
 import math
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -28,7 +29,7 @@ from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefin
 from .admet import (ADMETAssayDefinition, ADMETConsensusPrediction, ADMETEndpoint, ADMETMeasurement,
                     ADMETModelComparison, ADMETModelPerformance, ADMETModelRegistry, ADMETPrediction, ADMETPredictionRun,
                     ADMETExperimentalFeedbackEvent, ADMETAdaptivePrediction,
-                    ProjectAdapterVersion, PredictionExperimentalPairRecord,
+                    ProjectAdapterVersion, PredictionExperimentalPairRecord, PredictionEndpointSnapshot,
                     csv_export, ensure_admet_schema, inputs_hash,
                     measurement_out, parse_csv, validate_measurement)
 from .adaptive_weighting import (ADAPTIVE_POLICY_VERSION, AdaptiveConsensusResult, AdaptiveReasonCode,
@@ -75,7 +76,7 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
                               STRATEGY_ONLY_TRANSFORMATIONS,
                               execute_proposal_run, process_user_candidate,
                               rank_candidates)
-from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, PredictionRun, Project,
+from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, ExperimentalSearchRun, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
@@ -104,16 +105,19 @@ from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STAT
 from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
-from .experimental_harvester import harvest_public_evidence, resolve_public_identity
+from .experimental_harvester import (DOCUMENT_PARSER_VERSION, HARVESTER_SEARCH_VERSION, QUALIFICATION_VERSION,
+                                     harvest_public_evidence, resolve_public_identity)
 from .experimental_evidence_router import ROUTER_VERSION, route_evidence, route_records
 from .evidence_display_dedup import deduplicate_for_display
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
+from .project_adaptation_strategy import fit_project_adaptation_strategy
 from .project_learning_curve import build_learning_curve
 from .project_learning import (ledger_out, project_learning_summary,
                                record_external_evidence_pair, record_internal_measurement_pair)
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
+from .endpoint_comparison import build_endpoint_comparison
 
 
 CURRENT_STAGE = "5B-4"
@@ -1039,6 +1043,122 @@ def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)
     return result
 
 
+def _external_candidate_key(identity, current, row: dict) -> str:
+    """Stable source-independent key used to make repeated searches idempotent."""
+    supplied = str(row.get("provenance_fingerprint") or "").strip()
+    if supplied:
+        return supplied
+    identity_key = getattr(identity, "inchikey", "") or (current.inchikey if current else "")
+    material = {
+        "identity": identity_key,
+        "source": row.get("source", ""), "record": row.get("source_record_id", ""),
+        "endpoint": row.get("endpoint", ""), "value": row.get("value", ""),
+        "unit": row.get("unit", ""), "relation": row.get("relation", "="),
+        "species": row.get("species", ""), "assay": row.get("assay_id", ""),
+        "document": row.get("document_id", ""),
+    }
+    return hashlib.sha256(json.dumps(material, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVersion, identity, result: dict) -> dict:
+    """Persist a completed public search without accepting candidates into learning."""
+    now = datetime.now(timezone.utc)
+    search_run_id = "search-v3.8a-" + uuid.uuid4().hex
+    summary = result.setdefault("summary", {})
+    run = ExperimentalSearchRun(
+        search_run_id=search_run_id, project_id=compound.project_id, compound_id=compound.id,
+        compound_version_id=current.id if current else None, query_identity_json=identity.to_dict(),
+        identity_graph_version=str((identity.to_dict() or {}).get("identity_graph_version") or "public-identity-v2"),
+        harvester_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION,
+        qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION,
+        started_at=now, status="RUNNING", source_status_json=result.get("sources") or {},
+    )
+    db.add(run)
+    db.flush()
+    saved, existing, duplicates = 0, 0, 0
+    batch_keys = set()
+    for item in result.get("records") or []:
+        display = item.get("display") or {}
+        routing = item.get("routing") or {}
+        # Records without a value/endpoint are source discovery metadata, not
+        # reconstructible scientific observations. They remain in the search
+        # response, while observations are persisted here.
+        if not str(item.get("endpoint") or "").strip() or not str(item.get("value") or "").strip():
+            continue
+        key = _external_candidate_key(identity, current, item)
+        if key in batch_keys:
+            duplicates += 1
+            continue
+        batch_keys.add(key)
+        row = db.scalar(select(ExternalExperimentalEvidence).where(
+            ExternalExperimentalEvidence.provenance_key == key
+        ))
+        if row is None and current:
+            row = db.scalar(select(ExternalExperimentalEvidence).where(
+                ExternalExperimentalEvidence.compound_version_id == current.id,
+                ExternalExperimentalEvidence.source_database == str(item.get("source") or ""),
+                ExternalExperimentalEvidence.source_record_id == str(item.get("source_record_id") or ""),
+                ExternalExperimentalEvidence.raw_endpoint_name == str(item.get("endpoint") or ""),
+                ExternalExperimentalEvidence.raw_value == str(item.get("value") or ""),
+            ).limit(1))
+        if row is not None:
+            row.last_seen_at = now
+            row.search_run_id = search_run_id
+            row.search_version = HARVESTER_SEARCH_VERSION
+            row.parser_version = DOCUMENT_PARSER_VERSION
+            row.qualification_version = QUALIFICATION_VERSION
+            row.routing_version = ROUTER_VERSION
+            row.qualification_status = str(routing.get("qualification_status") or item.get("qualification_state") or "")
+            row.routing_section = str(routing.get("section") or "")
+            row.routing_reason = str(routing.get("routing_reason") or "")
+            if row.evidence_state != "EXTERNAL_IMPORTED":
+                row.evidence_state = "EXTERNAL_CANDIDATE"
+            if row.provenance_fingerprint == "":
+                row.provenance_fingerprint = key
+            existing += 1
+            continue
+        row = ExternalExperimentalEvidence(
+            compound_version_id=current.id if current else None, provenance_key=key,
+            cas_number=compound.cas_number or "", raw_endpoint_name=str(item.get("endpoint") or ""),
+            raw_value=str(item.get("value") or ""), raw_relation=str(item.get("relation") or "="),
+            raw_unit=str(item.get("unit") or ""), assay_type=str(item.get("assay_type") or item.get("measurement_type") or ""),
+            assay_conditions_json=item.get("conditions") if isinstance(item.get("conditions"), dict) else {"conditions": item.get("conditions", ""), "target": item.get("target", "")},
+            species=str(item.get("species") or ""), source_database=str(item.get("source") or "External"),
+            source_record_id=str(item.get("source_record_id") or ""), source_assay_id=str(item.get("assay_id") or ""),
+            source_document_id=str(item.get("document_id") or ""), reference_text=str(item.get("reference") or ""),
+            source_url=str(item.get("source_url") or ""), identity_match_status=str(item.get("identity_match_status") or ""),
+            endpoint_match_status=str(item.get("endpoint_match_status") or ""), mapping_status=str(item.get("mapping_status") or "EXTERNAL_EVIDENCE_ONLY"),
+            evidence_origin="EXTERNAL_CANDIDATE", canonical_endpoint_id=str(display.get("canonical_endpoint_id") or routing.get("canonical_endpoint_id") or ""),
+            normalized_value="" if display.get("normalized_value") is None else str(display.get("normalized_value")),
+            normalized_unit=str(display.get("normalized_unit") or ""), normalization_rule=str(display.get("normalization_rule") or ""),
+            normalization_version=str(display.get("normalization_version") or NORMALIZATION_VERSION),
+            comparability_status=str(display.get("comparability_status") or "UNSUPPORTED"), source_quality_class=str(item.get("source_quality_class") or "D"),
+            duplicate_status=str(item.get("duplicate_status") or "DISTINCT_MEASUREMENT"), provenance_fingerprint=key,
+            evidence_state="EXTERNAL_CANDIDATE", search_run_id=search_run_id, first_seen_at=now, last_seen_at=now,
+            accepted_at=None, search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION,
+            qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION,
+            qualification_status=str(routing.get("qualification_status") or item.get("qualification_state") or ""),
+            routing_section=str(routing.get("section") or ""), routing_reason=str(routing.get("routing_reason") or ""),
+            retrieved_at=now, imported_at=now,
+        )
+        db.add(row)
+        saved += 1
+    run.completed_at = now
+    run.status = "COMPLETE"
+    run.raw_count = int(summary.get("raw_records", len(result.get("records") or [])))
+    run.unique_count = int(summary.get("unique_records", len(result.get("records") or [])))
+    run.qualified_count = int(summary.get("endpoint_qualified", summary.get("qualified", 0)))
+    run.importable_count = int(summary.get("importable", 0))
+    run.summary_json = {**summary, "persisted_candidates": saved, "existing_candidates": existing, "duplicates": duplicates}
+    db.commit()
+    result["search_run_id"] = search_run_id
+    result["persisted_candidate_count"] = saved
+    result["existing_candidate_count"] = existing
+    result["saved"] = True
+    summary.update({"search_run_id": search_run_id, "persisted_candidates": saved, "existing_candidates": existing})
+    return result
+
+
 @app.post("/api/compounds/{row_id}/experimental-harvest/preview")
 def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = Depends(get_db)):
     """Explicit public-identifier search; never submits a local structure."""
@@ -1105,7 +1225,7 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
     result["status"] = "RESULTS_AVAILABLE"
     result.setdefault("summary", {})["last_search"] = datetime.now(timezone.utc).isoformat()
     result["source_notice"] = "Explicit public-identifier search only. Literature candidates require review; no source prediction is experimental evidence."
-    return result
+    return _persist_harvest_result(db, compound, current, identity, result)
 
 
 @app.get("/api/compounds/{row_id}/external-experimental")
@@ -1119,17 +1239,63 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "relation": row.raw_relation, "source": row.source_database, "reference": row.reference_text,
                          "source_url": row.source_url, "source_record_id": row.source_record_id,
                          "assay_id": row.source_assay_id, "document_id": row.source_document_id,
-                         "evidence_origin": row.evidence_origin, "evidence_label": evidence_label(row.evidence_origin),
+                         "evidence_origin": row.evidence_origin, "evidence_state": row.evidence_state,
+                         "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else "External Candidate"),
                          "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
                          "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
                          "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
                          "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status,
+                         "import_eligible": row.comparability_status in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"},
+                         "accepted_at": row.accepted_at.isoformat() if row.accepted_at else None,
                          "routing": route_evidence({"endpoint": row.raw_endpoint_name, "conditions": row.assay_conditions_json,
                              "reference_status": "REFERENCE_RESOLVED_IMPORTED", "import_eligible": True},
                              {"canonical_endpoint_id": row.canonical_endpoint_id,
                               "comparability_status": row.comparability_status,
                               "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported")})} for row in rows]
     return {"records": records}
+
+
+@app.get("/api/compound-versions/{version_id}/endpoint-comparison")
+def compound_endpoint_comparison(version_id: int, db: Session = Depends(get_db)):
+    try:
+        return build_endpoint_comparison(db, version_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+
+
+@app.get("/api/compounds/{row_id}/experimental-search-runs")
+def list_experimental_search_runs(row_id: int, db: Session = Depends(get_db)):
+    """Auditable persisted search history; source cache is never authoritative."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    rows = db.scalars(select(ExperimentalSearchRun).where(
+        ExperimentalSearchRun.compound_id == row_id
+    ).order_by(ExperimentalSearchRun.started_at.desc())).all()
+    return {"compound_id": row_id, "runs": [{
+        "id": row.id, "search_run_id": row.search_run_id, "project_id": row.project_id,
+        "compound_version_id": row.compound_version_id, "query_identity": row.query_identity_json,
+        "identity_graph_version": row.identity_graph_version, "harvester_version": row.harvester_version,
+        "parser_version": row.parser_version, "qualification_version": row.qualification_version,
+        "routing_version": row.routing_version, "started_at": row.started_at.isoformat() if row.started_at else None,
+        "completed_at": row.completed_at.isoformat() if row.completed_at else None, "status": row.status,
+        "raw_count": row.raw_count, "unique_count": row.unique_count, "qualified_count": row.qualified_count,
+        "importable_count": row.importable_count, "source_status": row.source_status_json,
+        "summary": row.summary_json,
+    } for row in rows]}
+
+
+@app.get("/api/projects/{project_id}/compounds/{compound_id}/endpoint-comparison")
+def project_compound_endpoint_comparison(project_id: int, compound_id: str, db: Session = Depends(get_db)):
+    compound = db.get(Compound, int(compound_id)) if str(compound_id).isdigit() else db.scalar(select(Compound).where(
+        Compound.project_id == project_id, Compound.compound_id == compound_id
+    ))
+    if not compound or compound.project_id != project_id:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    version = next((v for v in compound.versions if v.version_number == compound.current_version), None)
+    if not version:
+        raise HTTPException(status_code=404, detail="Compound has no current version")
+    return build_endpoint_comparison(db, version.id)
 
 
 @app.get("/api/compounds/{row_id}/prediction-experimental-comparisons")
@@ -1216,8 +1382,33 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         if not str(row.get("value", "")).strip() or not str(row.get("reference", "")).strip():
             continue
         fingerprint = hashlib.sha256(json.dumps({"version": current.inchikey, "source": row.get("source"), "record": row.get("source_record_id"), "endpoint": row.get("endpoint"), "value": row.get("value"), "unit": row.get("unit"), "relation": row.get("relation")}, sort_keys=True).encode()).hexdigest()
-        if db.scalar(select(ExternalExperimentalEvidence.id).where(ExternalExperimentalEvidence.provenance_key == fingerprint)):
-            duplicates += 1; continue
+        existing = db.scalar(select(ExternalExperimentalEvidence).where(
+            ExternalExperimentalEvidence.provenance_key == fingerprint
+        ))
+        if existing is None:
+            existing = db.scalar(select(ExternalExperimentalEvidence).where(
+                ExternalExperimentalEvidence.compound_version_id == current.id,
+                ExternalExperimentalEvidence.source_database == str(row.get("source") or ""),
+                ExternalExperimentalEvidence.source_record_id == str(row.get("source_record_id") or ""),
+                ExternalExperimentalEvidence.raw_endpoint_name == str(row.get("endpoint") or ""),
+                ExternalExperimentalEvidence.raw_value == str(row.get("value") or ""),
+            ).limit(1))
+        if existing is not None:
+            if existing.evidence_state == "EXTERNAL_IMPORTED":
+                duplicates += 1
+                continue
+            existing.evidence_state = "EXTERNAL_IMPORTED"
+            existing.evidence_origin = "EXTERNAL_IMPORTED"
+            existing.accepted_at = utcnow()
+            existing.imported_at = existing.accepted_at
+            imported += 1
+            candidate_endpoints.add({
+                "solubility_aqueous_logs": "Solubility", "permeability_caco2_logpapp": "Permeability",
+                "ppb_human_percent_bound": "Plasma protein binding", "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance",
+                "rlm_intrinsic_clearance_scaled_log10": "RLM intrinsic clearance", "mlm_intrinsic_clearance_scaled_log10": "MLM intrinsic clearance",
+            }.get(existing.canonical_endpoint_id, ""))
+            record_external_evidence_pair(db, compound.project_id, existing)
+            continue
         mapped_assay_id = row.get("mapped_assay_id")
         mapping_status = str(row.get("mapping_status", "EXTERNAL_EVIDENCE_ONLY"))
         assay = assay_ids.get(int(mapped_assay_id)) if mapped_assay_id else None
@@ -1229,7 +1420,7 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
                assay_type=str(row.get("assay_type", "")), assay_conditions_json={"conditions": row.get("conditions", ""), "target": row.get("target", "")}, species=str(row.get("species", "")),
                source_database=str(row.get("source", "")), source_record_id=str(row.get("source_record_id", "")), source_assay_id=str(row.get("assay_id", "")), source_document_id=str(row.get("document_id", "")),
                reference_text=str(row.get("reference", "")), source_url=str(row.get("source_url", "")), identity_match_status="EXACT_STRUCTURE_MATCH", endpoint_match_status=str(row.get("endpoint_match_status", "ASSAY_CONTEXT_REQUIRED")), mapping_status=mapping_status, mapped_assay_id=assay.id if assay else None,
-               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", "")))
+               canonical_endpoint_id=display["canonical_endpoint_id"], normalized_value="" if display["normalized_value"] is None else str(display["normalized_value"]), normalized_unit=display["normalized_unit"], normalization_rule=display["normalization_rule"], normalization_version=display["normalization_version"], comparability_status=display["comparability_status"], source_quality_class=str(row.get("source_quality_class", "D")), duplicate_status=str(row.get("duplicate_status", "DISTINCT_MEASUREMENT")), provenance_fingerprint=str(row.get("provenance_fingerprint", "")), evidence_state="EXTERNAL_IMPORTED", evidence_origin="EXTERNAL_IMPORTED", accepted_at=utcnow(), first_seen_at=utcnow(), last_seen_at=utcnow(), search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION, qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION, qualification_status=str(row.get("qualification_state", "")), routing_section=str((row.get("routing") or {}).get("section", "")), routing_reason=str((row.get("routing") or {}).get("routing_reason", "")))
         db.add(evidence_row); db.flush()
         record_external_evidence_pair(db, compound.project_id, evidence_row)
         if display.get("comparability_status") in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}:
@@ -1836,7 +2027,9 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
         adapter = adapters.get(endpoint_name)
         project_value = base
         project_weights = {}
-        if adapter and adapter.project_weights_json:
+        if adapter and getattr(adapter, "strategy_type", "") == "SINGLE_MODEL_RESIDUAL_CALIBRATION":
+            project_value = base + float(getattr(adapter, "calibration_adjustment", 0.0) or 0.0)
+        elif adapter and adapter.project_weights_json:
             weighted = [(float(adapter.project_weights_json.get(key, 0.0)), value) for key, value in values.items()]
             weighted = [(weight, value) for weight, value in weighted if weight > 0]
             total = sum(weight for weight, _ in weighted)
@@ -1853,6 +2046,7 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
             "compound_version_id": version_id, "project_id": project_id,
             "endpoint": endpoint_name, "base_prediction": base,
             "project_prediction": project_value if adapter else None,
+            "project_adjustment": (project_value - base) if adapter else 0.0,
             "model_predictions": values, "global_weights": {key: 1.0 / len(values) for key in values},
             "project_weights": project_weights, "adapter_version": adapter.adapter_version if adapter else "",
             "effective_n": adapter.effective_n if adapter else 0.0,
@@ -1866,6 +2060,8 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
                 ))
             ),
         }
+        snapshot["prediction_type"] = MODEL_SPECS.get(endpoint_name, {}).get("prediction_type", "REGRESSION")
+        snapshot["adapter_strategy"] = getattr(adapter, "strategy_type", "BASE_ONLY") if adapter else "BASE_ONLY"
         for row in rows:
             row.outputs_json = dict(row.outputs_json or {}) | {
                 "prediction_snapshot": snapshot,
@@ -1873,6 +2069,51 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
                 "prediction_maturity_adapter_version": adapter.adapter_version if adapter else "",
                 "prediction_maturity_calculated_at": now.isoformat(),
             }
+        existing_snapshot = db.scalar(select(PredictionEndpointSnapshot).where(
+            PredictionEndpointSnapshot.prediction_run_id == rows[0].run_id,
+            PredictionEndpointSnapshot.endpoint_id == str(rows[0].endpoint_id),
+        ))
+        if existing_snapshot is None:
+            db.add(PredictionEndpointSnapshot(
+                prediction_run_id=rows[0].run_id, project_id=project_id,
+                compound_version_id=version_id, endpoint_id=str(rows[0].endpoint_id),
+                endpoint_name=endpoint_name, base_value=base, base_unit=rows[0].unit,
+                project_value=snapshot.get("project_prediction"), project_unit=rows[0].unit,
+                prediction_type=snapshot["prediction_type"], adapter_version=snapshot.get("adapter_version", ""),
+                effective_n=snapshot.get("effective_n", 0.0), maturity_level=maturity.get("level", 1),
+                maturity_label=maturity.get("label", "Base Prediction"), snapshot_json=snapshot, created_at=now,
+            ))
+
+
+def _record_cached_admet_run(db: Session, version_id: int, predictions: list[ADMETPrediction]) -> ADMETPredictionRun:
+    """Record an explicit Predict action even when model outputs are cached.
+
+    Cached model rows remain immutable. The new run is an audit event and gets
+    its own endpoint snapshot index, so repeated user actions never erase the
+    historical prediction lineage.
+    """
+    digest = hashlib.sha256(f"cached|{version_id}|{datetime.now(timezone.utc).isoformat()}".encode()).hexdigest()
+    run = ADMETPredictionRun(version_id=version_id, inputs_hash=digest, status="CACHED", message="Cached prediction outputs reused; immutable endpoint snapshots retained.", started_at=datetime.now(timezone.utc), completed_at=datetime.now(timezone.utc))
+    db.add(run); db.flush()
+    seen = set()
+    for prediction in predictions:
+        endpoint = prediction.model.endpoint_name
+        if endpoint in seen:
+            continue
+        seen.add(endpoint)
+        snapshot = (prediction.outputs_json or {}).get("prediction_snapshot") or {}
+        db.add(PredictionEndpointSnapshot(
+            prediction_run_id=run.id, project_id=db.get(CompoundVersion, version_id).compound.project_id,
+            compound_version_id=version_id, endpoint_id=str(prediction.endpoint_id), endpoint_name=endpoint,
+            base_value=snapshot.get("base_prediction", prediction.predicted_value), base_unit=prediction.unit,
+            project_value=snapshot.get("project_prediction"), project_unit=prediction.unit,
+            prediction_type=snapshot.get("prediction_type", "REGRESSION"), adapter_version=snapshot.get("adapter_version", ""),
+            effective_n=snapshot.get("effective_n", 0.0), maturity_level=(snapshot.get("maturity") or {}).get("level", 1),
+            maturity_label=(snapshot.get("maturity") or {}).get("label", "Base Prediction"), snapshot_json=snapshot,
+            created_at=datetime.now(timezone.utc),
+        ))
+    db.flush()
+    return run
 
 
 def _model_key_for_prediction(prediction):
@@ -2032,7 +2273,7 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
         endpoint_rows.setdefault(row["endpoint"], []).append(row)
     for endpoint_name, rows_for_endpoint in endpoint_rows.items():
         adapter = active_adapters.get(endpoint_name)
-        if not adapter or not adapter.project_weights_json:
+        if not adapter:
             continue
         adapter_time = adapter.created_at
         if adapter_time and adapter_time.tzinfo is None:
@@ -2040,6 +2281,21 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
         fresh = [row for row in rows_for_endpoint if row.get("created_at") and adapter_time and
                  datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")) > adapter_time]
         if not fresh:
+            continue
+        if getattr(adapter, "strategy_type", "") == "SINGLE_MODEL_RESIDUAL_CALIBRATION":
+            maturity = maturity_for_adapter(status=adapter.status, effective_n=adapter.effective_n,
+                activation_decision=adapter.activation_decision, representative_series=adapter.effective_n >= 20).to_dict()
+            for row in fresh:
+                adjustment = float(getattr(adapter, "calibration_adjustment", 0.0) or 0.0)
+                row["project_adapted_prediction"] = {"value": float(row["predicted_value"]) + adjustment, "unit": row["unit"], "adapter_version": adapter.adapter_version, "adjustment": adjustment}
+                row["base_prediction"] = {"value": row["predicted_value"], "unit": row["unit"]}
+                row["prediction_source"] = "Project-adapted Prediction"
+                row["prediction_maturity"] = maturity
+                row["prediction_maturity_level"] = maturity["level"]
+                row["prediction_maturity_label"] = maturity["label"]
+                row["adapter_version"] = adapter.adapter_version
+                row["effective_n"] = adapter.effective_n
+                row["adaptation_status"] = adapter.status
             continue
         weights = adapter.project_weights_json or {}
         values = []
@@ -2490,6 +2746,7 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
     if canonical_for_endpoint:
         imported = list(db.scalars(select(ExternalExperimentalEvidence).join(CompoundVersion).join(Compound).where(
             Compound.project_id == project_id,
+            ExternalExperimentalEvidence.evidence_state == "EXTERNAL_IMPORTED",
             ExternalExperimentalEvidence.canonical_endpoint_id == canonical_for_endpoint,
             ExternalExperimentalEvidence.comparability_status.in_(("DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION")),
             ExternalExperimentalEvidence.duplicate_status == "DISTINCT_MEASUREMENT",
@@ -2522,7 +2779,8 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
                 used_versions.add(version.id)
     model_ids = sorted({key for pair in pairs for key in pair.frozen_predictions})
     weights = {key: 1.0 / len(model_ids) for key in model_ids} if model_ids else {}
-    result = fit_project_adapter(endpoint_id, pairs, weights)
+    prediction_type = MODEL_SPECS.get(endpoint_id, {}).get("prediction_type", "REGRESSION")
+    result = fit_project_adaptation_strategy(endpoint_id, pairs, weights, prediction_type=prediction_type)
     preview = result.to_dict()
     preview["independent_compounds"] = len({pair.compound_version_id for pair in pairs})
     preview["adaptation_eligible_n"] = len({pair.compound_version_id for pair in pairs if pair.eligible})
@@ -2556,6 +2814,12 @@ def _persist_project_adapter_candidate(db: Session, project_id: int, endpoint_id
         training_evidence_ids_json=[pair.evidence_id for pair in pairs], raw_n=preview["raw_n"],
         effective_n=preview["effective_n"], global_weights_json=preview["global_weights"],
         project_weights_json=preview["project_weights"],
+        strategy_type=preview.get("strategy_type", preview.get("strategy", "BASE_ONLY")),
+        bias_estimate=preview.get("observed_bias") or 0.0,
+        shrinkage_factor=preview.get("shrinkage_factor") or 0.0,
+        calibration_adjustment=preview.get("calibration_adjustment") or 0.0,
+        calibration_scale=preview.get("calibration_scale", ""),
+        strategy_details_json={"reason": preview.get("reason", ""), "stability": preview.get("stability", "")},
         validation_json={"base_error": preview["base_validation_error"],
                          "adapted_error": preview["adapted_validation_error"],
                          "candidate": True},
@@ -2627,6 +2891,12 @@ def activate_project_adapter(project_id: int, endpoint_id: str, payload: dict, d
         status=preview["status"], active=True, base_engine_policy=ENGINE_V1_POLICY, base_engine_hash=ENGINE_V1_HASH,
         training_compound_version_ids_json=[pair.compound_version_id for pair in pairs], training_evidence_ids_json=[pair.evidence_id for pair in pairs],
         raw_n=preview["raw_n"], effective_n=preview["effective_n"], global_weights_json=preview["global_weights"], project_weights_json=preview["project_weights"],
+        strategy_type=preview.get("strategy_type", preview.get("strategy", "BASE_ONLY")),
+        bias_estimate=preview.get("observed_bias") or 0.0,
+        shrinkage_factor=preview.get("shrinkage_factor") or 0.0,
+        calibration_adjustment=preview.get("calibration_adjustment") or 0.0,
+        calibration_scale=preview.get("calibration_scale", ""),
+        strategy_details_json={"reason": preview.get("reason", ""), "stability": preview.get("stability", "")},
         validation_json={"base_error": preview["base_validation_error"], "adapted_error": preview["adapted_validation_error"]}, activation_decision=preview["activation_decision"])
     db.add(row); db.commit(); db.refresh(row)
     return {"id": row.id, **preview, "active": True}
@@ -2980,9 +3250,10 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
             consensuses = _store_consensus_predictions(
                 db, version, compound.project_id, list(legacy_cached.values())
             )
+            cached_run = _record_cached_admet_run(db, row_id, list(legacy_cached.values()))
             db.commit()
             return {
-                "type": "Predicted", "run_id": next(iter(legacy_cached.values())).run_id,
+                "type": "Predicted", "run_id": cached_run.id,
                 "status": "CACHED", "message": "Cached compatibility predictions reused.",
                 "models_available": len(legacy_compat_models), "cache_hit": True,
                 "predictions": [
@@ -3015,10 +3286,11 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         # All predictions (core + shadow) already exist — true cache hit
         _refresh_model_feedback(db, compound.project_id, [row_id])
         consensuses = _store_consensus_predictions(db, version, compound.project_id, list(cached.values()))
+        cached_run = _record_cached_admet_run(db, row_id, list(cached.values()))
         db.commit()
         predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
         return {
-            "type": "Predicted", "run_id": predictions[0]["run_id"] if predictions else 0,
+            "type": "Predicted", "run_id": cached_run.id,
             "status": "CACHED",
             "message": "Cached predictions reused (core + shadow) for this CompoundVersion and model version.",
             "models_available": len(available_models), "cache_hit": True, "predictions": predictions,
@@ -3420,6 +3692,9 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     pk_routes = [{"id": row.id, "species": row.species, "route": row.route, "cl_value": row.cl_value, "v_value": row.v_value, "f_predicted": row.f_predicted, "f_experimental": row.f_experimental, "ka_value": row.ka_value, "confidence": row.confidence} for row in pk_parameter_sets]
     latest_workflow = next((row for row in audit_runs if row.stage == "prediction_workflow"), None)
     saved_steps = ((latest_workflow.outputs_json or {}).get("steps", {}) if latest_workflow else {})
+    search_runs = db.scalars(select(ExperimentalSearchRun).where(
+        ExperimentalSearchRun.compound_id == compound.id
+    ).order_by(ExperimentalSearchRun.started_at.desc())).all()
     def saved_status(stage: str, fallback: str) -> str:
         return str((saved_steps.get(stage) or {}).get("status") or fallback)
     def imported_external_out(row):
@@ -3429,13 +3704,20 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "reference": row.reference_text, "source_url": row.source_url,
             "source_record_id": row.source_record_id, "assay_id": row.source_assay_id,
             "document_id": row.source_document_id, "conditions": row.assay_conditions_json or {},
-            "evidence_label": evidence_label(row.evidence_origin), "canonical_endpoint_id": row.canonical_endpoint_id,
+            "evidence_state": row.evidence_state,
+            "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else "External Candidate"), "canonical_endpoint_id": row.canonical_endpoint_id,
             "normalized_value": row.normalized_value, "normalized_unit": row.normalized_unit,
             "normalization_rule": row.normalization_rule, "normalization_version": row.normalization_version,
             "comparability_status": row.comparability_status, "source_quality_class": row.source_quality_class,
             "duplicate_status": row.duplicate_status,
             "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported"),
-            "reference_status": "REFERENCE_RESOLVED_IMPORTED", "import_eligible": True,
+            "reference_status": "REFERENCE_RESOLVED_IMPORTED" if row.evidence_state == "EXTERNAL_IMPORTED" else "REFERENCE_RESOLVED_CANDIDATE",
+            "import_eligible": row.evidence_state != "EXTERNAL_IMPORTED" and row.comparability_status in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"},
+            "accepted_at": row.accepted_at.isoformat() if row.accepted_at else None,
+            "search_run_id": row.search_run_id, "first_seen_at": row.first_seen_at.isoformat() if row.first_seen_at else None,
+            "last_seen_at": row.last_seen_at.isoformat() if row.last_seen_at else None,
+            "qualification_status": row.qualification_status, "routing_section": row.routing_section,
+            "routing_reason": row.routing_reason,
         }
         item["routing"] = route_evidence(item, {
             "canonical_endpoint_id": row.canonical_endpoint_id,
@@ -3448,7 +3730,16 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         "project": {"id": project.id, "name": project.name, "molecule_type": project.molecule_type},
         "compound": compound_out(compound), "version": serialize_version(version),
         "activity": activity,
+        "experimental_search_runs": [{"id": row.id, "search_run_id": row.search_run_id,
+            "status": row.status, "started_at": row.started_at.isoformat() if row.started_at else None,
+            "completed_at": row.completed_at.isoformat() if row.completed_at else None,
+            "raw_count": row.raw_count, "unique_count": row.unique_count,
+            "qualified_count": row.qualified_count, "importable_count": row.importable_count,
+            "versions": {"identity_graph": row.identity_graph_version, "harvester": row.harvester_version,
+                         "parser": row.parser_version, "qualification": row.qualification_version,
+                         "routing": row.routing_version}} for row in search_runs],
         "external_experimental_evidence": [imported_external_out(row) for row in external_evidence],
+        "endpoint_comparison": build_endpoint_comparison(db, version.id),
         "admet": admet_payload,
         "metabolism": metabolism_payload,
         "pk": {"parameter_sets": pk_routes},
