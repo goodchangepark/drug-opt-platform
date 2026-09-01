@@ -1557,3 +1557,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .compact-evidence-table { font-size: 12px; }
 .compact-evidence-table th, .compact-evidence-table td { vertical-align: top; padding: 7px 8px; }
 .compact-evidence-table .comparison-result { color: #1d4ed8; margin-top: 3px; }
+.unified-endpoint-comparison td { min-width: 110px; }
+.unified-endpoint-comparison td:nth-child(2), .unified-endpoint-comparison td:nth-child(3) { min-width: 150px; }
+.unified-endpoint-comparison .maturity-stars { margin-top: 4px; }
+.project-learning-panel { margin-top: 16px; }
+.project-learning-table { font-size: 12px; }
+.project-learning-table th, .project-learning-table td { vertical-align: top; padding: 7px 8px; }
+@media (max-width: 760px) {
+  .compact-evidence-table { min-width: 720px; }
+  .project-learning-table { min-width: 760px; }
+}

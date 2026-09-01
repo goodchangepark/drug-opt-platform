@@ -1892,6 +1892,55 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
     prediction_rows = [_admet_prediction_out(
         prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
     ) for prediction in predictions]
+    # Project adapters are an overlay over newly generated frozen base rows.
+    # Annotate the response only when the base prediction was created after
+    # adapter activation; historical rows remain base-only and immutable.
+    active_adapters = {
+        row.endpoint_id: row for row in db.scalars(select(ProjectAdapterVersion).where(
+            ProjectAdapterVersion.project_id == project.id, ProjectAdapterVersion.active == True
+        )).all()
+    }
+    endpoint_rows = {}
+    for row in prediction_rows:
+        endpoint_rows.setdefault(row["endpoint"], []).append(row)
+    for endpoint_name, rows_for_endpoint in endpoint_rows.items():
+        adapter = active_adapters.get(endpoint_name)
+        if not adapter or not adapter.project_weights_json:
+            continue
+        adapter_time = adapter.created_at
+        if adapter_time and adapter_time.tzinfo is None:
+            adapter_time = adapter_time.replace(tzinfo=timezone.utc)
+        fresh = [row for row in rows_for_endpoint if row.get("created_at") and adapter_time and
+                 datetime.fromisoformat(row["created_at"].replace("Z", "+00:00")) > adapter_time]
+        if not fresh:
+            continue
+        weights = adapter.project_weights_json or {}
+        values = []
+        for row in fresh:
+            model = row.get("model") or {}
+            model_name = str(model.get("model_name") or "").lower()
+            if endpoint_name == "Solubility":
+                key = "admetica_solubility" if "admetica" in model_name else ("esol_delaney_v1" if "esol" in model_name else "rdkit_gbr_solubility_v1")
+            else:
+                key = f"{endpoint_name}:{model.get('id', model.get('model_id'))}"
+            if key in weights and row.get("predicted_value") is not None:
+                values.append((float(weights[key]), float(row["predicted_value"])))
+        total = sum(weight for weight, _ in values)
+        if not values or total <= 0:
+            continue
+        adapted_value = sum(weight * value for weight, value in values) / total
+        maturity = maturity_for_adapter(status=adapter.status, effective_n=adapter.effective_n,
+            activation_decision=adapter.activation_decision, representative_series=adapter.effective_n >= 20).to_dict()
+        for row in fresh:
+            row["project_adapted_prediction"] = {"value": adapted_value, "unit": row["unit"], "adapter_version": adapter.adapter_version}
+            row["base_prediction"] = {"value": row["predicted_value"], "unit": row["unit"]}
+            row["prediction_source"] = "Project-adapted Prediction"
+            row["prediction_maturity"] = maturity
+            row["prediction_maturity_level"] = maturity["level"]
+            row["prediction_maturity_label"] = maturity["label"]
+            row["adapter_version"] = adapter.adapter_version
+            row["effective_n"] = adapter.effective_n
+            row["adaptation_status"] = adapter.status
     performance_rows = list(db.scalars(
         select(ADMETModelPerformance).where(
             (ADMETModelPerformance.project_id == project.id) | (ADMETModelPerformance.scope_key == "GLOBAL")
@@ -2345,7 +2394,11 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
     model_ids = sorted({key for pair in pairs for key in pair.frozen_predictions})
     weights = {key: 1.0 / len(model_ids) for key in model_ids} if model_ids else {}
     result = fit_project_adapter(endpoint_id, pairs, weights)
-    return result.to_dict(), pairs
+    preview = result.to_dict()
+    preview["independent_compounds"] = len({pair.compound_version_id for pair in pairs})
+    preview["adaptation_eligible_n"] = len({pair.compound_version_id for pair in pairs if pair.eligible})
+    preview["activation_requires_explicit_action"] = True
+    return preview, pairs
 
 
 @app.get("/api/projects/{project_id}/project-adaptation")

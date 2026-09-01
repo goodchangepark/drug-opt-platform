@@ -1012,27 +1012,88 @@ function integratedProfile(versionId){
  function renderPredictionMaturity(level,label,metadata={}){const normalized=Math.max(1,Math.min(5,Number(level)||1)),text=label||'Base Prediction',aria='Prediction maturity '+normalized+' of 5 — '+text;return e('span',{className:'maturity-stars',role:'img','aria-label':aria,title:'Prediction Maturity · '+text+' · Stars indicate project-specific experimental adaptation maturity, not an absolute guarantee of predictive accuracy.'},[...Array(5)].map((_,index)=>e('svg',{key:index,className:index<normalized?'maturity-star-filled':'maturity-star-empty',width:'14',height:'14',viewBox:'0 0 24 24','aria-hidden':'true',focusable:'false'},e('path',{d:'M12 2.5l2.93 5.94 6.56.95-4.75 4.63 1.12 6.54L12 17.48l-5.86 3.08 1.12-6.54-4.75-4.63 6.56-.95L12 2.5z',fill:'currentColor'}))),e('span',{className:'maturity-level-text'},normalized+'/5'));}
  function MaturityStars({maturity}){const item=maturity||{level:1,label:'Base Prediction'};return renderPredictionMaturity(item.level,item.label,item);}
 
+ function unifiedPredictionValue(prediction){
+  if(!prediction)return '—';
+  const output=prediction.outputs||{};
+  if(output.classification)return output.classification+(output.probability!=null?' · P='+Number(output.probability).toFixed(3):'');
+  const value=Number(prediction.predicted_value);
+  return Number.isFinite(value)?value.toFixed(3)+' '+(prediction.unit||''):'—';
+ }
+ function unifiedPredictionCell(prediction){
+  if(!prediction)return e('span',{className:'small'},'—');
+  const adapted=prediction.project_adapted_prediction;
+  if(!adapted)return e('div',{className:'mono'},unifiedPredictionValue(prediction));
+  return e('div',{},[
+   e('div',{className:'mono bold'},'Project: '+Number(adapted.value).toFixed(3)+' '+(adapted.unit||prediction.unit||'')),
+   e('div',{className:'small'},'Base: '+unifiedPredictionValue(prediction)),
+   e('div',{className:'small'},'Adapter '+adapted.adapter_version)
+  ]);
+ }
+ function unifiedEndpointPrediction(endpoint,section='ADMET'){
+  if(section==='ACTIVITY'){
+   const activityPrediction=(workspace?.activity?.predictions||[])[0];
+   return activityPrediction?{...activityPrediction,predicted_value:activityPrediction.predicted_value_nm,unit:'nM',endpoint:activityPrediction.assay||endpoint,model:{model_name:'Project activity model',model_version:'frozen'}}:null;
+  }
+  const names={solubility_aqueous_logs:'Solubility',permeability_caco2_logpapp:'Permeability',ppb_human_percent_bound:'Plasma protein binding',hlm_intrinsic_clearance_scaled_log10:'HLM intrinsic clearance',rlm_intrinsic_clearance_scaled_log10:'RLM intrinsic clearance',mlm_intrinsic_clearance_scaled_log10:'MLM intrinsic clearance',pka:'pKa',logd_7_4:'logD7.4'};
+  const expected=names[endpoint];
+  if(!expected)return null;
+  const rows=(admet?.predictions||[]).filter(row=>row.endpoint===expected);
+  return rows[0]||null;
+ }
+ function unifiedStatus(row,prediction,pair){
+  if(pair?.absolute_error!=null)return 'Difference: '+Number(pair.absolute_error).toFixed(3)+' '+(pair.comparison_metric_type==='PERCENTAGE_POINTS'?'percentage points':(pair.experimental_normalized_unit||''));
+  if(pair?.comparison_metric_type&&pair.comparison_metric_type!=='NONE')return pair.comparison_metric_type.replaceAll('_',' ');
+  if(row?.evidence_origin==='EXPERIMENTAL_INTERNAL'||String(row?.source||'').includes('Internal'))return 'Experimental — Internal';
+  const status=row?.routing?.comparability_status||row?.comparability_status;
+  const labels={DIRECTLY_COMPARABLE:'Directly Comparable',COMPARABLE_AFTER_DETERMINISTIC_CONVERSION:'Comparable after Conversion',CONDITIONALLY_COMPARABLE:'Condition-dependent',RELATED_NOT_SAME_ENDPOINT:'Related Evidence — Not Directly Comparable',NOT_COMPARABLE:'Not Comparable'};
+  if(status&&labels[status])return labels[status];
+  return prediction?'Ready to Import':'Experimental only';
+ }
+ function UnifiedEndpointComparison({endpoint,experiments=[],prediction=null,pairs=[],onImport,section}){
+  const pair=(pairs||[]).find(item=>experiments.some(row=>String(row.id)===String(item.experimental_evidence_id)));
+  const embeddedComparison=prediction?.experimental_comparisons?.[0];
+  const imported=experiments.some(row=>String(row.source||'').includes('Imported')||row.evidence_origin==='EXPERIMENTAL_EXTERNAL');
+  const ready=experiments.some(row=>row.import_eligible===true&&!imported);
+  const values=experiments.map(row=>Number((row.display||{}).normalized_value??row.normalized_value??row.value)).filter(Number.isFinite);
+  const experimental=experiments.length?(values.length>1?values.length+' observations · '+Math.min(...values)+'–'+Math.max(...values):((experiments[0].relation||experiments[0].raw_relation||'=')+' '+((experiments[0].display||{}).normalized_value??experiments[0].normalized_value??experiments[0].value)+' '+((experiments[0].display||{}).normalized_unit||experiments[0].normalized_unit||experiments[0].unit||''))):'—';
+  const state=prediction&&experiments.length?'BOTH':prediction?'PREDICTION_ONLY':'EXPERIMENTAL_ONLY';
+  const source=experiments.length?[...new Set(experiments.flatMap(row=>row.display_sources||[row.source||'External']))].join(' · '):'—';
+  const row=experiments[0]||{};
+  const status=unifiedStatus(row,prediction,pair);
+  const importButton=ready&&onImport?e('button',{className:'secondary',onClick:()=>onImport(experiments.find(item=>item.import_eligible===true))},'Import'):null;
+  return e('tr',{className:'unified-endpoint-comparison',key:endpoint},[
+   e('td',{key:'endpoint'},[e('strong',{},endpoint),e('div',{className:'small'},state==='BOTH'?'Experimental + Prediction':state==='PREDICTION_ONLY'?'No experimental value yet':'No matching prediction endpoint')]),
+   e('td',{key:'experimental',className:'mono'},[experimental,state==='EXPERIMENTAL_ONLY'&&e('div',{className:'small'},'Experimental only'),experiments.length>1&&e('div',{className:'small'},'Individual observations preserved')]),
+   e('td',{key:'prediction'},prediction?[unifiedPredictionCell(prediction),MaturityStars({maturity:maturityForPrediction(prediction)}),e('div',{className:'small'},maturityForPrediction(prediction).label||'Base Prediction'),maturityForPrediction(prediction).level>=2&&e('div',{className:'small'},'Experimental-informed')]:e('span',{className:'small'},'—')),
+   e('td',{key:'difference',className:'mono'},pair?.absolute_error!=null?((pair.comparison_metric_type==='PERCENTAGE_POINTS'?Number(pair.absolute_error).toFixed(2)+' percentage points':Number(pair.absolute_error).toFixed(3)+' '+(pair.experimental_normalized_unit||''))):(embeddedComparison?.absolute_error!=null?Number(embeddedComparison.absolute_error).toFixed(3)+' '+(embeddedComparison.normalized_unit||''):'—')),
+   e('td',{key:'learning',className:'small'},[e('strong',{},'Project Learning'),prediction&&e('div',{},maturityForPrediction(prediction).level>=2?'Active adapter':'Base model'),prediction&&e('div',{},'Maturity '+(maturityForPrediction(prediction).level||1)+'/5')]),
+   e('td',{key:'status'},[e('div',{className:'small'},status),ready&&e('div',{className:'small'},'External candidate · not imported'),imported&&e('div',{className:'small'},'External Imported'),importButton]),
+   e('td',{key:'reference'},experiments.length?e('details',{},[e('summary',{},'Reference'),e('div',{className:'small'},row.reference||'Reference unavailable'),row.source_url&&e('a',{href:row.source_url,target:'_blank',rel:'noreferrer'},'Open source'),source&&e('div',{className:'small'},'Sources: '+source)]):e('span',{className:'small'},'—'))
+  ]);
+ }
+
  function routedEvidenceSection(section,title){
   const imported=(workspace?.external_experimental_evidence||[]).map(row=>({...row,source:(row.source||'External')+' — Imported',routing:row.routing||{section:'UNCLASSIFIED',display_group:row.endpoint||'External evidence',qualification_label:row.comparability_label||'Imported evidence',adaptation_eligibility:false},display:{normalized_value:row.normalized_value,normalized_unit:row.normalized_unit}}));
-  const rows=[...(externalEvidence?.records||[]),...imported].filter(row=>row.routing?.section===section&&!['DOCUMENT_DISCOVERED','DOCUMENT_PARSED','SUPPLEMENTARY_DISCOVERED','SUPPLEMENT_PARSED'].includes(row.record_status)).filter(row=>evidenceFilter==='ALL'||(evidenceFilter==='READY'&&row.import_eligible)||(evidenceFilter==='IMPORTED'&&String(row.source||'').includes('Imported'))||(evidenceFilter==='DIRECT'&&['DIRECTLY_COMPARABLE','COMPARABLE_AFTER_DETERMINISTIC_CONVERSION'].includes(row.routing?.comparability_status||row.comparability_status))||(evidenceFilter==='RELATED'&&row.routing?.comparability_status==='RELATED_NOT_SAME_ENDPOINT')||(evidenceFilter==='REVIEW'&&row.routing?.section==='UNCLASSIFIED'));
-  if(!rows.length)return null;
+  const internal=(section==='ADMET'?(admet?.measurements||[]).filter(row=>row.version_id==null||row.version_id===Number(detail?.version?.id)).map(row=>{
+   const name=endpointName(row.endpoint_id),canonical={Solubility:'solubility_aqueous_logs',Permeability:'permeability_caco2_logpapp','Plasma protein binding':'ppb_human_percent_bound','HLM intrinsic clearance':'hlm_intrinsic_clearance_scaled_log10','RLM intrinsic clearance':'rlm_intrinsic_clearance_scaled_log10','MLM intrinsic clearance':'mlm_intrinsic_clearance_scaled_log10'}[name]||name;
+   return {...row,id:'internal-'+row.id,endpoint:name,raw_value:row.value,raw_unit:row.unit,raw_relation:row.qualifier||'=',source:'Internal Experiment',evidence_origin:'EXPERIMENTAL_INTERNAL',canonical_endpoint_id:canonical,display:{normalized_value:row.value,normalized_unit:row.unit},routing:{section:'ADMET',comparability_status:'DIRECTLY_COMPARABLE',qualification_label:'Experimental — Internal'}};
+  }):[]);
+  const rows=[...(externalEvidence?.records||[]),...imported,...internal].filter(row=>row.routing?.section===section&&!['DOCUMENT_DISCOVERED','DOCUMENT_PARSED','SUPPLEMENTARY_DISCOVERED','SUPPLEMENT_PARSED'].includes(row.record_status)).filter(row=>evidenceFilter==='ALL'||(evidenceFilter==='READY'&&row.import_eligible)||(evidenceFilter==='IMPORTED'&&String(row.source||'').includes('Imported'))||(evidenceFilter==='DIRECT'&&['DIRECTLY_COMPARABLE','COMPARABLE_AFTER_DETERMINISTIC_CONVERSION'].includes(row.routing?.comparability_status||row.comparability_status))||(evidenceFilter==='RELATED'&&row.routing?.comparability_status==='RELATED_NOT_SAME_ENDPOINT')||(evidenceFilter==='REVIEW'&&row.routing?.section==='UNCLASSIFIED'));
+  const predictionRows=section==='ADMET'?(admet?.predictions||[]).filter(prediction=>prediction.version_id==null||prediction.version_id===Number(detail?.version?.id)):section==='ACTIVITY'?(workspace?.activity?.predictions||[]).map(prediction=>({...prediction,predicted_value:prediction.predicted_value_nm,unit:'nM',endpoint:prediction.assay||'Activity',model:{model_name:'Project activity model',model_version:'frozen'}})):[];
   const groups={};rows.forEach(row=>{const key=row.canonical_endpoint_id||row.endpoint||row.routing.display_group; (groups[key]||(groups[key]=[])).push(row)});
-  const predictionFor=row=>{const key=row.canonical_endpoint_id;const names={solubility_aqueous_logs:'Solubility',permeability_caco2_logpapp:'Permeability',ppb_human_percent_bound:'Plasma protein binding',hlm_intrinsic_clearance_scaled_log10:'HLM intrinsic clearance',rlm_intrinsic_clearance_scaled_log10:'RLM intrinsic clearance',mlm_intrinsic_clearance_scaled_log10:'MLM intrinsic clearance'};return (admet?.predictions||[]).find(p=>p.endpoint===names[key])};
-  const compactValue=group=>{const values=group.map(row=>Number((row.display||{}).normalized_value??row.normalized_value??row.value)).filter(Number.isFinite);if(values.length>1)return values.length+' observations · '+Math.min(...values)+'–'+Math.max(...values);const row=group[0],d=row.display||{};return (row.relation||row.raw_relation||'=')+' '+(d.normalized_value??row.normalized_value??row.value)+' '+(d.normalized_unit||row.normalized_unit||row.unit||'')};
+  const mappedPredictions=new Set(Object.keys(groups).map(key=>unifiedEndpointPrediction(key,section)?.endpoint));
+  const predictionOnly=predictionRows.filter(prediction=>!mappedPredictions.has(prediction.endpoint));
+  if(!rows.length&&!predictionOnly.length)return null;
   return e('section',{className:'card routed-evidence-section',key:'routed-'+section},[
-   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title)]),e('span',{className:'badge-intermediate'},Object.keys(groups).length+' endpoint'+(Object.keys(groups).length===1?'':'s')+' · '+rows.length+' unique observations')]),
+   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title),e('p',{className:'small'},'Experimental ↔ Prediction is the primary comparison unit. Search candidates remain visible until explicitly imported.')]),e('span',{className:'badge-intermediate'},Object.keys(groups).length+' evidence endpoint'+(Object.keys(groups).length===1?'':'s')+' · '+rows.length+' unique observations')]),
    e('div',{className:'table-scroll',key:'table'},e('table',{className:'compact-evidence-table'},[
-    e('thead',{},e('tr',{},['Endpoint','Experimental evidence','Prediction','Context','Source','Comparison / status','Reference'].map(label=>e('th',{key:label},label)))),
-    e('tbody',{},Object.entries(groups).map(([key,group])=>{const row=group[0],d=row.display||row.drugopt_representation||{},prediction=predictionFor(row);return e('tr',{key},[
-     e('td',{},row.endpoint||row.routing.display_group),e('td',{className:'mono'},compactValue(group)),
-     e('td',{},prediction?[e('div',{className:'mono'},Number(prediction.predicted_value).toFixed(3)+' '+prediction.unit),MaturityStars({maturity:maturityForPrediction(prediction)})]:e('span',{className:'small'},'No direct prediction endpoint')),
-     e('td',{className:'small'},row.conditions?String(row.conditions):'—'),
-     e('td',{className:'small'},(row.display_sources||[row.source||'External']).join(' · ')+' · '+(row.display_source_count||1)),
-     e('td',{},[e('div',{className:'small'},row.routing.qualification_label),(()=>{const pair=(comparisonPairs?.pairs||[]).find(item=>item.experimental_evidence_id===row.id);return pair&&e('div',{className:'comparison-result small'},pair.absolute_error!=null?'Difference: '+pair.signed_error+' '+pair.experimental_normalized_unit:pair.comparison_metric_type+' · '+pair.eligibility_reason)})(),row.import_eligible&&e('button',{className:'secondary',onClick:()=>importOneExternalEvidence(row)},'Import')]),
-     e('td',{},e('details',{},[e('summary',{},'Reference'),e('div',{className:'small'},row.reference||'Reference unavailable'),row.source_url&&e('a',{href:row.source_url,target:'_blank',rel:'noreferrer'},'Open source')]))
-    ])}))
+    e('thead',{},e('tr',{},['Endpoint','Experimental','Prediction','Difference','Project Learning','Status','Reference'].map(label=>e('th',{key:label},label)))),
+    e('tbody',{},[
+     ...Object.entries(groups).map(([key,group])=>e(UnifiedEndpointComparison,{key,endpoint:group[0].endpoint||group[0].routing.display_group,experiments:group,prediction:unifiedEndpointPrediction(key,section),pairs:comparisonPairs?.pairs||[],onImport:importOneExternalEvidence,section})),
+     ...predictionOnly.map(prediction=>e(UnifiedEndpointComparison,{key:'prediction-'+prediction.endpoint,endpoint:prediction.endpoint==='Permeability'?'Caco-2 Permeability':prediction.endpoint,prediction,experiments:[],pairs:[],section}))
+    ])
    ])),
-   e('p',{className:'small'},'Raw source values remain preserved. Ranges summarize observations only; no aggregate value is used for adaptation.')
+   e('p',{className:'small'},'Raw source values remain preserved. Ranges summarize observations only; no aggregate value is used for adaptation. Prediction-only rows are normal for new compounds and retain Base/Project maturity.')
   ]);
  }
 
@@ -4462,6 +4523,28 @@ function integratedProfile(versionId){
    ]);
   }
 
+  function projectLearningPanel(){
+   const rows=projectAdaptation?.endpoints||[];
+   return e('section',{className:'card project-learning-panel',key:'project-learning'},[
+    e('div',{className:'eyebrow'},'PROJECT LEARNING'),
+    e('h2',{},'Prediction / Experimental Learning'),
+    e('p',{className:'small'},'Learning is endpoint-specific. Only imported, qualified, non-duplicate evidence with a valid pre-experimental freeze contributes to effective N or maturity.'),
+    rows.length?e('div',{className:'table-scroll'},e('table',{className:'project-learning-table'},[
+     e('thead',{},e('tr',{},['Endpoint','Independent compounds','Effective N','Base error','Candidate error','Maturity','Status','Action'].map(label=>e('th',{key:label},label)))),
+     e('tbody',{},rows.map(row=>e('tr',{key:row.endpoint_id},[
+      e('td',{},e('strong',{},row.endpoint_id)),
+      e('td',{className:'mono'},row.independent_compounds??row.raw_n??0),
+      e('td',{className:'mono'},row.effective_n??0),
+      e('td',{className:'mono'},row.base_validation_error==null?'—':row.base_validation_error),
+      e('td',{className:'mono'},row.adapted_validation_error==null?'—':row.adapted_validation_error),
+      e('td',{},[MaturityStars({maturity:row.maturity}),e('div',{className:'small'},(row.maturity?.level||1)+'/5 · '+(row.maturity?.label||'Base Prediction'))]),
+      e('td',{},row.status||'Collecting data'),
+      e('td',{},row.activation_decision==='ACTIVATED'&&!row.active?e('button',{className:'secondary',onClick:()=>activateProjectAdapter(row.endpoint_id)},'Activate'):row.active?e('span',{className:'pass'},'Active'):e('span',{className:'small'},'No activation'))
+     ])))
+    ])):e('div',{className:'empty-state'},[e('p',{},'No qualified project endpoint pairs yet.'),e('p',{className:'small'},'Predictions remain Base Prediction ★☆☆☆☆ until a validated adapter is explicitly activated.')])
+   ]);
+  }
+
   function ProjectWorkspace(){
    const summary=selectedProjectSummary;
    const statusByCompound=new Map((summary?.compounds||[]).map(row=>[row.row_id,row]));
@@ -4475,6 +4558,7 @@ function integratedProfile(versionId){
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
      ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
      e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
+     projectLearningPanel(),
      e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},'Compound Status'),e('p',{className:'small'},'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},['','Compound','Structure','Properties','Activity','ADMET','Optimization',''].map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},compound.compound_id)]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||'NOT_STARTED'})]),e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),e('td',{},e('button',{className:'secondary',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
     ]),
     project&&projectTab==='compounds'&&detail&&compoundDetail(),
