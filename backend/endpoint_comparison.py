@@ -23,6 +23,7 @@ from .ivive import PKParameterSet
 from .pk import PKNCAResult, PKStudy
 from .simulation import PKSimulationRun
 from .metabolism import MetabolicPredictionRun
+from .qualification_contract import aggregate_qualification, qualify_record
 from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
 
 
@@ -200,11 +201,20 @@ def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int 
     for pset in psets:
         species = normalize_species(pset.species); route = "ORAL" if str(pset.route).upper() == "PO" else str(pset.route).upper()
         for parameter, value, unit, source_type in _pk_snapshot_values(pset):
-            eid = f"{species}_PK_{parameter}_{route}"
+            # ``f_predicted`` in the IVIVE foundation is oral bioavailability
+            # relative to the IV reference arm.  It is not an IV
+            # bioavailability endpoint, even when the foundation row is
+            # stored under its IV route context.
+            eid = f"{species}_PK_F_ORAL" if parameter == "F" else f"{species}_PK_{parameter}_{route}"
             if (run.id, eid) in existing: continue
-            mapped = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
-            snapshot = {"source": "IVIVE PK foundation", "source_type": source_type, "prediction_type": source_type, "species": species, "route": route, "dose": pset.dose_value, "dose_unit": pset.dose_unit, "v_type": pset.v_type, "provenance": pset.provenance_json or {}, "pk_parameter_set_id": pset.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
-            db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=mapped.get("normalized_value", value), base_unit=mapped.get("normalized_unit", unit), prediction_type=source_type, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=pset.created_at))
+            if parameter == "F":
+                normalized_value, normalized_unit = value, "%"
+                snapshot_route = "ORAL"
+            else:
+                mapped = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
+                normalized_value, normalized_unit, snapshot_route = mapped.get("normalized_value", value), mapped.get("normalized_unit", unit), route
+            snapshot = {"source": "IVIVE PK foundation", "source_type": source_type, "prediction_type": source_type, "species": species, "route": snapshot_route, "reference_route": "IV" if parameter == "F" else "", "dose": pset.dose_value, "dose_unit": pset.dose_unit, "v_type": pset.v_type, "provenance": pset.provenance_json or {}, "pk_parameter_set_id": pset.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
+            db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=normalized_value, base_unit=normalized_unit, prediction_type=source_type, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=pset.created_at))
             existing.add((run.id, eid)); created += 1
     for sim in sims:
         species = normalize_species(sim.species); route = "ORAL" if str(sim.route).upper() == "PO" else str(sim.route).upper()
@@ -242,6 +252,31 @@ def ensure_pk_prediction_snapshot_index(db) -> dict:
         total += result["created"]
         runs += int(result["prediction_run_id"] is not None and result["created"] > 0)
     return {"versions_examined": len(versions), "snapshots_created": total, "runs_created": runs}
+
+
+def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:
+    """Recompute v4 qualification from stored raw evidence, without search."""
+    versions = [version_id] if version_id is not None else db.scalars(select(CompoundVersion.id)).all()
+    changed = 0
+    for current_version_id in versions:
+        prediction_ids = {row.endpoint_id for row in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == current_version_id)).all()}
+        for evidence in db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == current_version_id)).all():
+            item, mapped = _mapped_external(evidence)
+            q = qualify_record(item, prediction_endpoints=prediction_ids, imported=evidence.evidence_state == "EXTERNAL_IMPORTED")
+            evidence.canonical_endpoint_id = mapped.get("canonical_endpoint_id", evidence.canonical_endpoint_id)
+            evidence.normalized_value = "" if mapped.get("normalized_value") is None else str(mapped.get("normalized_value"))
+            evidence.normalized_unit = str(mapped.get("normalized_unit") or evidence.normalized_unit or "")
+            evidence.normalization_rule = str(mapped.get("normalization_rule") or evidence.normalization_rule or "")
+            evidence.comparability_status = str(mapped.get("comparability_status") or evidence.comparability_status or UNSUPPORTED)
+            evidence.qualification_version = q["qualification_version"]
+            evidence.qualification_status = q["endpoint_status"]
+            evidence.routing_section = mapped.get("section", evidence.routing_section or "")
+            evidence.routing_reason = q.get("primary_gap_reason", "")
+            evidence.canonical_endpoint_version = CANONICAL_ENDPOINT_VERSION
+            evidence.unit_normalization_version = COMPARISON_UNIT_VERSION
+            changed += 1
+    db.flush()
+    return {"versions_examined": len(versions), "evidence_requalified": changed}
 
 
 def _blank(endpoint_id, display_name=""):
@@ -373,13 +408,13 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     for pset in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id).order_by(PKParameterSet.created_at.desc())).all():
         species = normalize_species(pset.species); route = "ORAL" if str(pset.route).upper() == "PO" else str(pset.route).upper()
         for parameter, value, unit, source_type in _pk_snapshot_values(pset):
-            eid = f"{species}_PK_{parameter}_{route}"; row = endpoint_rows.setdefault(eid, _blank(eid, eid)); row["section"] = "PK"; row["display_name"] = f"{species.title()} {parameter.replace('_', ' ')}"; row["species"] = species; row["route"] = route
+            eid = f"{species}_PK_F_ORAL" if parameter == "F" else f"{species}_PK_{parameter}_{route}"; row = endpoint_rows.setdefault(eid, _blank(eid, eid)); row["section"] = "PK"; row["display_name"] = f"{species.title()} {'Oral Bioavailability F' if parameter == 'F' else parameter.replace('_', ' ')}"; row["species"] = species; row["route"] = "ORAL" if parameter == "F" else route
             snapshot = latest_canonical_snapshots.get(eid)
             if snapshot is not None:
-                row["prediction"] = _snapshot_prediction(snapshot, eid, parameter, species=species, route=route, dose=pset.dose_value, dose_unit=pset.dose_unit)
+                row["prediction"] = _snapshot_prediction(snapshot, eid, parameter, species=species, route="ORAL" if parameter == "F" else route, dose=pset.dose_value, dose_unit=pset.dose_unit)
             elif not row["prediction"].get("available"):
-                mapped_pk = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
-                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{route}|PARENT", "base_value": mapped_pk.get("normalized_value", value), "project_value": None, "display_value": mapped_pk.get("normalized_value", value), "unit": mapped_pk.get("normalized_unit", unit), "prediction_type": source_type, "source_type": source_type, "source_label": prediction_source_label(source_type), "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "timestamp": _iso(pset.created_at), "model_count": 1, "species": species, "route": route, "dose": pset.dose_value, "dose_unit": pset.dose_unit}
+                mapped_pk = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
+                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{'ORAL' if parameter == 'F' else route}|PARENT", "base_value": mapped_pk.get("normalized_value", value), "project_value": None, "display_value": mapped_pk.get("normalized_value", value), "unit": mapped_pk.get("normalized_unit", unit), "prediction_type": source_type, "source_type": source_type, "source_label": prediction_source_label(source_type), "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "timestamp": _iso(pset.created_at), "model_count": 1, "species": species, "route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit}
 
     # Concentration-time simulations provide the Stage-5 Cmax/Tmax/AUC/t1/2
     # predictions. They are joined by the same species/route key as external
@@ -410,9 +445,21 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
             row = endpoint_rows.setdefault(eid, _blank(eid, raw_endpoint)); row["section"] = "PK"; row["display_name"] = mapped.get("display_name", _display_name(eid, raw_endpoint)); row["species"] = mapped.get("species", "UNSPECIFIED"); row["route"] = mapped.get("route", "UNSPECIFIED"); row["canonical_comparison_key"] = mapped["comparison_key"]
             row["experimental_internal"].append(_pk_internal_item(study, nca, raw_endpoint, value, unit, mapped))
 
+    prediction_endpoint_ids = {eid for eid, row in endpoint_rows.items() if row["prediction"].get("available")}
+    evidence_lists = ("experimental_internal", "experimental_external_imported", "experimental_external_candidates", "related_evidence", "needs_review")
     for row in endpoint_rows.values():
+        for list_name in evidence_lists:
+            for item in row[list_name]:
+                item["qualification_details"] = qualify_record(
+                    item, prediction_endpoints=prediction_endpoint_ids,
+                    imported=item.get("state") == "EXTERNAL_IMPORTED",
+                )
         experiments = row["experimental_internal"] + row["experimental_external_imported"] + row["experimental_external_candidates"] + row["related_evidence"]
         row["comparison"] = _comparison(row["prediction"], experiments)
         row["summary"] = {"both": int(bool(row["prediction"].get("available") and experiments)), "prediction_only": int(bool(row["prediction"].get("available") and not experiments)), "experimental_only": int(bool(experiments and not row["prediction"].get("available"))), "related": len(row["related_evidence"]), "needs_review": len(row["needs_review"]), "ready_to_import": sum(bool(item.get("importable")) for item in row["experimental_external_candidates"])}
     endpoints = sorted(endpoint_rows.values(), key=lambda item: (item["section"], item["display_name"], item.get("canonical_comparison_key", ""))); summary = {key: sum(row["summary"][key] for row in endpoints) for key in ("both", "prediction_only", "experimental_only", "related", "needs_review", "ready_to_import")}; summary["imported_pairs"] = 0
-    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "endpoints": endpoints, "summary": summary}
+    qualification_items = [item for row in endpoints for list_name in evidence_lists for item in row[list_name]]
+    qualification = aggregate_qualification(qualification_items, prediction_endpoints=prediction_endpoint_ids)
+    summary["qualification"] = qualification["global"]
+    summary["source_qualification"] = qualification["sources"]
+    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "summary": summary}

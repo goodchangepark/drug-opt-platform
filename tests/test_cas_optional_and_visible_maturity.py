@@ -59,4 +59,7 @@ def test_harvester_categories_and_regulatory_adapter_are_exposed(monkeypatch):
     ])
     result = h.harvest_public_evidence(h.PublicIdentity(name="Reference drug"))
     assert result["summary"]["categories"]["PK"] == 1
-    assert result["source_counts"]["FDA / Regulatory"] == {"found": 1, "qualified": 1}
+    source = result["source_counts"]["FDA / Regulatory"]
+    assert source["found"] == 1
+    assert source["endpoint_qualified"] == 1
+    assert "qualified" not in source

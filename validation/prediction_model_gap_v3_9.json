@@ -3,19 +3,6 @@
     {
       "compounds": 1,
       "current_prediction_availability": "NO_MATCHING_PREDICTION",
-      "endpoint": "DOG_PK_F_ORAL",
-      "experimental_observations": 1,
-      "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",
-      "priority": "HIGH",
-      "remaining_reasons": [],
-      "sections": [
-        "PK"
-      ],
-      "source_quality": "persisted qualified/candidate evidence audit"
-    },
-    {
-      "compounds": 1,
-      "current_prediction_availability": "NO_MATCHING_PREDICTION",
       "endpoint": "EXCRETION_FECAL",
       "experimental_observations": 6,
       "potential_future_model_or_data_path": "Add or qualify an endpoint-specific validated method only after semantic/context contract is defined.",

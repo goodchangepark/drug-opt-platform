@@ -30,4 +30,4 @@ def test_project_learning_panel_exposes_endpoint_specific_learning_and_activatio
     assert "Independent compounds" in js
     assert "Effective N" in js
     assert "Activate" in js
-    assert "No qualified project endpoint pairs yet." in js
+    assert "No prediction-pairable project endpoint pairs yet." in js

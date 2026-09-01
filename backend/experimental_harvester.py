@@ -18,6 +18,7 @@ from urllib.parse import quote
 
 from .external_experimental import _get_json, _identity_status
 from .experimental_endpoint_aliases import VERSION as ENDPOINT_ALIAS_VERSION, classify_experimental_endpoint
+from .qualification_contract import QUALIFICATION_VERSION as QUALIFICATION_CONTRACT_VERSION, aggregate_qualification
 
 QUALITY_A = "A"
 QUALITY_B = "B"
@@ -25,7 +26,9 @@ QUALITY_C = "C"
 QUALITY_D = "D"
 HARVESTER_SEARCH_VERSION = "experimental-harvester-v3.1"
 DOCUMENT_PARSER_VERSION = "regulatory-supplement-parser-v1"
-QUALIFICATION_VERSION = "experimental-qualification-v1"
+# v4 names every qualification stage explicitly.  The raw evidence remains
+# compatible with older persisted runs and is requalified on read/search.
+QUALIFICATION_VERSION = "drugopt-experimental-qualification-v4"
 
 
 @dataclass
@@ -516,11 +519,14 @@ def harvest_public_evidence(identity: PublicIdentity, enabled_sources: set[str] 
         "SUPPLEMENTARY_DISCOVERED", "SUPPLEMENT_PARSED", "SUPPLEMENT_DOWNLOAD_FAILED", "SUPPLEMENT_TEXT_EXTRACTION_FAILED",
         "SUPPLEMENT_UNSUPPORTED_FORMAT", "LITERATURE_CANDIDATE", "LITERATURE_NUMERIC_CANDIDATE",
     )}
-    source_counts = {key: {"found": 0 if value in {"NOT_CONFIGURED", "ADAPTER_READY"} else sum(1 for r in rows if r.get("source") == key), "qualified": sum(1 for r in unique if r.get("source") == key and r.get("context_qualified") and str(r.get("reference_status", "")).startswith("REFERENCE_RESOLVED"))} for key, value in statuses.items()}
+    source_counts = {key: {"found": 0 if value in {"NOT_CONFIGURED", "ADAPTER_READY"} else sum(1 for r in rows if r.get("source") == key), "unique": 0, "numeric": 0, "identity_qualified": 0, "reference_qualified": 0, "endpoint_qualified": 0, "context_qualified": 0, "prediction_pairable": 0, "direct": 0, "conditional": 0, "related": 0, "ready_to_import": 0, "adaptation_eligible": 0} for key, value in statuses.items()}
+    qualification = aggregate_qualification(unique, raw_source_counts={key: value["found"] for key, value in source_counts.items()})
+    for key, value in qualification["sources"].items():
+        source_counts[key] = value
     return {"identity": identity.to_dict(), "sources": statuses, "records": unique,
             "summary": {"sources_searched": sum(1 for v in statuses.values() if v not in {"NOT_CONFIGURED", "ADAPTER_READY"}),
                         "harvester_search_version": HARVESTER_SEARCH_VERSION, "document_parser_version": DOCUMENT_PARSER_VERSION,
-                        "qualification_version": QUALIFICATION_VERSION, "raw_records": len(rows), "raw_found": len(rows), "unique_records": len(unique),
+                        "qualification_version": QUALIFICATION_CONTRACT_VERSION, "raw_records": len(rows), "raw_found": len(rows), "unique_records": len(unique),
                         "reference_qualified": len(reference_qualified), "directly_comparable": len(comparable),
                         "related_evidence": len(related), "literature_candidates": len(literature),
                         "duplicates_removed": len(rows) - len(unique), "imported": 0, "categories": categories, "documents": documents},

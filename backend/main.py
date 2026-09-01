@@ -117,7 +117,14 @@ from .project_learning import (ledger_out, project_learning_summary,
                                record_external_evidence_pair, record_internal_measurement_pair)
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
-from .endpoint_comparison import build_endpoint_comparison, ensure_pk_prediction_snapshot_index, persist_pk_prediction_snapshots
+from .endpoint_comparison import (build_endpoint_comparison, ensure_pk_prediction_snapshot_index,
+                                  persist_pk_prediction_snapshots, requalify_persisted_evidence)
+from .qualification_contract import (QUALIFICATION_VERSION as QUALIFICATION_CONTRACT_VERSION,
+                                     aggregate_qualification, qualification_contract_report,
+                                     qualify_record, ENDPOINT_QUALIFIED, CONTEXT_QUALIFIED,
+                                     PREDICTION_PAIRABLE, DIRECTLY_COMPARABLE,
+                                     CONDITIONALLY_COMPARABLE, RELATED_SAME_GROUP, IMPORTABLE,
+                                     ADAPTATION_ELIGIBLE)
 from .canonical_endpoints import (CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION,
                                   normalize_experimental_observation, registry_report,
                                   reindex_persisted_evidence)
@@ -163,6 +170,7 @@ async def lifespan(app_instance: FastAPI):
         # evidence. This never re-searches sources or changes raw provenance.
         with SessionLocal() as canonical_db:
             reindex_persisted_evidence(canonical_db)
+            requalify_persisted_evidence(canonical_db)
             # IVIVE, Stage-5 simulation, and persisted metabolism outputs
             # predate the canonical snapshot index.  Index existing values
             # without re-running or changing any calculation.
@@ -1126,7 +1134,8 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
             row.parser_version = DOCUMENT_PARSER_VERSION
             row.qualification_version = QUALIFICATION_VERSION
             row.routing_version = ROUTER_VERSION
-            row.qualification_status = str(routing.get("qualification_status") or item.get("qualification_state") or "")
+            qualification = item.get("qualification") or {}
+            row.qualification_status = str(qualification.get("endpoint_status") or routing.get("qualification_status") or item.get("qualification_state") or "")
             row.routing_section = str(routing.get("section") or "")
             row.routing_reason = str(routing.get("routing_reason") or "")
             if row.evidence_state != "EXTERNAL_IMPORTED":
@@ -1156,8 +1165,8 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
             accepted_at=None, search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION,
             qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION,
             canonical_endpoint_version=CANONICAL_ENDPOINT_VERSION, unit_normalization_version=COMPARISON_UNIT_VERSION,
-            qualification_status=str(routing.get("qualification_status") or item.get("qualification_state") or ""),
-            routing_section=str(routing.get("section") or ""), routing_reason=str(routing.get("routing_reason") or ""),
+            qualification_status=str((item.get("qualification") or {}).get("endpoint_status") or routing.get("qualification_status") or item.get("qualification_state") or ""),
+            routing_section=str(routing.get("section") or ""), routing_reason=str((item.get("qualification") or {}).get("primary_gap_reason") or routing.get("routing_reason") or ""),
             retrieved_at=now, imported_at=now,
         )
         db.add(row)
@@ -1235,25 +1244,45 @@ def preview_experimental_harvest_v2(row_id: int, payload: dict, db: Session = De
         row["endpoint_qualified"] = endpoint_qualified
         row["import_eligible"] = bool(traceable and endpoint_qualified and comparable and endpoint_semantics_match and row.get("duplicate_status") != "SAME_MEASUREMENT")
         row["qualification_state"] = "IMPORTABLE" if row["import_eligible"] else ("MANUAL_REVIEW" if numeric and traceable else "CANDIDATE")
+    raw_source_counts = {}
+    for raw_record in result["records"]:
+        source = str(raw_record.get("source") or "External")
+        raw_source_counts[source] = raw_source_counts.get(source, 0) + 1
     raw_records = route_records(result["records"])
     display_records, display_duplicates = deduplicate_for_display(raw_records)
+    prediction_endpoints = set()
+    if current:
+        persisted_view = build_endpoint_comparison(db, current.id)
+        prediction_endpoints = {row["endpoint_id"] for row in persisted_view.get("endpoints", []) if row.get("prediction", {}).get("available")}
+    qualification = aggregate_qualification(display_records, prediction_endpoints=prediction_endpoints, raw_source_counts=raw_source_counts)
     result["records"] = display_records
     records = display_records
     summary = result.setdefault("summary", {})
+    qglobal = qualification["global"]
     summary.update({
-        "raw_records": len(raw_records),
-        "unique_records": len(display_records),
-        "numeric_observations": sum(bool(r.get("numeric_observation")) for r in records),
-        "endpoint_qualified": sum(bool(r.get("endpoint_qualified")) for r in records),
-        "directly_comparable": sum(r["display"].get("comparability_status") == "DIRECTLY_COMPARABLE" for r in records),
-        "conditionally_comparable": sum(r["display"].get("comparability_status") == "CONDITIONALLY_COMPARABLE" for r in records),
-        "related_evidence": sum(r["display"].get("comparability_status") == "RELATED_NOT_SAME_ENDPOINT" for r in records),
-        "manual_review": sum(r.get("qualification_state") == "MANUAL_REVIEW" for r in records),
-        "importable": sum(bool(r.get("import_eligible")) for r in records),
+        "raw_records": qglobal["raw_source_records"],
+        "unique_records": qglobal["unique_scientific_observations"],
+        "numeric_observations": qglobal["numeric"],
+        "identity_qualified": qglobal["identity_qualified"],
+        "reference_qualified": qglobal["reference_qualified"],
+        "endpoint_qualified": qglobal["endpoint_qualified"],
+        "context_qualified": qglobal["context_qualified"],
+        "prediction_pairable": qglobal["prediction_pairable"],
+        "directly_comparable": qglobal["direct"],
+        "conditionally_comparable": qglobal["conditional"],
+        "related_evidence": qglobal["related"],
+        "related_endpoint_groups": qglobal["related_endpoint_groups"],
+        "manual_review": qglobal["manual_review"],
+        "importable": qglobal["ready_to_import"],
+        "adaptation_eligible": qglobal["adaptation_eligible"],
+        "qualification_version": QUALIFICATION_CONTRACT_VERSION,
         "display_duplicates_collapsed": display_duplicates,
         "routing_version": ROUTER_VERSION,
         "routed_sections": {section: sum(1 for r in records if r.get("routing", {}).get("section") == section) for section in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED")},
+        "canonical_routing": {section: sum(1 for r in records if (r.get("qualification", {}).get("canonical_endpoint_id") and r.get("routing", {}).get("section") == section and r.get("qualification", {}).get("stages", {}).get(ENDPOINT_QUALIFIED))) for section in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED")},
     })
+    result["qualification_contract"] = qualification_contract_report()
+    result["source_counts"] = qualification["sources"]
     result["status"] = "RESULTS_AVAILABLE"
     result.setdefault("summary", {})["last_search"] = datetime.now(timezone.utc).isoformat()
     result["source_notice"] = "Explicit public-identifier search only. Literature candidates require review; no source prediction is experimental evidence."
@@ -1293,6 +1322,27 @@ def compound_endpoint_comparison(version_id: int, db: Session = Depends(get_db))
         return build_endpoint_comparison(db, version_id)
     except ValueError:
         raise HTTPException(status_code=404, detail="CompoundVersion not found")
+
+
+@app.get("/api/compounds/{row_id}/qualification-summary")
+def compound_qualification_summary(row_id: int, db: Session = Depends(get_db)):
+    """Requalify persisted evidence without requiring another source search."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    current = next((version for version in compound.versions if version.version_number == compound.current_version), None)
+    if not current:
+        return {"compound_id": row_id, "qualification_version": QUALIFICATION_CONTRACT_VERSION, "global": {}, "sources": {}}
+    view = build_endpoint_comparison(db, current.id)
+    latest_run = db.scalar(select(ExperimentalSearchRun).where(
+        ExperimentalSearchRun.compound_id == row_id
+    ).order_by(ExperimentalSearchRun.started_at.desc()))
+    result = dict(view.get("summary", {}).get("qualification", {}))
+    result["raw_source_records"] = latest_run.raw_count if latest_run else result.get("unique_scientific_observations", 0)
+    result["qualification_version"] = QUALIFICATION_CONTRACT_VERSION
+    return {"compound_id": row_id, "compound_version_id": current.id, "qualification_version": QUALIFICATION_CONTRACT_VERSION,
+            "global": result, "sources": view.get("summary", {}).get("source_qualification", {}),
+            "canonical_routing": {section: sum(1 for row in view.get("endpoints", []) if row.get("section") == section and row.get("experimental_internal", []) + row.get("experimental_external_imported", []) + row.get("experimental_external_candidates", []) + row.get("related_evidence", []) + row.get("needs_review", [])) for section in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED")}}
 
 
 @app.get("/api/compounds/{row_id}/experimental-search-runs")

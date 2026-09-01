@@ -1,0 +1,20 @@
+{
+  "canonical_endpoint_version": "drugopt-canonical-endpoint-v1",
+  "comparison_unit_version": "drugopt-comparison-unit-v1",
+  "count_policy": "global counts are unique scientific observations; source found counts retain raw search records",
+  "principle": "Endpoint-qualified evidence may be prediction-unavailable; direct comparison requires a persisted prediction and compatible semantics.",
+  "stages": [
+    "IDENTITY_QUALIFIED",
+    "REFERENCE_QUALIFIED",
+    "NUMERIC_QUALIFIED",
+    "ENDPOINT_QUALIFIED",
+    "CONTEXT_QUALIFIED",
+    "PREDICTION_PAIRABLE",
+    "DIRECTLY_COMPARABLE",
+    "CONDITIONALLY_COMPARABLE",
+    "RELATED_SAME_GROUP",
+    "IMPORTABLE",
+    "ADAPTATION_ELIGIBLE"
+  ],
+  "version": "drugopt-experimental-qualification-v4"
+}

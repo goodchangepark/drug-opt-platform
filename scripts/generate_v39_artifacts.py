@@ -90,7 +90,7 @@ def inventory(db, coverage):
         for parameter, value, unit, source_type in _pk_snapshot_values(row):
             species = str(row.species or "").upper()
             route = "ORAL" if str(row.route).upper() == "PO" else str(row.route).upper()
-            endpoint = f"{species}_PK_{parameter}_{route}"
+            endpoint = f"{species}_PK_F_ORAL" if parameter == "F" else f"{species}_PK_{parameter}_{route}"
             add(source_module="IVIVE/PKParameterSet", raw_endpoint=parameter,
                 canonical_endpoint=endpoint, prediction_type=source_type,
                 species=species, route=route, unit=unit, value_type="numeric",
@@ -170,6 +170,8 @@ def main():
         sun_rows = sun.get("rows", [])
         # v3.8B is retained as a supplied comparison baseline; all v3.9
         # values below are read from the persisted database at generation time.
+        species_pk_pairs = [row for row in sun_rows if row["endpoint"].endswith("_PK_F_ORAL") or "_PK_" in row["endpoint"] and row.get("direct_comparison")]
+        direct_species_pairs = [row for row in species_pk_pairs if row.get("direct_comparison")]
         sun_audit = {
             "drug": "Sunvozertinib", "compound_id": sun.get("compound_id"),
             "compound_version_id": sun.get("compound_version_id"),
@@ -177,8 +179,9 @@ def main():
             "comparison_unit_version": COMPARISON_UNIT_VERSION,
             "before_v3_8b": {"both": 3, "direct": 1, "related": 3, "experimental_only": 17, "prediction_only": 44, "needs_review": 46},
             "after_v3_9": {"summary": sun.get("summary", {}), "endpoints": sun_rows},
-            "species_pk_pair_status": "NO_CURRENT_VALID_SPECIES_PK_PAIR",
-            "species_pk_pair_reason": "Persisted Sunvozertinib PK foundation has no Cmax/AUC/Tmax/half-life simulation rows; available external PK observations lack a complete species+route+dose+parameter match to foundation predictions.",
+            "species_pk_pair_status": "VALID_SPECIES_PK_PAIR" if direct_species_pairs else "NO_CURRENT_VALID_SPECIES_PK_PAIR",
+            "species_pk_pair_reason": ("Direct species/parameter/route match found in persisted canonical endpoint rows." if direct_species_pairs else "Persisted Sunvozertinib PK foundation has no compatible concentration-time prediction rows; available external PK observations lack a complete species+route+dose+parameter match to foundation predictions."),
+            "species_pk_pairs": direct_species_pairs,
         }
 
         experimental_only = defaultdict(lambda: {"observations": 0, "compounds": set(), "sections": set(), "reasons": set()})

@@ -675,12 +675,12 @@
           "species": "UNSPECIFIED"
         },
         {
-          "comparison_status": null,
-          "direct_comparison": false,
-          "display_name": "Dog F",
-          "endpoint": "DOG_PK_F_IV",
-          "experimental_available": false,
-          "experimental_observations": 0,
+          "comparison_status": "DIRECT",
+          "direct_comparison": true,
+          "display_name": "Dog Oral Bioavailability F",
+          "endpoint": "DOG_PK_F_ORAL",
+          "experimental_available": true,
+          "experimental_observations": 1,
           "gap_reasons": [],
           "needs_review": 0,
           "prediction_available": true,
@@ -688,7 +688,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "DOG"
         },
@@ -839,25 +839,7 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Human F",
-          "endpoint": "HUMAN_PK_F_IV",
-          "experimental_available": false,
-          "experimental_observations": 0,
-          "gap_reasons": [],
-          "needs_review": 0,
-          "prediction_available": true,
-          "prediction_type": "MECHANISTIC_ESTIMATE",
-          "prediction_unit": "%",
-          "prediction_value": 100.0,
-          "related": 0,
-          "route": "IV",
-          "section": "PK",
-          "species": "HUMAN"
-        },
-        {
-          "comparison_status": null,
-          "direct_comparison": false,
-          "display_name": "Human F",
+          "display_name": "Human Oral Bioavailability F",
           "endpoint": "HUMAN_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
@@ -947,8 +929,8 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Monkey F",
-          "endpoint": "MONKEY_PK_F_IV",
+          "display_name": "Monkey Oral Bioavailability F",
+          "endpoint": "MONKEY_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
           "gap_reasons": [],
@@ -958,7 +940,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "MONKEY"
         },
@@ -1073,8 +1055,8 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Mouse F",
-          "endpoint": "MOUSE_PK_F_IV",
+          "display_name": "Mouse Oral Bioavailability F",
+          "endpoint": "MOUSE_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
           "gap_reasons": [],
@@ -1084,7 +1066,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "MOUSE"
         },
@@ -1145,8 +1127,8 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Rat F",
-          "endpoint": "RAT_PK_F_IV",
+          "display_name": "Rat Oral Bioavailability F",
+          "endpoint": "RAT_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
           "gap_reasons": [],
@@ -1156,7 +1138,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "RAT"
         },
@@ -1195,24 +1177,6 @@
           "route": "SC",
           "section": "PK",
           "species": "RAT"
-        },
-        {
-          "comparison_status": null,
-          "direct_comparison": false,
-          "display_name": "bioavailability",
-          "endpoint": "DOG_PK_F_ORAL",
-          "experimental_available": true,
-          "experimental_observations": 1,
-          "gap_reasons": [],
-          "needs_review": 0,
-          "prediction_available": false,
-          "prediction_type": null,
-          "prediction_unit": null,
-          "prediction_value": null,
-          "related": 0,
-          "route": "ORAL",
-          "section": "PK",
-          "species": "DOG"
         },
         {
           "comparison_status": null,
@@ -1516,13 +1480,63 @@
         }
       ],
       "summary": {
-        "both": 3,
-        "experimental_only": 17,
+        "both": 4,
+        "experimental_only": 16,
         "imported_pairs": 0,
         "needs_review": 46,
-        "prediction_only": 46,
+        "prediction_only": 44,
+        "qualification": {
+          "adaptation_eligible": 0,
+          "conditional": 0,
+          "context_qualified": 77,
+          "direct": 4,
+          "endpoint_qualified": 135,
+          "identity_qualified": 138,
+          "manual_review": 61,
+          "numeric": 138,
+          "prediction_pairable": 20,
+          "qualification_version": "drugopt-experimental-qualification-v4",
+          "raw_source_records": 138,
+          "ready_to_import": 31,
+          "reference_qualified": 138,
+          "related": 16,
+          "related_endpoint_groups": 2,
+          "unique_scientific_observations": 138
+        },
         "ready_to_import": 44,
-        "related": 46
+        "related": 46,
+        "source_qualification": {
+          "ChEMBL": {
+            "adaptation_eligible": 0,
+            "conditional": 0,
+            "context_qualified": 13,
+            "direct": 0,
+            "endpoint_qualified": 13,
+            "found": 14,
+            "identity_qualified": 14,
+            "numeric": 14,
+            "prediction_pairable": 0,
+            "ready_to_import": 1,
+            "reference_qualified": 14,
+            "related": 0,
+            "unique": 14
+          },
+          "FDA / Regulatory": {
+            "adaptation_eligible": 0,
+            "conditional": 0,
+            "context_qualified": 64,
+            "direct": 4,
+            "endpoint_qualified": 122,
+            "found": 124,
+            "identity_qualified": 124,
+            "numeric": 124,
+            "prediction_pairable": 20,
+            "ready_to_import": 30,
+            "reference_qualified": 124,
+            "related": 16,
+            "unique": 124
+          }
+        }
       }
     },
     "before_v3_8b": {
@@ -1538,8 +1552,28 @@
     "compound_id": 10,
     "compound_version_id": 13,
     "drug": "Sunvozertinib",
-    "species_pk_pair_reason": "Persisted Sunvozertinib PK foundation has no Cmax/AUC/Tmax/half-life simulation rows; available external PK observations lack a complete species+route+dose+parameter match to foundation predictions.",
-    "species_pk_pair_status": "NO_CURRENT_VALID_SPECIES_PK_PAIR"
+    "species_pk_pair_reason": "Direct species/parameter/route match found in persisted canonical endpoint rows.",
+    "species_pk_pair_status": "VALID_SPECIES_PK_PAIR",
+    "species_pk_pairs": [
+      {
+        "comparison_status": "DIRECT",
+        "direct_comparison": true,
+        "display_name": "Dog Oral Bioavailability F",
+        "endpoint": "DOG_PK_F_ORAL",
+        "experimental_available": true,
+        "experimental_observations": 1,
+        "gap_reasons": [],
+        "needs_review": 0,
+        "prediction_available": true,
+        "prediction_type": "MECHANISTIC_ESTIMATE",
+        "prediction_unit": "%",
+        "prediction_value": 100.0,
+        "related": 0,
+        "route": "ORAL",
+        "section": "PK",
+        "species": "DOG"
+      }
+    ]
   },
   "validation_set": {
     "Metformin": {
@@ -2234,12 +2268,12 @@
           "species": "UNSPECIFIED"
         },
         {
-          "comparison_status": null,
-          "direct_comparison": false,
-          "display_name": "Dog F",
-          "endpoint": "DOG_PK_F_IV",
-          "experimental_available": false,
-          "experimental_observations": 0,
+          "comparison_status": "DIRECT",
+          "direct_comparison": true,
+          "display_name": "Dog Oral Bioavailability F",
+          "endpoint": "DOG_PK_F_ORAL",
+          "experimental_available": true,
+          "experimental_observations": 1,
           "gap_reasons": [],
           "needs_review": 0,
           "prediction_available": true,
@@ -2247,7 +2281,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "DOG"
         },
@@ -2398,25 +2432,7 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Human F",
-          "endpoint": "HUMAN_PK_F_IV",
-          "experimental_available": false,
-          "experimental_observations": 0,
-          "gap_reasons": [],
-          "needs_review": 0,
-          "prediction_available": true,
-          "prediction_type": "MECHANISTIC_ESTIMATE",
-          "prediction_unit": "%",
-          "prediction_value": 100.0,
-          "related": 0,
-          "route": "IV",
-          "section": "PK",
-          "species": "HUMAN"
-        },
-        {
-          "comparison_status": null,
-          "direct_comparison": false,
-          "display_name": "Human F",
+          "display_name": "Human Oral Bioavailability F",
           "endpoint": "HUMAN_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
@@ -2506,8 +2522,8 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Monkey F",
-          "endpoint": "MONKEY_PK_F_IV",
+          "display_name": "Monkey Oral Bioavailability F",
+          "endpoint": "MONKEY_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
           "gap_reasons": [],
@@ -2517,7 +2533,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "MONKEY"
         },
@@ -2632,8 +2648,8 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Mouse F",
-          "endpoint": "MOUSE_PK_F_IV",
+          "display_name": "Mouse Oral Bioavailability F",
+          "endpoint": "MOUSE_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
           "gap_reasons": [],
@@ -2643,7 +2659,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "MOUSE"
         },
@@ -2704,8 +2720,8 @@
         {
           "comparison_status": null,
           "direct_comparison": false,
-          "display_name": "Rat F",
-          "endpoint": "RAT_PK_F_IV",
+          "display_name": "Rat Oral Bioavailability F",
+          "endpoint": "RAT_PK_F_ORAL",
           "experimental_available": false,
           "experimental_observations": 0,
           "gap_reasons": [],
@@ -2715,7 +2731,7 @@
           "prediction_unit": "%",
           "prediction_value": 100.0,
           "related": 0,
-          "route": "IV",
+          "route": "ORAL",
           "section": "PK",
           "species": "RAT"
         },
@@ -2754,24 +2770,6 @@
           "route": "SC",
           "section": "PK",
           "species": "RAT"
-        },
-        {
-          "comparison_status": null,
-          "direct_comparison": false,
-          "display_name": "bioavailability",
-          "endpoint": "DOG_PK_F_ORAL",
-          "experimental_available": true,
-          "experimental_observations": 1,
-          "gap_reasons": [],
-          "needs_review": 0,
-          "prediction_available": false,
-          "prediction_type": null,
-          "prediction_unit": null,
-          "prediction_value": null,
-          "related": 0,
-          "route": "ORAL",
-          "section": "PK",
-          "species": "DOG"
         },
         {
           "comparison_status": null,
@@ -3075,13 +3073,63 @@
         }
       ],
       "summary": {
-        "both": 3,
-        "experimental_only": 17,
+        "both": 4,
+        "experimental_only": 16,
         "imported_pairs": 0,
         "needs_review": 46,
-        "prediction_only": 46,
+        "prediction_only": 44,
+        "qualification": {
+          "adaptation_eligible": 0,
+          "conditional": 0,
+          "context_qualified": 77,
+          "direct": 4,
+          "endpoint_qualified": 135,
+          "identity_qualified": 138,
+          "manual_review": 61,
+          "numeric": 138,
+          "prediction_pairable": 20,
+          "qualification_version": "drugopt-experimental-qualification-v4",
+          "raw_source_records": 138,
+          "ready_to_import": 31,
+          "reference_qualified": 138,
+          "related": 16,
+          "related_endpoint_groups": 2,
+          "unique_scientific_observations": 138
+        },
         "ready_to_import": 44,
-        "related": 46
+        "related": 46,
+        "source_qualification": {
+          "ChEMBL": {
+            "adaptation_eligible": 0,
+            "conditional": 0,
+            "context_qualified": 13,
+            "direct": 0,
+            "endpoint_qualified": 13,
+            "found": 14,
+            "identity_qualified": 14,
+            "numeric": 14,
+            "prediction_pairable": 0,
+            "ready_to_import": 1,
+            "reference_qualified": 14,
+            "related": 0,
+            "unique": 14
+          },
+          "FDA / Regulatory": {
+            "adaptation_eligible": 0,
+            "conditional": 0,
+            "context_qualified": 64,
+            "direct": 4,
+            "endpoint_qualified": 122,
+            "found": 124,
+            "identity_qualified": 124,
+            "numeric": 124,
+            "prediction_pairable": 20,
+            "ready_to_import": 30,
+            "reference_qualified": 124,
+            "related": 16,
+            "unique": 124
+          }
+        }
       }
     },
     "Warfarin": {

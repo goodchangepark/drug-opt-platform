@@ -1,0 +1,299 @@
+{
+  "compounds": [
+    {
+      "compound": "Orforglipron",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 67,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 11
+    },
+    {
+      "compound": "Aleniglipron",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 67,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 12
+    },
+    {
+      "compound": "Elecoglipron",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 67,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 3
+    },
+    {
+      "compound": "ASC30",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 67,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 4
+    },
+    {
+      "compound": "Sunvozertinib",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 80,
+        "conditional": 0,
+        "context_qualified": 77,
+        "direct": 4,
+        "endpoint_qualified": 135,
+        "identity_qualified": 138,
+        "manual_review": 61,
+        "numeric": 138,
+        "prediction_pairable": 20,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 411,
+        "ready_to_import": 31,
+        "reference_qualified": 138,
+        "related": 16,
+        "related_endpoint_groups": 2,
+        "search_run_endpoint_qualified": 271,
+        "search_run_unique_records": 375,
+        "unique_scientific_observations": 138
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {
+        "ChEMBL": {
+          "adaptation_eligible": 0,
+          "conditional": 0,
+          "context_qualified": 13,
+          "direct": 0,
+          "endpoint_qualified": 13,
+          "found": 14,
+          "identity_qualified": 14,
+          "numeric": 14,
+          "prediction_pairable": 0,
+          "ready_to_import": 1,
+          "reference_qualified": 14,
+          "related": 0,
+          "unique": 14
+        },
+        "FDA / Regulatory": {
+          "adaptation_eligible": 0,
+          "conditional": 0,
+          "context_qualified": 64,
+          "direct": 4,
+          "endpoint_qualified": 122,
+          "found": 124,
+          "identity_qualified": 124,
+          "numeric": 124,
+          "prediction_pairable": 20,
+          "ready_to_import": 30,
+          "reference_qualified": 124,
+          "related": 16,
+          "unique": 124
+        }
+      },
+      "version_id": 13
+    },
+    {
+      "compound": "Compound 2026-09-01-02-33-35",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 7,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 14
+    },
+    {
+      "compound": "Compound 2026-09-01-02-35-17",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 25,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 15
+    },
+    {
+      "compound": "Compound 2026-09-01-02-40-59",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 20,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 16
+    },
+    {
+      "compound": "compound17",
+      "global": {
+        "adaptation_eligible": 0,
+        "canonical_endpoint_rows": 67,
+        "conditional": 0,
+        "context_qualified": 0,
+        "direct": 0,
+        "endpoint_qualified": 0,
+        "identity_qualified": 0,
+        "manual_review": 0,
+        "numeric": 0,
+        "prediction_pairable": 0,
+        "qualification_version": "drugopt-experimental-qualification-v4",
+        "raw_source_records": 0,
+        "ready_to_import": 0,
+        "reference_qualified": 0,
+        "related": 0,
+        "related_endpoint_groups": 0,
+        "unique_scientific_observations": 0
+      },
+      "invariants": {
+        "direct_le_pairable": true,
+        "importable_le_endpoint": true,
+        "unique_le_raw": true
+      },
+      "sources": {},
+      "version_id": 17
+    }
+  ],
+  "version": "v4.0"
+}

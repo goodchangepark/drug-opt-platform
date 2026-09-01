@@ -1,0 +1,3601 @@
+{
+  "policy": {
+    "CL": "systemic clearance and CL/F remain distinct",
+    "F": "Oral Bioavailability F relative to IV reference; never F/IV",
+    "Vd": "systemic Vd/Vss and apparent Vd/F remain distinct"
+  },
+  "rows": [
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 1,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.783
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 2,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 6.324
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 46.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 3,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.324
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 4,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.324
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 5,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 10.545
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 6,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 11.561
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 45.9
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 7,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 11.561
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 8,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 11.561
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 9,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 10,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 11,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 12,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 13,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 14,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 15,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 16,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 17,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.919
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 18,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 6.45
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 38.4
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 19,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.45
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 20,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.45
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 21,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.974
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 22,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 5.369
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 67.1
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 23,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.369
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 24,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.369
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 25,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 8.572
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 26,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 9.232
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 67.2
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 27,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 9.232
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 28,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 9.232
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 29,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 30,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 31,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 32,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 33,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 34,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 35,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 36,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 37,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 3.808
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 38,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 4.666
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.226
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 59.1
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 39,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.666
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 40,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.666
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.226
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 41,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.939
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 42,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 7.733
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 39.9
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 43,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.733
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 44,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.733
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 45,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 13.881
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 46,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 15.696
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 39.4
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 47,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 15.696
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 48,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 15.696
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 49,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 50,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 51,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 52,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 53,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 54,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 55,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 56,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 57,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.332
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 58,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 5.477
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 35.2
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 59,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.477
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 60,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.477
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 61,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.829
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 62,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 7.596
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 43.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 63,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.596
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 64,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.596
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 65,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 13.835
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 66,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 15.638
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 42.3
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 67,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 15.638
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 68,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 15.638
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 69,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 70,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 71,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 72,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 73,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 74,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 75,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 76,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 77,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.08
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 78,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 5.08
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.259
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 38.4
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 79,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.08
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 80,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.08
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.259
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 201,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.783
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 202,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 6.324
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 46.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 203,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.324
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 204,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.324
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 205,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 10.545
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 206,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 11.561
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 45.9
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 207,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 11.561
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 208,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 11.561
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 209,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 210,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 211,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 212,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 213,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 214,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 215,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 216,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 217,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.919
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 218,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 6.45
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.131
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 38.4
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 219,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.45
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 220,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.45
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.131
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 221,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 6.939
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 222,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 7.733
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 39.9
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 223,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.733
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 224,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.733
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 225,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 13.881
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 226,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 15.696
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 39.4
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 227,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 15.696
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 228,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 15.696
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 229,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 230,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 231,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 232,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 233,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 234,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 235,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 236,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 237,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 4.332
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 238,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 5.477
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 2.662
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 35.2
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 239,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.477
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 240,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 5.477
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 2.662
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 241,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 242,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 245,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 246,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 21.501
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 247,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 7.361
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 248,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 21.501
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 250,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 251,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 252,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 253,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 254,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 255,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 256,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 257,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 258,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 2.81
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 259,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 3.251
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 1.066
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 49.4
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 260,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 3.251
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 261,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 3.251
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 262,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 3.251
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 1.066
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 263,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 267,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 271,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 275,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 279,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 283,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 287,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 291,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 295,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 299,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 303,
+      "species": "Rat",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 1.476
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 304,
+      "species": "Rat",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 1.509
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 44.8
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 305,
+      "species": "Rat",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 1.509
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 306,
+      "species": "Rat",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 1.509
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 307,
+      "species": "Mouse",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 2.991
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 308,
+      "species": "Mouse",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 3.068
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 44.7
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 309,
+      "species": "Mouse",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 3.068
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 310,
+      "species": "Mouse",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 3.068
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 311,
+      "species": "Dog",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 312,
+      "species": "Dog",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 313,
+      "species": "Dog",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 314,
+      "species": "Dog",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 315,
+      "species": "Monkey",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 316,
+      "species": "Monkey",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 317,
+      "species": "Monkey",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 318,
+      "species": "Monkey",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 319,
+      "species": "Human",
+      "stored_route": "IV",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 1.27
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 100.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 320,
+      "species": "Human",
+      "stored_route": "PO",
+      "values": [
+        {
+          "parameter": "CL/F",
+          "semantics": "apparent oral clearance",
+          "unit": "mL/min/kg",
+          "value": 1.353
+        },
+        {
+          "parameter": "Vd/F",
+          "semantics": "apparent oral volume",
+          "unit": "L/kg",
+          "value": 0.901
+        },
+        {
+          "canonical_display": "Oral Bioavailability F",
+          "parameter": "F",
+          "reference_route": "IV",
+          "semantics": "oral bioavailability relative to IV reference",
+          "unit": "%",
+          "value": 43.0
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 321,
+      "species": "Human",
+      "stored_route": "SC",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 1.353
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    },
+    {
+      "dose": 10.0,
+      "dose_unit": "mg/kg",
+      "pk_parameter_set_id": 322,
+      "species": "Human",
+      "stored_route": "IP",
+      "values": [
+        {
+          "parameter": "CL",
+          "semantics": "systemic/route-context clearance",
+          "unit": "mL/min/kg",
+          "value": 1.353
+        },
+        {
+          "parameter": "Vd",
+          "semantics": "systemic volume",
+          "unit": "L/kg",
+          "value": 0.901
+        }
+      ]
+    }
+  ],
+  "version": "v4.0"
+}
