@@ -94,6 +94,12 @@ class ExternalExperimentalEvidence(Base):
     routing_version: Mapped[str] = mapped_column(String(80), default="")
     canonical_endpoint_version: Mapped[str] = mapped_column(String(80), default="")
     unit_normalization_version: Mapped[str] = mapped_column(String(80), default="")
+    # v4.1: every unique observation displayed by a completed search is a
+    # durable, rehydratable record, including review/related/non-importable
+    # observations.  These IDs are display/audit identities, not source data.
+    display_evidence_group_id: Mapped[str] = mapped_column(String(120), default="", index=True)
+    independent_experiment_group_id: Mapped[str] = mapped_column(String(160), default="", index=True)
+    qualification_json: Mapped[dict] = mapped_column(JSON, default=dict)
     qualification_status: Mapped[str] = mapped_column(String(60), default="")
     routing_section: Mapped[str] = mapped_column(String(30), default="")
     routing_reason: Mapped[str] = mapped_column(Text, default="")
@@ -195,6 +201,9 @@ class ExperimentalSearchRun(Base):
     unique_count: Mapped[int] = mapped_column(Integer, default=0)
     qualified_count: Mapped[int] = mapped_column(Integer, default=0)
     importable_count: Mapped[int] = mapped_column(Integer, default=0)
+    context_qualified_count: Mapped[int] = mapped_column(Integer, default=0)
+    persisted_observation_count: Mapped[int] = mapped_column(Integer, default=0)
+    display_only_non_persistent_count: Mapped[int] = mapped_column(Integer, default=0)
     source_status_json: Mapped[dict] = mapped_column(JSON, default=dict)
     summary_json: Mapped[dict] = mapped_column(JSON, default=dict)
 
@@ -295,6 +304,9 @@ def ensure_ui_schema(engine):
                 "routing_reason": "TEXT NOT NULL DEFAULT ''",
                 "canonical_endpoint_version": "VARCHAR(80) NOT NULL DEFAULT ''",
                 "unit_normalization_version": "VARCHAR(80) NOT NULL DEFAULT ''",
+                "display_evidence_group_id": "VARCHAR(120) NOT NULL DEFAULT ''",
+                "independent_experiment_group_id": "VARCHAR(160) NOT NULL DEFAULT ''",
+                "qualification_json": "JSON NOT NULL DEFAULT '{}'",
             }.items():
                 if name not in evidence_columns:
                     connection.execute(text(f"ALTER TABLE external_experimental_evidence ADD COLUMN {name} {definition}"))
@@ -302,5 +314,14 @@ def ensure_ui_schema(engine):
             # preserve that meaning when the lifecycle columns are introduced.
             connection.execute(text("UPDATE external_experimental_evidence SET evidence_state='EXTERNAL_IMPORTED' WHERE evidence_state IS NULL OR trim(evidence_state)=''"))
             connection.execute(text("UPDATE external_experimental_evidence SET first_seen_at=COALESCE(first_seen_at, imported_at), last_seen_at=COALESCE(last_seen_at, imported_at)"))
+        if "experimental_search_runs" in tables:
+            search_columns = {row["name"] for row in inspector.get_columns("experimental_search_runs")}
+            for name, definition in {
+                "context_qualified_count": "INTEGER NOT NULL DEFAULT 0",
+                "persisted_observation_count": "INTEGER NOT NULL DEFAULT 0",
+                "display_only_non_persistent_count": "INTEGER NOT NULL DEFAULT 0",
+            }.items():
+                if name not in search_columns:
+                    connection.execute(text(f"ALTER TABLE experimental_search_runs ADD COLUMN {name} {definition}"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))

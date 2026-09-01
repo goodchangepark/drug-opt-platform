@@ -117,8 +117,9 @@ from .project_learning import (ledger_out, project_learning_summary,
                                record_external_evidence_pair, record_internal_measurement_pair)
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
-from .endpoint_comparison import (build_endpoint_comparison, ensure_pk_prediction_snapshot_index,
-                                  persist_pk_prediction_snapshots, requalify_persisted_evidence)
+from .endpoint_comparison import (build_endpoint_comparison, ensure_admet_prediction_snapshot_index,
+                                  ensure_pk_prediction_snapshot_index, persist_pk_prediction_snapshots,
+                                  requalify_persisted_evidence)
 from .qualification_contract import (QUALIFICATION_VERSION as QUALIFICATION_CONTRACT_VERSION,
                                      aggregate_qualification, qualification_contract_report,
                                      qualify_record, ENDPOINT_QUALIFIED, CONTEXT_QUALIFIED,
@@ -175,6 +176,7 @@ async def lifespan(app_instance: FastAPI):
             # predate the canonical snapshot index.  Index existing values
             # without re-running or changing any calculation.
             ensure_pk_prediction_snapshot_index(canonical_db)
+            ensure_admet_prediction_snapshot_index(canonical_db)
             canonical_db.commit()
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
@@ -1071,6 +1073,15 @@ def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)
 
 def _external_candidate_key(identity, current, row: dict) -> str:
     """Stable source-independent key used to make repeated searches idempotent."""
+    # ``display_evidence_group_id`` is generated from the scientific identity,
+    # endpoint, context, normalized value and provenance.  It is the stable
+    # identity of the deduplicated observation shown to the user.  Prefer it
+    # over a source-record fingerprint so a cross-source representation is
+    # persisted once while its source references remain in the payload.
+    display_group = str(row.get("display_evidence_group_id") or "").strip()
+    identity_key = getattr(identity, "inchikey", "") or (current.inchikey if current else "")
+    if display_group:
+        return hashlib.sha256(json.dumps({"identity": identity_key, "display_group": display_group}, sort_keys=True).encode()).hexdigest()
     supplied = str(row.get("provenance_fingerprint") or "").strip()
     if supplied:
         return supplied
@@ -1106,11 +1117,6 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
     for item in result.get("records") or []:
         display = item.get("display") or {}
         routing = item.get("routing") or {}
-        # Records without a value/endpoint are source discovery metadata, not
-        # reconstructible scientific observations. They remain in the search
-        # response, while observations are persisted here.
-        if not str(item.get("endpoint") or "").strip() or not str(item.get("value") or "").strip():
-            continue
         key = _external_candidate_key(identity, current, item)
         if key in batch_keys:
             duplicates += 1
@@ -1135,6 +1141,14 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
             row.qualification_version = QUALIFICATION_VERSION
             row.routing_version = ROUTER_VERSION
             qualification = item.get("qualification") or {}
+            row.canonical_endpoint_id = str(display.get("canonical_endpoint_id") or routing.get("canonical_endpoint_id") or row.canonical_endpoint_id or "")
+            row.normalized_value = "" if display.get("normalized_value") is None else str(display.get("normalized_value"))
+            row.normalized_unit = str(display.get("normalized_unit") or row.normalized_unit or "")
+            row.normalization_rule = str(display.get("normalization_rule") or row.normalization_rule or "")
+            row.comparability_status = str(display.get("comparability_status") or row.comparability_status or "UNSUPPORTED")
+            row.display_evidence_group_id = str(item.get("display_evidence_group_id") or row.display_evidence_group_id or "")
+            row.independent_experiment_group_id = str(item.get("independent_experiment_group_id") or row.independent_experiment_group_id or "")
+            row.qualification_json = qualification
             row.qualification_status = str(qualification.get("endpoint_status") or routing.get("qualification_status") or item.get("qualification_state") or "")
             row.routing_section = str(routing.get("section") or "")
             row.routing_reason = str(routing.get("routing_reason") or "")
@@ -1149,7 +1163,10 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
             cas_number=compound.cas_number or "", raw_endpoint_name=str(item.get("endpoint") or ""),
             raw_value=str(item.get("value") or ""), raw_relation=str(item.get("relation") or "="),
             raw_unit=str(item.get("unit") or ""), assay_type=str(item.get("assay_type") or item.get("measurement_type") or ""),
-            assay_conditions_json=item.get("conditions") if isinstance(item.get("conditions"), dict) else {"conditions": item.get("conditions", ""), "target": item.get("target", "")},
+            assay_conditions_json={
+                **(item.get("conditions") if isinstance(item.get("conditions"), dict) else {"conditions": item.get("conditions", ""), "target": item.get("target", "")}),
+                "display_provenance": item.get("display_provenance") or [],
+            },
             species=str(item.get("species") or ""), source_database=str(item.get("source") or "External"),
             source_record_id=str(item.get("source_record_id") or ""), source_assay_id=str(item.get("assay_id") or ""),
             source_document_id=str(item.get("document_id") or ""), reference_text=str(item.get("reference") or ""),
@@ -1165,25 +1182,78 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
             accepted_at=None, search_version=HARVESTER_SEARCH_VERSION, parser_version=DOCUMENT_PARSER_VERSION,
             qualification_version=QUALIFICATION_VERSION, routing_version=ROUTER_VERSION,
             canonical_endpoint_version=CANONICAL_ENDPOINT_VERSION, unit_normalization_version=COMPARISON_UNIT_VERSION,
+            display_evidence_group_id=str(item.get("display_evidence_group_id") or ""),
+            independent_experiment_group_id=str(item.get("independent_experiment_group_id") or ""),
+            qualification_json=item.get("qualification") or {},
             qualification_status=str((item.get("qualification") or {}).get("endpoint_status") or routing.get("qualification_status") or item.get("qualification_state") or ""),
             routing_section=str(routing.get("section") or ""), routing_reason=str((item.get("qualification") or {}).get("primary_gap_reason") or routing.get("routing_reason") or ""),
             retrieved_at=now, imported_at=now,
         )
         db.add(row)
         saved += 1
+    # The persisted canonical view is the sole qualification source of truth.
+    # Search-time records may contain parser-local hints that are normalized
+    # differently when reconstructed from the database.  Calculate the run
+    # counters after all rows have been flushed, using the exact view used by
+    # reload/navigation APIs, so a completed search cannot report one funnel
+    # and then display another one after reconnecting.
+    db.flush()
+    persisted_view = build_endpoint_comparison(db, current.id) if current else {"summary": {}, "endpoints": []}
+    persisted_qualification = (persisted_view.get("summary") or {}).get("qualification") or {}
+    persisted_sources = (persisted_view.get("summary") or {}).get("source_qualification") or {}
+    evidence_buckets = ("experimental_internal", "experimental_external_imported", "experimental_external_candidates", "related_evidence", "needs_review")
+    canonical_routing = {
+        section: sum(
+            len(bucket)
+            for endpoint in persisted_view.get("endpoints", [])
+            if endpoint.get("section") == section
+            for bucket_name in evidence_buckets
+            for bucket in [endpoint.get(bucket_name) or []]
+        )
+        for section in ("ACTIVITY", "ADMET", "METABOLISM", "PK", "TOXICITY", "UNCLASSIFIED")
+    }
     run.completed_at = now
     run.status = "COMPLETE"
     run.raw_count = int(summary.get("raw_records", len(result.get("records") or [])))
     run.unique_count = int(summary.get("unique_records", len(result.get("records") or [])))
-    run.qualified_count = int(summary.get("endpoint_qualified", summary.get("qualified", 0)))
-    run.importable_count = int(summary.get("importable", 0))
-    run.summary_json = {**summary, "persisted_candidates": saved, "existing_candidates": existing, "duplicates": duplicates}
+    run.qualified_count = int(persisted_qualification.get("endpoint_qualified", 0))
+    run.importable_count = int(persisted_qualification.get("ready_to_import", 0))
+    run.context_qualified_count = int(persisted_qualification.get("context_qualified", 0))
+    run.persisted_observation_count = saved + existing
+    run.display_only_non_persistent_count = 0
+    summary.update({
+        "numeric_observations": persisted_qualification.get("numeric", 0),
+        "identity_qualified": persisted_qualification.get("identity_qualified", 0),
+        "reference_qualified": persisted_qualification.get("reference_qualified", 0),
+        "endpoint_qualified": run.qualified_count,
+        "context_qualified": run.context_qualified_count,
+        "prediction_pairable": persisted_qualification.get("prediction_pairable", 0),
+        "directly_comparable": persisted_qualification.get("direct", 0),
+        "conditionally_comparable": persisted_qualification.get("conditional", 0),
+        "related_evidence": persisted_qualification.get("related", 0),
+        "importable": run.importable_count,
+        "adaptation_eligible": persisted_qualification.get("adaptation_eligible", 0),
+        "manual_review": persisted_qualification.get("manual_review", 0),
+        "related_endpoint_groups": persisted_qualification.get("related_endpoint_groups", 0),
+        "qualification_version": persisted_qualification.get("qualification_version", QUALIFICATION_CONTRACT_VERSION),
+        # ``routed_sections`` is retained as the raw source-category view.
+        # ``canonical_routing`` is the persisted scientific routing view and
+        # must be derived from the same rows rendered after reload.
+        "canonical_routing": canonical_routing,
+        "persisted_observations": saved + existing,
+        "persisted_candidates": saved,
+        "existing_candidates": existing,
+        "duplicates": duplicates,
+        "display_only_non_persistent": 0,
+    })
+    run.summary_json = {**summary, "source_counts": persisted_sources}
     db.commit()
     result["search_run_id"] = search_run_id
     result["persisted_candidate_count"] = saved
     result["existing_candidate_count"] = existing
     result["saved"] = True
-    summary.update({"search_run_id": search_run_id, "persisted_candidates": saved, "existing_candidates": existing})
+    summary.update({"search_run_id": search_run_id, "source_counts": persisted_sources})
+    result["source_counts"] = persisted_sources
     return result
 
 
@@ -1306,7 +1376,17 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
                          "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
                          "source_quality_class": row.source_quality_class, "duplicate_status": row.duplicate_status,
-                         "import_eligible": row.comparability_status in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"},
+                         "display_evidence_group_id": row.display_evidence_group_id,
+                         "independent_experiment_group_id": row.independent_experiment_group_id,
+                         "qualification": row.qualification_json or {},
+                         "qualification_status": row.qualification_status,
+                         "routing_section": row.routing_section,
+                         "routing_reason": row.routing_reason,
+                         # Importability is a qualification stage, not a
+                         # synonym for numeric comparability.  Keep this
+                         # endpoint consistent with the canonical workspace
+                         # and import handlers.
+                         "import_eligible": bool((row.qualification_json or {}).get("stages", {}).get(IMPORTABLE, False)),
                          "accepted_at": row.accepted_at.isoformat() if row.accepted_at else None,
                          "routing": route_evidence({"endpoint": row.raw_endpoint_name, "conditions": row.assay_conditions_json,
                              "reference_status": "REFERENCE_RESOLVED_IMPORTED", "import_eligible": True},
@@ -1318,6 +1398,15 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
 
 @app.get("/api/compound-versions/{version_id}/endpoint-comparison")
 def compound_endpoint_comparison(version_id: int, db: Session = Depends(get_db)):
+    try:
+        return build_endpoint_comparison(db, version_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+
+
+@app.get("/api/compound-versions/{version_id}/scientific-comparison")
+def compound_version_scientific_comparison(version_id: int, db: Session = Depends(get_db)):
+    """Version-scoped alias for the single canonical persisted view."""
     try:
         return build_endpoint_comparison(db, version_id)
     except ValueError:
@@ -1344,7 +1433,10 @@ def compound_qualification_summary(row_id: int, db: Session = Depends(get_db)):
             "raw_source_records": latest_run.raw_count,
             "unique_records": latest_run.unique_count,
             "endpoint_qualified": latest_run.qualified_count,
+            "context_qualified": latest_run.context_qualified_count,
             "importable": latest_run.importable_count,
+            "persisted_observations": latest_run.persisted_observation_count,
+            "display_only_non_persistent": latest_run.display_only_non_persistent_count,
         }
     result["qualification_version"] = QUALIFICATION_CONTRACT_VERSION
     return {"compound_id": row_id, "compound_version_id": current.id, "qualification_version": QUALIFICATION_CONTRACT_VERSION,
@@ -1369,7 +1461,11 @@ def list_experimental_search_runs(row_id: int, db: Session = Depends(get_db)):
         "routing_version": row.routing_version, "started_at": row.started_at.isoformat() if row.started_at else None,
         "completed_at": row.completed_at.isoformat() if row.completed_at else None, "status": row.status,
         "raw_count": row.raw_count, "unique_count": row.unique_count, "qualified_count": row.qualified_count,
-        "importable_count": row.importable_count, "source_status": row.source_status_json,
+        "context_qualified_count": row.context_qualified_count,
+        "importable_count": row.importable_count,
+        "persisted_observation_count": row.persisted_observation_count,
+        "display_only_non_persistent_count": row.display_only_non_persistent_count,
+        "source_status": row.source_status_json,
         "summary": row.summary_json,
     } for row in rows]}
 
@@ -1384,7 +1480,32 @@ def project_compound_endpoint_comparison(project_id: int, compound_id: str, db: 
     version = next((v for v in compound.versions if v.version_number == compound.current_version), None)
     if not version:
         raise HTTPException(status_code=404, detail="Compound has no current version")
-    return build_endpoint_comparison(db, version.id)
+    result = build_endpoint_comparison(db, version.id)
+    latest_search = db.scalar(select(ExperimentalSearchRun).where(
+        ExperimentalSearchRun.project_id == project_id,
+        ExperimentalSearchRun.compound_id == compound.id,
+        ExperimentalSearchRun.compound_version_id == version.id,
+        ExperimentalSearchRun.status == "COMPLETE",
+    ).order_by(ExperimentalSearchRun.completed_at.desc()))
+    if latest_search:
+        result["latest_search_run"] = {
+            "search_run_id": latest_search.search_run_id,
+            "unique_observations": latest_search.unique_count,
+            "persisted_observations": latest_search.persisted_observation_count,
+            "display_only_non_persistent": latest_search.display_only_non_persistent_count,
+        }
+    return result
+
+
+@app.get("/api/projects/{project_id}/compounds/{compound_id}/scientific-comparison")
+def project_compound_scientific_comparison(project_id: int, compound_id: str, db: Session = Depends(get_db)):
+    """Canonical DB-backed scientific comparison contract.
+
+    This is an explicit alias for the endpoint comparison route so clients can
+    consume one complete persisted model without merging search, prediction,
+    PK, or metabolism responses in the browser.
+    """
+    return project_compound_endpoint_comparison(project_id, compound_id, db)
 
 
 @app.get("/api/compounds/{row_id}/prediction-experimental-comparisons")
@@ -3265,6 +3386,7 @@ def _run_admet_predictions_legacy(
     _refresh_model_feedback(db, compound.project_id, [row_id])
     consensuses = _store_consensus_predictions(db, version, compound.project_id, list(selected_predictions.values()))
     _freeze_admet_prediction_snapshots(db, compound.project_id, row_id, selected_predictions)
+    ensure_admet_prediction_snapshot_index(db, row_id)
     db.commit()
     db.refresh(run)
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
@@ -3400,6 +3522,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         _refresh_model_feedback(db, compound.project_id, [row_id])
         consensuses = _store_consensus_predictions(db, version, compound.project_id, list(cached.values()))
         cached_run = _record_cached_admet_run(db, row_id, list(cached.values()))
+        ensure_admet_prediction_snapshot_index(db, row_id)
         db.commit()
         predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
         return {
@@ -3452,6 +3575,9 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         db, version, compound.project_id, list(refreshed_core_preds.values())
     )
     _freeze_admet_prediction_snapshots(db, compound.project_id, row_id, refreshed_core_preds)
+    # Include any successfully persisted secondary/user-facing model outputs
+    # in the same immutable run index before reporting Predict success.
+    ensure_admet_prediction_snapshot_index(db, row_id)
     # Capture maturity with this newly generated prediction.  Cached/historical
     # predictions are deliberately not revisited when later evidence arrives.
     for prediction in refreshed_core_preds.values():
@@ -3816,8 +3942,8 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         return str((saved_steps.get(stage) or {}).get("status") or fallback)
     def imported_external_out(row):
         item = {
-            "id": row.id, "endpoint": row.raw_endpoint_name, "raw_value": row.raw_value,
-            "raw_unit": row.raw_unit, "raw_relation": row.raw_relation, "source": row.source_database,
+            "id": row.id, "endpoint": row.raw_endpoint_name, "value": row.raw_value, "raw_value": row.raw_value,
+            "unit": row.raw_unit, "raw_unit": row.raw_unit, "relation": row.raw_relation, "raw_relation": row.raw_relation, "source": row.source_database,
             "reference": row.reference_text, "source_url": row.source_url,
             "source_record_id": row.source_record_id, "assay_id": row.source_assay_id,
             "document_id": row.source_document_id, "conditions": row.assay_conditions_json or {},
@@ -3827,9 +3953,12 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "normalization_rule": row.normalization_rule, "normalization_version": row.normalization_version,
             "comparability_status": row.comparability_status, "source_quality_class": row.source_quality_class,
             "duplicate_status": row.duplicate_status,
+            "display_evidence_group_id": row.display_evidence_group_id,
+            "independent_experiment_group_id": row.independent_experiment_group_id,
+            "qualification": row.qualification_json or {},
             "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported"),
             "reference_status": "REFERENCE_RESOLVED_IMPORTED" if row.evidence_state == "EXTERNAL_IMPORTED" else "REFERENCE_RESOLVED_CANDIDATE",
-            "import_eligible": row.evidence_state != "EXTERNAL_IMPORTED" and row.comparability_status in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"},
+            "import_eligible": bool((row.qualification_json or {}).get("stages", {}).get("IMPORTABLE", row.evidence_state != "EXTERNAL_IMPORTED" and row.comparability_status in {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"})),
             "accepted_at": row.accepted_at.isoformat() if row.accepted_at else None,
             "search_run_id": row.search_run_id, "first_seen_at": row.first_seen_at.isoformat() if row.first_seen_at else None,
             "last_seen_at": row.last_seen_at.isoformat() if row.last_seen_at else None,
@@ -3851,7 +3980,10 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "status": row.status, "started_at": row.started_at.isoformat() if row.started_at else None,
             "completed_at": row.completed_at.isoformat() if row.completed_at else None,
             "raw_count": row.raw_count, "unique_count": row.unique_count,
-            "qualified_count": row.qualified_count, "importable_count": row.importable_count,
+            "qualified_count": row.qualified_count, "context_qualified_count": row.context_qualified_count,
+            "importable_count": row.importable_count,
+            "persisted_observation_count": row.persisted_observation_count,
+            "display_only_non_persistent_count": row.display_only_non_persistent_count,
             "versions": {"identity_graph": row.identity_graph_version, "harvester": row.harvester_version,
                          "parser": row.parser_version, "qualification": row.qualification_version,
                          "routing": row.routing_version}} for row in search_runs],

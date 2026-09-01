@@ -17,7 +17,7 @@ from .canonical_endpoints import (
     RELATED, REGISTRY, UNSUPPORTED, canonicalize_prediction_endpoint,
     endpoint_contract, normalize_experimental_observation, normalize_species,
     prediction_source_label, prediction_source_type, PREDICTION_DERIVED,
-    PREDICTION_MECHANISTIC, PREDICTION_RULE, PREDICTION_UNAVAILABLE,
+    PREDICTION_MECHANISTIC, PREDICTION_MODEL, PREDICTION_RULE, PREDICTION_UNAVAILABLE,
 )
 from .ivive import PKParameterSet
 from .pk import PKNCAResult, PKStudy
@@ -88,7 +88,7 @@ def _mapped_external(row):
     endpoint_id = mapped["canonical_endpoint_id"]
     comparable = mapped["comparability_status"] in {DIRECT, CONVERTED}
     qualification = {DIRECT: "QUALIFIED_DIRECT", CONVERTED: "QUALIFIED_DETERMINISTIC_CONVERSION", RELATED: "QUALIFIED_RELATED", "CONDITIONALLY_COMPARABLE": "QUALIFIED_CONDITIONAL"}.get(mapped["comparability_status"], "NEEDS_REVIEW")
-    item = {"id": row.id, "origin": state, "state": state, "raw_endpoint": row.raw_endpoint_name, "endpoint": _display_name(endpoint_id, row.raw_endpoint_name), "raw_value": row.raw_value, "raw_unit": row.raw_unit, "relation": row.raw_relation, "normalized_value": mapped.get("normalized_value"), "normalized_unit": mapped.get("normalized_unit", ""), "species": mapped.get("species", normalize_species(row.species, context)), "route": mapped.get("route", "UNSPECIFIED"), "context": context, "dose": context.get("dose"), "dose_unit": context.get("dose_unit") or context.get("dose_units"), "reference": _reference(row), "qualification": qualification, "comparability": mapped["comparability_status"], "importable": comparable and state != "EXTERNAL_IMPORTED", "identity_match_status": row.identity_match_status, "reference_status": "REFERENCE_RESOLVED_IMPORTED" if state == "EXTERNAL_IMPORTED" else "REFERENCE_RESOLVED_CANDIDATE", "assay_type": row.assay_type, "assay_id": row.source_assay_id, "adaptation_eligibility": bool(row.accepted_at and comparable), "display_evidence_group_id": row.provenance_fingerprint or f"evidence-{row.id}", "independent_experiment_group_id": row.source_document_id or row.source_record_id or f"evidence-{row.id}", "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": mapped["comparison_key"], "display_source": row.source_database, "routing_reason": mapped.get("reason", ""), "normalization_rule": mapped.get("normalization_rule", ""), "raw_persisted_canonical_endpoint_id": row.canonical_endpoint_id}
+    item = {"id": row.id, "origin": state, "state": state, "raw_endpoint": row.raw_endpoint_name, "endpoint": _display_name(endpoint_id, row.raw_endpoint_name), "raw_value": row.raw_value, "raw_unit": row.raw_unit, "relation": row.raw_relation, "normalized_value": mapped.get("normalized_value"), "normalized_unit": mapped.get("normalized_unit", ""), "species": mapped.get("species", normalize_species(row.species, context)), "route": mapped.get("route", "UNSPECIFIED"), "context": context, "dose": context.get("dose"), "dose_unit": context.get("dose_unit") or context.get("dose_units"), "reference": _reference(row), "qualification": qualification, "comparability": mapped["comparability_status"], "importable": comparable and state != "EXTERNAL_IMPORTED", "identity_match_status": row.identity_match_status, "reference_status": "REFERENCE_RESOLVED_IMPORTED" if state == "EXTERNAL_IMPORTED" else "REFERENCE_RESOLVED_CANDIDATE", "assay_type": row.assay_type, "assay_id": row.source_assay_id, "adaptation_eligibility": bool(row.accepted_at and comparable), "display_evidence_group_id": row.display_evidence_group_id or row.provenance_fingerprint or f"evidence-{row.id}", "independent_experiment_group_id": row.independent_experiment_group_id or row.source_document_id or row.source_record_id or f"evidence-{row.id}", "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": mapped["comparison_key"], "display_source": row.source_database, "routing_reason": mapped.get("reason", "") or row.routing_reason, "normalization_rule": mapped.get("normalization_rule", ""), "raw_persisted_canonical_endpoint_id": row.canonical_endpoint_id, "qualification_details": row.qualification_json or {}}
     return item, mapped
 
 
@@ -254,6 +254,70 @@ def ensure_pk_prediction_snapshot_index(db) -> dict:
     return {"versions_examined": len(versions), "snapshots_created": total, "runs_created": runs}
 
 
+def ensure_admet_prediction_snapshot_index(db, version_id: int | None = None) -> dict:
+    """Index every successful user-facing ADMET prediction exactly once.
+
+    Older runs froze only the production-core rows while the workspace could
+    still expose additional successful model rows.  This backfill creates the
+    missing immutable per-run/per-endpoint index without recomputing a model
+    or changing a prediction value.
+    """
+    query = select(ADMETPrediction).where(ADMETPrediction.execution_status == "SUCCESS")
+    if version_id is not None:
+        query = query.where(ADMETPrediction.version_id == version_id)
+    predictions = db.scalars(query.order_by(ADMETPrediction.created_at.asc())).all()
+    # SQLite stores the snapshot endpoint key as text while the legacy ADMET
+    # endpoint foreign key is integer-valued.  Normalize both sides before
+    # checking the immutable uniqueness constraint.
+    existing = {(row.prediction_run_id, str(row.endpoint_id)) for row in db.scalars(select(PredictionEndpointSnapshot)).all()}
+    # Prediction workflows add the primary snapshot to the SQLAlchemy unit of
+    # work immediately before this compatibility index runs.  Include pending
+    # objects as well as committed rows; otherwise the index attempts to
+    # insert the same (run, endpoint) pair a second time during one request.
+    existing.update(
+        (row.prediction_run_id, str(row.endpoint_id))
+        for row in db.new
+        if isinstance(row, PredictionEndpointSnapshot)
+    )
+    created = 0
+    grouped = defaultdict(list)
+    for prediction in predictions:
+        grouped[(prediction.run_id, prediction.endpoint_id)].append(prediction)
+    for (run_id, endpoint_id), rows in grouped.items():
+        if (run_id, str(endpoint_id)) in existing:
+            continue
+        first = rows[0]
+        raw_endpoint = first.model.endpoint_name
+        values = {str(row.model_id): float(row.predicted_value) for row in rows if row.predicted_value is not None}
+        if not values:
+            continue
+        base = sum(values.values()) / len(values)
+        source_type = prediction_source_type(source=first.model.model_name, endpoint=raw_endpoint, default=PREDICTION_MODEL)
+        snapshot = dict(first.outputs_json or {}).get("prediction_snapshot") or {
+            "compound_version_id": first.version_id,
+            "project_id": first.version.compound.project_id if first.version and first.version.compound else None,
+            "endpoint": raw_endpoint, "base_prediction": base,
+            "project_prediction": None, "project_adjustment": 0.0,
+            "model_predictions": values, "source_type": source_type,
+            "prediction_type": source_type, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION,
+            "comparison_unit_version": COMPARISON_UNIT_VERSION,
+            "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"},
+        }
+        project_id = first.version.compound.project_id if first.version and first.version.compound else 0
+        db.add(PredictionEndpointSnapshot(
+            prediction_run_id=run_id, project_id=project_id, compound_version_id=first.version_id,
+            endpoint_id=str(endpoint_id), endpoint_name=raw_endpoint, base_value=base,
+            base_unit=first.unit or "", prediction_type=source_type,
+            maturity_level=(snapshot.get("maturity") or {}).get("level", 1),
+            maturity_label=(snapshot.get("maturity") or {}).get("label", "Base Prediction"),
+            snapshot_json=snapshot, created_at=first.created_at,
+        ))
+        existing.add((run_id, str(endpoint_id))); created += 1
+    if created:
+        db.flush()
+    return {"predictions_examined": len(predictions), "snapshots_created": created}
+
+
 def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:
     """Recompute v4 qualification from stored raw evidence, without search."""
     versions = [version_id] if version_id is not None else db.scalars(select(CompoundVersion.id)).all()
@@ -272,6 +336,9 @@ def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:
             evidence.qualification_status = q["endpoint_status"]
             evidence.routing_section = mapped.get("section", evidence.routing_section or "")
             evidence.routing_reason = q.get("primary_gap_reason", "")
+            evidence.qualification_json = q
+            evidence.display_evidence_group_id = evidence.display_evidence_group_id or evidence.provenance_fingerprint or f"evidence-{evidence.id}"
+            evidence.independent_experiment_group_id = evidence.independent_experiment_group_id or evidence.source_document_id or evidence.source_record_id or f"evidence-{evidence.id}"
             evidence.canonical_endpoint_version = CANONICAL_ENDPOINT_VERSION
             evidence.unit_normalization_version = COMPARISON_UNIT_VERSION
             changed += 1

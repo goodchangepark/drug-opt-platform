@@ -341,7 +341,8 @@ function App(){
  const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false),[qualificationSummary,setQualificationSummary]=useState(null),[evidenceFilter,setEvidenceFilter]=useState('ALL'),[harvestSources,setHarvestSources]=useState(['PubChem PUG View','PubChem BioAssay','ChEMBL','BindingDB','Europe PMC','PK-DB','FDA / Regulatory']);
  const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
  const previewRequest=useRef(0);
- const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false);
+ const workspaceRequest=useRef(0),detailRequest=useRef(0);
+ const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false),navigationRestorePending=useRef(false);
  const [projectTab,setProjectTab]=useState('dashboard'),[detailTab,setDetailTab]=useState('overview');
  const [admet,setAdmet]=useState(null),[admetVersionId,setAdmetVersionId]=useState(''),[admetForm,setAdmetForm]=useState({...EMPTY_ADMET_FORM});
  const [projectAdaptation,setProjectAdaptation]=useState(null),[learningLedger,setLearningLedger]=useState(null);
@@ -450,9 +451,23 @@ function App(){
  };
  const loadWorkspace=async (versionId,compoundRowId=detail?.row_id)=>{
   if(!versionId){setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null);setPredictionWorkflow(null);setQualificationSummary(null);return null}
-  const [data,pairs,qualification]=await Promise.all([api.get('/compound-versions/'+versionId+'/workspace'),api.get('/compounds/'+compoundRowId+'/prediction-experimental-comparisons'),api.get('/compounds/'+compoundRowId+'/qualification-summary')]);
+  const requestId=++workspaceRequest.current;
+  const [data,pairs,qualification,canonical]=await Promise.all([api.get('/compound-versions/'+versionId+'/workspace'),api.get('/compounds/'+compoundRowId+'/prediction-experimental-comparisons'),api.get('/compounds/'+compoundRowId+'/qualification-summary'),api.get('/compound-versions/'+versionId+'/scientific-comparison')]);
+  if(requestId!==workspaceRequest.current)return null;
   if(data.scope.version_id!==Number(versionId))throw new Error('CompoundVersion isolation check failed');
+  // The primary table is always the server-built canonical join.  The
+  // workspace payload supplies detail/provenance panels, but the browser
+  // never merges experimental and prediction lists itself.
+  data.endpoint_comparison=canonical;
   const savedWorkflow=(data.prediction_audit||[]).find(run=>run.stage==='prediction_workflow'&&run.outputs)?.outputs||null;
+  // Rehydrate the search panel from the same persisted workspace payload as
+  // the canonical endpoint table.  The search response is never the source
+  // of truth after navigation or a hard reload.
+  const persistedRun=(data.experimental_search_runs||[]).find(run=>run.status==='COMPLETE');
+  const persistedQualification=data.endpoint_comparison?.summary?.qualification||qualification.global||{};
+  if(persistedRun||data.external_experimental_evidence?.length){
+   setExternalEvidence({status:'RESULTS_AVAILABLE',saved:true,records:(data.external_experimental_evidence||[]).map(item=>({...item,value:item.value??item.raw_value,unit:item.unit??item.raw_unit,reference_status:item.reference_status||'REFERENCE_RESOLVED_CANDIDATE',qualification:item.qualification||{},display:{normalized_value:item.normalized_value===''?null:item.normalized_value,normalized_unit:item.normalized_unit},routing:{section:item.routing_section,comparability_status:item.comparability_status}})),summary:{...persistedQualification,raw_records:persistedRun?.raw_count??persistedQualification.raw_source_records??0,unique_records:persistedRun?.unique_count??persistedQualification.unique_scientific_observations??0,numeric_observations:persistedQualification.numeric??0,endpoint_qualified:persistedRun?.qualified_count??persistedQualification.endpoint_qualified??0,context_qualified:persistedRun?.context_qualified_count??persistedQualification.context_qualified??0,prediction_pairable:persistedQualification.prediction_pairable??0,directly_comparable:persistedQualification.direct??0,conditionally_comparable:persistedQualification.conditional??0,importable:persistedRun?.importable_count??persistedQualification.ready_to_import??0,persisted_observations:persistedRun?.persisted_observation_count??data.external_experimental_evidence?.length??0,last_search:persistedRun?.completed_at||''},source_counts:qualification.sources||{},sources:persistedRun?.source_status||{}});
+  } else setExternalEvidence(null);
   setWorkspace(data);setComparisonPairs(pairs);setAdmet(data.admet);setMetabolism(data.metabolism);setPredictionWorkflow(savedWorkflow);setQualificationSummary(qualification);return data;
  };
  const loadOptimization=async(versionId=detail?.version?.id,id=projectId)=>{
@@ -478,9 +493,17 @@ function App(){
   const key=JSON.stringify(state);
   if(!navigationReady.current){
    let saved=window.history.state;
-   try{if(!saved?.appNavigation){const stored=JSON.parse(window.sessionStorage.getItem('drugopt.navigation')||'null');if(stored?.appNavigation)saved=stored;}}catch(_){/* storage may be unavailable */}
+   try{
+    const stored=JSON.parse(window.sessionStorage.getItem('drugopt.navigation')||'null');
+    // history.state may contain only the last intermediate project view
+    // (for example detailId:null) while the session snapshot already holds
+    // the fully selected compound. Prefer the most recent persisted detail
+    // state so a hard reload cannot silently fall back to the dashboard.
+    if(stored?.appNavigation&&(!saved?.appNavigation||(saved.detailId==null&&stored.detailId!=null)))saved=stored;
+   }catch(_){/* storage may be unavailable */}
    if(saved?.appNavigation){
     navigationPop.current=true;
+    navigationRestorePending.current=Boolean(saved.detailId);
     setGlobalView(saved.globalView||'dashboard'); setProjectId(saved.projectId||null);
     setProjectTab(saved.projectTab||'dashboard'); setDetailTab(saved.detailTab||'overview');
     if(saved.detailId)openDetail(saved.detailId,{preserveTab:true}); else setDetail(null);
@@ -489,7 +512,14 @@ function App(){
    window.history.replaceState({...state,appNavigation:true},'',window.location.href);
    navigationReady.current=true; navigationKey.current=key; return;
   }
-   if(navigationPop.current){navigationPop.current=false;navigationKey.current=key;try{window.sessionStorage.setItem('drugopt.navigation',JSON.stringify({...state,appNavigation:true}))}catch(_){};return}
+  // During initial restore, openDetail is asynchronous.  Do not let the
+  // intermediate render (where detail is still null) overwrite the saved
+  // deep state and make the next hard reload fall back to the dashboard.
+  if(navigationRestorePending.current){
+   if(detail?.row_id==null)return;
+   navigationRestorePending.current=false;
+  }
+  if(navigationPop.current){navigationPop.current=false;navigationKey.current=key;try{window.sessionStorage.setItem('drugopt.navigation',JSON.stringify({...state,appNavigation:true}))}catch(_){};return}
   if(navigationKey.current!==key){window.history.pushState({...state,appNavigation:true},'',window.location.href);navigationKey.current=key}
   try{window.sessionStorage.setItem('drugopt.navigation',JSON.stringify({...state,appNavigation:true}))}catch(_){}
  },[globalView,projectId,projectTab,detail?.row_id,detailTab]);
@@ -507,6 +537,15 @@ function App(){
  },[]);
  useEffect(()=>{if(globalView==='help'&&!helpRegistry)loadHelpRegistry().catch(error=>setMessage(String(error)))},[globalView]);
  useEffect(()=>{
+  // Initial deep-link restoration starts openDetail() before the project
+  // state update has settled.  Clearing detail here would race that request
+  // and leave the session pointing at a compound while rendering only the
+  // project dashboard.
+  if(navigationRestorePending.current){
+   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
+   return;
+  }
+  workspaceRequest.current++;detailRequest.current++;
   if(detailRef.current&&Number(detailRef.current.project_id)===Number(projectId)){loadProject(projectId).catch(error=>setMessage(String(error)));return}
   setProject(null);setDetail(null);setWorkspace(null);setSelected([]);setComparison(null);setAdmet(null);setMetabolism(null);setIviveData(null);setAdmetCsvPreview(null);setSelectedSpotId(null);setOptimizationConfig(null);setOptimizationRuns([]);setOptimizationRun(null);setAssays([]);setProposalRuns([]);setProposalRun(null);setSelectedCandidate(null);
   if(projectId)loadProject(projectId).catch(error=>setMessage(String(error)));
@@ -709,12 +748,18 @@ function App(){
   }
  };
  const openDetail=async(rowId,options={})=>{
+  const requestId=++detailRequest.current;
   try{
-   const compound=await api.get('/compounds/'+rowId+'?include_versions=true');setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
-   const assayData=await api.get('/projects/'+compound.project_id+'/assays');setAssays(assayData.assays||assayData||[]);
+   const compound=await api.get('/compounds/'+rowId+'?include_versions=true');
+   if(requestId!==detailRequest.current)return null;
+   setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
+   const assayData=await api.get('/projects/'+compound.project_id+'/assays');
+   if(requestId!==detailRequest.current)return null;
+   setAssays(assayData.assays||assayData||[]);
    if(compound.version)await loadWorkspace(compound.version.id,compound.row_id);else{setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null)}
    setMessage('');
-  }catch(error){setMessage(String(error))}
+   return compound;
+  }catch(error){if(requestId===detailRequest.current)setMessage(String(error));return null}
  };
  const calculateProperties=async()=>{
   if(!detail)return;
@@ -1084,7 +1129,7 @@ function integratedProfile(versionId){
   const experimental=observedExperiments.length?(values.length>1?values.length+' observations · '+Math.min(...values)+'–'+Math.max(...values):((observedExperiments[0].relation||observedExperiments[0].raw_relation||'=')+' '+((observedExperiments[0].display||{}).normalized_value??observedExperiments[0].normalized_value??observedExperiments[0].value)+' '+((observedExperiments[0].display||{}).normalized_unit||observedExperiments[0].normalized_unit||observedExperiments[0].unit||''))):(reviewExperiments.length?'Needs review ('+reviewExperiments.length+')':prediction?'Not measured / no endpoint-qualified experimental value':'—');
   const state=prediction&&observedExperiments.length?'BOTH':prediction?'PREDICTION_ONLY':'EXPERIMENTAL_ONLY';
   const source=experiments.length?[...new Set(experiments.flatMap(row=>row.display_sources||[row.source||'External']))].join(' · '):'—';
-  const status=unifiedStatus(row,prediction,pair,comparison);
+  const status=!experiments.length&&prediction?'Prediction Only':(experiments.length&&!prediction&&effectiveComparison==null?'Experimental Only':unifiedStatus(row,prediction,pair,comparison));
   const importButton=ready&&onImport?e('button',{className:'secondary',onClick:()=>onImport(experiments.find(item=>item.import_eligible===true))},'Import'):null;
   return e('tr',{className:'unified-endpoint-comparison',key:endpoint},[
    e('td',{key:'endpoint'},[e('strong',{},endpoint),e('div',{className:'small'},state==='BOTH'?'Experimental + Prediction':state==='PREDICTION_ONLY'?'No experimental value yet':'No matching prediction endpoint')]),
