@@ -109,6 +109,7 @@ from .experimental_evidence_router import ROUTER_VERSION, route_evidence, route_
 from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGINE_V1_POLICY,
                                     QualifiedEvidencePair, fit_project_adapter)
 from .prediction_maturity import maturity_for_adapter
+from .prediction_experimental_comparison import generate_pairs, performance_summary
 
 
 CURRENT_STAGE = "5B-4"
@@ -1114,6 +1115,43 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                               "comparability_status": row.comparability_status,
                               "comparability_label": COMPARABILITY_LABELS.get(row.comparability_status, "Unsupported")})} for row in rows]
     return {"records": records}
+
+
+@app.get("/api/compounds/{row_id}/prediction-experimental-comparisons")
+def prediction_experimental_comparisons(row_id: int, db: Session = Depends(get_db)):
+    """Read-only comparison pairs from frozen predictions and imported evidence."""
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    version_ids = [v.id for v in compound.versions]
+    evidence_rows = db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(version_ids))).all() if version_ids else []
+    def numeric_normalized(value):
+        try:
+            return float(value) if str(value).strip() else None
+        except (TypeError, ValueError):
+            return None
+    evidence = [{
+        "id": row.id, "compound_version_id": row.compound_version_id, "endpoint": row.raw_endpoint_name, "raw_value": row.raw_value, "raw_unit": row.raw_unit,
+        "raw_relation": row.raw_relation, "normalized_value": row.normalized_value, "normalized_unit": row.normalized_unit,
+        "canonical_endpoint_id": row.canonical_endpoint_id, "comparability_status": row.comparability_status,
+        "display": {"normalized_value": numeric_normalized(row.normalized_value),
+                    "normalized_unit": row.normalized_unit, "comparability_status": row.comparability_status},
+        "import_eligible": True, "duplicate_status": row.duplicate_status, "source_quality_class": row.source_quality_class,
+        "source_record_id": row.source_record_id, "source_document_id": row.source_document_id,
+        "reference_status": "REFERENCE_RESOLVED_IMPORTED", "imported_at": row.imported_at.isoformat() if row.imported_at else None,
+    } for row in evidence_rows]
+    predictions = [{
+        "id": row.id, "version_id": row.version_id, "endpoint": row.model.endpoint_name, "predicted_value": row.predicted_value,
+        "unit": row.unit, "created_at": row.created_at.isoformat() if row.created_at else None,
+    } for row in db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(ADMETPrediction.version_id.in_(version_ids))).all()] if version_ids else []
+    pairs = generate_pairs(predictions, evidence, project_id=compound.project_id, compound_id=compound.id,
+                           compound_version_id=None)
+    grouped = {}
+    for pair in pairs:
+        grouped.setdefault(pair.endpoint_id, []).append(pair)
+    return {"compound_id": compound.id, "pairs": [pair.to_dict() for pair in pairs],
+            "performance": {endpoint: performance_summary(items) for endpoint, items in grouped.items()},
+            "prediction_freeze_required": True, "adapter_activation": "EXPLICIT_USER_ACTION_REQUIRED"}
 
 
 @app.post("/api/compounds/{row_id}/external-experimental/import")

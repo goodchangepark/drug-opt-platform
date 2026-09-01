@@ -357,7 +357,7 @@ function App(){
   assay_id:'',objectives:['Balanced optimization'],custom_objective:'',
   constraints:{potency_max_nm:'',do_not_worsen_fold:'2',clogp_max:'4',tpsa_min:'40',tpsa_max:'100',mw_max:'550',similarity_min:'0.6',logs_min:'-4',caco2_logpapp_min:'-5.5',herg_do_not_increase:true},endpoint_weights:{}
  });
- const [workspace,setWorkspace]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
+ const [workspace,setWorkspace]=useState(null),[comparisonPairs,setComparisonPairs]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
  const [compareMetrics,setCompareMetrics]=useState(['MW','cLogP','TPSA','QED','Activity','Solubility','Caco-2','PPB','fu','HLM','RLM','MLM','DLM','CyLM','CYP3A4 Inh','P-gp Inh','Soft Spots','Mouse CL (IV)','Rat CL (IV)','Human CL (IVIVE)','Human Vd (pred)','Human t1/2 (pred)','Human AUC (1mg/kg IV)','hERG','Ames','DILI']),[compareAssay,setCompareAssay]=useState('');
  const [editorReady,setEditorReady]=useState(false);
  const [pkData,setPkData]=useState(null),[pkSelectedStudyId,setPkSelectedStudyId]=useState(null),[pkSelectedStudyDetails,setPkSelectedStudyDetails]=useState(null);
@@ -441,11 +441,11 @@ function App(){
   setIviveData(data);return data;
  };
  const loadWorkspace=async versionId=>{
-  if(!versionId){setWorkspace(null);setAdmet(null);setMetabolism(null);setPredictionWorkflow(null);return null}
-  const data=await api.get('/compound-versions/'+versionId+'/workspace');
+  if(!versionId){setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null);setPredictionWorkflow(null);return null}
+  const [data,pairs]=await Promise.all([api.get('/compound-versions/'+versionId+'/workspace'),api.get('/compounds/'+detail.row_id+'/prediction-experimental-comparisons')]);
   if(data.scope.version_id!==Number(versionId))throw new Error('CompoundVersion isolation check failed');
   const savedWorkflow=(data.prediction_audit||[]).find(run=>run.stage==='prediction_workflow'&&run.outputs)?.outputs||null;
-  setWorkspace(data);setAdmet(data.admet);setMetabolism(data.metabolism);setPredictionWorkflow(savedWorkflow);return data;
+  setWorkspace(data);setComparisonPairs(pairs);setAdmet(data.admet);setMetabolism(data.metabolism);setPredictionWorkflow(savedWorkflow);return data;
  };
  const loadOptimization=async(versionId=detail?.version?.id,id=projectId)=>{
   if(!id||!versionId)return null;
@@ -985,20 +985,23 @@ function App(){
   ])));
  }
 
- function integratedProfile(versionId){
+function integratedProfile(versionId){
   const profile=admet?.integrated_profiles?.[String(versionId)];
   if(!profile)return null;
   const summary=profile.summary||{};
   const group=(title,rows,klass)=>e('div',{className:'col-4',key:title},[e('h4',{key:'title'},title),rows?.length?e('ul',{key:'list',className:klass},rows.map(text=>e('li',{key:text},text))):e('p',{key:'empty',className:'small'},'None')]);
+ const performance=comparisonPairs?.performance||{};
  return e('div',{className:'card',key:'integrated-profile'},[
    e('h3',{key:'title'},'Stage 3 Integrated ADMET Profile'),
    e('p',{key:'policy',className:'small'},'Experimental values take display precedence while predictions remain preserved. Confidence and applicability domain are endpoint-specific. No overall ADMET score or candidate ranking is calculated.'),
    e('div',{className:'grid',key:'summary'},[group('Strengths',summary.strengths,'strengths'),group('Concerns',summary.concerns,'concerns')]),
    (summary.unknown||[]).length>0&&e('details',{key:'unavailable',className:'unavailable-collapse'},[e('summary',{},'Unavailable models ('+summary.unknown.length+')'),e('ul',{className:'small'},summary.unknown.map(text=>e('li',{key:text},text)))]),
    e('div',{key:'audit',className:profile.provenance_audit?.status==='PASS'?'pass':'fail'},'Provenance audit: '+profile.provenance_audit?.status+' · '+profile.provenance_audit?.checked+' latest endpoint predictions checked'),
-   projectAdaptation?.endpoints?.length>0&&e('details',{key:'project-adaptation'},[e('summary',{},'Prediction Maturity & Project Adaptation'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Maturity','Qualified N','Effective N','Status','Base error','Adapted error','Adapter'].map(x=>e('th',{key:x},x)))),e('tbody',{},projectAdaptation.endpoints.map(row=>e('tr',{key:row.endpoint_id},[e('td',{},row.endpoint_id),e('td',{},[MaturityStars({maturity:row.maturity}),e('span',{className:'small'},' '+row.maturity.label)]),e('td',{},row.raw_n),e('td',{},row.effective_n),e('td',{},row.status),e('td',{},row.base_validation_error??'—'),e('td',{},row.adapted_validation_error??'—'),e('td',{},row.active_adapter_version||'Collecting data')])))])),e('p',{className:'small'},'Stars indicate the maturity of project-specific experimental adaptation, not an absolute guarantee of predictive accuracy.')])
+   projectAdaptation?.endpoints?.length>0&&e('details',{key:'project-adaptation'},[e('summary',{},'Prediction Maturity & Project Adaptation'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Maturity','Qualified N','Effective N','Status','Base error','Adapted error','Adapter'].map(x=>e('th',{key:x},x)))),e('tbody',{},projectAdaptation.endpoints.map(row=>e('tr',{key:row.endpoint_id},[e('td',{},row.endpoint_id),e('td',{},[MaturityStars({maturity:row.maturity}),e('span',{className:'small'},' '+row.maturity.label)]),e('td',{},row.raw_n),e('td',{},row.effective_n),e('td',{},row.status),e('td',{},row.base_validation_error??'—'),e('td',{},row.adapted_validation_error??'—'),e('td',{},row.active_adapter_version||'Collecting data')])))])),e('p',{className:'small'},'Stars indicate the maturity of project-specific experimental adaptation, not an absolute guarantee of predictive accuracy.')]),
+   Object.keys(performance).length>0&&e('details',{key:'prediction-performance',open:true},[e('summary',{},'Prediction Performance'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Endpoint','Pairs','Independent compounds','MAE','Bias','Status'].map(x=>e('th',{key:x},x)))),e('tbody',{},Object.entries(performance).map(([endpoint,row])=>e('tr',{key:endpoint},[e('td',{},endpoint),e('td',{},row.pair_count),e('td',{},row.independent_compounds),e('td',{},row.mae==null?'—':row.mae),e('td',{},row.bias==null?'—':row.bias),e('td',{},row.status)])))]))]),
+   e('p',{className:'small'},'Performance uses frozen prediction ↔ imported experimental pairs only; related evidence and same-compound leakage are excluded.')
   ]);
- }
+}
 
  function maturityForEndpoint(endpoint){return projectAdaptation?.endpoints?.find(row=>row.endpoint_id===endpoint)?.maturity||{level:1,label:'Base Prediction',stars:'★☆☆☆☆',aria_label:'Prediction maturity 1 of 5 — Base Prediction'};}
  function maturityForPrediction(prediction){return prediction?.prediction_maturity||maturityForEndpoint(prediction?.endpoint);}
@@ -1022,6 +1025,7 @@ function App(){
      d.normalized_value!=null&&e('div',{className:'small',key:'raw'},'Raw: '+row.relation+' '+row.value+' '+row.unit),
      e('div',{className:'small',key:'source'},(row.source||'External')+' · '+(row.evidence_category||row.routing.display_group)),
      e('div',{className:'small',key:'qualification'},row.routing.qualification_label+(row.routing.adaptation_eligibility?' · Eligible for Project Adaptation':' · Not used for adaptation')),
+     (()=>{const pair=(comparisonPairs?.pairs||[]).find(item=>item.experimental_evidence_id===row.id);return pair&&e('div',{className:'comparison-result small',key:'comparison'},pair.absolute_error!=null?'Difference: '+pair.signed_error+' '+pair.experimental_normalized_unit+' · '+(pair.adaptation_eligibility?'Eligible for Project Adaptation':'Not used for adaptation'):pair.comparison_metric_type+' · '+pair.eligibility_reason)})(),
      row.conditions&&e('details',{key:'context'},[e('summary',{},'Conditions / context'),e('div',{className:'small'},row.conditions)]),
      e('details',{key:'reference'},[e('summary',{},'Reference'),e('div',{className:'small'},[e('div',{},row.reference||'Reference unavailable'),row.source_url&&e('a',{href:row.source_url,target:'_blank',rel:'noreferrer'},'Open source')])])
     ]);

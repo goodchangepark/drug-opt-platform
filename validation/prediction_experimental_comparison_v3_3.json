@@ -1,0 +1,19 @@
+{
+  "artifact": "prediction-experimental-comparison-v3.3",
+  "engine_policy": "drugopt-prediction-engine-v1@1.0.0",
+  "engine_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "pair_policy": {
+    "pre_experimental_freeze_required": true,
+    "same_compound_leakage": "BLOCKED",
+    "adaptation_activation": "EXPLICIT_USER_ACTION_REQUIRED",
+    "raw_search_records_count_toward_n": false
+  },
+  "drugs": [
+    {"name": "sunvozertinib", "comparison_pairs": [], "status": "NO_IMPORTED_PAIRS"},
+    {"name": "osimertinib", "comparison_pairs": [], "status": "NO_IMPORTED_PAIRS"},
+    {"name": "midazolam", "comparison_pairs": [], "status": "NO_IMPORTED_PAIRS"},
+    {"name": "warfarin", "comparison_pairs": [], "status": "NO_IMPORTED_PAIRS"},
+    {"name": "metformin", "comparison_pairs": [], "status": "NO_IMPORTED_PAIRS"}
+  ],
+  "note": "Validation controls are public evidence identities; no public evidence was auto-imported into the live project. Pairs are generated from explicitly imported evidence only."
+}
