@@ -1,7 +1,7 @@
 {
   "compound": "Sunvozertinib",
   "future_policy": "Identical workflow requests reuse a completed workflow fingerprint by default; force_rerun=true creates an explicit immutable rerun.",
-  "generated_at": "2026-09-01T21:44:38.171994+00:00",
+  "generated_at": "2026-09-01T21:50:18.262999+00:00",
   "identical_fingerprint_duplicates": 0,
   "prediction_runs": 30,
   "runs": [
