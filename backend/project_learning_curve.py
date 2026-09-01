@@ -325,6 +325,22 @@ def build_disposable_learning_demo(endpoint_id="Solubility") -> dict:
     holdout = events[5]
     base = _prediction(holdout, global_weights)
     project = _prediction(holdout, fit.project_weights) if fit.activation_decision == "ACTIVATED" else None
+    prediction_snapshot = {
+        "prediction_created_at": "2026-01-01T00:00:00+00:00",
+        "engine_policy": ENGINE_V1_POLICY,
+        "engine_hash": ENGINE_V1_HASH,
+        "endpoint_id": endpoint_id,
+        "compound_version_id": holdout.compound_version_id,
+        "base_prediction": base,
+        "project_prediction": project,
+        "adapter_version": fit.adapter_version if fit.activation_decision == "ACTIVATED" else None,
+        "training_compounds": [str(event.compound_version_id) for event in events[:5]],
+        "effective_n": fit.effective_n,
+        "model_weights": dict(fit.project_weights),
+        "maturity": {"level": 2, "label": "Early Adaptation"} if fit.activation_decision == "ACTIVATED" else {"level": 1, "label": "Base Prediction"},
+        "similarity_to_training": round(_similarity_to_training(holdout, events[:5]), 4),
+        "experiment_used_for_prediction": False,
+    }
     return {
         "training_compounds": [str(event.compound_version_id) for event in events[:5]],
         "new_compound": str(holdout.compound_version_id),
@@ -340,6 +356,7 @@ def build_disposable_learning_demo(endpoint_id="Solubility") -> dict:
         "project_error": abs(project - holdout.value) if project is not None else None,
         "curve": curve,
         "snapshot_immutable": True,
+        "prediction_snapshot": prediction_snapshot,
     }
 
 

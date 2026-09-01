@@ -62,6 +62,9 @@ def test_disposable_new_compound_snapshot_and_reveal_are_separate():
     assert demo["project_prediction"] is not None
     assert demo["project_error"] < demo["base_error"]
     assert demo["snapshot_immutable"] is True
+    assert demo["prediction_snapshot"]["experiment_used_for_prediction"] is False
+    assert demo["prediction_snapshot"]["adapter_version"]
+    assert demo["prediction_snapshot"]["training_compounds"] == ["1", "2", "3", "4", "5"]
 
 
 def test_maturity_policy_requires_validation_and_activation_not_n_alone():
