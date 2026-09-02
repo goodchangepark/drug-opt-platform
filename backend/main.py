@@ -3803,7 +3803,14 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     if full_core_cache and shadow_all_cached and freeze_all_cached:
         # All predictions (core + shadow) already exist — true cache hit
         _refresh_model_feedback(db, compound.project_id, [row_id])
-        consensuses = _store_consensus_predictions(db, version, compound.project_id, list(cached.values()))
+        all_cached_preds = db.scalars(
+            select(ADMETPrediction)
+            .where(
+                ADMETPrediction.version_id == row_id,
+                ADMETPrediction.execution_status == "SUCCESS",
+            )
+        ).all()
+        consensuses = _store_consensus_predictions(db, version, compound.project_id, all_cached_preds)
         cached_run = _record_cached_admet_run(db, row_id, list(cached.values()))
         ensure_admet_prediction_snapshot_index(db, row_id)
         db.commit()
@@ -3837,7 +3844,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
     # Refresh performance feedback after orchestration
     _refresh_model_feedback(db, compound.project_id, [row_id])
 
-    # Store static consensus (shadow mode, from primary model predictions only)
+    # Store static consensus (shadow mode, across all successful multi-models)
     # Refresh cached after orchestration to include newly persisted CORE predictions
     refreshed_core_preds = {}
     for model in available_models:
@@ -3854,8 +3861,15 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         if pred:
             refreshed_core_preds[model.id] = pred
 
+    all_version_preds = db.scalars(
+        select(ADMETPrediction)
+        .where(
+            ADMETPrediction.version_id == row_id,
+            ADMETPrediction.execution_status == "SUCCESS",
+        )
+    ).all()
     consensuses = _store_consensus_predictions(
-        db, version, compound.project_id, list(refreshed_core_preds.values())
+        db, version, compound.project_id, all_version_preds
     )
     _freeze_admet_prediction_snapshots(db, compound.project_id, row_id, refreshed_core_preds)
     # Include any successfully persisted secondary/user-facing model outputs

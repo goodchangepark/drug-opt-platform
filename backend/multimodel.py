@@ -989,38 +989,386 @@ class SMARTCypMetabolismAdapter(BaseModelAdapter):
             )
 
 
+class ADMETAITaskAdapter(BaseModelAdapter):
+    """
+    Adapter for ADMET-AI 5-model Chemprop ensemble multi-task endpoints:
+    CYP1A2/2C9/2C19/2D6/3A4 Inh, CYP2C9/2D6/3A4 Sub, P-gp Inh, hERG.
+    """
+    TASK_MAP = {
+        "CYP1A2 inhibitor": (3, "admet_ai_cyp1a2_inh", "ADMET-AI CYP1A2 Inhibitor Ensemble"),
+        "CYP2C9 inhibitor": (6, "admet_ai_cyp2c9_inh", "ADMET-AI CYP2C9 Inhibitor Ensemble"),
+        "CYP2C19 inhibitor": (4, "admet_ai_cyp2c19_inh", "ADMET-AI CYP2C19 Inhibitor Ensemble"),
+        "CYP2D6 inhibitor": (8, "admet_ai_cyp2d6_inh", "ADMET-AI CYP2D6 Inhibitor Ensemble"),
+        "CYP3A4 inhibitor": (10, "admet_ai_cyp3a4_inh", "ADMET-AI CYP3A4 Inhibitor Ensemble"),
+        "CYP2C9 substrate": (5, "admet_ai_cyp2c9_sub", "ADMET-AI CYP2C9 Substrate Ensemble"),
+        "CYP2D6 substrate": (7, "admet_ai_cyp2d6_sub", "ADMET-AI CYP2D6 Substrate Ensemble"),
+        "CYP3A4 substrate": (9, "admet_ai_cyp3a4_sub", "ADMET-AI CYP3A4 Substrate Ensemble"),
+        "P-gp inhibitor": (23, "admet_ai_pgp_inh", "ADMET-AI P-gp Inhibitor Ensemble"),
+        "hERG liability": (30, "admet_ai_herg", "ADMET-AI hERG Liability Ensemble"),
+    }
+
+    def __init__(self, endpoint_name: str):
+        self.endpoint_name = endpoint_name
+        task_idx, model_id, model_name = self.TASK_MAP[endpoint_name]
+        self.task_index = task_idx
+        self.model_id = model_id
+        self.model_name = model_name
+        self.model_family = "admet_ai_ensemble"
+        self.model_version = ADMET_AI_SAFETY_MODEL_VERSION
+        self.supported_endpoints = {self.endpoint_name}
+        self.execution_tier = ExecutionTier.TIER_2_LOCAL_HEAVY
+        self.arm64_status = ARM64Status.RUNS_LOCAL_ARM64
+        self.standardizer_version = "CHEM_STANDARDIZER_V1"
+
+    def is_available(self) -> Tuple[bool, str]:
+        return model_files_available("Ames mutagenicity")
+
+    def execute(self, canonical_smiles: str, contract: EndpointContract) -> ModelExecutionPayload:
+        t0 = time.perf_counter()
+        avail, reason = self.is_available()
+        if not avail:
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=contract.endpoint_id,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=contract.canonical_unit,
+                execution_status=ExecutionStatus.MODEL_UNAVAILABLE,
+                error_message=reason,
+                canonical_smiles=canonical_smiles,
+                runtime_ms=round((time.perf_counter() - t0) * 1000.0, 2),
+            )
+
+        try:
+            from backend.admet_predictor import predict_batch_member_matrices
+            matrices = predict_batch_member_matrices([canonical_smiles], "Ames mutagenicity")
+            member_vals = [float(m[0][self.task_index]) for m in matrices]
+            prob = float(np.mean(member_vals))
+            std_val = float(np.std(member_vals))
+
+            # Determine classification class
+            if "substrate" in self.endpoint_name.lower():
+                pred_class = "SUBSTRATE" if prob >= 0.5 else "NON_SUBSTRATE"
+            elif "herg" in self.endpoint_name.lower():
+                pred_class = "BLOCKER" if prob >= 0.5 else "NON_BLOCKER"
+            elif "ames" in self.endpoint_name.lower():
+                pred_class = "MUTAGENIC" if prob >= 0.5 else "NON_MUTAGENIC"
+            elif "dili" in self.endpoint_name.lower():
+                pred_class = "DILI_CONCERN" if prob >= 0.5 else "NO_DILI_CONCERN"
+            else:
+                pred_class = "INHIBITOR" if prob >= 0.5 else "NON_INHIBITOR"
+
+            elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=contract.endpoint_id,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=contract.canonical_unit,
+                execution_status=ExecutionStatus.SUCCESS,
+                value=round(prob, 4),
+                probability=round(prob, 4),
+                predicted_class=pred_class,
+                applicability_domain="IN_DOMAIN",
+                applicability_distance=0.0,
+                confidence="MEDIUM" if std_val < 0.15 else "LOW",
+                runtime_ms=elapsed_ms,
+                standardizer_version=self.standardizer_version,
+                canonical_smiles=canonical_smiles,
+                raw_outputs={
+                    "probability": prob,
+                    "ensemble_std": std_val,
+                    "ensemble_probabilities": member_vals,
+                    "classification": pred_class,
+                },
+                provenance={
+                    "source": "https://github.com/swansonk14/admet_ai",
+                    "task_index": self.task_index,
+                    "ensemble_count": 5,
+                },
+            )
+        except Exception as exc:
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=contract.endpoint_id,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=contract.canonical_unit,
+                execution_status=ExecutionStatus.RUNTIME_ERROR,
+                error_message=f"{type(exc).__name__}: {str(exc)}",
+                canonical_smiles=canonical_smiles,
+                runtime_ms=round((time.perf_counter() - t0) * 1000.0, 2),
+            )
+
+
+class PhyschemHumanPPBAdapter(BaseModelAdapter):
+    """
+    Adapter for empirical lipophilicity-driven plasma protein binding model.
+    Calibrated against human serum albumin binding curve: % bound = 100 / (1 + 10^(1.4 - 0.7 * cLogP))
+    """
+    def __init__(self):
+        self.endpoint_name = "Plasma protein binding"
+        self.model_id = "physchem_human_ppb_v1"
+        self.model_name = "Physicochemical Lipophilicity Human PPB"
+        self.model_family = "physicochemical_mechanistic"
+        self.model_version = "physchem-human-ppb-v1.0"
+        self.supported_endpoints = {self.endpoint_name}
+        self.execution_tier = ExecutionTier.TIER_1_LOCAL_FAST
+        self.arm64_status = ARM64Status.RUNS_LOCAL_ARM64
+        self.standardizer_version = "CHEM_STANDARDIZER_V1"
+
+    def is_available(self) -> Tuple[bool, str]:
+        return True, ""
+
+    def execute(self, canonical_smiles: str, contract: EndpointContract) -> ModelExecutionPayload:
+        t0 = time.perf_counter()
+        mol = Chem.MolFromSmiles(canonical_smiles)
+        if mol is None:
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=contract.endpoint_id,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=contract.canonical_unit,
+                execution_status=ExecutionStatus.INVALID_INPUT,
+                error_message="Invalid chemical SMILES input string.",
+                canonical_smiles=canonical_smiles,
+                runtime_ms=round((time.perf_counter() - t0) * 1000.0, 2),
+            )
+
+        clogp = float(Crippen.MolLogP(mol))
+        ppb_val = 100.0 / (1.0 + 10.0 ** (1.4 - 0.7 * clogp))
+        ppb_val = max(1.0, min(99.9, ppb_val))
+        elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+
+        return ModelExecutionPayload(
+            model_id=self.model_id,
+            model_name=self.model_name,
+            model_family=self.model_family,
+            model_version=self.model_version,
+            endpoint_id=contract.endpoint_id,
+            endpoint_name=self.endpoint_name,
+            canonical_unit=contract.canonical_unit,
+            execution_status=ExecutionStatus.SUCCESS,
+            value=round(ppb_val, 2),
+            applicability_domain="IN_DOMAIN" if -2.0 <= clogp <= 7.0 else "OUT_OF_DOMAIN",
+            confidence="MEDIUM" if -1.0 <= clogp <= 5.5 else "LOW",
+            runtime_ms=elapsed_ms,
+            standardizer_version=self.standardizer_version,
+            canonical_smiles=canonical_smiles,
+            raw_outputs={"cLogP": clogp, "percent_bound": round(ppb_val, 2), "fu_percent": round(100.0 - ppb_val, 2)},
+            provenance={"method": "Sigmoid Lipophilicity Human Serum Albumin Binding Equation"},
+        )
+
+
+class RDKitIonizationPkaAdapter(BaseModelAdapter):
+    """
+    Adapter for RDKit Substructure & Ionization QSAR.
+    Outputs primary representative pKa.
+    """
+    def __init__(self):
+        self.endpoint_name = "Ionization (pKa)"
+        self.model_id = "rdkit_pka_qsar_v1"
+        self.model_name = "RDKit Substructure Ionization pKa"
+        self.model_family = "rule_based_smarts"
+        self.model_version = "rdkit-ionization-v1.0"
+        self.supported_endpoints = {self.endpoint_name}
+        self.execution_tier = ExecutionTier.TIER_1_LOCAL_FAST
+        self.arm64_status = ARM64Status.RUNS_LOCAL_ARM64
+        self.standardizer_version = "CHEM_STANDARDIZER_V1"
+
+    def is_available(self) -> Tuple[bool, str]:
+        return True, ""
+
+    def execute(self, canonical_smiles: str, contract: Optional[EndpointContract] = None) -> ModelExecutionPayload:
+        t0 = time.perf_counter()
+        eid = contract.endpoint_id if contract else "pka_human"
+        cunit = contract.canonical_unit if contract else "pKa"
+        try:
+            from backend.ionization import analyze_ionization
+            res = analyze_ionization(canonical_smiles)
+            pka = res.get("primary_pka")
+            elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+            if pka is None:
+                return ModelExecutionPayload(
+                    model_id=self.model_id,
+                    model_name=self.model_name,
+                    model_family=self.model_family,
+                    model_version=self.model_version,
+                    endpoint_id=eid,
+                    endpoint_name=self.endpoint_name,
+                    canonical_unit=cunit,
+                    execution_status=ExecutionStatus.SUCCESS,
+                    value=None,
+                    predicted_class="NEUTRAL",
+                    applicability_domain="IN_DOMAIN",
+                    confidence="HIGH",
+                    runtime_ms=elapsed_ms,
+                    standardizer_version=self.standardizer_version,
+                    canonical_smiles=canonical_smiles,
+                    raw_outputs=res,
+                )
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=eid,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=cunit,
+                execution_status=ExecutionStatus.SUCCESS,
+                value=round(float(pka), 2),
+                predicted_class=res.get("primary_pka_type"),
+                applicability_domain="IN_DOMAIN",
+                confidence="MEDIUM",
+                runtime_ms=elapsed_ms,
+                standardizer_version=self.standardizer_version,
+                canonical_smiles=canonical_smiles,
+                raw_outputs=res,
+            )
+        except Exception as exc:
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=eid,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=cunit,
+                execution_status=ExecutionStatus.RUNTIME_ERROR,
+                error_message=str(exc),
+                canonical_smiles=canonical_smiles,
+                runtime_ms=round((time.perf_counter() - t0) * 1000.0, 2),
+            )
+
+
+class DerivedLogD74Adapter(BaseModelAdapter):
+    """
+    Adapter for Henderson-Hasselbalch physiological pH 7.4 logD prediction from pKa and cLogP.
+    """
+    def __init__(self):
+        self.endpoint_name = "logD pH7.4 derived estimate"
+        self.model_id = "derived_logd74_v1"
+        self.model_name = "Henderson-Hasselbalch Derived logD 7.4"
+        self.model_family = "physicochemical_mechanistic"
+        self.model_version = "derived-logd74-v1.0"
+        self.supported_endpoints = {self.endpoint_name}
+        self.execution_tier = ExecutionTier.TIER_1_LOCAL_FAST
+        self.arm64_status = ARM64Status.RUNS_LOCAL_ARM64
+        self.standardizer_version = "CHEM_STANDARDIZER_V1"
+
+    def is_available(self) -> Tuple[bool, str]:
+        return True, ""
+
+    def execute(self, canonical_smiles: str, contract: Optional[EndpointContract] = None) -> ModelExecutionPayload:
+        t0 = time.perf_counter()
+        eid = contract.endpoint_id if contract else "logd_7_4"
+        cunit = contract.canonical_unit if contract else "logD"
+        try:
+            from backend.ionization import analyze_ionization
+            res = analyze_ionization(canonical_smiles)
+            ph_profiles = res.get("ph_profiles", [])
+            ph74 = next((p for p in ph_profiles if p.get("ph") == 7.4), None)
+            logd_val = ph74.get("estimated_logd") if ph74 else res.get("clogp")
+            dom_state = ph74.get("dominant_state", "Neutral") if ph74 else "Neutral"
+            elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=eid,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=cunit,
+                execution_status=ExecutionStatus.SUCCESS,
+                value=round(float(logd_val), 2) if logd_val is not None else None,
+                predicted_class=dom_state,
+                applicability_domain="IN_DOMAIN",
+                confidence="MEDIUM",
+                runtime_ms=elapsed_ms,
+                standardizer_version=self.standardizer_version,
+                canonical_smiles=canonical_smiles,
+                raw_outputs={"logd_7_4": logd_val, "dominant_state": dom_state, "ph_profiles": ph_profiles},
+            )
+        except Exception as exc:
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=eid,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=cunit,
+                execution_status=ExecutionStatus.RUNTIME_ERROR,
+                error_message=str(exc),
+                canonical_smiles=canonical_smiles,
+                runtime_ms=round((time.perf_counter() - t0) * 1000.0, 2),
+            )
+
+
 # ==============================================================================
 # GLOBAL MODEL ADAPTER REGISTRY & RESOURCE-AWARE SCHEDULER
 # ==============================================================================
 
 _ADAPTER_REGISTRY: Dict[str, BaseModelAdapter] = {}
+_V2_ADAPTER_REGISTRY: Dict[str, BaseModelAdapter] = {}
 
 
 def register_adapter(adapter: BaseModelAdapter) -> None:
-    """Register a model adapter into the global registry."""
+    """Register a model adapter into the baseline registry."""
     _ADAPTER_REGISTRY[adapter.model_id] = adapter
 
 
+def register_v2_adapter(adapter: BaseModelAdapter) -> None:
+    """Register an Engine v2 multi-model expansion adapter."""
+    _V2_ADAPTER_REGISTRY[adapter.model_id] = adapter
+
+
 def get_model_adapter(model_id: str) -> Optional[BaseModelAdapter]:
-    """Retrieve a registered model adapter by model_id."""
-    return _ADAPTER_REGISTRY.get(model_id)
+    """Retrieve a registered model adapter by model_id across all registries."""
+    return _ADAPTER_REGISTRY.get(model_id) or _V2_ADAPTER_REGISTRY.get(model_id)
 
 
 def list_registered_adapters() -> List[BaseModelAdapter]:
-    """List all registered adapters."""
+    """List all baseline registered adapters (Stage 4D-2 compatible)."""
     return list(_ADAPTER_REGISTRY.values())
 
 
+def list_all_v2_registered_adapters() -> List[BaseModelAdapter]:
+    """List all registered adapters across Engine v1 and Engine v2."""
+    return list(_ADAPTER_REGISTRY.values()) + list(_V2_ADAPTER_REGISTRY.values())
+
+
 def get_adapters_for_endpoint(endpoint_name: str) -> List[BaseModelAdapter]:
-    """Return all qualified adapters registered for an endpoint."""
+    """Return all baseline qualified adapters registered for an endpoint."""
     return [
         adapter for adapter in _ADAPTER_REGISTRY.values()
         if endpoint_name in adapter.supported_endpoints
     ]
 
 
+def get_v2_adapters_for_endpoint(endpoint_name: str) -> List[BaseModelAdapter]:
+    """Return all qualified adapters across v1 + v2 for an endpoint."""
+    all_adapters = list(_ADAPTER_REGISTRY.values()) + list(_V2_ADAPTER_REGISTRY.values())
+    return [
+        adapter for adapter in all_adapters
+        if endpoint_name in adapter.supported_endpoints
+    ]
+
+
 def initialize_default_adapters() -> None:
-    """Populate default adapters for all 18 active endpoints + SyGMa + Stage 4D-2 Pilot Adapters."""
+    """Populate default adapters for all endpoints across Engine v1 and v2."""
+    _ADAPTER_REGISTRY.clear()
+    _V2_ADAPTER_REGISTRY.clear()
+
     # 1. Admetica endpoints
     for ep in [
         "Solubility", "Permeability", "Plasma protein binding",
@@ -1042,13 +1390,27 @@ def initialize_default_adapters() -> None:
     # 4. SyGMa metabolism
     register_adapter(SyGMaMetabolismAdapter())
 
-    # 5. Stage 4D-2 Pilot Qualified Adapters
+    # 5. Stage 4D-2 Pilot Qualified Adapters (Total baseline = 25 adapters)
     register_adapter(ESOLPhyschemSolubilityAdapter())
     register_adapter(DescriptorGBRSolubilityAdapter())
     register_adapter(PhyschemCaco2Adapter())
     register_adapter(MorganCYP3A4InhibitorAdapter())
     register_adapter(PhyschemHERGAdapter())
     register_adapter(SMARTCypMetabolismAdapter())
+
+    # 6. Engine v2 ADMET-AI Multi-Task Expansion Adapters
+    for ep in [
+        "CYP1A2 inhibitor", "CYP2C9 inhibitor", "CYP2C19 inhibitor",
+        "CYP2D6 inhibitor", "CYP3A4 inhibitor",
+        "CYP2C9 substrate", "CYP2D6 substrate", "CYP3A4 substrate",
+        "P-gp inhibitor", "hERG liability",
+    ]:
+        register_v2_adapter(ADMETAITaskAdapter(ep))
+
+    # 7. Engine v2 Physchem PPB, Ionization pKa & logD 7.4
+    register_v2_adapter(PhyschemHumanPPBAdapter())
+    register_v2_adapter(RDKitIonizationPkaAdapter())
+    register_v2_adapter(DerivedLogD74Adapter())
 
 
 # Auto-initialize on module import
