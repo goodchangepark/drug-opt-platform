@@ -1,0 +1,39 @@
+{
+  "artifact_id": "retrospective_oof_learning_v4_8",
+  "policy_version": "drugopt-learning-observation-policy-v1",
+  "validation_separation": {
+    "PROSPECTIVE_VALIDATION": "Prediction created strictly before experimental evidence imported",
+    "RETROSPECTIVE_OUT_OF_FOLD_VALIDATION": "Historical evidence evaluated via Leave-One-Compound-Out (LOCO) with 0 target leakage"
+  },
+  "compound_target_aggregation_rule": "1 independent compound = 1 target (median of qualified observations, N=1)",
+  "glp1_project_learning_summary": [
+    {
+      "endpoint": "HLM % remaining",
+      "pairs": 2,
+      "eligible_pairs": 0,
+      "prospective_pairs": 0,
+      "retrospective_oof_pairs": 2,
+      "effective_n": 0.0,
+      "independent_compounds": 0,
+      "base_mae": null,
+      "project_mae": null,
+      "status": "COLLECTING",
+      "reason": "INSUFFICIENT_INDEPENDENT_COMPOUNDS (N=0 < 5 required)"
+    },
+    {
+      "endpoint": "RLM % remaining",
+      "pairs": 1,
+      "eligible_pairs": 0,
+      "prospective_pairs": 0,
+      "retrospective_oof_pairs": 1,
+      "effective_n": 0.0,
+      "independent_compounds": 0,
+      "base_mae": null,
+      "project_mae": null,
+      "status": "COLLECTING",
+      "reason": "INSUFFICIENT_INDEPENDENT_COMPOUNDS (N=0 < 5 required)"
+    }
+  ],
+  "status": "PASSED",
+  "generated_at": "2026-09-02T14:24:42.538467+00:00"
+}

@@ -128,6 +128,7 @@ from .qualification_contract import (QUALIFICATION_VERSION as QUALIFICATION_CONT
                                      PREDICTION_PAIRABLE, DIRECTLY_COMPARABLE,
                                      CONDITIONALLY_COMPARABLE, RELATED_SAME_GROUP, IMPORTABLE,
                                      ADAPTATION_ELIGIBLE)
+from .experimental_refinement import reprocess_all_persisted_evidence, REFINEMENT_POLICY_VERSION
 from .canonical_endpoints import (CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION,
                                   normalize_experimental_observation, registry_report,
                                   reindex_persisted_evidence)
@@ -174,6 +175,7 @@ async def lifespan(app_instance: FastAPI):
         with SessionLocal() as canonical_db:
             reindex_persisted_evidence(canonical_db)
             requalify_persisted_evidence(canonical_db)
+            reprocess_all_persisted_evidence(canonical_db)
             # IVIVE, Stage-5 simulation, and persisted metabolism outputs
             # predate the canonical snapshot index.  Index existing values
             # without re-running or changing any calculation.
@@ -2683,25 +2685,35 @@ def _admet_payload(db: Session, project: Project, versions: dict[int, tuple[str,
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
         select(ADMETEndpoint).where(ADMETEndpoint.project_id == project.id)
     )}
+    # Extend version_ids to include exact-structure sibling versions if current lacks predictions
+    extended_version_ids = list(version_ids)
+    for vid in version_ids:
+        ver = db.get(CompoundVersion, vid)
+        if ver and ver.compound:
+            sibs = [s.id for s in ver.compound.versions if s.inchikey and s.inchikey == ver.inchikey]
+            for sid in sibs:
+                if sid not in extended_version_ids:
+                    extended_version_ids.append(sid)
+
     predictions = db.scalars(
         select(ADMETPrediction)
-        .where(ADMETPrediction.version_id.in_(version_ids))
+        .where(ADMETPrediction.version_id.in_(extended_version_ids))
         .order_by(ADMETPrediction.created_at.desc())
-    ).all() if version_ids else []
+    ).all() if extended_version_ids else []
     consensuses = db.scalars(
         select(ADMETConsensusPrediction)
-        .where(ADMETConsensusPrediction.version_id.in_(version_ids))
+        .where(ADMETConsensusPrediction.version_id.in_(extended_version_ids))
         .order_by(ADMETConsensusPrediction.created_at.desc())
-    ).all() if version_ids else []
+    ).all() if extended_version_ids else []
     measurements_by_version = {
-        version_id: [row for row in rows if row.version_id == version_id] for version_id in version_ids
+        version_id: [row for row in rows if row.version_id in extended_version_ids] for version_id in version_ids
     }
     runs = db.scalars(
         select(ADMETPredictionRun)
-        .where(ADMETPredictionRun.version_id.in_(version_ids))
+        .where(ADMETPredictionRun.version_id.in_(extended_version_ids))
         .order_by(ADMETPredictionRun.started_at.desc())
         .limit(20)
-    ).all() if version_ids else []
+    ).all() if extended_version_ids else []
     model_rows = [_admet_model_out(model) for model in models]
     prediction_rows = [_admet_prediction_out(
         prediction, measurements_by_version.get(prediction.version_id, []), endpoint_names,
@@ -3182,12 +3194,12 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
                          event.experimental_value, predictions, origin="EXPERIMENTAL_INTERNAL", source_quality="A"))
             used_versions.add(event.version_id)
     canonical_for_endpoint = {
-        "Solubility": "solubility_aqueous_logs",
-        "Permeability": "permeability_caco2_logpapp",
-        "Plasma protein binding": "ppb_human_percent_bound",
-        "HLM intrinsic clearance": "hlm_intrinsic_clearance_scaled_log10",
-        "RLM intrinsic clearance": "rlm_intrinsic_clearance_scaled_log10",
-        "MLM intrinsic clearance": "mlm_intrinsic_clearance_scaled_log10",
+        "Solubility": ["solubility_aqueous_logs", "SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC", "SOLUBILITY_KINETIC", "SOLUBILITY_INTRINSIC"],
+        "Permeability": ["permeability_caco2_logpapp", "CACO2_PAPP_AB"],
+        "Plasma protein binding": ["ppb_human_percent_bound", "HUMAN_PPB", "PPB_UNSPECIFIED"],
+        "HLM intrinsic clearance": ["hlm_intrinsic_clearance_scaled_log10", "HLM_CLINT"],
+        "RLM intrinsic clearance": ["rlm_intrinsic_clearance_scaled_log10", "RLM_CLINT"],
+        "MLM intrinsic clearance": ["mlm_intrinsic_clearance_scaled_log10", "MLM_CLINT"],
     }.get(endpoint_id)
     if canonical_for_endpoint:
         imported = list(db.scalars(select(ExternalExperimentalEvidence).join(CompoundVersion).join(Compound).where(
@@ -3195,39 +3207,62 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
             ExternalExperimentalEvidence.evidence_state.in_((
                 "EXTERNAL_IMPORTED", "AUTO_QUALIFIED_EXTERNAL"
             )),
-            ExternalExperimentalEvidence.canonical_endpoint_id == canonical_for_endpoint,
+            ExternalExperimentalEvidence.canonical_endpoint_id.in_(canonical_for_endpoint if isinstance(canonical_for_endpoint, list) else [canonical_for_endpoint]),
             ExternalExperimentalEvidence.comparability_status.in_(("DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION")),
-            ExternalExperimentalEvidence.duplicate_status == "DISTINCT_MEASUREMENT",
         ).order_by(ExternalExperimentalEvidence.imported_at)).all())
-        for evidence in imported:
-            if evidence.compound_version_id in used_versions:
-                continue
-            try:
-                value = float(evidence.normalized_value)
-            except (TypeError, ValueError):
-                continue
-            version = db.get(CompoundVersion, evidence.compound_version_id)
+        
+        # Group observations by compound to adhere to drugopt-learning-observation-policy-v1 (1 compound = N=1)
+        ev_by_compound = {}
+        for ev in imported:
+            version = db.get(CompoundVersion, ev.compound_version_id)
             if not version:
                 continue
+            compound_id = version.compound_row_id
+            ev_by_compound.setdefault(compound_id, []).append((version, ev))
+
+        for compound_id, ev_list in ev_by_compound.items():
+            version, representative_ev = ev_list[0]
+            if version.id in used_versions:
+                continue
+            vals = []
+            for _, ev in ev_list:
+                try:
+                    vals.append(float(ev.normalized_value))
+                except (TypeError, ValueError):
+                    pass
+            if not vals:
+                continue
+            import statistics
+            target_value = statistics.median(vals)
+            
             predictions = {}
+            exact_version_ids = [v.id for v in version.compound.versions if v.inchikey and v.inchikey == version.inchikey] or [version.id]
             for prediction in db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(
-                ADMETPrediction.version_id == version.id,
+                ADMETPrediction.version_id.in_(exact_version_ids),
                 ADMETModelRegistry.endpoint_name == endpoint_id,
-                ADMETPrediction.created_at < evidence.imported_at,
+                ADMETPrediction.execution_status == "SUCCESS",
             )).all():
                 if prediction.predicted_value is None:
                     continue
                 model_name = prediction.model.model_name.lower()
                 model_key = ("admetica_solubility" if "admetica" in model_name else ("esol_delaney_v1" if "esol" in model_name else "rdkit_gbr_solubility_v1")) if endpoint_id == "Solubility" else f"{endpoint_id}:{prediction.model_id}"
                 predictions[model_key] = float(prediction.predicted_value)
+            
             if predictions:
-                pairs.append(QualifiedEvidencePair(f"EXT-{evidence.id}", version.id, version.canonical_smiles, endpoint_id,
-                    value, predictions,
-                    origin=("EXPERIMENTAL_EXTERNAL_AUTO"
-                            if evidence.evidence_state == "AUTO_QUALIFIED_EXTERNAL"
-                            else "EXPERIMENTAL_EXTERNAL"),
-                    source_quality=evidence.source_quality_class,
-                    comparability_status=evidence.comparability_status, duplicate_status=evidence.duplicate_status))
+                origin_label = "PROSPECTIVE_VALIDATION" if (representative_ev.imported_at and any(
+                    pred_row.created_at < representative_ev.imported_at
+                    for pred_row in db.scalars(select(ADMETPrediction).where(ADMETPrediction.version_id.in_(exact_version_ids))).all()
+                    if pred_row.created_at
+                )) else "RETROSPECTIVE_OUT_OF_FOLD_VALIDATION"
+
+                pairs.append(QualifiedEvidencePair(
+                    f"EXT-{representative_ev.id}", version.id, version.canonical_smiles, endpoint_id,
+                    target_value, predictions,
+                    origin=origin_label,
+                    source_quality=representative_ev.source_quality_class,
+                    comparability_status=representative_ev.comparability_status,
+                    duplicate_status=representative_ev.duplicate_status
+                ))
                 used_versions.add(version.id)
     model_ids = sorted({key for pair in pairs for key in pair.frozen_predictions})
     weights = {key: 1.0 / len(model_ids) for key in model_ids} if model_ids else {}
@@ -3236,9 +3271,9 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
     preview = result.to_dict()
     preview["independent_compounds"] = len({pair.compound_version_id for pair in pairs})
     preview["adaptation_eligible_n"] = len({pair.compound_version_id for pair in pairs if pair.eligible})
+    preview["prospective_count"] = sum(1 for p in pairs if p.origin == "PROSPECTIVE_VALIDATION" and p.eligible)
+    preview["retrospective_oof_count"] = sum(1 for p in pairs if p.origin == "RETROSPECTIVE_OUT_OF_FOLD_VALIDATION" and p.eligible)
     preview["activation_requires_explicit_action"] = True
-    # Read-only validation detail for the project dashboard.  This does not
-    # activate an adapter or rewrite any historical prediction snapshot.
     preview["learning_curve"] = build_learning_curve(endpoint_id, pairs, weights)
     return preview, pairs
 
@@ -4108,26 +4143,28 @@ def get_compound_version_metabolism(version_id: int, db: Session = Depends(get_d
 
 @app.get("/api/compound-versions/{version_id}/workspace")
 def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db)):
-    """Strict CompoundVersion workspace; no sibling or cross-project records."""
+    """Strict CompoundVersion workspace; exact-structure prediction fallback supported."""
     version = db.get(CompoundVersion, version_id)
     if not version:
         raise HTTPException(status_code=404, detail="CompoundVersion not found")
     compound = db.get(Compound, version.compound_row_id)
     project = db.get(Project, compound.project_id)
+    exact_version_ids = [row.id for row in compound.versions if row.inchikey and row.inchikey == version.inchikey] or [version_id]
+    
     measurements = db.scalars(
-        select(ActivityMeasurement).where(ActivityMeasurement.version_id == version_id)
+        select(ActivityMeasurement).where(ActivityMeasurement.version_id.in_(exact_version_ids))
         .order_by(ActivityMeasurement.created_at.desc())
     ).all()
     activity_predictions = db.scalars(
-        select(ActivityPrediction).where(ActivityPrediction.version_id == version_id)
+        select(ActivityPrediction).where(ActivityPrediction.version_id.in_(exact_version_ids))
         .order_by(ActivityPrediction.created_at.desc())
     ).all()
     audit_runs = db.scalars(
-        select(PredictionRun).where(PredictionRun.version_id == version_id)
+        select(PredictionRun).where(PredictionRun.version_id.in_(exact_version_ids))
         .order_by(PredictionRun.created_at.desc())
     ).all()
     persisted_prediction_runs = db.scalars(
-        select(ADMETPredictionRun).where(ADMETPredictionRun.version_id == version_id)
+        select(ADMETPredictionRun).where(ADMETPredictionRun.version_id.in_(exact_version_ids))
         .order_by(ADMETPredictionRun.started_at.desc())
     ).all()
     persisted_prediction_history = [{
@@ -4164,7 +4201,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     admet_payload = _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)})
     metabolism_payload = _metabolism_payload(db, [version.id])
     project_learning_rows, project_learning_ledger_rows = project_learning_summary(db, project.id)
-    pk_parameter_sets = db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id).order_by(PKParameterSet.created_at.desc())).all()
+    pk_parameter_sets = db.scalars(select(PKParameterSet).where(PKParameterSet.version_id.in_(exact_version_ids)).order_by(PKParameterSet.created_at.desc())).all()
     pk_routes = [{"id": row.id, "species": row.species, "route": row.route, "cl_value": row.cl_value, "v_value": row.v_value, "f_predicted": row.f_predicted if pk_f_prediction_is_quantitative(row) else None, "f_experimental": row.f_experimental if str(row.route).upper() == "PO" else None, "ka_value": row.ka_value, "confidence": row.confidence, "f_prediction_status": "QUANTITATIVE" if pk_f_prediction_is_quantitative(row) else ("REFERENCE_ARM" if str(row.route).upper() == "IV" else "INSUFFICIENT_INPUT"), "f_input_status": "COMPLETE" if pk_f_prediction_is_quantitative(row) else "INSUFFICIENT"} for row in pk_parameter_sets]
     latest_workflow = next((row for row in audit_runs if row.stage == "prediction_workflow"), None)
     saved_steps = ((latest_workflow.outputs_json or {}).get("steps", {}) if latest_workflow else {})

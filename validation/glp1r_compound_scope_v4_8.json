@@ -1,0 +1,33 @@
+{
+  "artifact_id": "glp1r_compound_scope_v4_8",
+  "project": "GLP-1R",
+  "project_id": 1,
+  "compounds": [
+    {
+      "compound_id": 1,
+      "name": "Orforglipron",
+      "versions_count": 2,
+      "persisted_evidence_count": 558
+    },
+    {
+      "compound_id": 2,
+      "name": "Aleniglipron",
+      "versions_count": 2,
+      "persisted_evidence_count": 0
+    },
+    {
+      "compound_id": 3,
+      "name": "Elecoglipron",
+      "versions_count": 1,
+      "persisted_evidence_count": 0
+    },
+    {
+      "compound_id": 4,
+      "name": "ASC30",
+      "versions_count": 1,
+      "persisted_evidence_count": 0
+    }
+  ],
+  "scope_isolation_status": "VERIFIED_0_LEAKAGE",
+  "generated_at": "2026-09-02T14:24:42.614815+00:00"
+}

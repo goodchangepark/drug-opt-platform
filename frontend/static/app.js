@@ -358,7 +358,7 @@ function App(){
   assay_id:'',objectives:['Balanced optimization'],custom_objective:'',
   constraints:{potency_max_nm:'',do_not_worsen_fold:'2',clogp_max:'4',tpsa_min:'40',tpsa_max:'100',mw_max:'550',similarity_min:'0.6',logs_min:'-4',caco2_logpapp_min:'-5.5',herg_do_not_increase:true},endpoint_weights:{}
  });
- const [workspace,setWorkspace]=useState(null),[comparisonPairs,setComparisonPairs]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
+ const [workspace,setWorkspace]=useState(null),[workspaceLoading,setWorkspaceLoading]=useState(false),[comparisonPairs,setComparisonPairs]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
  const [manualEntryOptions,setManualEntryOptions]=useState(null),[manualEvidence,setManualEvidence]=useState({section:'ADMET',canonical_endpoint_id:'HUMAN_PPB',raw_value:'',raw_unit:'% bound',species:'Human',matrix:'plasma',direction:'',route:'',dose:'',dose_unit:'mg',regimen:'Single dose',analyte:'PARENT',measurement_type:'',study_id:'',batch_id:'',notes:''}),[manualEditingEvidenceId,setManualEditingEvidenceId]=useState(null);
  const [compareMetrics,setCompareMetrics]=useState(['MW','cLogP','TPSA','QED','Activity','Solubility','Caco-2','PPB','fu','HLM','RLM','MLM','DLM','CyLM','CYP3A4 Inh','P-gp Inh','Soft Spots','Mouse CL (IV)','Rat CL (IV)','Human CL (IVIVE)','Human Vd (pred)','Human t1/2 (pred)','Human AUC (1mg/kg IV)','hERG','Ames','DILI']),[compareAssay,setCompareAssay]=useState('');
  const [editorReady,setEditorReady]=useState(false);
@@ -750,20 +750,29 @@ function App(){
    if(predict)setAdmetBusy(false);
   }
  };
- const openDetail=async(rowId,options={})=>{
-  const requestId=++detailRequest.current;
-  try{
-   const compound=await api.get('/compounds/'+rowId+'?include_versions=true');
-   if(requestId!==detailRequest.current)return null;
-   setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
-   const assayData=await api.get('/projects/'+compound.project_id+'/assays');
-   if(requestId!==detailRequest.current)return null;
-   setAssays(assayData.assays||assayData||[]);
-   if(compound.version)await loadWorkspace(compound.version.id,compound.row_id);else{setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null)}
-   setMessage('');
-   return compound;
-  }catch(error){if(requestId===detailRequest.current)setMessage(String(error));return null}
- };
+  const openDetail=async(rowId,options={})=>{
+   const requestId=++detailRequest.current;
+   setWorkspaceLoading(true);
+   setWorkspace(null);
+   setExternalEvidence(null);
+   setComparisonPairs(null);
+   setAdmet(null);
+   setMetabolism(null);
+   setPredictionWorkflow(null);
+   setQualificationSummary(null);
+   try{
+    const compound=await api.get('/compounds/'+rowId+'?include_versions=true');
+    if(requestId!==detailRequest.current)return null;
+    setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
+    const assayData=await api.get('/projects/'+compound.project_id+'/assays');
+    if(requestId!==detailRequest.current)return null;
+    setAssays(assayData.assays||assayData||[]);
+    if(compound.version)await loadWorkspace(compound.version.id,compound.row_id);else{setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null)}
+    setMessage('');
+    return compound;
+   }catch(error){if(requestId===detailRequest.current)setMessage(String(error));return null}
+   finally{if(requestId===detailRequest.current)setWorkspaceLoading(false)}
+  };
  const calculateProperties=async()=>{
   if(!detail)return;
   try{const result=await api.post('/compounds/'+detail.row_id+'/calculate',{});await openDetail(result.row_id);setDetailTab('properties');await Promise.all([loadProject(projectId),loadDashboard()]);setMessage('Properties calculated for the current CompoundVersion')}catch(error){setMessage(String(error))}
@@ -4007,7 +4016,11 @@ function integratedProfile(versionId){
       e('span',{className:'small'},'CAS No. '),e('strong',{className:'mono small'},detail.cas_number||'Not provided'),
       e('button',{type:'button',className:'secondary',disabled:externalEvidenceBusy,onClick:searchExternalEvidence,title:'Explicitly search public sources using supplied public identifiers only. No private structure is sent.'},externalEvidenceBusy?'Searching…':'Search Experimental Data')
      ]),
-     e('div',{className:'experimental-evidence-status small'},(()=>{const evidence=workspace?.external_experimental_evidence||[],runs=workspace?.experimental_search_runs||[],latest=runs[0],imported=evidence.filter(item=>item.evidence_state==='EXTERNAL_IMPORTED').length;return ['Experimental Search: ',latest?.status==='COMPLETE'?'Saved':'Not saved',' · Qualified observations: ',String((workspace?.endpoint_comparison?.summary?.qualification||{}).endpoint_qualified||0),' · Ready to Import: ',String(workspace?.endpoint_comparison?.summary?.ready_to_import||0),' · Imported: ',String(imported),' · Last Search: ',latest?.completed_at||'—']})()),
+     e('div',{className:'experimental-evidence-status small'},(()=>{
+        const evidence=workspace?.external_experimental_evidence||[],runs=workspace?.experimental_search_runs||[],latest=runs[0],imported=evidence.filter(item=>item.evidence_state==='EXTERNAL_IMPORTED').length;
+        const searchSaved = latest?.status==='COMPLETE' || evidence.length > 0;
+        return ['Experimental Search: ', searchSaved ? '✓ Saved' : (workspaceLoading ? 'Loading saved search…' : 'Not saved'),' · Qualified observations: ',String((workspace?.endpoint_comparison?.summary?.qualification||{}).endpoint_qualified||0),' · Ready to Import: ',String(workspace?.endpoint_comparison?.summary?.ready_to_import||0),' · Imported: ',String(imported),' · Last Search: ',latest?.completed_at||(searchSaved?'Persisted':'—')];
+      })()),
      (workspace?.external_experimental_evidence||[]).some(item=>item.evidence_state!=='EXTERNAL_IMPORTED')&&e('button',{type:'button',className:'secondary',onClick:()=>{const records=workspace.external_experimental_evidence;setExternalEvidence({status:'PERSISTED',records});setSelectedEvidenceIds([])}},'Review Qualified Evidence'),
      e('div',{className:'project-learning-inline small'},[
       e('strong',{},'Project learning · '),
@@ -4024,15 +4037,17 @@ function integratedProfile(versionId){
       e('button',{className:'secondary',onClick:()=>setDetail(null),style:{fontSize:'11.5px',padding:'6px 12px'}},'Back to Compounds')
      ]),
      e('div',{className:'predict-meta-bar'},[
+      e('span',{},'Prediction: '+(workspaceLoading ? 'Loading saved prediction…' : (detailPredictions.length ? '✓ Saved' : 'Not started'))),
+      e('span',{},'·'),
       e('span',{},'Last prediction: '+(lastPredictionTime||(detailPredictions.length?'Recent':'Not run'))),
       e('span',{},'·'),
       e('span',{},'Status: '),
-      StatusBadge({type:detailPredictions.length?'COMPLETE':'NOT_RUN'}),
+      StatusBadge({type: workspaceLoading ? 'LOADING' : (detailPredictions.length?'COMPLETE':'NOT_RUN')}),
       e('span',{},'·'),
       e('span',{className:'mono small'},'Model set: OpenADMET & Chemprop')
      ]),
      e('div',{className:'prediction-stage-status'},['properties','activity','admet','metabolism','pk'].map(stage=>{
-      const stageStatus=predictionWorkflow?.steps?.[stage]?.status||workspace?.prediction_status?.[stage]||'NOT_STARTED';
+      const stageStatus = workspaceLoading ? 'LOADING' : (predictionWorkflow?.steps?.[stage]?.status||workspace?.prediction_status?.[stage]||(detailPredictions.length ? 'COMPLETE' : 'NOT_RUN'));
       return e('span',{key:stage,className:'prediction-stage-chip '+String(stageStatus).toLowerCase()},stage.toUpperCase()+': '+stageStatus.replaceAll('_',' '));
      })),
      hasNewExpData&&e('div',{className:'experimental-alert-bar'},[

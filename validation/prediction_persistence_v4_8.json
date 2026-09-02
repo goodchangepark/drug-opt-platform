@@ -1,0 +1,12 @@
+{
+  "artifact_id": "prediction_persistence_v4_8",
+  "total_persisted_prediction_runs": 100,
+  "exact_structure_fallback_enabled": true,
+  "no_silent_reprediction_contract": "ENFORCED",
+  "ui_state_machine": {
+    "initial_state": "UNKNOWN/LOADING (shows 'Loading saved prediction\u2026')",
+    "confirmed_state": "\u2713 Saved or Not started (never flashes Not started during load)"
+  },
+  "status": "PASSED",
+  "generated_at": "2026-09-02T14:24:42.526930+00:00"
+}

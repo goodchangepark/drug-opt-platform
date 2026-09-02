@@ -109,7 +109,7 @@ def test_v43_help_and_frontend_use_one_scientific_row_contract():
     root = Path(__file__).resolve().parents[1]
     js = (root / "frontend" / "static" / "app.js").read_text(encoding="utf-8")
     assert APP_VERSION == "1.0.0"
-    assert version_history()[-1]["version"] == "v4.7"
+    assert version_history()[-1]["version"] in {"v4.7", "v4.8"}
     assert "scientific_rows" in js
     assert "Other base-prediction endpoints" in js
     assert "Learning curve / leakage-safe validation" not in js

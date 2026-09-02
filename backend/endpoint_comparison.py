@@ -753,12 +753,12 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     # metadata/version revision must not make its persisted search disappear.
     evidence_version_ids = [row.id for row in compound.versions if row.inchikey and row.inchikey == version.inchikey] or [version_id]
     endpoint_rows = {}
-    pk_routes_by_id = {row.id: row.route for row in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id)).all()}
-    predictions = db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(ADMETPrediction.version_id == version_id, ADMETPrediction.execution_status == "SUCCESS").order_by(ADMETPrediction.created_at.desc())).all()
+    pk_routes_by_id = {row.id: row.route for row in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id.in_(evidence_version_ids))).all()}
+    predictions = db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(ADMETPrediction.version_id.in_(evidence_version_ids), ADMETPrediction.execution_status == "SUCCESS").order_by(ADMETPrediction.created_at.desc())).all()
     latest_snapshots = {}
-    for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == version_id).order_by(PredictionEndpointSnapshot.created_at.desc())).all(): latest_snapshots.setdefault(snap.endpoint_name, snap)
+    for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id.in_(evidence_version_ids)).order_by(PredictionEndpointSnapshot.created_at.desc())).all(): latest_snapshots.setdefault(snap.endpoint_name, snap)
     latest_canonical_snapshots = {}
-    for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == version_id).order_by(PredictionEndpointSnapshot.created_at.desc())).all():
+    for snap in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id.in_(evidence_version_ids)).order_by(PredictionEndpointSnapshot.created_at.desc())).all():
         if _snapshot_is_valid_for_current_comparison(snap, snap.endpoint_id, pk_routes_by_id):
             latest_canonical_snapshots.setdefault(snap.endpoint_id, snap)
     by_raw = defaultdict(list)
@@ -768,13 +768,13 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
         eid = mapping["canonical_endpoint_id"]; row = endpoint_rows.setdefault(eid, _blank(eid, raw_endpoint)); row["section"] = _section(eid); row["display_name"] = _display_name(eid, raw_endpoint); row["species"] = mapping["species"]; row["route"] = mapping["route"]; row["canonical_comparison_key"] = mapping["comparison_key"]; row["prediction"] = _prediction_object(latest_snapshots.get(raw_endpoint), rows, eid, raw_endpoint, species=mapping["species"], route=mapping["route"])
 
     endpoint_names = {row.id: row.name for row in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == compound.project_id)).all()}
-    for measurement in db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version_id)).all():
+    for measurement in db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id.in_(evidence_version_ids))).all():
         raw_endpoint = endpoint_names.get(measurement.endpoint_id, "Unknown endpoint")
         mapped = normalize_experimental_observation(raw_endpoint, measurement.value if measurement.value is not None else measurement.qualitative_value, measurement.unit, species=measurement.species, context={"matrix": measurement.matrix, "method": measurement.method})
         eid = mapped["canonical_endpoint_id"]; row = endpoint_rows.setdefault(eid, _blank(eid, raw_endpoint)); row["experimental_internal"].append({"id": measurement.id, "origin": "INTERNAL_EXPERIMENTAL", "state": "INTERNAL_EXPERIMENTAL", "raw_endpoint": raw_endpoint, "endpoint": row["display_name"], "raw_value": measurement.value if measurement.value is not None else measurement.qualitative_value, "normalized_value": mapped.get("normalized_value", measurement.value), "raw_unit": measurement.unit, "normalized_unit": mapped.get("normalized_unit", measurement.unit), "relation": measurement.qualifier, "species": mapped.get("species"), "route": mapped.get("route"), "context": {"matrix": measurement.matrix, "method": measurement.method}, "reference": {"source": measurement.source, "reference": measurement.notes}, "qualification": "QUALIFIED_DIRECT", "comparability": mapped.get("comparability_status", DIRECT), "importable": False, "adaptation_eligibility": True, "canonical_endpoint_id": eid, "canonical_comparison_key": mapped["comparison_key"]})
 
     assays = {row.id: row for row in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
-    activity_preds = db.scalars(select(ActivityPrediction).where(ActivityPrediction.version_id == version_id).order_by(ActivityPrediction.created_at.desc())).all(); activity_meas = db.scalars(select(ActivityMeasurement).where(ActivityMeasurement.version_id == version_id).order_by(ActivityMeasurement.created_at.desc())).all()
+    activity_preds = db.scalars(select(ActivityPrediction).where(ActivityPrediction.version_id.in_(evidence_version_ids)).order_by(ActivityPrediction.created_at.desc())).all(); activity_meas = db.scalars(select(ActivityMeasurement).where(ActivityMeasurement.version_id.in_(evidence_version_ids)).order_by(ActivityMeasurement.created_at.desc())).all()
     for assay_id, assay in assays.items():
         pred = next((p for p in activity_preds if p.assay_id == assay_id), None); measured = [m for m in activity_meas if m.assay_id == assay_id]
         if pred is None and not measured: continue
@@ -811,9 +811,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
         _add_experiment(row, item)
 
     # Non-scalar metabolism predictions are still canonical prediction output.
-    # Keep them in the scientific metabolism section, but do not pretend that
-    # a count of hypotheses is a quantitative validation endpoint.
-    metabolic_runs = db.scalars(select(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id == version_id, MetabolicPredictionRun.status == "COMPLETE").order_by(MetabolicPredictionRun.started_at.desc())).all()
+    metabolic_runs = db.scalars(select(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id.in_(evidence_version_ids), MetabolicPredictionRun.status == "COMPLETE").order_by(MetabolicPredictionRun.started_at.desc())).all()
     if metabolic_runs:
         for eid, label in (("METABOLIC_SOFT_SPOTS", "Metabolic soft spots"), ("METABOLITE_HYPOTHESES", "Metabolite hypotheses")):
             snapshot = latest_canonical_snapshots.get(eid)
@@ -822,7 +820,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
             row["prediction"] = _snapshot_prediction(snapshot, eid, label)
 
     # PK foundations are persisted outside ADMET. Expose only actual values.
-    for pset in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id).order_by(PKParameterSet.created_at.desc())).all():
+    for pset in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id.in_(evidence_version_ids)).order_by(PKParameterSet.created_at.desc())).all():
         species = normalize_species(pset.species); route = "ORAL" if str(pset.route).upper() == "PO" else str(pset.route).upper()
         for parameter, value, unit, source_type in _pk_snapshot_values(pset):
             eid = f"{species}_PK_F_ORAL" if parameter == "F" else f"{species}_PK_{parameter}_{route}"; row = endpoint_rows.setdefault(eid, _blank(eid, eid)); row["section"] = "PK"; row["display_name"] = f"{species.title()} {'Oral Bioavailability F' if parameter == 'F' else parameter.replace('_', ' ')}"; row["species"] = species; row["route"] = "ORAL" if parameter == "F" else route
@@ -836,7 +834,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     # Concentration-time simulations provide the Stage-5 Cmax/Tmax/AUC/t1/2
     # predictions. They are joined by the same species/route key as external
     # PK observations, rather than being hidden in the simulation tab.
-    for sim in db.scalars(select(PKSimulationRun).where(PKSimulationRun.version_id == version_id).order_by(PKSimulationRun.created_at.desc())).all():
+    for sim in db.scalars(select(PKSimulationRun).where(PKSimulationRun.version_id.in_(evidence_version_ids)).order_by(PKSimulationRun.created_at.desc())).all():
         species = normalize_species(sim.species); route = "ORAL" if str(sim.route).upper() == "PO" else str(sim.route).upper()
         for parameter, value, unit in _simulation_values(sim):
             if value is None: continue
@@ -848,10 +846,8 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                 row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{route}|PARENT", "base_value": value, "project_value": None, "display_value": value, "unit": unit, "prediction_type": "MECHANISTIC_ESTIMATE", "source_type": PREDICTION_MECHANISTIC, "source_label": prediction_source_label(PREDICTION_MECHANISTIC), "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "timestamp": _iso(sim.created_at), "model_count": 1, "species": species, "route": route, "dose": sim.dose, "dose_unit": sim.dose_unit, "prediction_run_id": sim.id}
 
     # NCA studies/results are the persisted internal experimental PK stream.
-    # They must share the same species/route/parameter ontology as foundations
-    # and simulations; raw study provenance remains attached to each row.
-    studies = {study.id: study for study in db.scalars(select(PKStudy).where(PKStudy.version_id == version_id)).all()}
-    for nca in db.scalars(select(PKNCAResult).where(PKNCAResult.version_id == version_id, PKNCAResult.is_latest.is_(True))).all():
+    studies = {study.id: study for study in db.scalars(select(PKStudy).where(PKStudy.version_id.in_(evidence_version_ids))).all()}
+    for nca in db.scalars(select(PKNCAResult).where(PKNCAResult.version_id.in_(evidence_version_ids), PKNCAResult.is_latest.is_(True))).all():
         study = studies.get(nca.pk_study_id)
         if not study: continue
         values = [("Cmax", nca.cmax, nca.cmax_unit), ("Tmax", nca.tmax, nca.tmax_unit), ("AUC0-t", nca.auclast, nca.auclast_unit), ("AUC0-inf", nca.aucinf, nca.aucinf_unit), ("t1/2", nca.terminal_half_life, "hours"), ("CL/F" if str(study.route).upper() != "IV" and nca.cl_f is not None else "CL", nca.cl_f if str(study.route).upper() != "IV" and nca.cl_f is not None else nca.cl, nca.cl_f_unit if str(study.route).upper() != "IV" and nca.cl_f is not None else nca.cl_unit), ("Vd/F" if str(study.route).upper() != "IV" and nca.vz_f is not None else "Vd", nca.vz_f if str(study.route).upper() != "IV" and nca.vz_f is not None else nca.vz, nca.vz_f_unit if str(study.route).upper() != "IV" and nca.vz_f is not None else nca.vz_unit)]

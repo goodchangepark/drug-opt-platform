@@ -1,0 +1,57 @@
+{
+  "policy_id": "experimental_refinement_policy_v1",
+  "policy_version": "drugopt-experimental-refinement-v1",
+  "hierarchy_order": [
+    "1. explicit observation text",
+    "2. row/column header",
+    "3. table title & footnote",
+    "4. immediate paragraph context",
+    "5. section header"
+  ],
+  "measurement_type_first_resolution": [
+    "IC50",
+    "EC50",
+    "Ki",
+    "Kd",
+    "GI50",
+    "Papp",
+    "Clint",
+    "Cmax",
+    "Tmax",
+    "AUC",
+    "t1/2",
+    "CL",
+    "CL/F",
+    "Vd",
+    "Vss",
+    "Vd/F",
+    "F",
+    "PPB",
+    "fu"
+  ],
+  "state_machine": [
+    "AUTO_QUALIFIED",
+    "RELATED",
+    "REVIEW_REQUIRED",
+    "UNUSABLE"
+  ],
+  "unresolved_reason_codes": [
+    "ENDPOINT_AMBIGUOUS",
+    "MEASUREMENT_TYPE_MISSING",
+    "UNIT_MISSING",
+    "SPECIES_MISSING",
+    "NON_NUMERIC_OBSERVATION",
+    "ROUTE_MISSING",
+    "DOSE_MISSING",
+    "ANALYTE_MISSING"
+  ],
+  "dataset_reprocessing_summary": {
+    "total": 1823,
+    "auto_qualified": 873,
+    "related": 271,
+    "review_required": 679,
+    "unusable": 0,
+    "resolved_count": 1144
+  },
+  "generated_at": "2026-09-02T14:24:42.197729+00:00"
+}

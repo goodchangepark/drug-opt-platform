@@ -1,0 +1,164 @@
+{
+  "artifact_id": "egfr_maturity_recalculation_v4_8",
+  "project": "EGFR Exon 20",
+  "endpoint": "Plasma protein binding",
+  "effective_n": 1.0,
+  "independent_compounds": 3,
+  "maturity_level": 1,
+  "maturity_stars": "\u2605\u2606\u2606\u2606\u2606",
+  "maturity_reason": "INSUFFICIENT_INDEPENDENT_COMPOUNDS (N=2 < 5 required for Stage 1 Adaptation)",
+  "star_color_scheme": {
+    "active_star": "#F5B700",
+    "inactive_star": "#94a3b8"
+  },
+  "preview_data": {
+    "endpoint_id": "Plasma protein binding",
+    "strategy_type": "SINGLE_MODEL_RESIDUAL_CALIBRATION",
+    "model_count": 1,
+    "status": "BASE_ONLY",
+    "raw_n": 1,
+    "effective_n": 1.0,
+    "global_weights": {
+      "Plasma protein binding:3": 1.0
+    },
+    "project_weights": {
+      "Plasma protein binding:3": 1.0
+    },
+    "base_validation_error": null,
+    "adapted_validation_error": null,
+    "observed_bias": null,
+    "shrinkage_factor": 0.0,
+    "calibration_adjustment": 0.0,
+    "calibration_scale": "endpoint canonical scale",
+    "holdouts_improved": null,
+    "stability": "INSUFFICIENT_EVIDENCE",
+    "activation_decision": "BASE_RETAINED",
+    "reason": "INSUFFICIENT_EVIDENCE",
+    "base_engine_policy": "drugopt-prediction-engine-v1@1.0.0",
+    "base_engine_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+    "strategy": "SINGLE_MODEL_RESIDUAL_CALIBRATION",
+    "independent_compounds": 3,
+    "adaptation_eligible_n": 1,
+    "prospective_count": 1,
+    "retrospective_oof_count": 0,
+    "activation_requires_explicit_action": true,
+    "learning_curve": {
+      "policy_version": "drugopt-project-learning-curve-v1",
+      "engine_policy": "drugopt-prediction-engine-v1@1.0.0",
+      "engine_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+      "endpoint_id": "Plasma protein binding",
+      "raw_observations": 3,
+      "unique_experiments": 1,
+      "independent_compounds": 1,
+      "ordering_seeds": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "primary_ordering": [
+        {
+          "n": 0,
+          "seed": 0,
+          "training_compounds": [],
+          "holdout_compounds": [
+            "22"
+          ],
+          "base": {
+            "n": 1,
+            "mae": 10.876956176757815,
+            "rmse": 10.876956176757815,
+            "bias": -10.876956176757815,
+            "median_absolute_error": 10.876956176757815,
+            "spearman": null
+          },
+          "adapted": null,
+          "base_mae": 10.876956176757815,
+          "adapted_mae": null,
+          "delta_mae": null,
+          "fraction_holdouts_improved": null,
+          "effective_n": 0.0,
+          "candidate_weights": null,
+          "global_weights": {
+            "Plasma protein binding:3": 1.0
+          },
+          "validation_decision": "BASE_ONLY",
+          "maturity_candidate": {
+            "level": 1,
+            "label": "Base Prediction",
+            "activated": false
+          },
+          "holdout_predictions": [
+            {
+              "compound_version_id": "22",
+              "experimental_value": 97.7,
+              "base_prediction": 86.82304382324219,
+              "project_prediction": null,
+              "similarity_to_training": 0.0
+            }
+          ]
+        }
+      ],
+      "aggregate": [
+        {
+          "n": 0,
+          "base_mae": 10.87695617675781,
+          "adapted_mae": null,
+          "adapted_mae_median": null,
+          "adapted_mae_iqr": null,
+          "delta_mae": null,
+          "fraction_holdouts_improved": null,
+          "effective_n": 0.0,
+          "maturity_candidate": {
+            "level": 1,
+            "label": "Base Prediction",
+            "activated": false
+          },
+          "validation_decisions": [
+            "BASE_ONLY"
+          ]
+        }
+      ],
+      "split_evaluations": [
+        {
+          "mode": "random",
+          "status": "INSUFFICIENT_DATA"
+        },
+        {
+          "mode": "scaffold",
+          "status": "INSUFFICIENT_DATA"
+        },
+        {
+          "mode": "series",
+          "status": "INSUFFICIENT_DATA"
+        }
+      ],
+      "similarity_analysis": {
+        "low": {
+          "n": 1,
+          "base_mae": 10.876956176757815,
+          "adapted_mae": null
+        }
+      },
+      "validation_note": "Synthetic/public disposable validation only; no protected real project adapter was activated."
+    }
+  },
+  "status": "PASSED",
+  "generated_at": "2026-09-02T14:24:42.602291+00:00"
+}

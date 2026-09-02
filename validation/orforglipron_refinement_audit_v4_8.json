@@ -1,0 +1,12 @@
+{
+  "artifact_id": "orforglipron_refinement_audit_v4_8",
+  "policy_version": "drugopt-experimental-refinement-v1",
+  "compound": "Orforglipron",
+  "version_id": 1,
+  "total_observations": 0,
+  "auto_qualified": 0,
+  "related": 0,
+  "review_required": 0,
+  "records": [],
+  "generated_at": "2026-09-02T14:24:42.196889+00:00"
+}

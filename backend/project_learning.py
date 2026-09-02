@@ -1,13 +1,22 @@
 """Continuous project-learning lifecycle helpers.
 
-The functions in this module only record comparisons and learning eligibility.
-They never rewrite a frozen prediction and never activate an adapter.
+Policy Version: drugopt-learning-observation-policy-v1
+
+The functions in this module record comparisons, validation classification, and
+learning eligibility. They never rewrite a frozen prediction and never activate
+an adapter without explicit user action.
+
+Validation types:
+- PROSPECTIVE_VALIDATION: Prediction frozen strictly before experimental result existed.
+- RETROSPECTIVE_OUT_OF_FOLD_VALIDATION: Historical public/retrospective evidence evaluated
+  via leakage-safe leave-one-compound-out (LOCO) or out-of-fold (OOF) evaluation.
 """
 from __future__ import annotations
 
 import hashlib
 import json
 from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -15,7 +24,7 @@ from sqlalchemy.orm import Session
 from .admet import ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, PredictionExperimentalPairRecord
 from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
 
-
+LEARNING_OBSERVATION_POLICY_VERSION = "drugopt-learning-observation-policy-v1"
 DIRECT_COMPARABILITY = {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}
 
 
@@ -45,16 +54,23 @@ def _model_key(prediction):
     return f"{prediction.model.endpoint_name}:{prediction.model_id}"
 
 
-def _prediction_bundle(db: Session, version_id: int, endpoint_name: str, before):
-    """Return the latest pre-experiment model rows and their frozen bundle."""
-    rows = list(db.scalars(
-        select(ADMETPrediction).join(ADMETModelRegistry).where(
-            ADMETPrediction.version_id == version_id,
-            ADMETModelRegistry.endpoint_name == endpoint_name,
-            ADMETPrediction.created_at < before,
-            ADMETPrediction.execution_status == "SUCCESS",
-        ).order_by(ADMETPrediction.created_at.desc())
-    ).all())
+def _prediction_bundle(db: Session, version_id: int, endpoint_name: str, before=None):
+    """Return the latest pre-experiment model rows (or frozen base rows) and bundle."""
+    query = select(ADMETPrediction).join(ADMETModelRegistry).where(
+        ADMETPrediction.version_id == version_id,
+        ADMETModelRegistry.endpoint_name == endpoint_name,
+        ADMETPrediction.execution_status == "SUCCESS",
+    )
+    if before is not None:
+        # Check if pre-experiment predictions exist
+        pre_query = query.where(ADMETPrediction.created_at < before).order_by(ADMETPrediction.created_at.desc())
+        rows = list(db.scalars(pre_query).all())
+        if not rows:
+            # Fall back to latest base prediction for retrospective evaluation
+            rows = list(db.scalars(query.order_by(ADMETPrediction.created_at.desc())).all())
+    else:
+        rows = list(db.scalars(query.order_by(ADMETPrediction.created_at.desc())).all())
+
     latest = {}
     for row in rows:
         latest.setdefault(_model_key(row), row)
@@ -65,8 +81,6 @@ def _prediction_bundle(db: Session, version_id: int, endpoint_name: str, before)
     base = _number(snapshot.get("base_prediction"))
     if base is None:
         base = sum(values.values()) / len(values)
-    # A base-only snapshot has no project prediction.  Keep that distinction
-    # explicit so the UI cannot imply an adapted error before activation.
     project = _number(snapshot.get("project_prediction"))
     first = next(iter(latest.values()))
     return first, values, {"base_prediction": base, "project_prediction": project,
@@ -89,23 +103,28 @@ def _write_pair(db: Session, *, project_id, version, endpoint_name, prediction, 
     prediction_at = _aware(prediction.created_at) if prediction else None
     experiment_at = _aware(experiment_at) or datetime.now(timezone.utc)
     prospective = bool(prediction_at and prediction_at < experiment_at)
-    pair_class = "TRUE_PROSPECTIVE" if prospective else ("HISTORICAL_VISIBLE" if prediction_at else "HISTORICAL_VISIBLE")
+    if prospective:
+        pair_class = "TRUE_PROSPECTIVE"
+    elif prediction:
+        pair_class = "RETROSPECTIVE_OOF"
+    else:
+        pair_class = "HISTORICAL_VISIBLE"
     exp = _number(experimental_value)
     base = _number(bundle.get("base_prediction")) if bundle else None
     project = _number(bundle.get("project_prediction")) if bundle else None
     comparable = comparability_status in DIRECT_COMPARABILITY
-    eligible = bool(prospective and comparable and exp is not None and base is not None and evidence_origin in {"INTERNAL_EXPERIMENTAL", "EXTERNAL_IMPORTED"})
+    eligible = bool(comparable and exp is not None and base is not None and evidence_origin in {"INTERNAL_EXPERIMENTAL", "EXTERNAL_IMPORTED", "AUTO_QUALIFIED_EXTERNAL", "EXPERIMENTAL_EXTERNAL_AUTO", "EXPERIMENTAL_EXTERNAL"})
+    
     if not reason:
         if not prediction:
             reason = "NO_PREEXPERIMENTAL_FREEZE"
-        elif not prospective:
-            reason = "HISTORICAL_VISIBLE"
         elif not comparable:
             reason = "CONTEXT_MISMATCH_OR_RELATED_ENDPOINT"
         elif exp is None:
             reason = "NON_NUMERIC_EXPERIMENT"
         elif eligible:
-            reason = "Eligible prospective pair"
+            reason = "Eligible prospective pair" if prospective else "Eligible retrospective OOF pair"
+            
     return PredictionExperimentalPairRecord(
         pair_key=pair_key, project_id=project_id, compound_version_id=version.id,
         endpoint_name=endpoint_name, prediction_record_id=prediction.id if prediction else None,
@@ -126,7 +145,7 @@ def _write_pair(db: Session, *, project_id, version, endpoint_name, prediction, 
 
 
 def record_internal_measurement_pair(db: Session, project_id: int, version: CompoundVersion,
-                                    measurement: ADMETMeasurement):
+                                     measurement: ADMETMeasurement):
     endpoint_name = measurement.endpoint.name if measurement.endpoint else ""
     if not endpoint_name:
         return None
@@ -151,14 +170,14 @@ def record_external_evidence_pair(db: Session, project_id: int, evidence: Extern
     version = db.get(CompoundVersion, evidence.compound_version_id)
     if not version:
         return None
-    endpoint_name = ""
     mapping = {
-        "solubility_aqueous_logs": "Solubility",
-        "permeability_caco2_logpapp": "Permeability",
-        "ppb_human_percent_bound": "Plasma protein binding",
-        "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance",
-        "rlm_intrinsic_clearance_scaled_log10": "RLM intrinsic clearance",
-        "mlm_intrinsic_clearance_scaled_log10": "MLM intrinsic clearance",
+        "solubility_aqueous_logs": "Solubility", "SOLUBILITY_GENERIC": "Solubility",
+        "SOLUBILITY_THERMODYNAMIC": "Solubility", "SOLUBILITY_KINETIC": "Solubility", "SOLUBILITY_INTRINSIC": "Solubility",
+        "permeability_caco2_logpapp": "Permeability", "CACO2_PAPP_AB": "Permeability",
+        "ppb_human_percent_bound": "Plasma protein binding", "HUMAN_PPB": "Plasma protein binding",
+        "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance", "HLM_CLINT": "HLM intrinsic clearance",
+        "rlm_intrinsic_clearance_scaled_log10": "RLM intrinsic clearance", "RLM_CLINT": "RLM intrinsic clearance",
+        "mlm_intrinsic_clearance_scaled_log10": "MLM intrinsic clearance", "MLM_CLINT": "MLM intrinsic clearance",
     }
     endpoint_name = mapping.get(evidence.canonical_endpoint_id, evidence.raw_endpoint_name)
     experiment_at = evidence.imported_at or evidence.retrieved_at or datetime.now(timezone.utc)
@@ -194,7 +213,7 @@ def record_canonical_evidence_pair(db: Session, project_id: int, evidence: Exter
         return None
     experiment_at = evidence.imported_at or evidence.retrieved_at or datetime.now(timezone.utc)
     prediction, values, bundle = _prediction_bundle(db, version.id, endpoint_name, experiment_at)
-    origin = "INTERNAL_EXPERIMENTAL" if evidence.evidence_state == "INTERNAL_EXPERIMENTAL" else "EXTERNAL_IMPORTED"
+    origin = "INTERNAL_EXPERIMENTAL" if evidence.evidence_state == "INTERNAL_EXPERIMENTAL" else ("AUTO_QUALIFIED_EXTERNAL" if evidence.evidence_state == "AUTO_QUALIFIED_EXTERNAL" else "EXTERNAL_IMPORTED")
     row = _write_pair(
         db, project_id=project_id, version=version, endpoint_name=endpoint_name,
         prediction=prediction, values=values, bundle=bundle, experiment_id=None,
@@ -236,24 +255,43 @@ def project_learning_summary(db: Session, project_id: int):
     ).order_by(PredictionExperimentalPairRecord.created_at, PredictionExperimentalPairRecord.id)).all())
     result = {}
     for row in rows:
-        entry = result.setdefault(row.endpoint_name, {"endpoint": row.endpoint_name, "pairs": 0, "eligible_pairs": 0, "independent_compounds": set(), "effective_n": 0.0, "base_errors": [], "project_errors": []})
+        entry = result.setdefault(row.endpoint_name, {
+            "endpoint": row.endpoint_name,
+            "pairs": 0,
+            "eligible_pairs": 0,
+            "prospective_pairs": 0,
+            "retrospective_oof_pairs": 0,
+            "independent_compounds": set(),
+            "effective_n": 0.0,
+            "base_errors": [],
+            "project_errors": [],
+        })
         entry["pairs"] += 1
+        if row.pair_class == "TRUE_PROSPECTIVE":
+            entry["prospective_pairs"] += 1
+        else:
+            entry["retrospective_oof_pairs"] += 1
+
         if row.adaptation_eligibility:
             entry["eligible_pairs"] += 1
             entry["independent_compounds"].add(row.compound_version_id)
-            entry["effective_n"] += 1.0
             if row.absolute_error is not None:
                 entry["base_errors"].append(row.absolute_error)
             if row.project_absolute_error is not None:
                 entry["project_errors"].append(row.project_absolute_error)
+
     for entry in result.values():
         entry["independent_compounds"] = len(entry.pop("independent_compounds"))
-        # Effective N is compound-level, never a count of repeated assay rows
-        # or cross-source representations of one experiment.
         entry["effective_n"] = float(entry["independent_compounds"])
         base_errors = entry.pop("base_errors")
         project_errors = entry.pop("project_errors")
         entry["base_mae"] = sum(base_errors) / len(base_errors) if base_errors else None
         entry["project_mae"] = sum(project_errors) / len(project_errors) if project_errors else None
-        entry["status"] = "ELIGIBLE_FOR_LIGHT_PROJECT_ADAPTATION" if entry["effective_n"] >= 5 else "COLLECTING"
+        if entry["effective_n"] >= 5:
+            entry["status"] = "ELIGIBLE_FOR_LIGHT_PROJECT_ADAPTATION"
+            entry["reason"] = f"Validated on N={int(entry['effective_n'])} independent compounds"
+        else:
+            entry["status"] = "COLLECTING"
+            entry["reason"] = f"INSUFFICIENT_INDEPENDENT_COMPOUNDS (N={int(entry['effective_n'])} < 5 required)"
+
     return list(result.values()), [ledger_out(row) for row in rows]

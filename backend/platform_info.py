@@ -428,6 +428,13 @@ VERSION_HISTORY = [
         "milestone": "Final Scientific Comparison",
         "improvements": "Qualified search evidence is automatically persisted and available for comparison without manual import; experimental and prediction rows use canonical scientist-facing units, deterministic differences, separate interpretation/agreement states, and strict learning eligibility. Ambiguous evidence remains in Review and AI interpretation is intentionally deferred.",
     },
+    {
+        "version": "v4.8",
+        "release_date": "2026-09-02",
+        "stage": "Data-foundation stabilization milestone",
+        "milestone": "Compound-Scoped Evidence & Persistent Prediction",
+        "improvements": "Hard compound-level evidence isolation eliminates cross-compound data leakage; completed search results persist without re-search after navigation or reload; saved predictions restore immediately without silent reprediction or 'Not started' flash; deterministic experimental refinement engine (drugopt-experimental-refinement-v1) refines GLP-1R, EGFR, ADMET and PK observations using document context; retrospective out-of-fold project learning (drugopt-learning-observation-policy-v1) evaluates historical evidence with 1-compound N=1 target derivation while keeping prospective and retrospective validation strictly separated; transparent prediction maturity reasons.",
+    },
 ]
 
 

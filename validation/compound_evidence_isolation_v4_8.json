@@ -1,0 +1,23 @@
+{
+  "artifact_id": "compound_evidence_isolation_v4_8",
+  "cross_compound_leak_count": 0,
+  "pair_audits": [
+    {
+      "pair": "Orforglipron vs Aleniglipron",
+      "c1_observations": 558,
+      "c2_observations": 0,
+      "cross_compound_overlap_count": 0,
+      "isolation_verified": true
+    },
+    {
+      "pair": "Mobocertinib vs Sunvozertinib",
+      "c1_observations": 443,
+      "c2_observations": 376,
+      "cross_compound_overlap_count": 0,
+      "isolation_verified": true
+    }
+  ],
+  "isolation_contract": "STRICT_COMPOUND_ID_SCOPED",
+  "status": "PASSED",
+  "generated_at": "2026-09-02T14:24:42.514397+00:00"
+}

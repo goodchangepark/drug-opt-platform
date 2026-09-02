@@ -1,0 +1,8 @@
+{
+  "artifact_id": "prediction_navigation_no_rerun_v4_8",
+  "test_scenario": "Navigation between compounds, hard reloads, and service restarts",
+  "silent_repredict_post_calls_on_load": 0,
+  "immutable_freeze_preserved": true,
+  "status": "PASSED",
+  "generated_at": "2026-09-02T14:24:42.527804+00:00"
+}
