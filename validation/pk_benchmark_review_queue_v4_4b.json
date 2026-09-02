@@ -1,0 +1,40 @@
+{
+  "benchmark_version": "drugopt-public-pk-benchmark-v1",
+  "by_reason": {
+    "DOSE_MISSING": 2,
+    "MEASUREMENT_TYPE_MISSING": 1
+  },
+  "count": 3,
+  "items": [
+    {
+      "action": "Keep out of quantitative benchmark until the source study dose/regimen is independently resolved.",
+      "candidate_id": "PKB-RQ-SUN-RAT-F",
+      "compound": "Sunvozertinib",
+      "parameter": "F",
+      "raw_context": "Oral bioavailability estimated at 39.6% in rats",
+      "reason": "DOSE_MISSING",
+      "source_id": "FDA_SUNVOZERTINIB_NDA_219839",
+      "species": "RAT"
+    },
+    {
+      "action": "Keep out of quantitative benchmark until the source study dose/regimen is independently resolved.",
+      "candidate_id": "PKB-RQ-SUN-DOG-F",
+      "compound": "Sunvozertinib",
+      "parameter": "F",
+      "raw_context": "Oral bioavailability estimated at 48.8% in dogs",
+      "reason": "DOSE_MISSING",
+      "source_id": "FDA_SUNVOZERTINIB_NDA_219839",
+      "species": "DOG"
+    },
+    {
+      "action": "Do not turn a heterogeneous range into a single benchmark target.",
+      "candidate_id": "PKB-RQ-MDZ-VD",
+      "compound": "Midazolam",
+      "parameter": "VD",
+      "raw_context": "Vd ranged from 1.0 to 3.1 L/kg across six studies",
+      "reason": "MEASUREMENT_TYPE_MISSING",
+      "source_id": "DAILYMED_MIDAZOLAM",
+      "species": "HUMAN"
+    }
+  ]
+}

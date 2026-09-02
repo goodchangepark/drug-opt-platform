@@ -400,6 +400,13 @@ VERSION_HISTORY = [
         "milestone": "Manual Experimental Data & Unified Evidence Capture",
         "improvements": "Endpoint-aware internal experimental entry, canonical unit normalization, durable revisions and invalidation, and direct reuse of the persisted scientific comparison and project-learning evidence contract.",
     },
+    {
+        "version": "v4.4B",
+        "release_date": "2026-09-02",
+        "stage": "Public PK benchmark milestone",
+        "milestone": "Public PK Benchmark Foundation",
+        "improvements": "Frozen a separate, source-traceable public-PK benchmark with compound-level development/holdout isolation and a holdout access guard. Mechanistic equation verification remains distinct from predictive validation; benchmark observations never become project experiments, maturity evidence, or adapter training data. PK endpoints remain unavailable or research-only until later independent validation.",
+    },
 ]
 
 

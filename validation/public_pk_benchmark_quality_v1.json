@@ -1,0 +1,10 @@
+{
+  "benchmark_qualified": 27,
+  "benchmark_version": "drugopt-public-pk-benchmark-v1",
+  "context_qualified": 27,
+  "exclusion_policy": "Context-incomplete ranges and records with missing dose where dose is endpoint-relevant remain in the review queue.",
+  "identity_qualified": 27,
+  "quality_tier_counts": {
+    "TIER_1": 27
+  }
+}

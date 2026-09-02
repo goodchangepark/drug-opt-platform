@@ -1,0 +1,55 @@
+{
+  "benchmark_version": "drugopt-public-pk-benchmark-v1",
+  "observation_source_counts": {
+    "PRIMARY_REGULATORY": 27
+  },
+  "pkdb_rest_api_inspected": {
+    "status": "INSPECTED_DISCOVERY_SOURCE",
+    "url": "https://pk-db.com/api/v1/swagger/",
+    "use": "PK-DB documents study/intervention/output context; no PK-DB value is auto-qualified without source-level review."
+  },
+  "sources": {
+    "DAILYMED_ACETAMINOPHEN_IV": {
+      "document": "DailyMed acetaminophen injection label",
+      "quality_tier": "TIER_1",
+      "section": "12.3 Pharmacokinetics, Table 5",
+      "source_type": "PRIMARY_REGULATORY",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=f80b6f72-f280-4b4a-a6a9-e6490b94705b"
+    },
+    "DAILYMED_METFORMIN_IR": {
+      "document": "DailyMed metformin hydrochloride immediate-release label",
+      "quality_tier": "TIER_1",
+      "section": "12.3 Pharmacokinetics, Table 3",
+      "source_type": "PRIMARY_REGULATORY",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=542cec22-eeae-4704-9bb6-4176640e5ea8"
+    },
+    "DAILYMED_MIDAZOLAM": {
+      "document": "DailyMed midazolam label",
+      "quality_tier": "TIER_1",
+      "section": "Clinical Pharmacology, Absorption",
+      "source_type": "PRIMARY_REGULATORY",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/fda/fdaDrugXsl.cfm?setid=90f7b7f6-d0fd-40af-bbfa-70b152e3e27c"
+    },
+    "DAILYMED_OSIMERTINIB": {
+      "document": "DailyMed TAGRISSO (osimertinib) label",
+      "quality_tier": "TIER_1",
+      "section": "12.3 Pharmacokinetics",
+      "source_type": "PRIMARY_REGULATORY",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=5e81b4a7-b971-45e1-9c31-29cea8c87ce7"
+    },
+    "DAILYMED_WARFARIN": {
+      "document": "DailyMed COUMADIN (warfarin sodium) label",
+      "quality_tier": "TIER_1",
+      "section": "12.3 Pharmacokinetics, Excretion",
+      "source_type": "PRIMARY_REGULATORY",
+      "url": "https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=91fa852c-b43d-4a55-983b-74aa6827125d"
+    },
+    "FDA_SUNVOZERTINIB_NDA_219839": {
+      "document": "FDA NDA 219839 multidisciplinary review (ZEGFROVY/sunvozertinib)",
+      "quality_tier": "TIER_1",
+      "section": "Clinical Pharmacology / Drug Exposure at Steady State",
+      "source_type": "PRIMARY_REGULATORY",
+      "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+    }
+  }
+}

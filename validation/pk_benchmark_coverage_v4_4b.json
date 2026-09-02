@@ -1,0 +1,132 @@
+{
+  "benchmark_version": "drugopt-public-pk-benchmark-v1",
+  "coverage": {
+    "HUMAN AUC0_T": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 1,
+      "independent_compounds": 1,
+      "insufficient_input": 1,
+      "prediction_attempted": 1,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN AUC_TAU": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 2,
+      "independent_compounds": 1,
+      "insufficient_input": 2,
+      "prediction_attempted": 2,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN CL": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 1,
+      "independent_compounds": 1,
+      "insufficient_input": 1,
+      "prediction_attempted": 1,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN CLF": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 2,
+      "independent_compounds": 2,
+      "insufficient_input": 2,
+      "prediction_attempted": 2,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN CMAX": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 6,
+      "independent_compounds": 4,
+      "insufficient_input": 6,
+      "prediction_attempted": 6,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN TMAX": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 6,
+      "independent_compounds": 4,
+      "insufficient_input": 6,
+      "prediction_attempted": 6,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN T_HALF": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 5,
+      "independent_compounds": 5,
+      "insufficient_input": 5,
+      "prediction_attempted": 5,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN VDF": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 2,
+      "independent_compounds": 2,
+      "insufficient_input": 2,
+      "prediction_attempted": 2,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN VSS": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 1,
+      "independent_compounds": 1,
+      "insufficient_input": 1,
+      "prediction_attempted": 1,
+      "prediction_available": 0,
+      "unavailable": 0
+    },
+    "HUMAN VSSF": {
+      "coverage_percent": 0.0,
+      "dataset_status": "INSUFFICIENT_DATA",
+      "eligible_observations": 1,
+      "independent_compounds": 1,
+      "insufficient_input": 1,
+      "prediction_attempted": 1,
+      "prediction_available": 0,
+      "unavailable": 0
+    }
+  },
+  "mechanistic_verification": [
+    {
+      "classification": "MECHANISTIC_VERIFICATION",
+      "compound_id": "acetaminophen",
+      "counts_as_predictive_validation": false,
+      "derived_unit": "h",
+      "derived_value": 2.0537694238813193,
+      "difference_h": -0.3462305761186806,
+      "experimental_inputs": {
+        "CL": {
+          "unit": "L/h/kg",
+          "value": 0.27
+        },
+        "VSS": {
+          "unit": "L/kg",
+          "value": 0.8
+        }
+      },
+      "observed_unit": "h",
+      "observed_value": 2.4,
+      "parameter": "T_HALF",
+      "species": "HUMAN",
+      "study_id": "APAP-IV-ADULT-TABLE5",
+      "track": "MECHANISTIC_VERIFICATION"
+    }
+  ],
+  "performance_policy": "No predictive accuracy metric is calculated when the unchanged fail-closed engine returns no quantitative Track-A prediction."
+}
