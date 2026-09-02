@@ -62,6 +62,104 @@ function StatusBadge({type}){
  return e('span',{className:'status-badge status-'+String(type||'not-applicable').toLowerCase().replace(/[^a-z]+/g,'-')},labels[type]||type||'NOT APPLICABLE');
 }
 
+function AIChatSection({compoundId,section,placeholder='Qwen3.5 9B',title='AI Section Assistant (Qwen3.5 9B)'}){
+ const [input,setInput]=useState('');
+ const [loading,setLoading]=useState(false);
+ const [history,setHistory]=useState([]);
+
+ const handleSend=async(event)=>{
+  if(event)event.preventDefault();
+  const q=(input||'').trim();
+  if(!q||loading)return;
+  setLoading(true);
+  setInput('');
+  try{
+   const res=await api.post('/chat/section',{
+    compound_id:compoundId,
+    section:section||'overview',
+    question:q
+   });
+   setHistory(prev=>[...prev,{question:q,answer:res.answer||'답변을 불러오지 못했습니다.'}]);
+  }catch(err){
+   setHistory(prev=>[...prev,{question:q,answer:'질문 처리 중 오류가 발생했습니다: '+String(err)}]);
+  }finally{
+   setLoading(false);
+  }
+ };
+
+ return e('div',{className:'card ai-chat-box',key:'ai-chat-section-'+section},[
+  e('div',{className:'ai-chat-header'},[
+   e('span',{className:'ai-chat-badge'},'🤖 Qwen3.5 9B'),
+   e('span',{className:'ai-chat-title'},title+' · '+String(section||'OVERVIEW').toUpperCase()),
+   history.length>0&&e('button',{type:'button',className:'link-button small',onClick:()=>setHistory([]),style:{marginLeft:'auto'}},'Clear')
+  ]),
+  history.length>0&&e('div',{className:'ai-chat-history'},history.map((item,idx)=>e('div',{className:'ai-chat-bubble',key:idx},[
+   e('div',{className:'ai-chat-q'},[e('strong',{},'Q: '),item.question]),
+   e('div',{className:'ai-chat-a'},[e('strong',{},'A: '),item.answer])
+  ]))),
+  e('form',{className:'ai-chat-form',onSubmit:handleSend},[
+   e('input',{
+    type:'text',
+    className:'ai-chat-input',
+    placeholder:placeholder,
+    value:input,
+    onChange:(event)=>setInput(event.target.value),
+    disabled:loading
+   }),
+   e('button',{type:'submit',className:'ai-chat-send-btn',disabled:loading||!input.trim()},loading?'Thinking…':'Send')
+  ])
+ ]);
+}
+
+function AIChatCompare({projectId,compoundIds,placeholder='Qwen3.5 9B',title='AI Comparison Assistant (Qwen3.5 9B)'}){
+ const [input,setInput]=useState('');
+ const [loading,setLoading]=useState(false);
+ const [history,setHistory]=useState([]);
+
+ const handleSend=async(event)=>{
+  if(event)event.preventDefault();
+  const q=(input||'').trim();
+  if(!q||loading)return;
+  setLoading(true);
+  setInput('');
+  try{
+   const res=await api.post('/chat/compare',{
+    project_id:projectId,
+    compound_ids:compoundIds||[],
+    question:q
+   });
+   setHistory(prev=>[...prev,{question:q,answer:res.answer||'답변을 불러오지 못했습니다.'}]);
+  }catch(err){
+   setHistory(prev=>[...prev,{question:q,answer:'질문 처리 중 오류가 발생했습니다: '+String(err)}]);
+  }finally{
+   setLoading(false);
+  }
+ };
+
+ return e('div',{className:'card ai-chat-box',key:'ai-chat-compare'},[
+  e('div',{className:'ai-chat-header'},[
+   e('span',{className:'ai-chat-badge'},'🤖 Qwen3.5 9B'),
+   e('span',{className:'ai-chat-title'},title+' · ('+String(compoundIds?.length||0)+' Compounds Selected)'),
+   history.length>0&&e('button',{type:'button',className:'link-button small',onClick:()=>setHistory([]),style:{marginLeft:'auto'}},'Clear')
+  ]),
+  history.length>0&&e('div',{className:'ai-chat-history'},history.map((item,idx)=>e('div',{className:'ai-chat-bubble',key:idx},[
+   e('div',{className:'ai-chat-q'},[e('strong',{},'Q: '),item.question]),
+   e('div',{className:'ai-chat-a'},[e('strong',{},'A: '),item.answer])
+  ]))),
+  e('form',{className:'ai-chat-form',onSubmit:handleSend},[
+   e('input',{
+    type:'text',
+    className:'ai-chat-input',
+    placeholder:placeholder,
+    value:input,
+    onChange:(event)=>setInput(event.target.value),
+    disabled:loading
+   }),
+   e('button',{type:'submit',className:'ai-chat-send-btn',disabled:loading||!input.trim()},loading?'Thinking…':'Send')
+  ])
+ ]);
+}
+
 function ScientificBadge({assessment,colorClass,textLabel}){
  const cls=colorClass==='favorable'?'badge-favorable':(colorClass==='liability'?'badge-liability':(colorClass==='intermediate'?'badge-intermediate':'badge-unavailable'));
  const dot=colorClass==='favorable'?'dot-favorable':(colorClass==='liability'?'dot-liability':(colorClass==='intermediate'?'dot-intermediate':'dot-unavailable'));
@@ -560,7 +658,7 @@ function App(){
   if(projectId&&projectTab==='compare')api.get('/projects/'+projectId+'/assays').then(data=>setAssays(data.assays||data||[])).catch(error=>setMessage(String(error)));
  },[projectId,projectTab]);
  useEffect(()=>{
-  if(projectId&&projectTab==='compounds'&&!detail)loadDashboard().catch(error=>setMessage(String(error)));
+  if(projectId&&(projectTab==='compounds'||projectTab==='evidence')&&!detail)loadDashboard().catch(error=>setMessage(String(error)));
  },[projectId,projectTab,detail?.row_id]);
  useEffect(()=>{
   if(projectId&&detail&&detailTab==='optimization')loadOptimization(detail.version.id).catch(error=>setMessage(String(error)));
@@ -3939,7 +4037,7 @@ function integratedProfile(versionId){
     ]))
    ]):null
   ]);
-  const tabs=['overview','properties','activity','admet','metabolism','pk','history'];
+  const tabs=['overview','properties','activity','admet','metabolism','pk','evidence','history'];
   const studies=pkData?.studies||[];
   const studyCount=studies.length;
   const hasExpPk=studyCount>0;
@@ -4021,7 +4119,7 @@ function integratedProfile(versionId){
         const searchSaved = latest?.status==='COMPLETE' || evidence.length > 0;
         return ['Experimental Search: ', searchSaved ? '✓ Saved' : (workspaceLoading ? 'Loading saved search…' : 'Not saved'),' · Qualified observations: ',String((workspace?.endpoint_comparison?.summary?.qualification||{}).endpoint_qualified||0),' · Ready to Import: ',String(workspace?.endpoint_comparison?.summary?.ready_to_import||0),' · Imported: ',String(imported),' · Last Search: ',latest?.completed_at||(searchSaved?'Persisted':'—')];
       })()),
-     (workspace?.external_experimental_evidence||[]).some(item=>item.evidence_state!=='EXTERNAL_IMPORTED')&&e('button',{type:'button',className:'secondary',onClick:()=>{const records=workspace.external_experimental_evidence;setExternalEvidence({status:'PERSISTED',records});setSelectedEvidenceIds([])}},'Review Qualified Evidence'),
+     (workspace?.external_experimental_evidence||[]).some(item=>item.evidence_state!=='EXTERNAL_IMPORTED')&&e('button',{type:'button',className:'secondary',onClick:()=>{setDetailTab('evidence');const records=workspace.external_experimental_evidence;setExternalEvidence({status:'PERSISTED',records});setSelectedEvidenceIds([])}},'Review Qualified Evidence'),
      e('div',{className:'project-learning-inline small'},[
       e('strong',{},'Project learning · '),
       workspace?.project_learning?.ledger?.length
@@ -4057,74 +4155,19 @@ function integratedProfile(versionId){
      e('p',{className:'small',style:{margin:'6px 0 0'}},workspace?'Strict scope: Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id:'Draft compound; no version-linked data exists.')
    ])
    ]),
-   externalEvidence&&e('section',{className:'card',key:'external-evidence'},[
-    e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'QUALIFIED EVIDENCE'),e('h3',{},'Review Qualified Evidence')]),e('div',{className:'row'},[e('button',{type:'button',disabled:externalEvidenceBusy||!selectedEvidenceIds.length,onClick:importExternalEvidence},externalEvidenceBusy?'Importing…':'Import Selected Qualified Evidence'),e('button',{type:'button',className:'secondary',onClick:()=>setExternalEvidence(null)},'Close')])]),
-    e('p',{className:'small'},'Public identity status: '+(externalEvidence.identity?.identity_status||externalEvidence.status)+' · No private structure was transmitted.'),
-    e('div',{className:'row small',style:{gap:'8px',flexWrap:'wrap'}},['PubChem PUG View','PubChem BioAssay','ChEMBL','CompTox','BindingDB','Europe PMC','PK-DB','FDA / Regulatory'].map(source=>e('label',{key:source},[e('input',{type:'checkbox',checked:harvestSources.includes(source),onChange:event=>setHarvestSources(current=>event.target.checked?[...current,source]:current.filter(x=>x!==source))}),' '+source+(externalEvidence.sources?.[source]==='NOT_CONFIGURED'?' (Not configured)':'')]))),
-    e('div',{className:'row small',style:{gap:'6px',flexWrap:'wrap',marginTop:'8px'}},['PAIRABLE','READY','ALL','IMPORTED','DIRECT','RELATED','REVIEW'].map(filter=>e('button',{key:filter,type:'button',className:evidenceFilter===filter?'active-tab':'secondary',onClick:()=>setEvidenceFilter(filter)},filter==='PAIRABLE'?'Prediction-Pairable':filter==='ALL'?'All':filter==='READY'?'Ready to Import':filter==='IMPORTED'?'Imported':filter==='DIRECT'?'Directly Comparable':filter==='RELATED'?'Related Evidence':'Needs Review'))),
-    externalEvidence.identity&&e('p',{className:'small'},'PubChem CID: '+(externalEvidence.identity.pubchem_cid||externalEvidence.identity.cid||'—')+' · Identity: '+(externalEvidence.identity.identity_status||externalEvidence.identity.status||'—')),
-    e('p',{className:'small'},externalEvidence.source_notice||externalEvidence.message||'Only source-recorded experimental values with a resolved reference can be imported. PubChem computed properties are excluded.'),
-    externalEvidence.summary&&e('div',{className:'harvest-summary'},['Raw source records: '+externalEvidence.summary.raw_records,'Unique scientific observations: '+externalEvidence.summary.unique_records,'Duplicates collapsed: '+(externalEvidence.summary.display_duplicates_collapsed||0),'Numeric observations: '+externalEvidence.summary.numeric_observations,'Identity-qualified: '+(externalEvidence.summary.identity_qualified||0),'Reference-qualified: '+externalEvidence.summary.reference_qualified,'Endpoint-qualified: '+externalEvidence.summary.endpoint_qualified,'Context-qualified: '+(externalEvidence.summary.context_qualified||0),'Prediction-pairable: '+(externalEvidence.summary.prediction_pairable||0),'Direct comparisons: '+(externalEvidence.summary.directly_comparable||0),'Conditional comparisons: '+(externalEvidence.summary.conditionally_comparable||0),'Related comparisons: '+(externalEvidence.summary.related_evidence||0),'Related endpoint groups: '+(externalEvidence.summary.related_endpoint_groups||0),'Needs review: '+(externalEvidence.summary.manual_review||0),'Ready to Import: '+externalEvidence.summary.importable,'Adaptation eligible: '+(externalEvidence.summary.adaptation_eligible||0),'Imported: '+(externalEvidence.import_result?.imported||0),'Last search: '+(externalEvidence.summary.last_search||'—')].map(text=>e('span',{key:text,className:'badge-intermediate'},text))),
-    externalEvidence.summary?.routed_sections&&e('div',{className:'harvest-summary routed-counts'},[
-     e('strong',{key:'complete'},'Experimental Evidence Search Complete · Raw source category'),
-     ...['ACTIVITY','ADMET','METABOLISM','PK','TOXICITY','UNCLASSIFIED'].map(section=>e('button',{key:section,className:'secondary',onClick:()=>setDetailTab(section==='ACTIVITY'?'activity':section==='ADMET'||section==='TOXICITY'||section==='UNCLASSIFIED'?'admet':section.toLowerCase())},section+': '+externalEvidence.summary.routed_sections[section]))
-    ]),
-    externalEvidence.summary?.canonical_routing&&e('div',{className:'harvest-summary routed-counts'},[
-     e('strong',{key:'canonical'},'Canonical scientific routing'),
-     ...Object.entries(externalEvidence.summary.canonical_routing).map(([section,count])=>e('span',{key:section,className:'badge-intermediate'},section+': '+count))
-    ]),
-    externalEvidence.summary?.categories&&e('div',{className:'harvest-summary'},Object.entries(externalEvidence.summary.categories).map(([category,count])=>e('span',{key:category,className:'badge-intermediate'},category[0]+category.slice(1).toLowerCase()+': '+count))),
-    externalEvidence.summary?.documents&&e('div',{className:'harvest-summary'},Object.entries(externalEvidence.summary.documents).map(([kind,count])=>e('span',{key:kind,className:'badge-intermediate'},kind.replaceAll('_',' ').toLowerCase()+': '+count))),
-    externalEvidence.source_counts&&e('div',{className:'source-qualification-table'},[
-     e('strong',{key:'title'},'Source qualification stages'),
-     ...Object.entries(externalEvidence.source_counts).map(([source,count])=>e('div',{key:source,className:'small'},externalEvidence.sources?.[source]==='NOT_CONFIGURED'?source+': Not configured':source+' · Found '+count.found+' · Unique '+count.unique+' · Numeric '+count.numeric+' · Endpoint-qualified '+count.endpoint_qualified+' · Context-qualified '+count.context_qualified+' · Prediction-pairable '+count.prediction_pairable+' · Direct '+count.direct+' · Ready '+count.ready_to_import))
-    ]),
-    externalEvidence.records?.length?e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[
-     e('thead',{},e('tr',{},['Select','Endpoint','Representative Experimental Value','Source','Qualification','Pairability'].map(label=>e('th',{key:label},label)))),
-     e('tbody',{},externalEvidence.records
-      .filter(row=>evidenceFilter!=='READY'||row.import_eligible)
-      .filter(row=>evidenceFilter!=='PAIRABLE'||row.qualification?.stages?.PREDICTION_PAIRABLE)
-      .filter(row=>evidenceFilter!=='DIRECT'||row.qualification?.stages?.DIRECTLY_COMPARABLE)
-      .filter(row=>evidenceFilter!=='RELATED'||row.qualification?.stages?.RELATED_SAME_GROUP)
-      .filter(row=>evidenceFilter!=='REVIEW'||row.qualification_status==='NEEDS_REVIEW')
-      .filter(row=>evidenceFilter!=='IMPORTED'||row.evidence_state==='EXTERNAL_IMPORTED')
-      .map(row=>e('tr',{key:row.id},[
-       e('td',{},row.import_eligible&&row.evidence_state!=='EXTERNAL_IMPORTED'?e('input',{type:'checkbox',checked:selectedEvidenceIds.includes(row.id),onChange:event=>setSelectedEvidenceIds(current=>event.target.checked?[...current,row.id]:current.filter(id=>id!==row.id))}):'—'),
-       e('td',{},row.canonical_endpoint_id||row.endpoint),
-       e('td',{className:'mono'},String(row.normalized_value??row.raw_value)+' '+(row.normalized_unit||row.raw_unit||'')),
-       e('td',{className:'small'},row.source||'—'),e('td',{className:'small'},row.qualification_status||'—'),
-       e('td',{className:'small'},row.qualification?.stages?.PREDICTION_PAIRABLE?'Prediction-pairable':'Not prediction-pairable')
-      ])))
-    ])):e('p',{className:'small'},'No source-recorded external experimental records were returned.'),
-   externalEvidence.import_result&&e('p',{className:'small'},'Imported: '+externalEvidence.import_result.imported+' · Already imported: '+externalEvidence.import_result.already_imported)
-   ]),
-   qualificationSummary&&e('section',{className:'card qualification-summary',key:'qualification-summary'},[
-    e('div',{className:'eyebrow'},'PERSISTED QUALIFICATION FUNNEL'),
-    e('p',{className:'small'},'Requalified from saved evidence; a new source search is not required.'),
-    e('div',{className:'harvest-summary'},[
-     'Raw source records: '+(qualificationSummary.global?.raw_source_records||0),
-     'Unique scientific observations: '+(qualificationSummary.global?.unique_scientific_observations||0),
-     'Numeric observations: '+(qualificationSummary.global?.numeric||0),
-     'Endpoint-qualified: '+(qualificationSummary.global?.endpoint_qualified||0),
-     'Context-qualified: '+(qualificationSummary.global?.context_qualified||0),
-     'Prediction-pairable: '+(qualificationSummary.global?.prediction_pairable||0),
-     'Direct comparisons: '+(qualificationSummary.global?.direct||0),
-     'Related comparisons: '+(qualificationSummary.global?.related||0),
-     'Ready to Import: '+(qualificationSummary.global?.ready_to_import||0),
-     'Adaptation eligible: '+(qualificationSummary.global?.adaptation_eligible||0),
-     'Needs review: '+(qualificationSummary.global?.manual_review||0)
-    ].map(text=>e('span',{key:text,className:'badge-intermediate'},text))),
-    qualificationSummary.global?.latest_search_run&&e('p',{className:'small'},'Latest search run · Raw source records: '+qualificationSummary.global.latest_search_run.raw_source_records+' · Unique: '+qualificationSummary.global.latest_search_run.unique_records+' · Endpoint-qualified: '+qualificationSummary.global.latest_search_run.endpoint_qualified+' · Ready to Import: '+qualificationSummary.global.latest_search_run.importable),
-    e('div',{className:'source-qualification-table'},[
-     e('strong',{key:'source-title'},'Persisted source stages'),
-     ...Object.entries(qualificationSummary.sources||{}).map(([source,count])=>e('div',{key:source,className:'small'},source+' · Found '+count.found+' · Unique '+count.unique+' · Endpoint-qualified '+count.endpoint_qualified+' · Context-qualified '+count.context_qualified+' · Prediction-pairable '+count.prediction_pairable+' · Direct '+count.direct+' · Ready '+count.ready_to_import))
-    ])
-   ]),
    (workspace?.external_experimental_evidence||[]).length>0&&e('p',{className:'small',key:'imported-routed-notice'},'Imported external observations are displayed in their canonical Activity, ADMET, Metabolism, or PK endpoint sections.'),
+   ['overview','properties','activity','admet','metabolism','pk'].includes(detailTab)&&e(AIChatSection,{
+    key:'compound-ai-chat-'+detail.row_id+'-'+detailTab,
+    compoundId:detail.row_id,
+    section:detailTab,
+    placeholder:'Qwen3.5 9B',
+    title:'AI Section Assistant (Qwen3.5 9B)'
+   }),
    e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
     const storedStatus=workspace?.prediction_status?.[tab];
-    const status=tab==='overview'?'READY':(storedStatus|| (tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED'):tab==='activity'?((activity.measurements||[]).length||(activity.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='admet'?(detailPredictions.length?'COMPLETE':'NOT_STARTED'):tab==='metabolism'?((workspace?.metabolism?.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='pk'?(hasExpPk||detailPredictions.length>0?'COMPLETE':'NOT_STARTED'):'READY'));
-    return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
+    const evidenceCount=(workspace?.external_experimental_evidence||[]).length;
+    const status=tab==='overview'?'READY':tab==='evidence'?(evidenceCount>0?'SAVED':'NO DATA'):(storedStatus|| (tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED'):tab==='activity'?((activity.measurements||[]).length||(activity.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='admet'?(detailPredictions.length?'COMPLETE':'NOT_STARTED'):tab==='metabolism'?((workspace?.metabolism?.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='pk'?(hasExpPk||detailPredictions.length>0?'COMPLETE':'NOT_STARTED'):'READY'));
+    return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk','evidence'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
    })),
    detailTab==='overview'&&e('div',{key:'overview-tab'},[
     e('div',{className:'card',key:'overview-properties'},[
@@ -4322,6 +4365,72 @@ function integratedProfile(versionId){
     ])
    ]),
 
+   detailTab==='evidence'&&e('div',{key:'evidence-tab'},[
+    e('section',{className:'card',key:'compound-evidence-panel'},[
+     e('div',{className:'row toolbar'},[
+      e('div',{},[
+       e('div',{className:'eyebrow'},'QUALIFIED EVIDENCE'),
+       e('h3',{},'Review Qualified Evidence ('+detail.name+')'),
+       e('p',{className:'small'},'Compound-scoped experimental evidence strictly associated with this compound version ('+(version?'v'+version.version_number:'Draft')+').')
+      ]),
+      e('div',{className:'row toolbar'},[
+       e('button',{type:'button',className:'secondary',disabled:externalEvidenceBusy,onClick:searchExternalEvidence,title:'Explicitly search public sources using supplied public identifiers only.'},externalEvidenceBusy?'Searching…':'Search Experimental Data'),
+       (workspace?.external_experimental_evidence||[]).length>0&&e('button',{type:'button',disabled:externalEvidenceBusy||!selectedEvidenceIds.length,onClick:importExternalEvidence},externalEvidenceBusy?'Importing…':'Import Selected Qualified Evidence')
+      ])
+     ]),
+     e('p',{className:'small'},'Public identity status: '+((externalEvidence?.identity?.identity_status||externalEvidence?.status)||'PERSISTED')+' · Strict Compound ID #'+(workspace?.scope?.compound_id||detail.row_id)),
+     e('div',{className:'row small',style:{gap:'8px',flexWrap:'wrap'}},['PubChem PUG View','PubChem BioAssay','ChEMBL','CompTox','BindingDB','Europe PMC','PK-DB','FDA / Regulatory'].map(source=>e('label',{key:source},[e('input',{type:'checkbox',checked:harvestSources.includes(source),onChange:event=>setHarvestSources(current=>event.target.checked?[...current,source]:current.filter(x=>x!==source))}),' '+source]))),
+     e('div',{className:'row small',style:{gap:'6px',flexWrap:'wrap',marginTop:'8px'}},['PAIRABLE','READY','ALL','IMPORTED','DIRECT','RELATED','REVIEW'].map(filter=>e('button',{key:filter,type:'button',className:evidenceFilter===filter?'active-tab':'secondary',onClick:()=>setEvidenceFilter(filter)},filter==='PAIRABLE'?'Prediction-Pairable':filter==='ALL'?'All':filter==='READY'?'Ready to Import':filter==='IMPORTED'?'Imported':filter==='DIRECT'?'Directly Comparable':filter==='RELATED'?'Related Evidence':'Needs Review'))),
+     (()=>{
+      const records = (externalEvidence?.records?.length ? externalEvidence.records : workspace?.external_experimental_evidence) || [];
+      const filtered = records
+       .filter(row=>evidenceFilter!=='READY'||row.import_eligible||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL'||row.qualification_status==='ENDPOINT_QUALIFIED')
+       .filter(row=>evidenceFilter!=='PAIRABLE'||row.qualification?.stages?.PREDICTION_PAIRABLE||row.qualification_status==='PREDICTION_PAIRABLE'||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL')
+       .filter(row=>evidenceFilter!=='DIRECT'||row.qualification?.stages?.DIRECTLY_COMPARABLE||row.comparability_status==='DIRECTLY_COMPARABLE')
+       .filter(row=>evidenceFilter!=='RELATED'||row.qualification?.stages?.RELATED_SAME_GROUP||row.comparability_status==='RELATED_SAME_GROUP'||row.evidence_state==='RELATED_EXTERNAL')
+       .filter(row=>evidenceFilter!=='REVIEW'||row.qualification_status==='NEEDS_REVIEW'||row.evidence_state==='REVIEW_REQUIRED')
+       .filter(row=>evidenceFilter!=='IMPORTED'||row.evidence_state==='EXTERNAL_IMPORTED');
+      return filtered.length?e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[
+       e('thead',{},e('tr',{},['Select','Section','Endpoint','Representative Experimental Value','Source','Qualification','Pairability'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},filtered.map(row=>e('tr',{key:row.id},[
+        e('td',{},row.evidence_state!=='EXTERNAL_IMPORTED'?e('input',{type:'checkbox',checked:selectedEvidenceIds.includes(row.id),onChange:event=>setSelectedEvidenceIds(current=>event.target.checked?[...current,row.id]:current.filter(id=>id!==row.id))}):'—'),
+        e('td',{className:'small'},row.routing_section||row.section||'—'),
+        e('td',{},row.canonical_endpoint_id||row.raw_endpoint_name||row.endpoint),
+        e('td',{className:'mono'},String(row.normalized_value??row.raw_value??'—')+' '+(row.normalized_unit||row.raw_unit||'')),
+        e('td',{className:'small'},row.source_database||row.source||'—'),
+        e('td',{className:'small'},row.qualification_status||row.qualification||'—'),
+        e('td',{className:'small'},(row.qualification?.stages?.PREDICTION_PAIRABLE||row.comparability_status==='DIRECTLY_COMPARABLE'||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL')?'Prediction-pairable':'Qualified')
+       ])))
+      ])):e('div',{className:'empty-state'},[
+       e('p',{},'No experimental records match the current filter ("'+evidenceFilter+'").'),
+       e('p',{className:'small'},'Click "Search Experimental Data" above to fetch or refresh external evidence for this compound.')
+      ]);
+     })()
+    ]),
+    qualificationSummary&&e('section',{className:'card qualification-summary',key:'qualification-summary'},[
+     e('div',{className:'eyebrow'},'PERSISTED QUALIFICATION FUNNEL'),
+     e('p',{className:'small'},'Requalified from saved evidence; a new source search is not required.'),
+     e('div',{className:'harvest-summary'},[
+      'Raw source records: '+(qualificationSummary.global?.raw_source_records||0),
+      'Unique scientific observations: '+(qualificationSummary.global?.unique_scientific_observations||0),
+      'Numeric observations: '+(qualificationSummary.global?.numeric||0),
+      'Endpoint-qualified: '+(qualificationSummary.global?.endpoint_qualified||0),
+      'Context-qualified: '+(qualificationSummary.global?.context_qualified||0),
+      'Prediction-pairable: '+(qualificationSummary.global?.prediction_pairable||0),
+      'Direct comparisons: '+(qualificationSummary.global?.direct||0),
+      'Related comparisons: '+(qualificationSummary.global?.related||0),
+      'Ready to Import: '+(qualificationSummary.global?.ready_to_import||0),
+      'Adaptation eligible: '+(qualificationSummary.global?.adaptation_eligible||0),
+      'Needs review: '+(qualificationSummary.global?.manual_review||0)
+     ].map(text=>e('span',{key:text,className:'badge-intermediate'},text))),
+     qualificationSummary.global?.latest_search_run&&e('p',{className:'small'},'Latest search run · Raw source records: '+qualificationSummary.global.latest_search_run.raw_source_records+' · Unique: '+qualificationSummary.global.latest_search_run.unique_records+' · Endpoint-qualified: '+qualificationSummary.global.latest_search_run.endpoint_qualified+' · Ready to Import: '+qualificationSummary.global.latest_search_run.importable),
+     e('div',{className:'source-qualification-table'},[
+      e('strong',{key:'source-title'},'Persisted source stages'),
+      ...Object.entries(qualificationSummary.sources||{}).map(([source,count])=>e('div',{key:source,className:'small'},source+' · Found '+count.found+' · Unique '+count.unique+' · Endpoint-qualified '+count.endpoint_qualified+' · Context-qualified '+count.context_qualified+' · Prediction-pairable '+count.prediction_pairable+' · Direct '+count.direct+' · Ready '+count.ready_to_import))
+     ])
+    ])
+   ]),
+
    detailTab==='history'&&e('div',{className:'grid',key:'history'},[
     e('div',{className:'card col-6'},[
      e('h3',{},'Version History'),
@@ -4448,6 +4557,13 @@ function integratedProfile(versionId){
      e('div',{className:'comparison-config-assay'},[e('label',{},'Activity assay'),e('select',{value:compareAssay,onChange:event=>setCompareAssay(event.target.value)},[e('option',{value:''},'Latest experimental assay'),...assays.map(row=>e('option',{key:row.id,value:row.id},row.name))])])
     ])
    ]),
+   comparison&&e(AIChatCompare,{
+    key:'compare-ai-chat-'+projectId+'-'+selected.join('-'),
+    projectId:projectId,
+    compoundIds:selected,
+    placeholder:'Qwen3.5 9B',
+    title:'AI Comparison Assistant (Qwen3.5 9B)'
+   }),
    comparison&&e('div',{className:'card',key:'table'},[
     e('h3',{},'Selected Compound Comparison'),e('p',{className:'small'},'Experimental values take precedence. Each cell retains its evidence type. No overall score or automatic ranking is calculated.'),
     e('div',{className:'comparison-structure-row'},(comparison.compounds||[]).map(compound=>e('div',{className:'comparison-structure-card',key:compound.row_id},[compound.svg?e('div',{className:'comparison-structure-image',dangerouslySetInnerHTML:{__html:compound.svg}}):e('div',{className:'comparison-structure-unavailable'},'Structure unavailable'),e('strong',{},compound.name||compound.compound||'Compound')]))) ,
@@ -4929,16 +5045,62 @@ function integratedProfile(versionId){
     e('div',{className:'card project-header',key:'header'},project?e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'PROJECT DASHBOARD'),e('h1',{},project.name),e('div',{},[e('strong',{},project.target||'Target not set'),' · ',project.molecule_type])]),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true);setCompoundForm({compound_id:'',name:'',smiles:'',cas_number:'',notes:''})}},'Add Compound')]):e('div',{},[e('h2',{},'Select or create a project'),e('p',{},'Start with a project, then add compounds and work from Compound Detail.') ])),
     project&&e('nav',{className:'project-nav',key:'nav'},detail
      ?e('button',{className:'secondary',onClick:()=>{setDetail(null);setDetailTab('overview')}},'← Compound List')
-     :[['compounds','Compounds'],['assays','Assays'],['compare','Compare'],['settings','Settings']].map(([tab,label])=>e('button',{key:tab,className:projectTab===tab?'':'secondary',onClick:()=>{setProjectTab(tab);if(tab!=='compounds')setDetail(null)}},label))),
+     :[['compounds','Compounds'],['evidence','Evidence'],['assays','Assays'],['compare','Compare'],['settings','Settings']].map(([tab,label])=>e('button',{key:tab,className:projectTab===tab?'':'secondary',onClick:()=>{setProjectTab(tab);if(tab!=='compounds')setDetail(null)}},label))),
     project&&projectTab==='compounds'&&!detail&&e(React.Fragment,{key:'project-dashboard'},[
      e('section',{className:'card',key:'overview'},[e('div',{className:'eyebrow'},'PROJECT OVERVIEW'),e('h2',{},'Current Project Status'),e('div',{className:'row toolbar'},[e('p',{className:'small'},'Public search is explicit and uses only supplied CAS identifiers.'),e('button',{className:'secondary',disabled:externalEvidenceBusy,onClick:harvestProjectPublicData},externalEvidenceBusy?'Searching…':'Search Public Experimental Data for Project')]),e('div',{className:'project-overview-grid'},[
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
      ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
      e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
-     projectEvidenceSummary?.compounds?.length&&e('section',{className:'card',key:'project-evidence'},[e('div',{className:'eyebrow'},'PROJECT EVIDENCE'),e('h2',{},'Qualified Evidence by Compound'),e('p',{className:'small'},'Qualified search evidence is saved and available for comparison. Optional import remains available for explicit audit/history actions; it is not required for display or learning eligibility.'),e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[e('thead',{},e('tr',{},['Compound','Search Saved','Endpoint-qualified','Prediction-pairable','Ready','Imported','Learning Eligible'].map(label=>e('th',{key:label},label)))),e('tbody',{},projectEvidenceSummary.compounds.map(row=>e('tr',{key:row.compound_row_id},[e('td',{},row.compound),e('td',{},row.search_saved?'Saved':'—'),e('td',{},row.endpoint_qualified),e('td',{},row.prediction_pairable),e('td',{},row.ready),e('td',{},row.imported),e('td',{},row.learning_eligible)])))]))]),
-     projectEvidenceReview?.rows?.length&&e('section',{className:'card',key:'evidence-review'},[e('div',{className:'eyebrow'},'EVIDENCE REVIEW (OPTIONAL AUDIT)'),e('h2',{},'Prediction-Pairable Qualified Evidence'),e('p',{className:'small'},'Qualified evidence is already available in scientific result tables. Use this optional workspace to inspect provenance or explicitly import a copy for audit history; display and comparison do not require import.'),e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[e('thead',{},e('tr',{},['Compound','Endpoint','Representative Experiment','Prediction','Difference','Qualification','Source'].map(label=>e('th',{key:label},label)))),e('tbody',{},projectEvidenceReview.rows.map(row=>e('tr',{key:row.compound_row_id+'-'+row.canonical_endpoint},[e('td',{},e('button',{className:'link-button',onClick:()=>openDetail(row.compound_row_id)},row.compound)),e('td',{},row.endpoint),e('td',{className:'mono'},row.representative?.label||'—'),e('td',{className:'mono'},row.prediction?.display?.value!=null?String(row.prediction.display.value)+' '+(row.prediction.display.unit||''):'—'),e('td',{className:'mono'},row.difference?.absolute_error!=null?String(row.difference.absolute_error)+' '+(row.difference.unit||''):'—'),e('td',{className:'small'},row.pairable?'Prediction-pairable':'Qualified'),e('td',{className:'small'},row.source||'—')])))]))]),
-     projectLearningPanel(),
      e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},'Compound Status'),e('p',{className:'small'},'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},['','Compound','Structure','Properties','Activity','ADMET','Optimization',''].map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},compound.compound_id)]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||'NOT_STARTED'})]),e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),e('td',{},e('button',{className:'secondary',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
+    ]),
+    project&&projectTab==='evidence'&&!detail&&e(React.Fragment,{key:'project-evidence-view'},[
+     e('div',{className:'card row toolbar',key:'project-evidence-toolbar'},[
+      e('div',{},[
+       e('div',{className:'eyebrow'},'PROJECT EVIDENCE & LEARNING'),
+       e('h2',{},project.name+' · Evidence Workspace'),
+       e('p',{className:'small'},'Aggregated qualified evidence, prediction-pairable audit review, and adaptive project learning for all compounds in this project.')
+      ]),
+      e('button',{className:'secondary',disabled:externalEvidenceBusy,onClick:harvestProjectPublicData},externalEvidenceBusy?'Searching…':'Search Public Experimental Data for Project')
+     ]),
+     projectEvidenceSummary?.compounds?.length?e('section',{className:'card',key:'project-evidence'},[
+      e('div',{className:'eyebrow'},'PROJECT EVIDENCE'),
+      e('h2',{},'Qualified Evidence by Compound'),
+      e('p',{className:'small'},'Qualified search evidence is saved and available for comparison. Optional import remains available for explicit audit/history actions; it is not required for display or learning eligibility.'),
+      e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[
+       e('thead',{},e('tr',{},['Compound','Search Saved','Endpoint-qualified','Prediction-pairable','Ready','Imported','Learning Eligible'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},projectEvidenceSummary.compounds.map(row=>e('tr',{key:row.compound_row_id},[
+        e('td',{},e('button',{className:'link-button',onClick:()=>{openDetail(row.compound_row_id);setProjectTab('compounds');setDetailTab('evidence');}},row.compound)),
+        e('td',{},row.search_saved?'Saved':'—'),
+        e('td',{},row.endpoint_qualified),
+        e('td',{},row.prediction_pairable),
+        e('td',{},row.ready),
+        e('td',{},row.imported),
+        e('td',{},row.learning_eligible)
+       ])))
+      ]))
+     ]):e('div',{className:'card',key:'empty-project-evidence'},[
+      e('div',{className:'eyebrow'},'PROJECT EVIDENCE'),
+      e('h3',{},'No Qualified Search Evidence Yet'),
+      e('p',{className:'small'},'Click "Search Public Experimental Data for Project" above to harvest qualified evidence across all compounds.')
+     ]),
+     projectEvidenceReview?.rows?.length?e('section',{className:'card',key:'evidence-review'},[
+      e('div',{className:'eyebrow'},'EVIDENCE REVIEW (OPTIONAL AUDIT)'),
+      e('h2',{},'Prediction-Pairable Qualified Evidence'),
+      e('p',{className:'small'},'Qualified evidence is already available in scientific result tables. Use this optional workspace to inspect provenance or explicitly import a copy for audit history; display and comparison do not require import.'),
+      e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[
+       e('thead',{},e('tr',{},['Compound','Endpoint','Representative Experiment','Prediction','Difference','Qualification','Source'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},projectEvidenceReview.rows.map(row=>e('tr',{key:row.compound_row_id+'-'+row.canonical_endpoint},[
+        e('td',{},e('button',{className:'link-button',onClick:()=>{openDetail(row.compound_row_id);setProjectTab('compounds');setDetailTab('evidence');}},row.compound)),
+        e('td',{},row.endpoint),
+        e('td',{className:'mono'},row.representative?.label||'—'),
+        e('td',{className:'mono'},row.prediction?.display?.value!=null?String(row.prediction.display.value)+' '+(row.prediction.display.unit||''):'—'),
+        e('td',{className:'mono'},row.difference?.absolute_error!=null?String(row.difference.absolute_error)+' '+(row.difference.unit||''):'—'),
+        e('td',{className:'small'},row.pairable?'Prediction-pairable':'Qualified'),
+        e('td',{className:'small'},row.source||'—')
+       ])))
+      ]))
+     ]):null,
+     projectLearningPanel()
     ]),
     project&&projectTab==='compounds'&&detail&&compoundDetail(),
     project&&projectTab==='assays'&&e('div',{className:'card',key:'assays'},[e('h2',{},'Assays and Activity'),e('p',{},'Define assays, enter experimental activity, train project QSAR, and inspect SAR in the existing workbench.'),e('a',{className:'button',href:'/static/stage2-workbench.html?project='+projectId},'Open Activity Workbench')]),

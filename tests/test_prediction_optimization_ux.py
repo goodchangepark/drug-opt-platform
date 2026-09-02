@@ -154,4 +154,5 @@ def test_prediction_admet_metabolism_and_optimization_ui_contract():
     ):
         assert text in source
     assert ("const tabs=['overview','properties','activity','admet','metabolism','history']" in source or
-            "const tabs=['overview','properties','activity','admet','metabolism','pk','history']" in source)
+            "const tabs=['overview','properties','activity','admet','metabolism','pk','history']" in source or
+            "const tabs=['overview','properties','activity','admet','metabolism','pk','evidence','history']" in source)

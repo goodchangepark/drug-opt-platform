@@ -14,7 +14,7 @@ try:
 except ImportError:
     pass
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Body, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -2105,6 +2105,36 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
         "Human AUC (1mg/kg IV)": "ng·h/mL (1 mg/kg IV single dose)", "Human Cmax (1mg/kg IV)": "ng/mL (1 mg/kg IV)",
         "hERG": "classification/probability", "Ames": "classification/probability", "DILI": "classification/probability",
     }}
+
+
+@app.post("/api/chat/section")
+def chat_section(payload: dict = Body(...), db: Session = Depends(get_db)):
+    compound_id = payload.get("compound_id")
+    section = payload.get("section", "overview")
+    question = payload.get("question", "").strip()
+    workspace_data = payload.get("workspace_data")
+    if not compound_id:
+        raise HTTPException(status_code=400, detail="compound_id is required")
+    if not question:
+        raise HTTPException(status_code=400, detail="question is required")
+    from backend.qwen_chat import answer_section_question
+    return answer_section_question(db, int(compound_id), str(section), question, workspace_data=workspace_data)
+
+
+@app.post("/api/chat/compare")
+def chat_compare(payload: dict = Body(...), db: Session = Depends(get_db)):
+    project_id = payload.get("project_id")
+    compound_ids = payload.get("compound_ids") or []
+    question = payload.get("question", "").strip()
+    comparison_data = payload.get("comparison_data")
+    if not project_id:
+        raise HTTPException(status_code=400, detail="project_id is required")
+    if not compound_ids:
+        raise HTTPException(status_code=400, detail="compound_ids are required")
+    if not question:
+        raise HTTPException(status_code=400, detail="question is required")
+    from backend.qwen_chat import answer_comparison_question
+    return answer_comparison_question(db, int(project_id), [int(cid) for cid in compound_ids], question, comparison_data=comparison_data)
 
 
 def _assay_out(assay: AssayDefinition):
