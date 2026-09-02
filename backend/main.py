@@ -3192,7 +3192,9 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
     if canonical_for_endpoint:
         imported = list(db.scalars(select(ExternalExperimentalEvidence).join(CompoundVersion).join(Compound).where(
             Compound.project_id == project_id,
-            ExternalExperimentalEvidence.evidence_state == "EXTERNAL_IMPORTED",
+            ExternalExperimentalEvidence.evidence_state.in_((
+                "EXTERNAL_IMPORTED", "AUTO_QUALIFIED_EXTERNAL"
+            )),
             ExternalExperimentalEvidence.canonical_endpoint_id == canonical_for_endpoint,
             ExternalExperimentalEvidence.comparability_status.in_(("DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION")),
             ExternalExperimentalEvidence.duplicate_status == "DISTINCT_MEASUREMENT",
@@ -3220,7 +3222,11 @@ def _project_adapter_preview(db: Session, project_id: int, endpoint_id: str) -> 
                 predictions[model_key] = float(prediction.predicted_value)
             if predictions:
                 pairs.append(QualifiedEvidencePair(f"EXT-{evidence.id}", version.id, version.canonical_smiles, endpoint_id,
-                    value, predictions, origin="EXPERIMENTAL_EXTERNAL", source_quality=evidence.source_quality_class,
+                    value, predictions,
+                    origin=("EXPERIMENTAL_EXTERNAL_AUTO"
+                            if evidence.evidence_state == "AUTO_QUALIFIED_EXTERNAL"
+                            else "EXPERIMENTAL_EXTERNAL"),
+                    source_quality=evidence.source_quality_class,
                     comparability_status=evidence.comparability_status, duplicate_status=evidence.duplicate_status))
                 used_versions.add(version.id)
     model_ids = sorted({key for pair in pairs for key in pair.frozen_predictions})
