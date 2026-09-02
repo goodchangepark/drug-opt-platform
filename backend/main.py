@@ -76,7 +76,7 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
                               STRATEGY_ONLY_TRANSFORMATIONS,
                               execute_proposal_run, process_user_candidate,
                               rank_candidates)
-from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, ExperimentalSearchRun, PredictionRun, Project,
+from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, EvidenceImportBatch, ExperimentalSearchRun, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
 from .evidence_capture import entry_options, save_internal_evidence
@@ -1576,6 +1576,39 @@ def project_evidence_summary(project_id: int, db: Session = Depends(get_db)):
     return {"project_id": project_id, "compounds": output, "searched_candidates_affect_maturity": False}
 
 
+@app.get("/api/projects/{project_id}/evidence-review")
+def project_evidence_review(project_id: int, filter: str = "HIGH_VALUE", db: Session = Depends(get_db)):
+    """One review row per compound/canonical scientific comparison group."""
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    rows = []
+    for compound in project.compounds:
+        current = next((v for v in compound.versions if v.version_number == compound.current_version), None)
+        if not current:
+            continue
+        view = build_endpoint_comparison(db, current.id)
+        for item in view.get("scientific_rows", []):
+            candidates = [x for x in item.get("experimental_observations", []) if x.get("state") == "EXTERNAL_CANDIDATE"]
+            if not candidates:
+                continue
+            details = item.get("primary_experimental_display") or {}
+            pairable = any((x.get("qualification_details") or {}).get("stages", {}).get("PREDICTION_PAIRABLE") for x in candidates)
+            ready = any((x.get("qualification_details") or {}).get("stages", {}).get("IMPORTABLE") for x in candidates)
+            if filter in {"HIGH_VALUE", "PAIRABLE"} and not (pairable and ready): continue
+            if filter == "READY" and not ready: continue
+            if filter == "DIRECT" and item.get("semantic_status") not in {"DIRECT", "CONVERTED"}: continue
+            if filter == "RELATED" and item.get("semantic_status") != "RELATED_SAME_SCIENTIFIC_GROUP": continue
+            rows.append({"compound_row_id": compound.id, "compound": compound.name, "compound_id": compound.compound_id,
+                         "endpoint": item.get("display_name"), "canonical_endpoint": item.get("canonical_endpoint"),
+                         "representative": details, "prediction": item.get("prediction"), "difference": item.get("difference"),
+                         "semantic_status": item.get("semantic_status"), "pairable": pairable, "ready_to_import": ready,
+                         "learning_eligible": False, "learning_reason": "Explicit import and frozen-prediction eligibility are required",
+                         "evidence_ids": [x.get("id") for x in candidates], "observations": len(candidates),
+                         "source": (candidates[0].get("reference") or {}).get("source")})
+    return {"project_id": project_id, "filter": filter, "rows": rows, "import_requires_explicit_selection": True}
+
+
 @app.get("/api/compounds/{row_id}/prediction-experimental-comparisons")
 def prediction_experimental_comparisons(row_id: int, db: Session = Depends(get_db)):
     """Read-only comparison pairs from frozen predictions and imported evidence."""
@@ -1646,6 +1679,8 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
     if not current:
         raise HTTPException(status_code=400, detail="Compound has no structure version")
     imported, duplicates = 0, 0
+    selected_ids = [row.get("id") for row in (payload.get("records") or []) if row.get("id") is not None]
+    imported_ids, skipped_ids, skip_reasons = [], [], {}
     candidate_endpoints = set()
     assay_ids = {assay.id: assay for assay in db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id)).all()}
     for row in payload.get("records") or []:
@@ -1654,10 +1689,13 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         # after deterministic normalization; record_status alone is not a
         # sufficient reason to discard them.
         if row.get("import_eligible") is not True:
+            if row.get("id") is not None: skipped_ids.append(row.get("id")); skip_reasons[str(row.get("id"))] = "NOT_IMPORTABLE"
             continue
         if row.get("identity_match_status") != "EXACT_STRUCTURE_MATCH" or not str(row.get("reference_status", "")).startswith("REFERENCE_RESOLVED"):
+            if row.get("id") is not None: skipped_ids.append(row.get("id")); skip_reasons[str(row.get("id"))] = "IDENTITY_OR_REFERENCE_NOT_QUALIFIED"
             continue
         if not str(row.get("value", "")).strip() or not str(row.get("reference", "")).strip():
+            if row.get("id") is not None: skipped_ids.append(row.get("id")); skip_reasons[str(row.get("id"))] = "VALUE_OR_REFERENCE_MISSING"
             continue
         fingerprint = hashlib.sha256(json.dumps({"version": current.inchikey, "source": row.get("source"), "record": row.get("source_record_id"), "endpoint": row.get("endpoint"), "value": row.get("value"), "unit": row.get("unit"), "relation": row.get("relation")}, sort_keys=True).encode()).hexdigest()
         existing = db.scalar(select(ExternalExperimentalEvidence).where(
@@ -1674,12 +1712,14 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
         if existing is not None:
             if existing.evidence_state == "EXTERNAL_IMPORTED":
                 duplicates += 1
+                skipped_ids.append(existing.id); skip_reasons[str(existing.id)] = "ALREADY_IMPORTED"
                 continue
             existing.evidence_state = "EXTERNAL_IMPORTED"
             existing.evidence_origin = "EXTERNAL_IMPORTED"
             existing.accepted_at = utcnow()
             existing.imported_at = existing.accepted_at
             imported += 1
+            imported_ids.append(existing.id)
             candidate_endpoints.add({
                 "solubility_aqueous_logs": "Solubility", "permeability_caco2_logpapp": "Permeability",
                 "ppb_human_percent_bound": "Plasma protein binding", "hlm_intrinsic_clearance_scaled_log10": "HLM intrinsic clearance",
@@ -1735,11 +1775,18 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
             except ValueError:
                 pass
         imported += 1
+        imported_ids.append(evidence_row.id)
     for endpoint_name in sorted(candidate_endpoints):
         if endpoint_name:
             _persist_project_adapter_candidate(db, compound.project_id, endpoint_name)
+    batch = EvidenceImportBatch(
+        batch_id=f"import-{uuid.uuid4().hex}", project_id=compound.project_id,
+        selected_evidence_ids=selected_ids, imported_evidence_ids=imported_ids,
+        skipped_evidence_ids=skipped_ids, skip_reasons=skip_reasons,
+    )
+    db.add(batch)
     db.commit()
-    return {"imported": imported, "already_imported": duplicates, "evidence_origin": "EXPERIMENTAL_EXTERNAL"}
+    return {"imported": imported, "already_imported": duplicates, "evidence_origin": "EXPERIMENTAL_EXTERNAL", "import_batch_id": batch.batch_id, "selected": len(selected_ids), "skipped": len(skipped_ids)}
 
 
 @app.get("/api/evidence/display-contract")

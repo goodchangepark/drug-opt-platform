@@ -1,0 +1,8 @@
+{
+  "version": "v4.6",
+  "pair_source": "pre-experimental frozen prediction snapshot",
+  "post_experiment_prediction_regenerated": false,
+  "historical_prediction_mutated": false,
+  "pair_statuses": ["PAIRED", "NO_PREEXPERIMENTAL_FREEZE", "CONTEXT_MISMATCH_OR_RELATED_ENDPOINT", "HISTORICAL_VISIBLE"],
+  "independent_compound_counting": "compound-level, not observation-level"
+}

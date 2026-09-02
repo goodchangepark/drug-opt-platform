@@ -1,0 +1,10 @@
+{
+  "version": "v4.6",
+  "flow": ["EXTERNAL_CANDIDATE", "explicit_selection", "pre_import_validation", "transaction", "EXTERNAL_IMPORTED", "learning_refresh"],
+  "import_batch_persisted": true,
+  "duplicate_import_skipped": true,
+  "candidate_history_preserved": true,
+  "automatic_import": false,
+  "project_learning_refresh": true,
+  "maturity_change_promised": false
+}

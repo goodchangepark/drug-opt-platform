@@ -46,7 +46,7 @@ def test_help_history_restores_post_v1_scientific_milestones_without_changing_pr
     versions = {row["version"] for row in history}
     assert APP_VERSION == "1.0.0"
     assert {"v3.5", "v3.6", "v3.7", "v3.8A", "v3.8B", "v3.9", "v4.0", "v4.1", "v4.2"} <= versions
-    assert history[-1]["version"] == "v4.5"
+    assert history[-1]["version"] == "v4.6"
     assert all(row["date"] == row["release_date"] and row["highlights"] == row["improvements"] for row in history)
 
 

@@ -414,6 +414,13 @@ VERSION_HISTORY = [
         "milestone": "Project Evidence Persistence & Comparison Finalization",
         "improvements": "Restored compound-scoped searched evidence across structure-preserving revisions, added explicit qualified-evidence review/import, deterministic representative experimental values, scientist-facing direct-comparison units, and consistent endpoint maturity stars. Searched candidates remain separate from imported project-learning evidence.",
     },
+    {
+        "version": "v4.6",
+        "release_date": "2026-09-02",
+        "stage": "Evidence activation and project-learning milestone",
+        "milestone": "Evidence Activation & Project Learning",
+        "improvements": "Added project-wide qualified-evidence review, prediction-pairable filtering, explicit import tracking, frozen-prediction pairing, and endpoint-specific learning status. Search candidates never auto-import or promote maturity; candidate evaluation remains leakage-safe and activation remains explicit.",
+    },
 ]
 
 

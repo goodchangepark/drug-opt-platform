@@ -116,6 +116,19 @@ class ExternalExperimentalEvidence(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
 
+class EvidenceImportBatch(Base):
+    """Auditable explicit acceptance operation for external candidates."""
+    __tablename__ = "evidence_import_batches"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    batch_id: Mapped[str] = mapped_column(String(80), unique=True, index=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    selected_evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+    imported_evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+    skipped_evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+    skip_reasons: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
 class CompoundVersion(Base):
     __tablename__ = "compound_versions"
     id: Mapped[int] = mapped_column(primary_key=True)

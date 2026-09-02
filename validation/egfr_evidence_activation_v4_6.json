@@ -1,0 +1,14 @@
+{
+  "version": "v4.6",
+  "project_id": 3,
+  "compounds": 7,
+  "searched_compounds": 6,
+  "qualified_candidate_review_rows": 18,
+  "prediction_pairable_review_rows": 18,
+  "ready_to_import_rows": 18,
+  "automatic_import": false,
+  "no_search_required_for_persisted_compounds": true,
+  "representative_policy": "drugopt-representative-experimental-v1",
+  "review_source": "canonical project evidence review API",
+  "real_egfr_state_changed": false
+}

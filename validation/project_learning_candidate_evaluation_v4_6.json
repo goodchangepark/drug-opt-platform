@@ -1,0 +1,9 @@
+{
+  "version": "v4.6",
+  "threshold": 5,
+  "candidate_evaluations_triggered_in_current_egfr": 0,
+  "reason": "No EGFR evidence was imported during this read-only acceptance run",
+  "candidate_evaluation_on_import": "existing endpoint-specific adapter candidate persistence is invoked when eligible imported evidence changes",
+  "validation": "leakage-safe pre-experimental frozen predictions",
+  "activation": "explicit user action required"
+}

@@ -1,0 +1,11 @@
+{
+  "version": "v4.6",
+  "searched_candidates_promote_maturity": false,
+  "n_only_promotion": false,
+  "current_egfr_imported_independent_compounds": 0,
+  "current_egfr_adaptation_eligible_independent_compounds": 0,
+  "base_only_state_preserved": true,
+  "filled_star_color": "#F5B700",
+  "inactive_star_color": "#94a3b8",
+  "endpoint_specific": true
+}
