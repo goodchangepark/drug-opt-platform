@@ -1,0 +1,9 @@
+{
+  "version": "v4.5",
+  "shared_component": "renderPredictionMaturity",
+  "filled_color": "#F5B700",
+  "inactive_color": "#94a3b8",
+  "svg_fill": "currentColor",
+  "aria_contract": "Prediction maturity N of 5 — label",
+  "scientific_prediction_cell_uses_shared_component": true
+}

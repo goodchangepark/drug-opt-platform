@@ -87,7 +87,9 @@ def test_primary_ppb_display_deduplicates_repeated_public_value_but_keeps_raw_ob
     result = _scientific_rows([row])[0]
     assert result["primary_experimental_display"]["observation_count"] == 5
     assert result["primary_experimental_display"]["distinct_display_count"] == 3
-    assert "3 distinct reported values" in result["primary_experimental_display"]["label"]
+    assert result["primary_experimental_display"]["value"] == 89.0
+    assert result["primary_experimental_display"]["additional_observation_count"] == 4
+    assert result["representative_observation_id"] == 1
 
 
 def test_cyp_heterogeneous_measurements_are_not_aggregated_as_a_numeric_range():
@@ -107,7 +109,7 @@ def test_v43_help_and_frontend_use_one_scientific_row_contract():
     root = Path(__file__).resolve().parents[1]
     js = (root / "frontend" / "static" / "app.js").read_text(encoding="utf-8")
     assert APP_VERSION == "1.0.0"
-    assert version_history()[-1]["version"] == "v4.4B"
+    assert version_history()[-1]["version"] == "v4.5"
     assert "scientific_rows" in js
     assert "Other base-prediction endpoints" in js
     assert "Learning curve / leakage-safe validation" not in js

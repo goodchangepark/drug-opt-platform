@@ -1,0 +1,13 @@
+{
+  "version": "v4.5",
+  "backend_contract": ["experimental_display_value", "experimental_display_unit", "prediction_display_value", "prediction_display_unit", "difference_display_value", "difference_display_unit"],
+  "direct_display_policy": "prediction is rendered in the representative experimental unit only after exact deterministic conversion",
+  "caco2": "log10(cm/s) converted to x10^-6 cm/s",
+  "ppb": "% bound with percentage-point difference",
+  "solubility": "log10(mol/L) converted to micromolar when endpoint semantics permit",
+  "hlm_scaling_non_equivalence": "no forced numeric difference",
+  "cyp_classifier_vs_potency": "RELATED_SAME_SCIENTIFIC_GROUP; no numeric difference",
+  "invalid_forced_conversions": 0
+  ,"egfr_direct_rows_tested": 2
+  ,"egfr_direct_rows_same_display_unit": 2
+}

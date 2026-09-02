@@ -27,6 +27,7 @@ from .metabolism import MetabolicPredictionRun
 from .qualification_contract import aggregate_qualification, qualify_record
 from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
 from .pk_context import PK_CONTEXT_QUALIFICATION_VERSION, resolve_pk_study_context
+from .representative_experimental import REPRESENTATIVE_EXPERIMENTAL_VERSION, select_representative
 
 
 CANONICAL_ENDPOINTS = {
@@ -579,6 +580,7 @@ def _primary_experimental_display(row: dict, experiments: list[dict]) -> dict:
     if not observed:
         review = [item for item in experiments if item.get("qualification") == "NEEDS_REVIEW" or item.get("comparability") == UNSUPPORTED]
         return {"label": "—", "observation_count": 0, "independent_count": 0, "measurement_types": [], "heterogeneous": False, "reason": (review[0].get("routing_reason") if review else "No qualified experimental evidence") or "No qualified experimental evidence"}
+    representative, representative_reason = select_representative(observed)
     entries = []
     for measurement_type, values in sorted(types.items()):
         units = {str(item.get("display", {}).get("unit", "")) for item in values}
@@ -597,8 +599,13 @@ def _primary_experimental_display(row: dict, experiments: list[dict]) -> dict:
             entries.append({"measurement_type": measurement_type, "label": f"{measurement_type}: {count_label}", "count": len(values), "distinct_display_count": len(distinct_values), "range": [min(distinct_values), max(distinct_values)], "unit": next(iter(units))})
         else:
             entries.append({"measurement_type": measurement_type, "label": f"{measurement_type}: {len(values)} observations", "count": len(values)})
-    label = entries[0]["label"] if len(entries) == 1 else "; ".join(entry["label"] for entry in entries)
-    return {"label": label, "observation_count": len(observed), "independent_count": len(independent), "distinct_display_count": len({(item.get('display', {}).get('value'), item.get('display', {}).get('unit')) for item in observed}), "measurement_types": entries, "heterogeneous": heterogeneous, "reason": ""}
+    for item in experiments:
+        item["representative"] = bool(representative and item.get("id") == representative.get("id"))
+        item["representative_reason"] = representative_reason if item["representative"] else "Lower deterministic policy rank"
+    display = representative.get("display", {}) if representative else {}
+    measurement = representative.get("measurement_type", "Measurement") if representative else "Measurement"
+    label = f"{measurement}: {display.get('value')} {display.get('unit', '')}".strip()
+    return {"label": label, "value": display.get("value"), "unit": display.get("unit", ""), "provenance": representative.get("origin") or representative.get("state"), "representative_observation_id": representative.get("id"), "representative_reason": representative_reason, "policy_version": REPRESENTATIVE_EXPERIMENTAL_VERSION, "observation_count": len(observed), "additional_observation_count": max(0, len(observed) - 1), "independent_count": len(independent), "distinct_display_count": len({(item.get('display', {}).get('value'), item.get('display', {}).get('unit')) for item in observed}), "measurement_types": entries, "heterogeneous": heterogeneous, "reason": ""}
 
 
 def _pk_parameter(endpoint_id: str) -> str:
@@ -645,12 +652,22 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
     rows = []
     for source in endpoints:
         experiments = _row_experiments(source)
-        prediction = _presentation_prediction(source.get("prediction") or {}, source["endpoint_id"])
         primary = _primary_experimental_display(source, experiments)
+        prediction = _presentation_prediction(source.get("prediction") or {}, source["endpoint_id"])
         comparison = source.get("comparison")
         semantic = (comparison or {}).get("status") or ("PREDICTION_ONLY" if prediction.get("available") and not experiments else ("EXPERIMENTAL_ONLY" if experiments and not prediction.get("available") else "NEEDS_REVIEW"))
         primary_item = next((item for item in experiments if item.get("normalized_value") is not None), experiments[0] if experiments else {})
         display_name = _pk_display_name(source["endpoint_id"], source["display_name"]) if source["section"] == "PK" else source["display_name"]
+        display_comparison = comparison
+        if semantic in {DIRECT, CONVERTED} and primary.get("value") is not None and prediction.get("available"):
+            predicted_display = prediction.get("display") or {}
+            if predicted_display.get("unit") == primary.get("unit") and _number(predicted_display.get("value")) is not None:
+                signed = _number(predicted_display["value"]) - _number(primary["value"])
+                metric = "percentage_points" if primary.get("unit") in {"%", "% bound"} else "absolute_error"
+                display_comparison = {**(comparison or {}), "status": semantic, "signed_error": signed, "absolute_error": abs(signed), "error_metric_type": metric, "unit": primary.get("unit"), "display_aligned": True}
+            else:
+                semantic = "CONTEXT_MISMATCH"
+                display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
         rows.append({
             "section": source["section"], "group": _scientific_group(source["endpoint_id"], source["section"]),
             "canonical_endpoint": source["endpoint_id"], "display_name": display_name,
@@ -661,11 +678,15 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
             "direction": primary_item.get("context", {}).get("direction", ""), "analyte": primary_item.get("analyte", primary_item.get("context", {}).get("analyte", "PARENT")),
             "experimental_observations": experiments, "primary_experimental_display": primary,
             "prediction": prediction, "display_unit": (prediction.get("display") or {}).get("unit") or (experiments[0].get("display", {}).get("unit") if experiments else ""),
-            "difference": comparison, "semantic_status": semantic,
+            "difference": display_comparison, "semantic_status": semantic,
             "qualification_status": (primary_item.get("qualification_details") or {}).get("context_status") or primary_item.get("qualification") or "PREDICTION_ONLY",
             "prediction_type": prediction.get("prediction_type"), "maturity": prediction.get("maturity", {}),
             "references": source.get("references", []), "unmatched_reason": (comparison or {}).get("reason") or primary.get("reason", ""),
             "source_endpoint_ids": [source["endpoint_id"]], "route_contexts": [source.get("route", "UNSPECIFIED")],
+            "representative_observation_id": primary.get("representative_observation_id"), "representative_reason": primary.get("representative_reason"), "additional_observation_count": primary.get("additional_observation_count", 0),
+            "experimental_display_value": primary.get("value"), "experimental_display_unit": primary.get("unit"),
+            "prediction_display_value": (prediction.get("display") or {}).get("value"), "prediction_display_unit": (prediction.get("display") or {}).get("unit"),
+            "difference_display_value": (display_comparison or {}).get("signed_error"), "difference_display_unit": (display_comparison or {}).get("unit"),
         })
 
     # A systemic Vd/Vss foundation value is often materialized under several
@@ -708,6 +729,9 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     version = db.get(CompoundVersion, version_id)
     if not version: raise ValueError("CompoundVersion not found")
     compound = db.get(Compound, version.compound_row_id)
+    # Evidence belongs to the saved project compound. A structure-preserving
+    # metadata/version revision must not make its persisted search disappear.
+    evidence_version_ids = [row.id for row in compound.versions if row.inchikey and row.inchikey == version.inchikey] or [version_id]
     endpoint_rows = {}
     pk_routes_by_id = {row.id: row.route for row in db.scalars(select(PKParameterSet).where(PKParameterSet.version_id == version_id)).all()}
     predictions = db.scalars(select(ADMETPrediction).join(ADMETModelRegistry).where(ADMETPrediction.version_id == version_id, ADMETPrediction.execution_status == "SUCCESS").order_by(ADMETPrediction.created_at.desc())).all()
@@ -739,7 +763,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
         for m in measured: row["experimental_internal"].append({"id": m.id, "origin": "INTERNAL_EXPERIMENTAL", "state": "INTERNAL_EXPERIMENTAL", "raw_endpoint": assay.measurement_type, "raw_value": m.raw_value, "normalized_value": m.normalized_value_nm, "raw_unit": m.original_unit, "normalized_unit": "nM", "relation": m.qualifier, "species": normalize_species(assay.species), "context": {"target": assay.target, "cell_line": assay.cell_line, "assay": assay.name}, "reference": {"source": m.source, "reference": m.notes}, "qualification": "QUALIFIED_DIRECT", "comparability": DIRECT, "importable": False, "adaptation_eligibility": True})
 
     for evidence in db.scalars(select(ExternalExperimentalEvidence).where(
-        ExternalExperimentalEvidence.compound_version_id == version_id,
+        ExternalExperimentalEvidence.compound_version_id.in_(evidence_version_ids),
         ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
     )).all():
         item, mapped = _mapped_external(evidence); eid = mapped["canonical_endpoint_id"]
@@ -836,4 +860,4 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     summary["qualification"] = qualification["global"]
     summary["source_qualification"] = qualification["sources"]
     scientific_rows = _scientific_rows(endpoints)
-    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "scientific_rows": scientific_rows, "summary": summary}
+    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "representative_experimental_version": REPRESENTATIVE_EXPERIMENTAL_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "scientific_rows": scientific_rows, "summary": summary}

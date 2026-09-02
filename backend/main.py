@@ -1543,6 +1543,39 @@ def project_compound_scientific_comparison(project_id: int, compound_id: str, db
     return project_compound_endpoint_comparison(project_id, compound_id, db)
 
 
+@app.get("/api/projects/{project_id}/evidence-summary")
+def project_evidence_summary(project_id: int, db: Session = Depends(get_db)):
+    """Read-only compound evidence status; searched candidates stay unimported."""
+    project = db.get(Project, project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    output = []
+    for compound in project.compounds:
+        current = next((row for row in compound.versions if row.version_number == compound.current_version), None)
+        version_ids = [row.id for row in compound.versions if current and row.inchikey and row.inchikey == current.inchikey]
+        evidence = db.scalars(select(ExternalExperimentalEvidence).where(
+            ExternalExperimentalEvidence.compound_version_id.in_(version_ids or [-1]),
+            ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
+        )).all()
+        latest = db.scalar(select(ExperimentalSearchRun).where(
+            ExperimentalSearchRun.compound_id == compound.id,
+            ExperimentalSearchRun.status == "COMPLETE",
+        ).order_by(ExperimentalSearchRun.completed_at.desc()))
+        def stage(row, name):
+            return bool((row.qualification_json or {}).get("stages", {}).get(name))
+        output.append({
+            "compound_row_id": compound.id, "compound_id": compound.compound_id, "compound": compound.name,
+            "search_saved": latest is not None, "last_search": latest.completed_at.isoformat() if latest and latest.completed_at else None,
+            "search_unique": latest.unique_count if latest else 0, "persisted": len(evidence),
+            "endpoint_qualified": sum(stage(row, "ENDPOINT_QUALIFIED") for row in evidence),
+            "prediction_pairable": sum(stage(row, "PREDICTION_PAIRABLE") for row in evidence),
+            "ready": sum(stage(row, "IMPORTABLE") for row in evidence),
+            "imported": sum(row.evidence_state == "EXTERNAL_IMPORTED" for row in evidence),
+            "learning_eligible": sum(stage(row, "ADAPTATION_ELIGIBLE") for row in evidence),
+        })
+    return {"project_id": project_id, "compounds": output, "searched_candidates_affect_maturity": False}
+
+
 @app.get("/api/compounds/{row_id}/prediction-experimental-comparisons")
 def prediction_experimental_comparisons(row_id: int, db: Session = Depends(get_db)):
     """Read-only comparison pairs from frozen predictions and imported evidence."""
@@ -4042,8 +4075,9 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "type": "Predicted",
         } for row in activity_predictions],
     }
+    evidence_version_ids = [row.id for row in compound.versions if row.inchikey and row.inchikey == version.inchikey] or [version_id]
     external_evidence = db.scalars(
-        select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == version_id)
+        select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(evidence_version_ids))
         .order_by(ExternalExperimentalEvidence.imported_at.desc())
     ).all()
     admet_payload = _admet_payload(db, project, {version.id: (compound.compound_id, version.version_number)})
@@ -4066,6 +4100,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "source_record_id": row.source_record_id, "assay_id": row.source_assay_id,
             "document_id": row.source_document_id, "conditions": row.assay_conditions_json or {},
             "evidence_state": row.evidence_state,
+            "identity_match_status": row.identity_match_status,
             "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else "External Candidate"), "canonical_endpoint_id": row.canonical_endpoint_id,
             "normalized_value": row.normalized_value, "normalized_unit": row.normalized_unit,
             "normalization_rule": row.normalization_rule, "normalization_version": row.normalization_version,

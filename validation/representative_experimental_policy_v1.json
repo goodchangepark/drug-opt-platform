@@ -1,0 +1,7 @@
+{
+  "version": "drugopt-representative-experimental-v1",
+  "selection_order": ["INTERNAL_EXPERIMENTAL", "EXTERNAL_IMPORTED", "EXTERNAL_CANDIDATE", "exact_semantics", "direct_compatibility", "context_completeness", "source_quality", "reference_qualification", "stable_identity"],
+  "prediction_value_used_for_selection": false,
+  "heterogeneous_ranges_allowed": false,
+  "all_observations_preserved_in_details": true
+}

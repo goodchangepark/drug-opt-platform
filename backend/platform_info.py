@@ -407,6 +407,13 @@ VERSION_HISTORY = [
         "milestone": "Public PK Benchmark Foundation",
         "improvements": "Frozen a separate, source-traceable public-PK benchmark with compound-level development/holdout isolation and a holdout access guard. Mechanistic equation verification remains distinct from predictive validation; benchmark observations never become project experiments, maturity evidence, or adapter training data. PK endpoints remain unavailable or research-only until later independent validation.",
     },
+    {
+        "version": "v4.5",
+        "release_date": "2026-09-02",
+        "stage": "Project evidence and comparison milestone",
+        "milestone": "Project Evidence Persistence & Comparison Finalization",
+        "improvements": "Restored compound-scoped searched evidence across structure-preserving revisions, added explicit qualified-evidence review/import, deterministic representative experimental values, scientist-facing direct-comparison units, and consistent endpoint maturity stars. Searched candidates remain separate from imported project-learning evidence.",
+    },
 ]
 
 

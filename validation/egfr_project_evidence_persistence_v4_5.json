@@ -1,0 +1,21 @@
+{
+  "version": "v4.5",
+  "project_id": 3,
+  "project": "EGFR",
+  "audited_at": "2026-09-02",
+  "compound_count": 7,
+  "previously_searched_compounds": 6,
+  "automatic_import_performed": false,
+  "persistence_scope": "saved project compound plus exact-structure versions",
+  "compounds": [
+    {"compound": "Sunvozertinib", "compound_id": 10, "search_saved": true, "latest_search_unique": 274, "latest_search_persisted": 274, "active_persisted_observations": 376, "endpoint_qualified": 266, "context_qualified": 131, "prediction_pairable": 48, "ready": 60, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 1011},
+    {"compound": "Zipalertinib", "compound_id": 15, "search_saved": true, "latest_search_unique": 144, "latest_search_persisted": 144, "active_persisted_observations": 144, "endpoint_qualified": 38, "context_qualified": 38, "prediction_pairable": 0, "ready": 0, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 106, "regression": "evidence restored from exact-structure version 1 into current version 2 view"},
+    {"compound": "Mobocertinib", "compound_id": 16, "search_saved": true, "latest_search_unique": 443, "latest_search_persisted": 443, "active_persisted_observations": 443, "endpoint_qualified": 440, "context_qualified": 229, "prediction_pairable": 91, "ready": 139, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 106},
+    {"compound": "Pruvonertinib", "compound_id": 17, "search_saved": true, "latest_search_unique": 40, "latest_search_persisted": 40, "active_persisted_observations": 40, "endpoint_qualified": 17, "context_qualified": 7, "prediction_pairable": 5, "ready": 1, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 124},
+    {"compound": "Poziotinib", "compound_id": 18, "search_saved": true, "latest_search_unique": 202, "latest_search_persisted": 202, "active_persisted_observations": 202, "endpoint_qualified": 93, "context_qualified": 93, "prediction_pairable": 0, "ready": 0, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 124},
+    {"compound": "Silevertinib (BDTX-1535)", "compound_id": 19, "search_saved": true, "latest_search_unique": 2, "latest_search_persisted": 2, "active_persisted_observations": 2, "endpoint_qualified": 0, "context_qualified": 0, "prediction_pairable": 0, "ready": 0, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 106},
+    {"compound": "Furmonertinib (Alflutinib)", "compound_id": 20, "search_saved": false, "latest_search_unique": 0, "latest_search_persisted": 0, "active_persisted_observations": 0, "endpoint_qualified": 0, "context_qualified": 0, "prediction_pairable": 0, "ready": 0, "imported": 0, "learning_eligible": 0, "prediction_snapshots": 106}
+  ],
+  "completed_search_invariant": "PASS",
+  "missing_after_db_restore": 0
+}

@@ -1,0 +1,11 @@
+{
+  "version": "v4.5",
+  "egfr_searched_compounds": 6,
+  "egfr_imported_compounds": 0,
+  "egfr_adaptation_eligible_compounds": 0,
+  "searched_candidates_increase_effective_n": false,
+  "explicit_import_required": true,
+  "real_egfr_evidence_auto_imported": false,
+  "maturity_is_endpoint_specific": true,
+  "historical_prediction_mutated_by_import": false
+}
