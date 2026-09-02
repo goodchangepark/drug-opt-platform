@@ -1575,11 +1575,16 @@ def project_compound_scientific_comparison(project_id: int, compound_id: str, db
 
 @app.get("/api/projects/{project_id}/evidence-summary")
 def project_evidence_summary(project_id: int, db: Session = Depends(get_db)):
-    """Read-only compound evidence status; searched candidates stay unimported."""
+    """Read-only compound evidence status and 7-stage evidence funnel."""
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     output = []
+    total_funnel = {
+        "source_found": 0, "raw_evidence": 0, "observation_extracted": 0,
+        "endpoint_classified": 0, "unit_normalized": 0, "qualified": 0, "displayed": 0,
+        "auto_qualified": 0, "related": 0, "review_required": 0, "unusable": 0,
+    }
     for compound in project.compounds:
         current = next((row for row in compound.versions if row.version_number == compound.current_version), None)
         version_ids = [row.id for row in compound.versions if current and row.inchikey and row.inchikey == current.inchikey]
@@ -1591,8 +1596,40 @@ def project_evidence_summary(project_id: int, db: Session = Depends(get_db)):
             ExperimentalSearchRun.compound_id == compound.id,
             ExperimentalSearchRun.status == "COMPLETE",
         ).order_by(ExperimentalSearchRun.completed_at.desc()))
+        
         def stage(row, name):
             return bool((row.qualification_json or {}).get("stages", {}).get(name))
+            
+        drop_reasons = {}
+        for row in evidence:
+            q_json = row.qualification_json or {}
+            reason = q_json.get("unresolved_reason") or (q_json.get("funnel") or {}).get("drop_reason")
+            if reason:
+                drop_reasons[reason] = drop_reasons.get(reason, 0) + 1
+
+        auto_qual = sum(row.evidence_state == "AUTO_QUALIFIED_EXTERNAL" for row in evidence)
+        related = sum(row.evidence_state == "RELATED_EXTERNAL" for row in evidence)
+        review_req = sum(row.evidence_state == "REVIEW_REQUIRED" for row in evidence)
+        unusable = sum(row.evidence_state == "UNUSABLE" for row in evidence)
+        displayed = auto_qual + related
+
+        c_funnel = {
+            "source_found": len(evidence),
+            "raw_evidence": len(evidence),
+            "observation_extracted": len(evidence) - review_req - unusable + sum(stage(r, "NUMERIC_QUALIFIED") for r in evidence if r.evidence_state == "REVIEW_REQUIRED"),
+            "endpoint_classified": auto_qual + related,
+            "unit_normalized": auto_qual + related,
+            "qualified": auto_qual + related,
+            "displayed": displayed,
+            "auto_qualified": auto_qual,
+            "related": related,
+            "review_required": review_req,
+            "unusable": unusable,
+            "drop_reasons": drop_reasons,
+        }
+        for k in total_funnel:
+            total_funnel[k] += c_funnel.get(k, 0)
+
         output.append({
             "compound_row_id": compound.id, "compound_id": compound.compound_id, "compound": compound.name,
             "search_saved": latest is not None, "last_search": latest.completed_at.isoformat() if latest and latest.completed_at else None,
@@ -1602,8 +1639,9 @@ def project_evidence_summary(project_id: int, db: Session = Depends(get_db)):
             "ready": sum(stage(row, "IMPORTABLE") for row in evidence),
             "imported": sum(row.evidence_state == "EXTERNAL_IMPORTED" for row in evidence),
             "learning_eligible": sum(stage(row, "ADAPTATION_ELIGIBLE") for row in evidence),
+            "funnel": c_funnel,
         })
-    return {"project_id": project_id, "compounds": output, "searched_candidates_affect_maturity": False}
+    return {"project_id": project_id, "compounds": output, "funnel_summary": total_funnel, "searched_candidates_affect_maturity": False}
 
 
 @app.get("/api/projects/{project_id}/evidence-review")
