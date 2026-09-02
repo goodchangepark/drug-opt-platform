@@ -1,0 +1,9 @@
+{
+  "version": "drugopt-experimental-prediction-agreement-v1",
+  "agreement_states": ["GOOD_AGREEMENT", "MODERATE_DIFFERENCE", "LARGE_DIFFERENCE", "NOT_NUMERICALLY_COMPARABLE", "NO_EXPERIMENT", "NO_PREDICTION", "NOT_CALIBRATED"],
+  "default_when_no_validated_threshold": "NOT_CALIBRATED",
+  "cyp_ic50_vs_probability": "NOT_NUMERICALLY_COMPARABLE",
+  "hlm_definition_mismatch": "NOT_NUMERICALLY_COMPARABLE",
+  "universal_thresholds": false,
+  "colors": {"GOOD_AGREEMENT": "green", "MODERATE_DIFFERENCE": "amber", "LARGE_DIFFERENCE": "red", "NOT_CALIBRATED": "neutral"}
+}

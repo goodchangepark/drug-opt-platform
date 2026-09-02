@@ -99,6 +99,7 @@ from .translational import PKTranslationalSnapshot, ensure_translational_schema,
 from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, register_human_pk_routes
 from .capabilities import build_capability_summary
 from .interpretation import get_interpretation_registry_summary, interpret_property
+from .scientific_interpretation import policy_report
 from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STATUS,
                             CURRENT_STAGE_SUBSTATUS, GLOSSARY, LIMITATIONS, build_version,
                             latest_release_date, package_inventory, structure_modules,
@@ -211,6 +212,11 @@ def health():
 @app.get("/api/interpretation/rules")
 def get_interpretation_rules():
     return get_interpretation_registry_summary()
+
+
+@app.get("/api/interpretation/scientific-policy")
+def scientific_interpretation_policy():
+    return policy_report()
 
 
 @app.get("/api/model-strategy-registry")
@@ -1234,6 +1240,28 @@ def _persist_harvest_result(db: Session, compound: Compound, current: CompoundVe
     # and then display another one after reconnecting.
     db.flush()
     persisted_view = build_endpoint_comparison(db, current.id) if current else {"summary": {}, "endpoints": []}
+    # Qualified search evidence is immediately usable for display and
+    # comparison. Import remains an optional audit/project-acceptance action,
+    # never a prerequisite for the normal workflow.
+    persisted_items = {
+        item.get("id"): item
+        for endpoint in persisted_view.get("endpoints", [])
+        for bucket_name in ("experimental_external_candidates", "related_evidence", "needs_review")
+        for item in (endpoint.get(bucket_name) or [])
+    }
+    for evidence in db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == (current.id if current else -1))).all():
+        if evidence.evidence_state != "EXTERNAL_CANDIDATE":
+            continue
+        stages = ((persisted_items.get(evidence.id) or {}).get("qualification_details") or {}).get("stages", {})
+        if all(stages.get(stage, False) for stage in ("IDENTITY_QUALIFIED", "REFERENCE_QUALIFIED", "NUMERIC_QUALIFIED", "ENDPOINT_QUALIFIED", "CONTEXT_QUALIFIED")):
+            evidence.evidence_state = "AUTO_QUALIFIED_EXTERNAL"
+            evidence.evidence_origin = "AUTO_QUALIFIED_EXTERNAL"
+        elif stages.get("RELATED_SAME_GROUP", False):
+            evidence.evidence_state = "RELATED_EXTERNAL"
+            evidence.evidence_origin = "RELATED_EXTERNAL"
+        else:
+            evidence.evidence_state = "REVIEW_REQUIRED"
+            evidence.evidence_origin = "REVIEW_REQUIRED"
     persisted_qualification = (persisted_view.get("summary") or {}).get("qualification") or {}
     persisted_sources = (persisted_view.get("summary") or {}).get("source_qualification") or {}
     evidence_buckets = ("experimental_internal", "experimental_external_imported", "experimental_external_candidates", "related_evidence", "needs_review")
@@ -1406,7 +1434,7 @@ def list_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
                          "source_url": row.source_url, "source_record_id": row.source_record_id,
                          "assay_id": row.source_assay_id, "document_id": row.source_document_id,
                          "evidence_origin": row.evidence_origin, "evidence_state": row.evidence_state,
-                         "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else "External Candidate"),
+                         "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else ("Auto-qualified External" if row.evidence_state == "AUTO_QUALIFIED_EXTERNAL" else ("Related External" if row.evidence_state == "RELATED_EXTERNAL" else "Review Required"))),
                          "canonical_endpoint_id": row.canonical_endpoint_id, "normalized_value": row.normalized_value,
                          "normalized_unit": row.normalized_unit, "normalization_rule": row.normalization_rule,
                          "normalization_version": row.normalization_version, "comparability_status": row.comparability_status,
@@ -1589,7 +1617,7 @@ def project_evidence_review(project_id: int, filter: str = "HIGH_VALUE", db: Ses
             continue
         view = build_endpoint_comparison(db, current.id)
         for item in view.get("scientific_rows", []):
-            candidates = [x for x in item.get("experimental_observations", []) if x.get("state") == "EXTERNAL_CANDIDATE"]
+            candidates = [x for x in item.get("experimental_observations", []) if x.get("state") in {"EXTERNAL_CANDIDATE", "AUTO_QUALIFIED_EXTERNAL"}]
             if not candidates:
                 continue
             details = item.get("primary_experimental_display") or {}
@@ -4148,7 +4176,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "document_id": row.source_document_id, "conditions": row.assay_conditions_json or {},
             "evidence_state": row.evidence_state,
             "identity_match_status": row.identity_match_status,
-            "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else "External Candidate"), "canonical_endpoint_id": row.canonical_endpoint_id,
+            "evidence_label": ("External Imported" if row.evidence_state == "EXTERNAL_IMPORTED" else ("Auto-qualified External" if row.evidence_state == "AUTO_QUALIFIED_EXTERNAL" else ("Related External" if row.evidence_state == "RELATED_EXTERNAL" else "Review Required"))), "canonical_endpoint_id": row.canonical_endpoint_id,
             "normalized_value": row.normalized_value, "normalized_unit": row.normalized_unit,
             "normalization_rule": row.normalization_rule, "normalization_version": row.normalization_version,
             "comparability_status": row.comparability_status, "source_quality_class": row.source_quality_class,

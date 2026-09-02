@@ -1,0 +1,14 @@
+{
+  "version": "v4.7",
+  "public_health": 200,
+  "local_health": 200,
+  "service": "drug-opt.service",
+  "egfr_compounds": 7,
+  "previously_searched_restored_without_search": "7/7",
+  "representative_numeric_values": true,
+  "explicit_unavailable_prediction_text": true,
+  "project_evidence_review": true,
+  "direct_display_units_aligned": "2/2",
+  "maturity_star_filled": "#F5B700",
+  "ai_implemented": false
+}

@@ -24,10 +24,13 @@ from .ivive import PKParameterSet
 from .pk import PKNCAResult, PKStudy
 from .simulation import PKSimulationRun
 from .metabolism import MetabolicPredictionRun
-from .qualification_contract import aggregate_qualification, qualify_record
+from .qualification_contract import (ADAPTATION_ELIGIBLE, CONTEXT_QUALIFIED, ENDPOINT_QUALIFIED,
+    IDENTITY_QUALIFIED, NUMERIC_QUALIFIED, REFERENCE_QUALIFIED, RELATED_SAME_GROUP,
+    aggregate_qualification, qualify_record)
 from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
 from .pk_context import PK_CONTEXT_QUALIFICATION_VERSION, resolve_pk_study_context
 from .representative_experimental import REPRESENTATIVE_EXPERIMENTAL_VERSION, select_representative
+from .scientific_interpretation import interpret_row, SCIENTIFIC_INTERPRETATION_VERSION, AGREEMENT_POLICY_VERSION
 
 
 CANONICAL_ENDPOINTS = {
@@ -101,6 +104,9 @@ def _mapped_external(row):
         mapped["reason"] = context["measurement_semantics_issue"]
         mapped["normalized_value"] = None
     state = row.evidence_state or ("EXTERNAL_IMPORTED" if row.accepted_at else "EXTERNAL_CANDIDATE")
+    if state in {"EXTERNAL_CANDIDATE", "AUTO_QUALIFIED_EXTERNAL"}:
+        stages = (row.qualification_json or {}).get("stages", {})
+        state = "AUTO_QUALIFIED_EXTERNAL" if stages.get("IDENTITY_QUALIFIED", False) and stages.get("REFERENCE_QUALIFIED", False) and stages.get("NUMERIC_QUALIFIED", False) and stages.get("ENDPOINT_QUALIFIED", False) and stages.get("CONTEXT_QUALIFIED", False) and row.normalized_value not in (None, "") else "REVIEW_REQUIRED"
     endpoint_id = mapped["canonical_endpoint_id"]
     comparable = mapped["comparability_status"] in {DIRECT, CONVERTED}
     qualification = {DIRECT: "QUALIFIED_DIRECT", CONVERTED: "QUALIFIED_DETERMINISTIC_CONVERSION", RELATED: "QUALIFIED_RELATED", "CONDITIONALLY_COMPARABLE": "QUALIFIED_CONDITIONAL"}.get(mapped["comparability_status"], "NEEDS_REVIEW")
@@ -401,6 +407,16 @@ def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:
             evidence.routing_section = mapped.get("section", evidence.routing_section or "")
             evidence.routing_reason = q.get("primary_gap_reason", "")
             evidence.qualification_json = q
+            if evidence.evidence_state in {"EXTERNAL_CANDIDATE", "AUTO_QUALIFIED_EXTERNAL", "RELATED_EXTERNAL", "REVIEW_REQUIRED"}:
+                if all(q["stages"].get(stage, False) for stage in (IDENTITY_QUALIFIED, REFERENCE_QUALIFIED, NUMERIC_QUALIFIED, ENDPOINT_QUALIFIED, CONTEXT_QUALIFIED)):
+                    evidence.evidence_state = "AUTO_QUALIFIED_EXTERNAL"
+                    evidence.evidence_origin = "AUTO_QUALIFIED_EXTERNAL"
+                elif q["stages"].get(RELATED_SAME_GROUP, False):
+                    evidence.evidence_state = "RELATED_EXTERNAL"
+                    evidence.evidence_origin = "RELATED_EXTERNAL"
+                else:
+                    evidence.evidence_state = "REVIEW_REQUIRED"
+                    evidence.evidence_origin = "REVIEW_REQUIRED"
             evidence.display_evidence_group_id = evidence.display_evidence_group_id or evidence.provenance_fingerprint or f"evidence-{evidence.id}"
             evidence.independent_experiment_group_id = evidence.independent_experiment_group_id or evidence.source_document_id or evidence.source_record_id or f"evidence-{evidence.id}"
             evidence.canonical_endpoint_version = CANONICAL_ENDPOINT_VERSION
@@ -411,7 +427,7 @@ def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:
 
 
 def _blank(endpoint_id, display_name=""):
-    return {"endpoint_id": endpoint_id, "canonical_comparison_key": endpoint_id, "section": _section(endpoint_id), "display_name": _display_name(endpoint_id, display_name), "species": "UNSPECIFIED", "route": "UNSPECIFIED", "prediction": {"available": False}, "experimental_internal": [], "experimental_external_imported": [], "experimental_external_candidates": [], "related_evidence": [], "needs_review": [], "references": [], "project_learning": {}}
+    return {"endpoint_id": endpoint_id, "canonical_comparison_key": endpoint_id, "section": _section(endpoint_id), "display_name": _display_name(endpoint_id, display_name), "species": "UNSPECIFIED", "route": "UNSPECIFIED", "prediction": {"available": False, "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"}, "experimental_internal": [], "experimental_external_imported": [], "experimental_external_candidates": [], "related_evidence": [], "needs_review": [], "references": [], "project_learning": {}}
 
 
 def _comparison(prediction, experiments):
@@ -668,6 +684,7 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
             else:
                 semantic = "CONTEXT_MISMATCH"
                 display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
+        interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in {DIRECT, CONVERTED}, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
         rows.append({
             "section": source["section"], "group": _scientific_group(source["endpoint_id"], source["section"]),
             "canonical_endpoint": source["endpoint_id"], "display_name": display_name,
@@ -687,6 +704,9 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
             "experimental_display_value": primary.get("value"), "experimental_display_unit": primary.get("unit"),
             "prediction_display_value": (prediction.get("display") or {}).get("value"), "prediction_display_unit": (prediction.get("display") or {}).get("unit"),
             "difference_display_value": (display_comparison or {}).get("signed_error"), "difference_display_unit": (display_comparison or {}).get("unit"),
+            "scientific_interpretation": interpretation["value_assessment"], "agreement_interpretation": interpretation["agreement"], "interpretation": interpretation,
+            "interpretation_policy": SCIENTIFIC_INTERPRETATION_VERSION, "agreement_policy": AGREEMENT_POLICY_VERSION,
+            "scientific_result_row_id": f"{source.get('project_id', '')}:{source.get('compound_id', '')}:{source['endpoint_id']}:{source.get('canonical_comparison_key', '')}",
         })
 
     # A systemic Vd/Vss foundation value is often materialized under several
@@ -859,5 +879,17 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     qualification = aggregate_qualification(qualification_items, prediction_endpoints=prediction_endpoint_ids)
     summary["qualification"] = qualification["global"]
     summary["source_qualification"] = qualification["sources"]
+    for source in endpoints:
+        source["project_id"] = compound.project_id
+        source["compound_id"] = compound.id
     scientific_rows = _scientific_rows(endpoints)
-    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "representative_experimental_version": REPRESENTATIVE_EXPERIMENTAL_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "scientific_rows": scientific_rows, "summary": summary}
+    section_summary = {}
+    for row in scientific_rows:
+        section = row["section"]
+        target = section_summary.setdefault(section, {"measured_endpoints": 0, "predicted_endpoints": 0, "direct_comparisons": 0, "in_target": 0, "attention": 0, "unavailable_predictions": 0})
+        target["measured_endpoints"] += int(row.get("experimental_display_value") is not None)
+        target["predicted_endpoints"] += int(bool((row.get("prediction") or {}).get("available")))
+        target["direct_comparisons"] += int(row.get("semantic_status") in {DIRECT, CONVERTED})
+        target["unavailable_predictions"] += int(not (row.get("prediction") or {}).get("available"))
+        target["attention"] += int(row.get("agreement_interpretation") not in {"NOT_CALIBRATED", "NO_EXPERIMENT"})
+    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "representative_experimental_version": REPRESENTATIVE_EXPERIMENTAL_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "scientific_rows": scientific_rows, "section_summary": section_summary, "summary": summary}

@@ -1,0 +1,9 @@
+{
+  "version": "v4.7",
+  "classification": ["SUPPORTED_NUMERIC", "SUPPORTED_CLASSIFICATION", "SUPPORTED_RULE", "SUPPORTED_DERIVED", "SUPPORTED_MECHANISTIC", "UNAVAILABLE"],
+  "canonical_result_contract": "prediction is numeric/categorical when persisted; otherwise explicit Unavailable with reason",
+  "supported_but_blank_in_ui": 0,
+  "blank_prediction_cells": 0,
+  "unsupported_endpoint_state": "Unavailable",
+  "engine_v1_changed": false
+}

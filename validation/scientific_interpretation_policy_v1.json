@@ -1,0 +1,10 @@
+{
+  "version": "drugopt-scientific-interpretation-policy-v1",
+  "value_assessment": ["IN_TARGET", "BORDERLINE", "OUT_OF_TARGET", "CONTEXT_DEPENDENT", "UNKNOWN"],
+  "default_without_endpoint_target": "CONTEXT_DEPENDENT",
+  "pk_default": "CONTEXT_DEPENDENT",
+  "ppb_default": "CONTEXT_DEPENDENT",
+  "universal_thresholds": false,
+  "clinical_safety_claims": false,
+  "colors": {"IN_TARGET": "green", "BORDERLINE": "amber", "OUT_OF_TARGET": "red", "CONTEXT_DEPENDENT": "neutral", "UNKNOWN": "gray"}
+}

@@ -1,0 +1,11 @@
+{
+  "version": "v4.7",
+  "display_state": "AUTO_QUALIFIED_EXTERNAL",
+  "related_state": "RELATED_EXTERNAL",
+  "ambiguous_state": "REVIEW_REQUIRED",
+  "automatic_display_without_import": true,
+  "learning_gates": ["exact identity", "direct numeric endpoint", "complete context", "source quality", "scientific deduplication", "independent compound", "supported endpoint"],
+  "same_compound_post_prediction_target_used_for_validation": false,
+  "search_first_then_predict_learning_status": "NO_PREEXPERIMENTAL_FREEZE",
+  "searched_candidates_promote_maturity": false
+}

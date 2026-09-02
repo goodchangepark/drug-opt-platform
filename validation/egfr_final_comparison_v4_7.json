@@ -1,0 +1,16 @@
+{
+  "version": "v4.7",
+  "project_id": 3,
+  "compounds": 7,
+  "previously_searched": 7,
+  "restored_without_search": 7,
+  "qualified_rows": 854,
+  "review_required_observations": 353,
+  "direct_numeric_rows": 2,
+  "related_rows": 244,
+  "unexplained_missing_rows": 0,
+  "automatic_import_required_for_display": false,
+  "real_egfr_import_performed": false,
+  "representative_numeric_value_when_available": true,
+  "observations_retained_in_details": true
+}

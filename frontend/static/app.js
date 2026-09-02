@@ -1194,7 +1194,7 @@ function integratedProfile(versionId){
  }
  function scientificPredictionCell(row){
   const prediction=row.prediction||{};
-  if(!prediction.available)return e('div',{},[e('span',{className:'mono'},'—'),e('div',{className:'small'},'No validated prediction for this context')]);
+  if(!prediction.available)return e('div',{},[e('span',{className:'mono'},'Unavailable'),e('div',{className:'small'},prediction.unavailable_reason||'Current Prediction Engine does not support this endpoint/context')]);
   const display=prediction.display||{value:prediction.display_value,unit:prediction.unit};
   return e('div',{},[
    e('div',{className:'mono'},scientificValue(display)),
@@ -1221,7 +1221,7 @@ function integratedProfile(versionId){
      e('td',{},[e('strong',{},row.display_name),row.species&&row.species!=='UNSPECIFIED'&&e('div',{className:'small'},row.species+(row.route&&row.route!=='UNSPECIFIED'?' · '+row.route:''))]),
      e('td',{},scientificExperimentalCell(row)),e('td',{},scientificPredictionCell(row)),e('td',{},scientificDifferenceCell(row)),
      pk&&e('td',{className:'small'},scientificContext(row)),
-     e('td',{className:'small'},[scientificStatus(row),row.qualification_status&&e('div',{className:'small'},row.qualification_status.replaceAll('_',' '))]),
+     e('td',{className:'small'},[scientificStatus(row),e('div',{className:'small'},'Value: '+String((row.scientific_interpretation||'CONTEXT_DEPENDENT').replaceAll('_',' ').toLowerCase())),e('div',{className:'small'},'Agreement: '+String((row.agreement_interpretation||'NO_PREDICTION').replaceAll('_',' ').toLowerCase())),row.qualification_status&&e('div',{className:'small'},row.qualification_status.replaceAll('_',' '))]),
      e('td',{className:'small'},reference.source?e('details',{},[e('summary',{},reference.source),e('div',{},reference.reference||reference.source_record_id||'Reference'),reference.url&&e('a',{href:reference.url,target:'_blank',rel:'noreferrer'},'Open source')]):'—')
     ]);
     return groupRow?[groupRow,data]:[data];

@@ -1,0 +1,8 @@
+{
+  "version": "v4.7",
+  "row_contract": "ScientificResultRow",
+  "fields": ["scientific_result_row_id", "section", "canonical_endpoint", "display_endpoint", "measurement_type", "context", "representative_experimental", "experimental_observations", "prediction", "difference", "scientific_interpretation", "agreement_interpretation", "display_unit", "prediction_type", "evidence_type", "qualification", "reference", "details"],
+  "one_primary_row_per_scientific_endpoint": true,
+  "frontend_scientific_matching": false,
+  "ai_implementation": false
+}
