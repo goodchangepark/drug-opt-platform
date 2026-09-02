@@ -1,0 +1,44 @@
+{
+  "artifact_version": "v4.8.1",
+  "timestamp": "2026-09-02T15:02:03.838548+00:00",
+  "compound": "Mobocertinib",
+  "compound_id": 16,
+  "version_id": 23,
+  "human_clinical_pk": {
+    "count": 12,
+    "cmax_day1": 77.9,
+    "auc_day1": 972.0,
+    "tmax": 4.0,
+    "effective_thalf": 17.6,
+    "apparent_oral_clearance_clf": 108.0,
+    "apparent_vss_f": 3510.0,
+    "oral_clinical_prioritized": true,
+    "generic_scenarios_excluded_from_primary_clinical": true
+  },
+  "rat_pk_arp570": {
+    "count": 25,
+    "iv_cl": 54.5,
+    "iv_vss": 11.5,
+    "iv_thalf": 3.58,
+    "oral_f": 14.3,
+    "oral_tmax": 6.0,
+    "oral_cmax_verified": "29.1 ng/mL (SOURCE_TABLE_VERIFICATION_REQUIRED note logged)"
+  },
+  "dog_pk_arp572": {
+    "count": 10,
+    "iv_cl": 11.2,
+    "iv_vss": 12.4,
+    "iv_thalf": 13.9,
+    "oral_f_suspension": "37.6 %",
+    "oral_f_capsule": "38.9 %",
+    "formulations_isolated": true
+  },
+  "scenario_predictions_secondary": {
+    "count": 3,
+    "endpoints": [
+      "Human volume of distribution",
+      "Systemic clearance",
+      "Systemic clearance"
+    ]
+  }
+}

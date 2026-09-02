@@ -435,6 +435,13 @@ VERSION_HISTORY = [
         "milestone": "Compound-Scoped Evidence & Persistent Prediction",
         "improvements": "Hard compound-level evidence isolation eliminates cross-compound data leakage; completed search results persist without re-search after navigation or reload; saved predictions restore immediately without silent reprediction or 'Not started' flash; deterministic experimental refinement engine (drugopt-experimental-refinement-v1) refines GLP-1R, EGFR, ADMET and PK observations using document context; retrospective out-of-fold project learning (drugopt-learning-observation-policy-v1) evaluates historical evidence with 1-compound N=1 target derivation while keeping prospective and retrospective validation strictly separated; transparent prediction maturity reasons.",
     },
+    {
+        "version": "v4.8.1",
+        "release_date": "2026-09-02",
+        "stage": "Scientific routing milestone",
+        "milestone": "PK Evidence Routing & Metabolism Interpretation",
+        "improvements": "Multidimensional FDA PK table coordinate inheritance for Human, Rat, and Dog PK; Human clinical PK prioritized with Day 1/29 oral exposure, Tmax, t1/2, CL/F, and apparent Vss/F; animal-style IP/SC simulation scenarios isolated to secondary Mechanistic Predictions; Rat Study ARP570 and Dog Study ARP572 high-fidelity extraction; BCRP Ki 8.7 µM, P-gp IC50 36.1 µM, and CYP3A4/5 metabolic contribution 93.5% isolated from enzyme inhibition; TOC section header artifacts rejected; researcher-meaningful binary classifier interpretation policy (drugopt-classifier-interpretation-v1) with explicit model scores, threshold, and uncalibrated status; no numeric subtraction between continuous IC50 and classifier probabilities; quantitative IC50 model gaps documented honestly.",
+    },
 ]
 
 

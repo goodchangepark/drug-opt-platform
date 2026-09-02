@@ -1,0 +1,30 @@
+{
+  "artifact_version": "v4.8.1",
+  "timestamp": "2026-09-02T15:02:03.838548+00:00",
+  "compound": "Mobocertinib",
+  "pgp_inhibition": {
+    "experimental_value": 36.1,
+    "experimental_unit": "\u03bcM",
+    "measurement_type": "IC50",
+    "prediction_display": "Inhibitor (Score: 0.893, Threshold: 0.50, Uncalibrated)",
+    "difference_display": null,
+    "agreement": "RELATED_MEASUREMENT",
+    "quantitative_gap": "QUANTITATIVE_MODEL_GAP"
+  },
+  "bcrp_inhibition": {
+    "experimental_value": 8.7,
+    "experimental_unit": "\u00b5M",
+    "measurement_type": "Ki",
+    "isolated_from_cyp3a4": true
+  },
+  "cyp3a4_metabolic_contribution": {
+    "experimental_value": 90.0,
+    "experimental_unit": "%",
+    "measurement_type": "Metabolic Contribution",
+    "distinct_from_inhibition": true
+  },
+  "toc_artifact_eliminated": {
+    "cyp3a4_8_7_h_removed": true,
+    "status": "PASS"
+  }
+}

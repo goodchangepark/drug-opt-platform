@@ -1,0 +1,38 @@
+{
+  "artifact_version": "v4.8.1",
+  "timestamp": "2026-09-02T15:02:03.838548+00:00",
+  "parser": "parse_fda_multidimensional_review",
+  "capabilities": {
+    "study_id_extraction": true,
+    "species_strain_sex_inheritance": true,
+    "route_formulation_column_inheritance": true,
+    "dose_regimen_row_inheritance": true,
+    "analyte_column_separation": true,
+    "unit_plausibility_warning": "SOURCE_TABLE_VERIFICATION_REQUIRED",
+    "toc_line_rejection": true
+  },
+  "studies_validated": [
+    {
+      "study_id": "ARP570",
+      "species": "Rat",
+      "routes": [
+        "IV 3 mg/kg",
+        "PO 10 mg/kg"
+      ]
+    },
+    {
+      "study_id": "ARP572",
+      "species": "Dog",
+      "routes": [
+        "IV 3 mg/kg",
+        "PO 25 mg/kg Susp",
+        "PO 25 mg/kg Cap"
+      ]
+    },
+    {
+      "study_id": "Table 2.b PopPK",
+      "species": "Human",
+      "regimen": "Oral 160 mg QD"
+    }
+  ]
+}

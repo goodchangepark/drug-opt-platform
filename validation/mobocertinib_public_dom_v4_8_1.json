@@ -1,0 +1,76 @@
+{
+  "artifact_version": "v4.8.1",
+  "timestamp": "2026-09-02T15:02:03.838548+00:00",
+  "compound_version_id": 23,
+  "dom_sections": {
+    "HUMAN CLINICAL PK": [
+      "AUC",
+      "Apparent Distribution Volume Vss/F",
+      "Cmax",
+      "Cmax",
+      "Oral CL/F",
+      "Oral Vd/F",
+      "Oral bioavailability F",
+      "Systemic clearance",
+      "Systemic clearance",
+      "Terminal half-life",
+      "Terminal half-life",
+      "Tmax"
+    ],
+    "RAT PK": [
+      "AUC",
+      "AUC",
+      "Cmax",
+      "Cmax",
+      "Cmax",
+      "Oral CL/F",
+      "Oral Vd/F",
+      "Oral bioavailability F",
+      "Oral bioavailability F",
+      "Rat AUC0 INF",
+      "Rat AUC0 INF",
+      "Rat AUC0 T",
+      "Rat AUC0 T",
+      "Rat volume of distribution",
+      "Steady-state volume of distribution",
+      "Systemic clearance",
+      "Systemic clearance",
+      "Systemic clearance",
+      "Systemic clearance",
+      "Terminal half-life",
+      "Terminal half-life",
+      "Tmax",
+      "Tmax",
+      "Tmax",
+      "volume of distribution"
+    ],
+    "DOG PK": [
+      "AUClast",
+      "AUClast",
+      "Cmax",
+      "Dog volume of distribution",
+      "Oral Vd/F",
+      "Oral bioavailability F",
+      "Steady-state volume of distribution",
+      "Systemic clearance",
+      "Terminal half-life",
+      "Terminal half-life"
+    ],
+    "MECHANISTIC / SCENARIO PREDICTIONS": [
+      "Human volume of distribution",
+      "Systemic clearance",
+      "Systemic clearance"
+    ],
+    "CYP / TRANSPORTER INHIBITION": [
+      "BCRP interaction",
+      "CYP1A2 inhibitor",
+      "CYP2C19 inhibitor",
+      "CYP2C9 inhibitor",
+      "CYP2D6 inhibitor",
+      "P-gp interaction",
+      "CYP3A4 inhibition"
+    ]
+  },
+  "blank_pk_section_prevented": true,
+  "non_leaking_evidence": true
+}

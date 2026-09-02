@@ -521,15 +521,27 @@ def _add_experiment(row, item):
     row["references"].append(item["reference"])
 
 
-def _scientific_group(endpoint_id: str, section: str) -> str:
+def _scientific_group(endpoint_id: str, section: str, route: str = "", is_scenario: bool = False) -> str:
     endpoint = str(endpoint_id or "").upper()
     if section == "PK":
-        return "HUMAN CLINICAL PK" if endpoint.startswith("HUMAN_PK_") else "SPECIES PK"
+        if endpoint.startswith("HUMAN_PK_"):
+            if is_scenario or route in {"IP", "SC"}:
+                return "MECHANISTIC / SCENARIO PREDICTIONS"
+            return "HUMAN CLINICAL PK"
+        if endpoint.startswith("RAT_PK_"):
+            return "RAT PK"
+        if endpoint.startswith("DOG_PK_"):
+            return "DOG PK"
+        if endpoint.startswith("MOUSE_PK_"):
+            return "MOUSE PK"
+        if endpoint.startswith("MONKEY_PK_"):
+            return "MONKEY PK"
+        return "SPECIES PK"
     if section != "METABOLISM":
         return section
     if endpoint.startswith(("HLM_", "RLM_", "MLM_", "HEPATOCYTE_")):
         return "METABOLIC STABILITY"
-    if "_INHIBITION" in endpoint and endpoint.startswith(("CYP", "PGP")):
+    if "_INHIBITION" in endpoint and (endpoint.startswith(("CYP", "PGP", "BCRP")) or "BCRP" in endpoint):
         return "CYP / TRANSPORTER INHIBITION"
     if "_SUBSTRATE" in endpoint:
         return "CYP SUBSTRATE"
@@ -545,13 +557,16 @@ def _scientific_group(endpoint_id: str, section: str) -> str:
 
 
 def _measurement_type(item: dict, endpoint_id: str) -> str:
-    text = " ".join(str(item.get(key, "")) for key in ("raw_endpoint", "assay_type", "raw_unit", "relation")).lower()
+    if item.get("measurement_type") and item.get("measurement_type") not in {"measurement", "Unknown"}:
+        return item["measurement_type"]
+    text = " ".join(str(item.get(key, "")) for key in ("raw_endpoint", "assay_type", "raw_unit", "relation", "context", "reference")).lower()
     if re.search(r"\bic50\b", text): return "IC50"
     if re.search(r"\bki\b", text): return "Ki"
     if re.search(r"\bec50\b", text): return "EC50"
+    if "contribution" in text or "metabolic" in text or "fm" in text: return "Metabolic Contribution"
     if "%" in text and re.search(r"inhib|inhibition", text): return "% inhibition"
     if re.search(r"categor|positive|negative|inhibitor", text) and not re.search(r"\b(?:ic50|ki|ec50)\b", text): return "categorical interaction"
-    if "CYP" in str(endpoint_id).upper() or "PGP" in str(endpoint_id).upper(): return "other inhibition evidence"
+    if "CYP" in str(endpoint_id).upper() or "PGP" in str(endpoint_id).upper() or "BCRP" in str(endpoint_id).upper(): return "Inhibition Assay"
     return item.get("raw_endpoint") or "measurement"
 
 
@@ -665,6 +680,8 @@ def _presentation_prediction(prediction: dict, endpoint_id: str) -> dict:
 
 
 def _scientific_rows(endpoints: list[dict]) -> list[dict]:
+    from .classifier_interpretation import interpret_classifier_prediction, compare_classifier_with_experiment, CLASSIFIER_REGISTRY
+
     rows = []
     for source in endpoints:
         experiments = _row_experiments(source)
@@ -675,18 +692,57 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
         primary_item = next((item for item in experiments if item.get("normalized_value") is not None), experiments[0] if experiments else {})
         display_name = _pk_display_name(source["endpoint_id"], source["display_name"]) if source["section"] == "PK" else source["display_name"]
         display_comparison = comparison
-        if semantic in {DIRECT, CONVERTED} and primary.get("value") is not None and prediction.get("available"):
-            predicted_display = prediction.get("display") or {}
-            if predicted_display.get("unit") == primary.get("unit") and _number(predicted_display.get("value")) is not None:
-                signed = _number(predicted_display["value"]) - _number(primary["value"])
-                metric = "percentage_points" if primary.get("unit") in {"%", "% bound"} else "absolute_error"
-                display_comparison = {**(comparison or {}), "status": semantic, "signed_error": signed, "absolute_error": abs(signed), "error_metric_type": metric, "unit": primary.get("unit"), "display_aligned": True}
-            else:
-                semantic = "CONTEXT_MISMATCH"
-                display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
+
         interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in {DIRECT, CONVERTED}, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
+
+        # Check for classifier endpoints (e.g. CYP3A4, P-gp, hERG, Ames, DILI)
+        interp = None
+        if source["endpoint_id"] in CLASSIFIER_REGISTRY or (source.get("section") in {"METABOLISM", "TOXICITY"} and ("_INHIBITION" in source["endpoint_id"] or "LIABILITY" in source["endpoint_id"] or "MUTAGENICITY" in source["endpoint_id"])):
+            pred_score = _number((prediction.get("display") or {}).get("value") if prediction.get("display") else prediction.get("base_value"))
+            interp = interpret_classifier_prediction(source["endpoint_id"], pred_score)
+            if interp.get("is_classifier") and prediction.get("available") and pred_score is not None:
+                prediction["classifier_interpretation"] = interp
+                prediction["display"] = {"value": interp["display_text"], "unit": "score (0-1)"}
+                if primary.get("value") is not None:
+                    comp_interp = compare_classifier_with_experiment(
+                        source["endpoint_id"],
+                        pred_score,
+                        _number(primary.get("value")),
+                        primary.get("unit", ""),
+                        _measurement_type(primary_item, source["endpoint_id"])
+                    )
+                    semantic = "RELATED_SAME_SCIENTIFIC_GROUP"
+                    display_comparison = {
+                        "status": comp_interp.get("agreement_status"),
+                        "signed_error": None,
+                        "absolute_error": None,
+                        "unit": "",
+                        "display_aligned": True,
+                        "reason": comp_interp.get("details", ""),
+                        "difference_display": "—"
+                    }
+                    interpretation = {
+                        "value_assessment": comp_interp.get("details", ""),
+                        "agreement": comp_interp.get("agreement_status", ""),
+                        "confidence_note": "Qualitative classifier evaluation",
+                        "display_reason": comp_interp.get("details", "")
+                    }
+
+        if interp is None or not interp.get("is_classifier") or primary.get("value") is None:
+            if semantic in {DIRECT, CONVERTED} and primary.get("value") is not None and prediction.get("available"):
+                predicted_display = prediction.get("display") or {}
+                if predicted_display.get("unit") == primary.get("unit") and _number(predicted_display.get("value")) is not None:
+                    signed = _number(predicted_display["value"]) - _number(primary["value"])
+                    metric = "percentage_points" if primary.get("unit") in {"%", "% bound"} else "absolute_error"
+                    display_comparison = {**(comparison or {}), "status": semantic, "signed_error": signed, "absolute_error": abs(signed), "error_metric_type": metric, "unit": primary.get("unit"), "display_aligned": True}
+                else:
+                    semantic = "CONTEXT_MISMATCH"
+                    display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
+                interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in {DIRECT, CONVERTED}, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
+
+        grp = _scientific_group(source["endpoint_id"], source["section"], source.get("route", ""))
         rows.append({
-            "section": source["section"], "group": _scientific_group(source["endpoint_id"], source["section"]),
+            "section": source["section"], "group": grp,
             "canonical_endpoint": source["endpoint_id"], "display_name": display_name,
             "species": source.get("species", "UNSPECIFIED"), "route": source.get("route", "UNSPECIFIED"),
             "dose": primary_item.get("dose", prediction.get("dose")), "dose_unit": primary_item.get("dose_unit", prediction.get("dose_unit", "")),

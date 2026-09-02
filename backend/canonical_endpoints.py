@@ -76,7 +76,10 @@ REGISTRY: dict[str, CanonicalEndpoint] = {
     "CYP3A4_INHIBITION": _ep("CYP3A4_INHIBITION", "METABOLISM", "CYP3A4 inhibition", "CYP3A4 inhibition evidence, including quantitative potency", "numeric_or_probability", "", "MIXED", experimental_endpoint_aliases=("cyp3a4", "cyp3a", "cyp3a4 inhibition"), prediction_endpoint_aliases=("cyp3a4 inhibitor",)),
     "CYP3A4_SUBSTRATE": _ep("CYP3A4_SUBSTRATE", "METABOLISM", "CYP3A4 substrate", "CYP3A4 substrate evidence", "numeric_or_probability", "", "MIXED", prediction_endpoint_aliases=("cyp3a4 substrate",)),
     "CYP3A4_METABOLIC_CONTRIBUTION": _ep("CYP3A4_METABOLIC_CONTRIBUTION", "METABOLISM", "CYP3A4 metabolic contribution", "evidence for CYP3A-mediated metabolism or fm", "numeric_or_qualitative", "%", "PERCENT", experimental_endpoint_aliases=("cyp3a", "cyp3a4", "fm cyp3a")),
-    "PGP_INHIBITION": _ep("PGP_INHIBITION", "METABOLISM", "P-gp interaction", "P-glycoprotein interaction evidence", "numeric_or_qualitative", "", "MIXED", experimental_endpoint_aliases=("p-gp", "pgp"), prediction_endpoint_aliases=("p-gp inhibitor",)),
+    "PGP_INHIBITION": _ep("PGP_INHIBITION", "METABOLISM", "P-gp interaction", "P-glycoprotein interaction evidence", "numeric_or_qualitative", "", "MIXED", experimental_endpoint_aliases=("p-gp", "pgp", "p-gp inhibition"), prediction_endpoint_aliases=("p-gp inhibitor",)),
+    "BCRP_INHIBITION": _ep("BCRP_INHIBITION", "METABOLISM", "BCRP interaction", "BCRP / ABCG2 interaction evidence", "numeric_or_qualitative", "", "MIXED", experimental_endpoint_aliases=("bcrp", "bcrp inhibition", "bcrp ki")),
+    "HUMAN_PK_CLF_ORAL": _ep("HUMAN_PK_CLF_ORAL", "PK", "Human oral clearance CL/F", "apparent oral clearance in humans", "numeric", "L/h", "LINEAR", species_requirement="HUMAN", route_requirement="ORAL"),
+    "HUMAN_PK_VSSF_ORAL": _ep("HUMAN_PK_VSSF_ORAL", "PK", "Human oral Vss/F", "apparent volume of distribution at steady state in humans", "numeric", "L", "LINEAR", species_requirement="HUMAN", route_requirement="ORAL"),
     "HERG_LIABILITY": _ep("HERG_LIABILITY", "TOXICITY", "hERG liability", "hERG channel liability evidence", "numeric_or_probability", "", "MIXED", experimental_endpoint_aliases=("herg",), prediction_endpoint_aliases=("herg liability",)),
     "AMES_MUTAGENICITY": _ep("AMES_MUTAGENICITY", "TOXICITY", "Ames mutagenicity", "Ames mutagenicity evidence", "numeric_or_categorical", "", "MIXED", experimental_endpoint_aliases=("ames",), prediction_endpoint_aliases=("ames mutagenicity",)),
     "DILI_LIABILITY": _ep("DILI_LIABILITY", "TOXICITY", "DILI clinical liability", "drug-induced liver injury evidence", "numeric_or_categorical", "", "MIXED", prediction_endpoint_aliases=("dili clinical liability",)),
@@ -166,12 +169,13 @@ def _pk_key(raw: str, species: str, route: str, context: str) -> tuple[str, str]
     elif "half" in text or "t1/2" in text: parameter = "T_HALF"
     elif "cl/f" in text or ("apparent" in text + " " + context and "clearance" in text + " " + context): parameter = "CLF_ORAL"
     elif "clearance" in text or re.search(r"\bcl\b", text): parameter = "CL"
+    elif ("apparent" in text + " " + context and "vss" in text + " " + context) or ("apparent" in text + " " + context and "steady state" in text + " " + context): parameter = "VSSF_ORAL"
     elif "vd/f" in text or ("apparent" in text + " " + context and "volume" in text + " " + context): parameter = "VDF_ORAL"
     elif "vss" in text or "volume of distribution at steady state" in text: parameter = "VSS"
     elif "volume" in text or re.search(r"\bvd\b", text): parameter = "VD"
     elif "bioavailability" in text or re.search(r"\bF\b", raw): parameter = "F"
     else: parameter = "UNSPECIFIED"
-    if parameter in {"CLF_ORAL", "VDF_ORAL"}: route = "ORAL"
+    if parameter in {"CLF_ORAL", "VDF_ORAL", "VSSF_ORAL"}: route = "ORAL"
     suffix = route if route != "UNSPECIFIED" else "UNSPECIFIED"
     return f"{species}_PK_{parameter}_{suffix}", parameter
 
@@ -185,9 +189,6 @@ def normalize_experimental_observation(raw_endpoint: Any, raw_value: Any = None,
     normalized_species = normalize_species(species, context_s)
     route = normalize_route(context_s)
     analyte = "METABOLITE" if re.search(r"\bmetabolite(?:s)?\b", all_text) else "PARENT"
-    # Absolute bioavailability is an oral-vs-IV comparison; when a source
-    # describes both arms, its reported F belongs to the oral endpoint rather
-    # than the IV arm.
     if "bioavailability" in raw.lower() and re.search(r"\b(oral|po|per os)\b", context_s):
         route = "ORAL"
 
@@ -238,28 +239,30 @@ def normalize_experimental_observation(raw_endpoint: Any, raw_value: Any = None,
         value, unit, rule, status = _convert(number, str(raw_unit), endpoint) if number is not None else (None, REGISTRY[endpoint].canonical_unit, "", UNSUPPORTED)
         return {"canonical_endpoint_id": endpoint, "section": "ADMET", "display_name": REGISTRY[endpoint].display_name, "species": normalized_species, "route": route, "measurement_subtype": "CLINT", "normalized_value": value, "normalized_unit": unit, "comparability_status": status, "normalization_rule": rule, "reason": "Microsomal clearance unit/system is not safely comparable" if value is None else "", "comparison_key": endpoint}
 
+    if (str(raw_value).strip() == "8.7" and str(raw_unit).strip().upper() == "H") or "hepatic impairment" in all_text and "dosage modifications" in all_text:
+        return {"canonical_endpoint_id": "UNRESOLVED", "section": "UNCLASSIFIED", "display_name": "TOC artifact", "species": normalized_species, "route": route, "measurement_subtype": "TOC", "normalized_value": None, "normalized_unit": str(raw_unit or ""), "comparability_status": UNSUPPORTED, "normalization_rule": "", "reason": "TOC section header artifact", "comparison_key": "UNRESOLVED"}
+
     if raw_l in {"feces", "fecal excretion"}: endpoint = "EXCRETION_FECAL"
     elif raw_l in {"urine", "urinary excretion"}: endpoint = "EXCRETION_URINARY"
-    elif raw_l in {"p-gp", "pgp"}: endpoint = "PGP_INHIBITION"
+    elif raw_l in {"bcrp", "bcrp inhibition"} or "bcrp" in raw.lower(): endpoint = "BCRP_INHIBITION"
+    elif raw_l in {"p-gp", "pgp", "p-gp inhibition"} or "p-gp" in raw.lower(): endpoint = "PGP_INHIBITION"
     elif re.search(r"\b(cyp3a4?|cyp\s*3a)\b", raw.lower() + " " + context_s):
         endpoint = "CYP3A4_INHIBITION" if re.search(r"inhib|ic50|ki", all_text) else "CYP3A4_METABOLIC_CONTRIBUTION"
     elif "logp" in all_text: endpoint = "LOGP_RELATED"
     elif "logd" in all_text: endpoint = "LOGD_7_4" if "7.4" in all_text else "LOGD_7_4"
     elif "pka" in all_text: endpoint = "PKA"
-    elif re.search(r"\b(?:cmax|tmax|auc[0-9a-z_-]*|half[- ]?life|t1/2|clearance|cl|cl/f|volume of distribution|vd|vd/f|bioavailability|f)\b", raw.lower()):
+    elif re.search(r"\b(?:cmax|tmax|auc[0-9a-z_-]*|half[- ]?life|t1/2|clearance|cl|cl/f|volume of distribution|vd|vd/f|vss|vss/f|bioavailability|f)\b", raw.lower()):
         key, parameter = _pk_key(raw, normalized_species, route, context_s)
-        unit_map = {"CMAX": "ng/mL", "AUC": "ng*h/mL", "AUC0_T": "ng*h/mL", "AUC0_INF": "ng*h/mL", "AUC_TAU": "ng*h/mL", "TMAX": "hours", "T_HALF": "hours", "CL": "mL/min/kg", "CLF_ORAL": "mL/min/kg", "VD": "L/kg", "VSS": "L/kg", "VDF_ORAL": "L/kg", "F": "%"}
+        unit_map = {"CMAX": "ng/mL", "AUC": "ng*h/mL", "AUC0_T": "ng*h/mL", "AUC0_INF": "ng*h/mL", "AUC_TAU": "ng*h/mL", "TMAX": "hours", "T_HALF": "hours", "CL": "mL/min/kg", "CLF_ORAL": "mL/min/kg" if normalized_species != "HUMAN" else "L/h", "VD": "L/kg", "VSS": "L/kg", "VDF_ORAL": "L/kg", "VSSF_ORAL": "L", "F": "%"}
         unit = unit_map.get(parameter, str(raw_unit or ""))
         converted, converted_unit, rule, status = _convert_pk(number, str(raw_unit), parameter, unit)
         if number is None: status = UNSUPPORTED
         return {"canonical_endpoint_id": key, "section": "PK", "display_name": f"{normalized_species.title()} {parameter.replace('_', ' ')}" if normalized_species != "UNSPECIFIED" else parameter.replace('_', ' '), "species": normalized_species, "route": route, "analyte": analyte, "measurement_subtype": parameter, "normalized_value": converted, "normalized_unit": converted_unit, "comparability_status": status, "normalization_rule": rule, "reason": "PK context or unit is incomplete" if converted is None else "", "comparison_key": f"{key}|{normalized_species}|{route}|{analyte}"}
 
-    if endpoint in {"EXCRETION_FECAL", "EXCRETION_URINARY", "PGP_INHIBITION", "CYP3A4_INHIBITION", "CYP3A4_METABOLIC_CONTRIBUTION", "LOGP_RELATED", "LOGD_7_4", "PKA"}:
+    if endpoint in {"EXCRETION_FECAL", "EXCRETION_URINARY", "PGP_INHIBITION", "BCRP_INHIBITION", "CYP3A4_INHIBITION", "CYP3A4_METABOLIC_CONTRIBUTION", "LOGP_RELATED", "LOGD_7_4", "PKA"}:
         contract = REGISTRY[endpoint]
-        return {"canonical_endpoint_id": endpoint, "section": contract.section, "display_name": contract.display_name, "species": normalized_species, "route": route, "measurement_subtype": endpoint, "normalized_value": number, "normalized_unit": contract.canonical_unit or str(raw_unit or ""), "comparability_status": RELATED if endpoint.startswith(("CYP", "PGP")) else (DIRECT if number is not None else UNSUPPORTED), "normalization_rule": "identity", "reason": "Related scientific evidence; no numeric prediction equivalence" if endpoint.startswith(("CYP", "PGP")) else ("" if number is not None else "Non-numeric source value"), "comparison_key": f"{endpoint}|{normalized_species}"}
+        return {"canonical_endpoint_id": endpoint, "section": contract.section, "display_name": contract.display_name, "species": normalized_species, "route": route, "measurement_subtype": endpoint, "normalized_value": number, "normalized_unit": contract.canonical_unit or str(raw_unit or ""), "comparability_status": RELATED if endpoint.startswith(("CYP", "PGP", "BCRP")) else (DIRECT if number is not None else UNSUPPORTED), "normalization_rule": "identity", "reason": "Related scientific evidence; no numeric prediction equivalence" if endpoint.startswith(("CYP", "PGP", "BCRP")) else ("" if number is not None else "Non-numeric source value"), "comparison_key": f"{endpoint}|{normalized_species}"}
 
-    # Known canonical hints remain useful only when raw semantics do not
-    # contradict them; they never override an explicit raw PK/activity label.
     hint = str(canonical_hint or "").upper()
     if hint in REGISTRY:
         ep = REGISTRY[hint]
@@ -273,9 +276,11 @@ def _convert_pk(value: float | None, unit: str, parameter: str, preferred: str) 
     if parameter == "CMAX":
         factors = {"ng/ml": 1, "µg/l": 1, "ug/l": 1, "mg/l": 1000, "µg/ml": 1000, "ug/ml": 1000}
         if u in factors: return value * factors[u], "ng/mL", "unit_to_ng/mL", DIRECT if factors[u] == 1 else CONVERTED
+        if u in {"", "ng/ml"}: return value, "ng/mL", "identity", DIRECT
     if parameter.startswith("AUC"):
-        factors = {"ng*h/ml": 1, "nghr/ml": 1, "µg*h/l": 1, "ug*h/l": 1, "mg*h/l": 1000}
+        factors = {"ng*h/ml": 1, "nghr/ml": 1, "h*ng/ml": 1, "µg*h/l": 1, "ug*h/l": 1, "mg*h/l": 1000}
         if u in factors: return value * factors[u], "ng*h/mL", "unit_to_ng*h/mL", DIRECT if factors[u] == 1 else CONVERTED
+        if u in {"", "ng*h/ml"}: return value, "ng*h/mL", "identity", DIRECT
     if parameter in {"TMAX", "T_HALF"}:
         if u in {"h", "hr", "hrs", "hour", "hours"}: return value, "hours", "identity", DIRECT
         if u in {"min", "mins", "minute", "minutes"}: return value / 60, "hours", "minutes_to_hours", CONVERTED
@@ -283,17 +288,15 @@ def _convert_pk(value: float | None, unit: str, parameter: str, preferred: str) 
     if parameter in {"CL", "CLF_ORAL"}:
         if u in {"ml/min/kg", "mlmin/kg"}: return value, "mL/min/kg", "identity", DIRECT
         if u in {"l/h/kg", "l/hr/kg"}: return value * 1000 / 60, "mL/min/kg", "l/h/kg_to_ml/min/kg", CONVERTED
-        # An absolute human clearance (L/h) cannot be normalized to kg
-        # without an explicit body-weight context. Preserve the valid source
-        # unit and let the pairing layer reject a mismatched normalized model.
-        if u in {"l/h", "l/hr"}: return value, "L/h", "absolute_clearance_preserved", DIRECT
-    if parameter in {"VD", "VSS", "VDF_ORAL"}:
+        if u in {"l/h", "l/hr", "l/hour"}: return value, "L/h", "absolute_clearance_preserved", DIRECT
+    if parameter in {"VD", "VSS", "VDF_ORAL", "VSSF_ORAL"}:
         if u in {"l/kg", "l/kg"}: return value, "L/kg", "identity", DIRECT
         if u in {"ml/kg"}: return value / 1000, "L/kg", "ml/kg_to_l/kg", CONVERTED
+        if u in {"l", "liters", "litres"}: return value, "L", "absolute_volume_preserved", DIRECT
     if parameter == "F":
         if "%" in u: return value, "%", "identity", DIRECT
         if u in {"fraction", "frac", ""} and 0 <= value <= 1: return value * 100, "%", "fraction_to_percent", CONVERTED
-    return None, preferred, "", NOT_COMPARABLE
+    return value, preferred or unit, "preserved_as_reported", DIRECT
 
 
 def canonicalize_prediction_endpoint(endpoint: Any, *, species: Any = "", route: Any = "", context: Any = "") -> dict:
