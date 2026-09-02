@@ -379,6 +379,13 @@ VERSION_HISTORY = [
         "milestone": "Scientific Prediction Validation & PK Accuracy Profiling",
         "improvements": "PK mechanistic provenance and input-completeness audit, endpoint-specific numeric error reporting, prediction history audit and transparent performance limitations.",
     },
+    {
+        "version": "v4.3",
+        "release_date": "2026-09-02",
+        "stage": "Scientific results milestone",
+        "milestone": "Final Scientific Results & PK Comparison",
+        "improvements": "Cleaner project-learning overview, normalized experimental-to-prediction scientific rows, measurement-type-aware metabolism presentation, species/context-specific PK comparison, and regulatory clinical-PK context qualification.",
+    },
 ]
 
 

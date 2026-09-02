@@ -99,7 +99,10 @@ def normalize_species(value: Any, context: Any = "") -> str:
     for alias, normalized in sorted(_SPECIES_ALIASES.items(), key=lambda item: -len(item[0])):
         if alias in text:
             return normalized
-    return "OTHER" if str(value or "").strip() else "UNSPECIFIED"
+    raw = str(value or "").strip().upper()
+    if raw in {"", "UNSPECIFIED", "UNKNOWN", "N/A", "NA", "NONE"}:
+        return "UNSPECIFIED"
+    return "OTHER"
 
 
 def _context_text(context: Any) -> str:
@@ -280,6 +283,10 @@ def _convert_pk(value: float | None, unit: str, parameter: str, preferred: str) 
     if parameter in {"CL", "CLF_ORAL"}:
         if u in {"ml/min/kg", "mlmin/kg"}: return value, "mL/min/kg", "identity", DIRECT
         if u in {"l/h/kg", "l/hr/kg"}: return value * 1000 / 60, "mL/min/kg", "l/h/kg_to_ml/min/kg", CONVERTED
+        # An absolute human clearance (L/h) cannot be normalized to kg
+        # without an explicit body-weight context. Preserve the valid source
+        # unit and let the pairing layer reject a mismatched normalized model.
+        if u in {"l/h", "l/hr"}: return value, "L/h", "absolute_clearance_preserved", DIRECT
     if parameter in {"VD", "VSS", "VDF_ORAL"}:
         if u in {"l/kg", "l/kg"}: return value, "L/kg", "identity", DIRECT
         if u in {"ml/kg"}: return value / 1000, "L/kg", "ml/kg_to_l/kg", CONVERTED

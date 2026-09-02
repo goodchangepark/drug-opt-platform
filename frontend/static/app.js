@@ -1147,37 +1147,105 @@ function integratedProfile(versionId){
  // Legacy detail headings remain documented for deep-link/bookmark migration;
  // the canonical persisted endpoint table is now the primary presentation.
  const LEGACY_ADMET_DETAIL_HEADINGS=['1 · EXPERIMENTAL RESULTS','2 · PREDICTION RESULTS','3 · EXPERIMENTAL VS PREDICTION','4 · INTEGRATED PROFILE','5 · MODEL / PROVENANCE DETAILS'];
+ function scientificValue(display){
+  if(!display||display.value==null)return '—';
+  const number=Number(display.value);
+  const value=Number.isFinite(number)?(Math.abs(number)>=100?number.toFixed(1):number.toFixed(3).replace(/0+$/,'').replace(/\.$/,'')):String(display.value);
+  return value+(display.unit?' '+display.unit:'');
+ }
+ function scientificStatus(row){
+  const status=row.semantic_status||'';
+  if(status==='DIRECT'||status==='CONVERTED')return status==='CONVERTED'?'Converted direct comparison':'Direct comparison';
+  if(status==='RELATED_SAME_SCIENTIFIC_GROUP')return 'Related measurement semantics';
+  if(status==='PREDICTION_ONLY')return 'Prediction only';
+  if(status==='EXPERIMENTAL_ONLY')return 'Experimental only';
+  return status==='NEEDS_REVIEW'?'Needs review':status.replaceAll('_',' ');
+ }
+ function scientificContext(row){
+  const values=[];
+  if(row.species&&row.species!=='UNSPECIFIED')values.push(row.species[0]+row.species.slice(1).toLowerCase());
+  if(row.route&&row.route!=='UNSPECIFIED')values.push(row.route==='SYSTEMIC'?'systemic':row.route);
+  if(row.dose!=null)values.push(row.dose+' '+(row.dose_unit||''));
+  if(row.regimen&&row.regimen!=='UNSPECIFIED')values.push(row.regimen.replaceAll('_',' ').toLowerCase());
+  return values.join(' · ')||'Context not fully recorded';
+ }
+ function scientificExperimentalCell(row){
+  const primary=row.primary_experimental_display||{};
+  if(!primary.observation_count)return e('div',{},[e('span',{className:'mono'},'—'),primary.reason&&e('div',{className:'small'},primary.reason)]);
+  const observations=row.experimental_observations||[];
+  const displayCount=primary.distinct_display_count||primary.independent_count||primary.observation_count;
+  const countLabel=primary.distinct_display_count&&primary.distinct_display_count<(primary.independent_count||primary.observation_count)
+   ? displayCount+' distinct reported value'+(displayCount===1?'':'s')
+   : displayCount+' independent observation'+(displayCount===1?'':'s');
+  return e('div',{},[
+   e('div',{className:'mono'},primary.label),
+   e('div',{className:'small'},countLabel),
+   primary.heterogeneous&&e('div',{className:'small'},'Measurement types shown separately; no pooled numeric range.'),
+   e('details',{},[e('summary',{},'Observation details ('+observations.length+')'),e('div',{className:'small'},observations.map((item,index)=>e('div',{key:item.id||index},[
+    (item.measurement_type||'Measurement')+': '+scientificValue(item.display)+' · '+(item.reference?.source||item.display_source||'Source'),
+    e('div',{className:'small'},'Raw: '+item.raw_value+' '+(item.raw_unit||'')+' · '+(item.context?.route_source?'route: '+item.context.route+' ('+item.context.route_source+')':''))
+   ])))] )
+  ]);
+ }
+ function scientificPredictionCell(row){
+  const prediction=row.prediction||{};
+  if(!prediction.available)return e('div',{},[e('span',{className:'mono'},'—'),e('div',{className:'small'},'No validated prediction for this context')]);
+  const display=prediction.display||{value:prediction.display_value,unit:prediction.unit};
+  return e('div',{},[
+   e('div',{className:'mono'},scientificValue(display)),
+   e('div',{className:'small'},prediction.source_label||'Prediction'),
+   prediction.maturity&&e('div',{className:'small'},(prediction.maturity.stars||'★☆☆☆☆')+' '+(prediction.maturity.label||'Base Prediction')),
+   display.conversion&&display.conversion!=='identity'&&e('details',{},[e('summary',{},'Model representation'),e('div',{className:'small'},scientificValue(display.raw)),display.definition&&e('div',{className:'small'},display.definition)])
+  ]);
+ }
+ function scientificDifferenceCell(row){
+  const value=row.difference||{};
+  if(value.absolute_error==null)return e('span',{className:'small'},value.reason||'—');
+  const metric=value.error_metric_type==='percentage_points'?'percentage points':(value.unit||row.display_unit||'');
+  return e('div',{},[e('div',{className:'mono'},Number(value.absolute_error).toFixed(3)+' '+metric),e('div',{className:'small'},'Performance not calibrated')]);
+ }
+ function ScientificResultTable({rows,pk=false}){
+  if(!rows.length)return e('p',{className:'small'},'No persisted scientific results for this group.');
+  let lastGroup='';
+  return e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table scientific-results-table'},[
+   e('thead',{},e('tr',{},(pk?['Parameter','Experimental','Prediction','Difference','Context','Status','Reference']:['Endpoint','Experimental','Prediction','Difference','Status','Reference']).map(label=>e('th',{key:label},label)))),
+   e('tbody',{},rows.flatMap(row=>{
+    const group=row.group||''; const groupRow=group!==lastGroup?(lastGroup=group,e('tr',{className:'scientific-group-row',key:'group-'+group},e('td',{colSpan:pk?7:6},group))):null;
+    const reference=(row.references||[])[0]||{};
+    const data=e('tr',{key:row.canonical_endpoint},[
+     e('td',{},[e('strong',{},row.display_name),row.species&&row.species!=='UNSPECIFIED'&&e('div',{className:'small'},row.species+(row.route&&row.route!=='UNSPECIFIED'?' · '+row.route:''))]),
+     e('td',{},scientificExperimentalCell(row)),e('td',{},scientificPredictionCell(row)),e('td',{},scientificDifferenceCell(row)),
+     pk&&e('td',{className:'small'},scientificContext(row)),
+     e('td',{className:'small'},[scientificStatus(row),row.qualification_status&&e('div',{className:'small'},row.qualification_status.replaceAll('_',' '))]),
+     e('td',{className:'small'},reference.source?e('details',{},[e('summary',{},reference.source),e('div',{},reference.reference||reference.source_record_id||'Reference'),reference.url&&e('a',{href:reference.url,target:'_blank',rel:'noreferrer'},'Open source')]):'—')
+    ]);
+    return groupRow?[groupRow,data]:[data];
+   }))
+  ]));
+ }
  function routedEvidenceSection(section,title){
-  const endpointRows=(workspace?.endpoint_comparison?.endpoints||[]).filter(row=>row.section===section);
-  if(!endpointRows.length)return null;
-  const toPrediction=row=>{
-   if(!row.prediction?.available)return null;
-   const snapshot=row.prediction;
-   return {endpoint:row.display_name,predicted_value:snapshot.display_value,unit:snapshot.unit,
-    prediction_maturity:snapshot.maturity||{level:1,label:'Base Prediction',stars:'★☆☆☆☆'},
-    prediction_source:snapshot.project_value!=null?'Project-adapted Prediction':'Base Prediction',
-    prediction_source_type:snapshot.source_type||snapshot.prediction_type,
-    prediction_source_label:snapshot.source_label,
-    input_status:snapshot.input_status,assumptions:snapshot.assumptions||[],provenance:snapshot.provenance||{},
-    project_adapted_prediction:snapshot.project_value!=null?{value:snapshot.project_value,unit:snapshot.unit,adapter_version:snapshot.adapter||''}:null,
-    base_prediction:{value:snapshot.base_value,unit:snapshot.unit},outputs:{},model:{model_name:'Persisted prediction',model_version:'frozen'}};
-  };
-  const toExperiment=(item,needsReview=false)=>({...item,id:item.id,needs_review:needsReview,endpoint:item.endpoint||'',value:item.normalized_value??item.raw_value,
-   normalized_value:item.normalized_value,unit:item.normalized_unit||item.raw_unit,raw_value:item.raw_value,raw_unit:item.raw_unit,
-   relation:item.relation||'=',source:item.display_source||item.reference?.source||'External',reference:item.reference?.reference||'',source_url:item.reference?.url||'',routing_reason:item.qualification?.primary_gap_reason||item.routing_reason||'',
-   evidence_origin:item.origin,evidence_state:item.state,import_eligible:item.qualification?.stages?.IMPORTABLE??item.importable,comparability_status:item.comparability,
-   identity_match_status:item.identity_match_status,reference_status:item.reference_status,assay_type:item.assay_type,assay_id:item.assay_id,
-   display:{normalized_value:item.normalized_value,normalized_unit:item.normalized_unit},routing:{section,comparability_status:item.comparability}});
-  const rows=endpointRows.map(row=>({row,experiments:[...(row.experimental_internal||[]).map(item=>toExperiment(item)),...(row.experimental_external_imported||[]).map(item=>toExperiment(item)),...(row.experimental_external_candidates||[]).map(item=>toExperiment(item)),...(row.related_evidence||[]).map(item=>toExperiment(item)),...(row.needs_review||[]).map(item=>toExperiment(item,true))]}));
+  const canonical=workspace?.endpoint_comparison||{};
+  const scientificRows=(canonical.scientific_rows||[]).filter(row=>row.section===section);
+  if(!scientificRows.length)return null;
+  const observationCount=scientificRows.reduce((n,row)=>n+(row.experimental_observations||[]).length,0);
+  if(section==='PK'){
+   const species=['HUMAN','RAT','MOUSE','DOG','MONKEY','OTHER','UNSPECIFIED'];
+   return e('section',{className:'card routed-evidence-section scientific-pk-results',key:'routed-PK'},[
+    e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},'PK'),e('h3',{},'Species-context PK comparison'),e('p',{className:'small'},'One scientific row per species, parameter, and compatible context. Historical snapshots remain available in prediction history.')]),e('span',{className:'badge-intermediate'},scientificRows.length+' rows · '+observationCount+' observations')]),
+    ...species.filter(speciesName=>scientificRows.some(row=>row.species===speciesName)).map(speciesName=>e('section',{className:'scientific-pk-species',key:speciesName},[
+     e('h4',{},speciesName==='HUMAN'?'Human Clinical PK':(speciesName==='UNSPECIFIED'?'Other / needs-review PK':speciesName[0]+speciesName.slice(1).toLowerCase()+' PK')),
+     e(ScientificResultTable,{rows:scientificRows.filter(row=>row.species===speciesName),pk:true})
+    ])),
+    e('p',{className:'small'},'A dash means no validated Drug-OPT prediction for the exact context. No route, dose, species, or analyte match is inferred by the browser.')
+   ]);
+  }
+  const special=section==='METABOLISM'?scientificRows.filter(row=>row.group==='PREDICTED METABOLISM'||row.group==='OBSERVED METABOLITES'||row.group==='EXCRETION / MASS BALANCE'):[];
+  const primary=section==='METABOLISM'?scientificRows.filter(row=>!special.includes(row)):scientificRows;
   return e('section',{className:'card routed-evidence-section',key:'routed-'+section},[
-   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title),e('p',{className:'small'},'Persisted Experimental ↔ Prediction comparison. Candidates remain visible until explicitly imported.')]),e('span',{className:'badge-intermediate'},endpointRows.length+' endpoint'+(endpointRows.length===1?'':'s')+' · '+rows.reduce((n,item)=>n+item.experiments.length,0)+' observations')]),
-   e('div',{className:'table-scroll',key:'table'},e('table',{className:'compact-evidence-table'},[
-    e('thead',{},e('tr',{},['Endpoint','Experimental','Prediction','Difference','Project Learning','Status','Reference'].map(label=>e('th',{key:label},label)))),
-    e('tbody',{},[
-     ...rows.map(({row,experiments})=>e(UnifiedEndpointComparison,{key:row.endpoint_id,endpoint:row.display_name,experiments,prediction:toPrediction(row),comparison:row.comparison,pairs:[],onImport:importOneExternalEvidence,section}))
-    ])
-   ])),
-   e('p',{className:'small'},'Raw source values remain preserved. Ranges summarize observations only; no aggregate value is used for adaptation. Prediction-only rows are normal for new compounds and retain Base/Project maturity.')
+   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title),e('p',{className:'small'},'Persisted scientific results; matching and qualification are resolved by the backend contract.')]),e('span',{className:'badge-intermediate'},scientificRows.length+' rows · '+observationCount+' observations')]),
+   e(ScientificResultTable,{rows:primary}),
+   section==='METABOLISM'&&special.length>0&&e('section',{className:'scientific-metabolism-special',key:'special'},[e('h4',{},'Observed metabolism, excretion & predicted hypotheses'),e(ScientificResultTable,{rows:special})]),
+   e('p',{className:'small'},'Raw source values remain preserved; units, study context, qualification, and references are available in the observation details; no aggregate value is used for adaptation.')
   ]);
  }
 
@@ -4119,19 +4187,13 @@ function integratedProfile(versionId){
      e('div',{},[e('h3',{},'Metabolism & Transporter Profile'),e('p',{className:'small'},'Microsomal stability across species, CYP450 panel, and SyGMa metabolic soft spots.')]),
      e('button',{className:'tab-repredict-btn',disabled:admetBusy,onClick:()=>runMetabolism(version.id)},admetBusy?'Predicting…':'↺ RE-PREDICT')
     ]),
-    routedEvidenceSection('METABOLISM','External Metabolism Evidence'),
-    speciesMetabolicStabilityTable(detailPredictions,detailMeasurements),
-    e('div',{className:'card',key:'cyp'},[
-     e('div',{className:'eyebrow'},'CYP450 ENZYME PANEL'),
-     e('h3',{},'CYP · Inhibitor and Substrate Profiles'),
-     e('p',{className:'small'},'Roles remain endpoint-separated. Compound-level substrate evidence does not assign an atom or reaction to a CYP isoform.'),
-     cypPredictionTable(detailPredictions.filter(p=>p.endpoint.startsWith('CYP')))
-    ]),
-    e('div',{className:'card',key:'soft'},[
-     e('div',{className:'eyebrow'},'METABOLIC SOFT SPOTS & METABOLITES'),
-     e('h3',{},'SyGMa Rule-Based Soft Spots & Metabolite Hypotheses'),
-     e('p',{className:'small'},'The parent structure is interpreted together with stability, permeability, PPB, and CYP evidence shown above.'),
-     metabolismPanel(version.id)
+   routedEvidenceSection('METABOLISM','External Metabolism Evidence'),
+    e('details',{className:'card',key:'metabolism-detail'},[
+     e('summary',{},'Advanced metabolism calculation detail'),
+     e('p',{className:'small'},'Calculation-specific tables are secondary to the persisted scientific result rows above.'),
+     speciesMetabolicStabilityTable(detailPredictions,detailMeasurements),
+     e('div',{key:'cyp'},[e('h4',{},'CYP model detail'),cypPredictionTable(detailPredictions.filter(p=>p.endpoint.startsWith('CYP')))]),
+     e('div',{key:'soft'},[e('h4',{},'Soft spots & metabolite hypotheses'),metabolismPanel(version.id)])
     ])
    ]),
    detailTab==='pk'&&e('div',{key:'pk-tab'},[
@@ -4139,9 +4201,13 @@ function integratedProfile(versionId){
      e('div',{},[e('h3',{},'Pharmacokinetics & Translational Profile'),e('p',{className:'small'},'In vivo PK studies, NCA analysis, mechanistic IVIVE, and multi-species translational projections.')]),
      e('button',{className:'tab-repredict-btn',onClick:async()=>{if(window.__pkMultiCache)delete window.__pkMultiCache[version.id];await Promise.all([loadPkData(version.id),loadIviveData(version.id,iviveSpecies)]);setMessage('PK analysis updated');}},'↺ UPDATE PK ANALYSIS')
     ]),
-    routedEvidenceSection('PK','External PK Evidence'),
-    e(MultiSpeciesPkSummaryTable,{key:'multi-pk-summary',versionId:version.id,studies:pkData?.studies,iviveData}),
-    pkProfile(version.id)
+   routedEvidenceSection('PK','External PK Evidence'),
+    e('details',{className:'card',key:'pk-detail'},[
+     e('summary',{},'Advanced PK calculations & simulation history'),
+     e('p',{className:'small'},'Simulation, NCA, and translational calculation detail remains available here; the species-context comparison above is the primary result view.'),
+     e(MultiSpeciesPkSummaryTable,{key:'multi-pk-summary',versionId:version.id,studies:pkData?.studies,iviveData}),
+     pkProfile(version.id)
+    ])
    ]),
 
    detailTab==='history'&&e('div',{className:'grid',key:'history'},[
@@ -4669,40 +4735,54 @@ function integratedProfile(versionId){
    }
    function learningCurveDetails(row){
     const curve=row.learning_curve;
-    return e('details',{className:'learning-curve-details',key:'curve-'+row.endpoint_id},[
-     e('summary',{key:'summary'},'Learning curve / leakage-safe validation'),
-     curve?.aggregate?.length?e('div',{key:'content'},[
+    if(!curve?.aggregate?.length)return e('p',{className:'small'},'No validation curve yet — qualified paired evidence N='+(row.independent_compounds??row.raw_n??0)+'.');
+    return e('details',{className:'learning-curve-details'},[
+     e('summary',{},row.endpoint_id+' leakage-safe validation'),
+     e('div',{},[
       learningCurveGraph(curve),
-      e('div',{className:'table-scroll',key:'table'},e('table',{className:'learning-curve-table'},[
-       e('thead',{},e('tr',{},['N','Base holdout MAE','Project holdout MAE','Delta','Holdouts improved','Decision'].map(label=>e('th',{key:label},label)))),
-       e('tbody',{},curve.aggregate.map(point=>e('tr',{key:point.n},[
-        e('td',{className:'mono'},point.n),e('td',{className:'mono'},point.base_mae==null?'—':Number(point.base_mae).toFixed(4)),
-        e('td',{className:'mono'},point.adapted_mae==null?'—':Number(point.adapted_mae).toFixed(4)),
-        e('td',{className:'mono'},point.delta_mae==null?'—':Number(point.delta_mae).toFixed(4)),
-        e('td',{className:'mono'},point.fraction_holdouts_improved==null?'—':Math.round(point.fraction_holdouts_improved*100)+'%'),
-        e('td',{},(point.validation_decisions||[]).join(', '))
-       ])))
-      ])),
-      e('p',{className:'small',key:'note'},'Only held-out compounds are scored. Training error is not used; the evaluated compound is excluded from adapter fitting.')
-     ]):e('p',{className:'small',key:'empty'},'Learning curve unavailable — need at least 2 leakage-safe holdout points.')
+      e('p',{className:'small'},'Only held-out compounds are scored; the evaluated compound is excluded from adapter fitting.')
+     ])
     ]);
    }
+   function learningDomain(row){
+    const endpoint=String(row.endpoint_id||'').toUpperCase();
+    if(endpoint.startsWith('ACTIVITY'))return 'ACTIVITY';
+    if(endpoint.includes('PK')||endpoint.includes('CLF')||endpoint.includes('VDF'))return 'PK / TRANSLATIONAL';
+    if(endpoint.startsWith('CYP')||endpoint.startsWith('PGP')||endpoint.includes('HLM')||endpoint.includes('RLM')||endpoint.includes('MLM')||endpoint.includes('HEPATOCYTE'))return 'METABOLISM';
+    if(endpoint.includes('HERG')||endpoint.includes('AMES')||endpoint.includes('DILI'))return 'TOXICITY';
+    return 'ADMET';
+   }
+   function learningTable(items){
+    let current='';
+    return e('div',{className:'table-scroll'},e('table',{className:'project-learning-table'},[
+     e('thead',{},e('tr',{},['Endpoint','Evidence','Effective N','Validation','Maturity','Status','Action'].map(label=>e('th',{key:label},label)))),
+     e('tbody',{},items.flatMap(row=>{
+      const domain=learningDomain(row);const domainRow=domain!==current?(current=domain,e('tr',{className:'scientific-group-row',key:'domain-'+domain},e('td',{colSpan:7},domain))):null;
+      const detail=e('details',{},[e('summary',{},'Validation details'),learningCurveDetails(row)]);
+      const data=e('tr',{key:row.endpoint_id},[
+       e('td',{},[e('strong',{},row.endpoint_id),detail]),
+       e('td',{className:'mono'},row.independent_compounds??row.raw_n??0),e('td',{className:'mono'},row.effective_n??0),
+       e('td',{className:'small'},row.base_validation_error==null?'No held-out result':('Base '+row.base_validation_error+' · Candidate '+(row.adapted_validation_error==null?'—':row.adapted_validation_error))),
+       e('td',{},[MaturityStars({maturity:row.maturity}),e('span',{className:'small'},' '+(row.maturity?.label||'Base Prediction'))]),
+       e('td',{},row.status||'Collecting evidence'),
+       e('td',{},row.activation_decision==='ACTIVATED'&&!row.active?e('button',{className:'secondary',onClick:()=>activateProjectAdapter(row.endpoint_id)},'Activate'):row.active?e('button',{className:'secondary',onClick:()=>deactivateProjectAdapter(row.endpoint_id)},'Deactivate'):e('span',{className:'small'},'—'))
+      ]);
+      return domainRow?[domainRow,data]:[data];
+     }))
+    ]));
+   }
+   const focusedRows=rows.filter(row=>(row.independent_compounds??row.raw_n??0)>0||(row.effective_n??0)>0||row.active||String(row.status||'').includes('CANDIDATE'));
+   const baseOnlyRows=rows.filter(row=>!focusedRows.includes(row));
+   const learningSummary=[
+    ['Endpoints with predictions',rows.length],['Endpoints with experimental evidence',focusedRows.filter(row=>(row.independent_compounds??row.raw_n??0)>0).length],
+    ['Prediction-paired endpoints',focusedRows.length],['Adaptation-eligible endpoints',focusedRows.filter(row=>(row.effective_n??0)>0).length],
+    ['Active project adapters',rows.filter(row=>row.active).length],['Endpoints collecting evidence',focusedRows.filter(row=>!row.active).length]
+   ];
    const endpointTable=rows.length
-    ?e('div',{className:'table-scroll'},[
-      e('table',{className:'project-learning-table',key:'table'},[
-       e('thead',{},e('tr',{},['Endpoint','Independent compounds','Effective N','Base error','Candidate error','Maturity','Status','Action'].map(label=>e('th',{key:label},label)))),
-       e('tbody',{},rows.map(row=>e('tr',{key:row.endpoint_id},[
-        e('td',{},e('strong',{},row.endpoint_id)),
-        e('td',{className:'mono'},row.independent_compounds??row.raw_n??0),
-        e('td',{className:'mono'},row.effective_n??0),
-        e('td',{className:'mono'},row.base_validation_error==null?'—':row.base_validation_error),
-        e('td',{className:'mono'},row.adapted_validation_error==null?'—':row.adapted_validation_error),
-        e('td',{},[MaturityStars({maturity:row.maturity}),e('div',{className:'small'},(row.maturity?.level||1)+'/5 · '+(row.maturity?.label||'Base Prediction'))]),
-        e('td',{},row.status||'Collecting data'),
-        e('td',{},row.activation_decision==='ACTIVATED'&&!row.active?e('button',{className:'secondary',onClick:()=>activateProjectAdapter(row.endpoint_id)},'Activate'):row.active?e('button',{className:'secondary',onClick:()=>deactivateProjectAdapter(row.endpoint_id)},'Deactivate'):e('span',{className:'small'},'No activation'))
-       ])))
-      ]),
-      e('div',{className:'learning-curve-list',key:'curves'},rows.map(learningCurveDetails))
+    ?e('div',{},[
+      e('div',{className:'project-overview-grid',key:'summary'},learningSummary.map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))]))),
+      focusedRows.length?learningTable(focusedRows):e('p',{className:'small',key:'collecting'},'No endpoint has qualified project evidence yet. Base predictions remain ★☆☆☆☆.'),
+      baseOnlyRows.length>0&&e('details',{className:'base-only-endpoints',key:'base-only'},[e('summary',{},'Other base-prediction endpoints ('+baseOnlyRows.length+')'),learningTable(baseOnlyRows)])
      ])
     :e('div',{className:'empty-state'},[
       e('p',{},'No prediction-pairable project endpoint pairs yet.'),
@@ -4769,7 +4849,7 @@ function integratedProfile(versionId){
     e('div',{className:'sidebar-footer',key:'footer'},[
     e('div',{className:'sidebar-footer-brand'},'Drug Optimization Platform'),
     e('div',{className:'sidebar-footer-version'},'v1.0'),
-    e('div',{className:'sidebar-footer-date'},'Updated: 2026-08-30')
+    e('div',{className:'sidebar-footer-date'},'Updated: 2026-09-02')
     ])
   ]);
   return e('div',{className:'shell'},[sidebar,e('main',{className:'content',key:'content'},[

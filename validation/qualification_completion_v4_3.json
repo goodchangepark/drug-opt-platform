@@ -1,0 +1,42 @@
+{
+  "complete_definition": "All deterministic table/document context has been resolved; remaining records retain an explicit, persisted reason instead of being forced into a comparison.",
+  "compound": "Sunvozertinib",
+  "generated_at": "2026-09-02T00:19:47.727813+00:00",
+  "needs_review_reasons": {
+    "DOSE_MISSING": 41,
+    "ENDPOINT_UNRESOLVED": 5,
+    "Hepatocyte Clint is not HLM Clint": 3,
+    "MEASUREMENT_SEMANTICS_DIFFER": 16,
+    "NO_CURRENT_PREDICTION_ENDPOINT": 91,
+    "NUMERIC_PARSE": 105,
+    "RELATED_MEASUREMENT_SEMANTICS": 31,
+    "ROUTE_MISSING": 62,
+    "UNIT_UNSUPPORTED": 10
+  },
+  "observation_classification_counts": {
+    "DIRECT": 12,
+    "EXPERIMENTAL_ONLY": 91,
+    "NEEDS_REVIEW": 132,
+    "NON_COMPARISON_SCIENTIFIC_EVIDENCE": 110,
+    "RELATED": 31
+  },
+  "persistent_observations": 376,
+  "qualification": {
+    "adaptation_eligible": 0,
+    "conditional": 0,
+    "context_qualified": 131,
+    "direct": 5,
+    "endpoint_qualified": 266,
+    "identity_qualified": 376,
+    "manual_review": 245,
+    "numeric": 271,
+    "prediction_pairable": 41,
+    "qualification_version": "drugopt-experimental-qualification-v4",
+    "raw_source_records": 376,
+    "ready_to_import": 60,
+    "reference_qualified": 376,
+    "related": 31,
+    "related_endpoint_groups": 2,
+    "unique_scientific_observations": 376
+  }
+}

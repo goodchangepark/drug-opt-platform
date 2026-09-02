@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import datetime, timezone
 import hashlib
+import re
 from sqlalchemy import select
 
 from .admet import ADMETEndpoint, ADMETMeasurement, ADMETPrediction, ADMETModelRegistry, ADMETPredictionRun, PredictionEndpointSnapshot
@@ -25,6 +26,7 @@ from .simulation import PKSimulationRun
 from .metabolism import MetabolicPredictionRun
 from .qualification_contract import aggregate_qualification, qualify_record
 from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
+from .pk_context import PK_CONTEXT_QUALIFICATION_VERSION, resolve_pk_study_context
 
 
 CANONICAL_ENDPOINTS = {
@@ -83,12 +85,25 @@ def _reference(row):
 
 def _mapped_external(row):
     context = _context(row)
-    mapped = normalize_experimental_observation(row.raw_endpoint_name, row.raw_value, row.raw_unit, species=row.species, context=context, assay_type=row.assay_type, target=context.get("target", ""), canonical_hint=row.canonical_endpoint_id)
+    raw_name = str(row.raw_endpoint_name or "")
+    is_pk = bool(re.search(r"\b(?:cmax|tmax|auc|half[- ]?life|t1/2|clearance|cl/f|\bcl\b|volume|vd/f|\bvd\b|bioavailability)\b", raw_name, re.I))
+    if is_pk:
+        context = resolve_pk_study_context(
+            raw_endpoint=row.raw_endpoint_name, raw_value=row.raw_value, raw_unit=row.raw_unit,
+            species=row.species, context=context, source_database=row.source_database,
+            source_record_id=row.source_record_id,
+        )
+    normalization_unit = context.get("resolved_unit") or row.raw_unit
+    mapped = normalize_experimental_observation(row.raw_endpoint_name, row.raw_value, normalization_unit, species=context.get("species", row.species), context=context, assay_type=row.assay_type, target=context.get("target", ""), canonical_hint=row.canonical_endpoint_id)
+    if is_pk and context.get("measurement_semantics_issue"):
+        mapped["comparability_status"] = UNSUPPORTED
+        mapped["reason"] = context["measurement_semantics_issue"]
+        mapped["normalized_value"] = None
     state = row.evidence_state or ("EXTERNAL_IMPORTED" if row.accepted_at else "EXTERNAL_CANDIDATE")
     endpoint_id = mapped["canonical_endpoint_id"]
     comparable = mapped["comparability_status"] in {DIRECT, CONVERTED}
     qualification = {DIRECT: "QUALIFIED_DIRECT", CONVERTED: "QUALIFIED_DETERMINISTIC_CONVERSION", RELATED: "QUALIFIED_RELATED", "CONDITIONALLY_COMPARABLE": "QUALIFIED_CONDITIONAL"}.get(mapped["comparability_status"], "NEEDS_REVIEW")
-    item = {"id": row.id, "origin": state, "state": state, "raw_endpoint": row.raw_endpoint_name, "endpoint": _display_name(endpoint_id, row.raw_endpoint_name), "raw_value": row.raw_value, "raw_unit": row.raw_unit, "relation": row.raw_relation, "normalized_value": mapped.get("normalized_value"), "normalized_unit": mapped.get("normalized_unit", ""), "species": mapped.get("species", normalize_species(row.species, context)), "route": mapped.get("route", "UNSPECIFIED"), "context": context, "dose": context.get("dose"), "dose_unit": context.get("dose_unit") or context.get("dose_units"), "reference": _reference(row), "qualification": qualification, "comparability": mapped["comparability_status"], "importable": comparable and state != "EXTERNAL_IMPORTED", "identity_match_status": row.identity_match_status, "reference_status": "REFERENCE_RESOLVED_IMPORTED" if state == "EXTERNAL_IMPORTED" else "REFERENCE_RESOLVED_CANDIDATE", "assay_type": row.assay_type, "assay_id": row.source_assay_id, "adaptation_eligibility": bool(row.accepted_at and comparable), "display_evidence_group_id": row.display_evidence_group_id or row.provenance_fingerprint or f"evidence-{row.id}", "independent_experiment_group_id": row.independent_experiment_group_id or row.source_document_id or row.source_record_id or f"evidence-{row.id}", "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": mapped["comparison_key"], "display_source": row.source_database, "routing_reason": mapped.get("reason", "") or row.routing_reason, "normalization_rule": mapped.get("normalization_rule", ""), "raw_persisted_canonical_endpoint_id": row.canonical_endpoint_id, "qualification_details": row.qualification_json or {}}
+    item = {"id": row.id, "origin": state, "state": state, "raw_endpoint": row.raw_endpoint_name, "endpoint": _display_name(endpoint_id, row.raw_endpoint_name), "raw_value": row.raw_value, "raw_unit": row.raw_unit, "relation": row.raw_relation, "normalized_value": mapped.get("normalized_value"), "normalized_unit": mapped.get("normalized_unit", ""), "species": mapped.get("species", normalize_species(row.species, context)), "route": mapped.get("route", "UNSPECIFIED"), "context": context, "dose": context.get("dose"), "dose_unit": context.get("dose_unit") or context.get("dose_units"), "regimen": context.get("regimen", "UNSPECIFIED"), "analyte": mapped.get("analyte", context.get("analyte", "PARENT")), "reference": _reference(row), "qualification": qualification, "comparability": mapped["comparability_status"], "importable": comparable and state != "EXTERNAL_IMPORTED", "identity_match_status": row.identity_match_status, "reference_status": "REFERENCE_RESOLVED_IMPORTED" if state == "EXTERNAL_IMPORTED" else "REFERENCE_RESOLVED_CANDIDATE", "assay_type": row.assay_type, "assay_id": row.source_assay_id, "adaptation_eligibility": bool(row.accepted_at and comparable), "display_evidence_group_id": row.display_evidence_group_id or row.provenance_fingerprint or f"evidence-{row.id}", "independent_experiment_group_id": row.independent_experiment_group_id or row.source_document_id or row.source_record_id or f"evidence-{row.id}", "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": mapped["comparison_key"], "display_source": row.source_database, "routing_reason": mapped.get("reason", "") or row.routing_reason, "normalization_rule": mapped.get("normalization_rule", ""), "raw_persisted_canonical_endpoint_id": row.canonical_endpoint_id, "qualification_details": row.qualification_json or {}, "context_qualification": {key: context.get(key, "UNRESOLVED") for key in ("species_source", "route_source", "dose_source", "regimen_source", "analyte_source")}, "pk_context_version": context.get("pk_context_version", "")}
     return item, mapped
 
 
@@ -363,11 +378,19 @@ def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:
     versions = [version_id] if version_id is not None else db.scalars(select(CompoundVersion.id)).all()
     changed = 0
     for current_version_id in versions:
-        prediction_ids = {row.endpoint_id for row in db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == current_version_id)).all()}
+        snapshots = db.scalars(select(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id == current_version_id)).all()
+        prediction_ids = {
+            canonicalize_prediction_endpoint(row.endpoint_name or row.endpoint_id, species=(row.snapshot_json or {}).get("species", ""), route=(row.snapshot_json or {}).get("route", ""))["canonical_endpoint_id"]
+            for row in snapshots
+        } | {str(row.endpoint_id) for row in snapshots}
         for evidence in db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == current_version_id)).all():
             item, mapped = _mapped_external(evidence)
             q = qualify_record(item, prediction_endpoints=prediction_ids, imported=evidence.evidence_state == "EXTERNAL_IMPORTED")
             evidence.canonical_endpoint_id = mapped.get("canonical_endpoint_id", evidence.canonical_endpoint_id)
+            if str(mapped.get("section")) == "PK":
+                # Preserve original text while storing every inherited context
+                # field and its deterministic provenance for later audit.
+                evidence.assay_conditions_json = item.get("context") or evidence.assay_conditions_json
             evidence.normalized_value = "" if mapped.get("normalized_value") is None else str(mapped.get("normalized_value"))
             evidence.normalized_unit = str(mapped.get("normalized_unit") or evidence.normalized_unit or "")
             evidence.normalization_rule = str(mapped.get("normalization_rule") or evidence.normalization_rule or "")
@@ -410,6 +433,8 @@ def _comparison(prediction, experiments):
                 pred_dose = _dose_mg_kg(prediction.get("dose"), prediction.get("dose_unit"))
                 exp_dose = _dose_mg_kg(experiment.get("dose"), experiment.get("dose_unit"))
                 if pred_dose is not None and exp_dose is not None and abs(pred_dose - exp_dose) > max(1e-9, 1e-6 * max(abs(pred_dose), abs(exp_dose), 1.0)):
+                    continue
+                if prediction.get("unit") and experiment.get("normalized_unit") and prediction.get("unit") != experiment.get("normalized_unit"):
                     continue
             pv, ev = _number(prediction.get("display_value")), _number(experiment.get("normalized_value"))
             if pv is None or ev is None: continue
@@ -474,6 +499,206 @@ def _add_experiment(row, item):
     elif item["state"] == "EXTERNAL_IMPORTED": row["experimental_external_imported"].append(item)
     else: row["experimental_external_candidates"].append(item)
     row["references"].append(item["reference"])
+
+
+def _scientific_group(endpoint_id: str, section: str) -> str:
+    endpoint = str(endpoint_id or "").upper()
+    if section == "PK":
+        return "HUMAN CLINICAL PK" if endpoint.startswith("HUMAN_PK_") else "SPECIES PK"
+    if section != "METABOLISM":
+        return section
+    if endpoint.startswith(("HLM_", "RLM_", "MLM_", "HEPATOCYTE_")):
+        return "METABOLIC STABILITY"
+    if "_INHIBITION" in endpoint and endpoint.startswith(("CYP", "PGP")):
+        return "CYP / TRANSPORTER INHIBITION"
+    if "_SUBSTRATE" in endpoint:
+        return "CYP SUBSTRATE"
+    if "METABOLIC_CONTRIBUTION" in endpoint:
+        return "CYP METABOLIC CONTRIBUTION"
+    if endpoint.startswith("EXCRETION_"):
+        return "EXCRETION / MASS BALANCE"
+    if endpoint in {"METABOLIC_SOFT_SPOTS", "METABOLITE_HYPOTHESES"}:
+        return "PREDICTED METABOLISM"
+    if endpoint == "METABOLITE_OBSERVATION":
+        return "OBSERVED METABOLITES"
+    return "METABOLISM"
+
+
+def _measurement_type(item: dict, endpoint_id: str) -> str:
+    text = " ".join(str(item.get(key, "")) for key in ("raw_endpoint", "assay_type", "raw_unit", "relation")).lower()
+    if re.search(r"\bic50\b", text): return "IC50"
+    if re.search(r"\bki\b", text): return "Ki"
+    if re.search(r"\bec50\b", text): return "EC50"
+    if "%" in text and re.search(r"inhib|inhibition", text): return "% inhibition"
+    if re.search(r"categor|positive|negative|inhibitor", text) and not re.search(r"\b(?:ic50|ki|ec50)\b", text): return "categorical interaction"
+    if "CYP" in str(endpoint_id).upper() or "PGP" in str(endpoint_id).upper(): return "other inhibition evidence"
+    return item.get("raw_endpoint") or "measurement"
+
+
+def _display_quantity(endpoint_id: str, value, unit: str) -> dict:
+    """Return an exact, scientist-facing display without changing stored scale."""
+    numeric = _number(value)
+    endpoint = str(endpoint_id or "").upper()
+    raw = {"value": numeric, "unit": unit or ""}
+    if numeric is None:
+        return {"value": value, "unit": unit or "", "raw": raw, "conversion": ""}
+    if endpoint.startswith("CACO2_PAPP") and "log10" in str(unit).lower():
+        return {"value": 10 ** (numeric + 6), "unit": "×10^-6 cm/s", "raw": raw, "conversion": "log10(cm/s)_to_10^-6_cm/s"}
+    if endpoint.startswith("SOLUBILITY_") and "log10" in str(unit).lower():
+        return {"value": 10 ** (numeric + 6), "unit": "µM", "raw": raw, "conversion": "log10(mol/L)_to_µM"}
+    if endpoint in {"HLM_CLINT", "RLM_CLINT", "MLM_CLINT"} and "log10" in str(unit).lower():
+        return {"value": 10 ** numeric, "unit": "mL/min/kg", "raw": raw, "conversion": "log10(mL/min/kg)_to_mL/min/kg", "definition": "Scaled intrinsic clearance; not microsomal µL/min/mg"}
+    return {"value": numeric, "unit": unit or "", "raw": raw, "conversion": "identity"}
+
+
+def _row_experiments(row: dict) -> list[dict]:
+    names = ("experimental_internal", "experimental_external_imported", "experimental_external_candidates", "related_evidence", "needs_review")
+    items = []
+    for name in names:
+        for item in row.get(name, []):
+            copy = dict(item)
+            copy["display"] = _display_quantity(row["endpoint_id"], copy.get("normalized_value"), copy.get("normalized_unit", copy.get("raw_unit", "")))
+            copy["measurement_type"] = _measurement_type(copy, row["endpoint_id"])
+            items.append(copy)
+    return items
+
+
+def _primary_experimental_display(row: dict, experiments: list[dict]) -> dict:
+    observed = [item for item in experiments if item.get("normalized_value") is not None and item.get("comparability") != UNSUPPORTED]
+    # Search ingestion may preserve source representations of one observation.
+    # Display grouping uses its stable scientific/display identity, never the
+    # prediction error, so it cannot cherry-pick a closer observation.
+    independent = {str(item.get("display_evidence_group_id") or item.get("independent_experiment_group_id") or item.get("id")) for item in observed}
+    types = defaultdict(list)
+    for item in observed:
+        types[item["measurement_type"]].append(item)
+    heterogeneous = len(types) > 1
+    if not observed:
+        review = [item for item in experiments if item.get("qualification") == "NEEDS_REVIEW" or item.get("comparability") == UNSUPPORTED]
+        return {"label": "—", "observation_count": 0, "independent_count": 0, "measurement_types": [], "heterogeneous": False, "reason": (review[0].get("routing_reason") if review else "No qualified experimental evidence") or "No qualified experimental evidence"}
+    entries = []
+    for measurement_type, values in sorted(types.items()):
+        units = {str(item.get("display", {}).get("unit", "")) for item in values}
+        display_values = [item.get("display", {}).get("value") for item in values if _number(item.get("display", {}).get("value")) is not None]
+        # Public regulatory documents sometimes repeat the same reported value
+        # in a narrative and a table.  Preserve every provenance record in the
+        # detail panel, but do not inflate the primary scientific summary.
+        # This is deliberately a display de-duplication only: it never changes
+        # import/adaptation evidence identities.
+        distinct_values = sorted(set(display_values))
+        if len(values) == 1:
+            item = values[0]
+            entries.append({"measurement_type": measurement_type, "label": f"{measurement_type}: {item['display']['value']} {item['display']['unit']}".strip(), "count": 1})
+        elif len(units) == 1 and len(display_values) == len(values) and not heterogeneous:
+            count_label = f"{len(distinct_values)} distinct reported values" if len(distinct_values) < len(values) else f"{len(values)} observations"
+            entries.append({"measurement_type": measurement_type, "label": f"{measurement_type}: {count_label}", "count": len(values), "distinct_display_count": len(distinct_values), "range": [min(distinct_values), max(distinct_values)], "unit": next(iter(units))})
+        else:
+            entries.append({"measurement_type": measurement_type, "label": f"{measurement_type}: {len(values)} observations", "count": len(values)})
+    label = entries[0]["label"] if len(entries) == 1 else "; ".join(entry["label"] for entry in entries)
+    return {"label": label, "observation_count": len(observed), "independent_count": len(independent), "distinct_display_count": len({(item.get('display', {}).get('value'), item.get('display', {}).get('unit')) for item in observed}), "measurement_types": entries, "heterogeneous": heterogeneous, "reason": ""}
+
+
+def _pk_parameter(endpoint_id: str) -> str:
+    text = str(endpoint_id or "").upper()
+    if "_PK_" not in text: return ""
+    parameter = text.split("_PK_", 1)[1]
+    # Older persisted Stage-5 IDs may include both an endpoint route and a
+    # route-context suffix (for example ``VDF_ORAL_ORAL``).  They still mean
+    # one parameter, so strip every trailing route token for display only.
+    while True:
+        suffix = next((value for value in ("_ORAL", "_IV", "_IP", "_SC", "_UNSPECIFIED") if parameter.endswith(value)), None)
+        if suffix is None: break
+        parameter = parameter[:-len(suffix)]
+    return parameter
+
+
+def _pk_display_name(endpoint_id: str, fallback: str) -> str:
+    """Use scientist-facing parameter labels; route remains explicit context."""
+    parameter = _pk_parameter(endpoint_id)
+    labels = {
+        "CL": "Systemic clearance",
+        "CLF": "Oral CL/F",
+        "VD": "Volume of distribution",
+        "VSS": "Steady-state volume of distribution",
+        "VDF": "Oral Vd/F",
+        "F": "Oral bioavailability F",
+        "CMAX": "Cmax",
+        "TMAX": "Tmax",
+        "AUC": "AUC",
+        "T_HALF": "Terminal half-life",
+    }
+    return labels.get(parameter, fallback)
+
+
+def _presentation_prediction(prediction: dict, endpoint_id: str) -> dict:
+    if not prediction or not prediction.get("available"):
+        return dict(prediction or {"available": False})
+    result = dict(prediction)
+    result["display"] = _display_quantity(endpoint_id, prediction.get("display_value"), prediction.get("unit", ""))
+    return result
+
+
+def _scientific_rows(endpoints: list[dict]) -> list[dict]:
+    rows = []
+    for source in endpoints:
+        experiments = _row_experiments(source)
+        prediction = _presentation_prediction(source.get("prediction") or {}, source["endpoint_id"])
+        primary = _primary_experimental_display(source, experiments)
+        comparison = source.get("comparison")
+        semantic = (comparison or {}).get("status") or ("PREDICTION_ONLY" if prediction.get("available") and not experiments else ("EXPERIMENTAL_ONLY" if experiments and not prediction.get("available") else "NEEDS_REVIEW"))
+        primary_item = next((item for item in experiments if item.get("normalized_value") is not None), experiments[0] if experiments else {})
+        display_name = _pk_display_name(source["endpoint_id"], source["display_name"]) if source["section"] == "PK" else source["display_name"]
+        rows.append({
+            "section": source["section"], "group": _scientific_group(source["endpoint_id"], source["section"]),
+            "canonical_endpoint": source["endpoint_id"], "display_name": display_name,
+            "species": source.get("species", "UNSPECIFIED"), "route": source.get("route", "UNSPECIFIED"),
+            "dose": primary_item.get("dose", prediction.get("dose")), "dose_unit": primary_item.get("dose_unit", prediction.get("dose_unit", "")),
+            "regimen": primary_item.get("regimen", primary_item.get("context", {}).get("regimen", "UNSPECIFIED")),
+            "matrix": primary_item.get("context", {}).get("matrix", ""), "assay": primary_item.get("assay_type", ""),
+            "direction": primary_item.get("context", {}).get("direction", ""), "analyte": primary_item.get("analyte", primary_item.get("context", {}).get("analyte", "PARENT")),
+            "experimental_observations": experiments, "primary_experimental_display": primary,
+            "prediction": prediction, "display_unit": (prediction.get("display") or {}).get("unit") or (experiments[0].get("display", {}).get("unit") if experiments else ""),
+            "difference": comparison, "semantic_status": semantic,
+            "qualification_status": (primary_item.get("qualification_details") or {}).get("context_status") or primary_item.get("qualification") or "PREDICTION_ONLY",
+            "prediction_type": prediction.get("prediction_type"), "maturity": prediction.get("maturity", {}),
+            "references": source.get("references", []), "unmatched_reason": (comparison or {}).get("reason") or primary.get("reason", ""),
+            "source_endpoint_ids": [source["endpoint_id"]], "route_contexts": [source.get("route", "UNSPECIFIED")],
+        })
+
+    # A systemic Vd/Vss foundation value is often materialized under several
+    # route assembly contexts.  Collapse only byte-for-byte equivalent
+    # prediction-only values; distinct route/dose predictions remain separate.
+    merged, consumed = [], set()
+    for index, row in enumerate(rows):
+        if index in consumed:
+            continue
+        if row["section"] != "PK":
+            merged.append(row)
+            continue
+        parameter = _pk_parameter(row["canonical_endpoint"])
+        eligible = parameter in {"VD", "VSS"} and not row["experimental_observations"] and row["prediction"].get("available")
+        if not eligible:
+            merged.append(row); continue
+        same = [index]
+        value = (row["prediction"].get("display") or {}).get("value")
+        unit = (row["prediction"].get("display") or {}).get("unit")
+        for other_index, other in enumerate(rows[index + 1:], index + 1):
+            if other_index in consumed or other["section"] != "PK" or _pk_parameter(other["canonical_endpoint"]) != parameter:
+                continue
+            if other["species"] == row["species"] and not other["experimental_observations"] and other["prediction"].get("available") and (other["prediction"].get("display") or {}).get("value") == value and (other["prediction"].get("display") or {}).get("unit") == unit:
+                same.append(other_index)
+        if len(same) == 1:
+            merged.append(row); continue
+        combined = dict(row)
+        combined["canonical_endpoint"] = f"{row['species']}_PK_{parameter}_SYSTEMIC"
+        combined["display_name"] = f"{row['species'].title()} {'Vd / Vss' if parameter == 'VSS' else 'volume of distribution'}"
+        combined["route"] = "SYSTEMIC"
+        combined["route_contexts"] = [rows[item]["route"] for item in same]
+        combined["source_endpoint_ids"] = [rows[item]["canonical_endpoint"] for item in same]
+        combined["unmatched_reason"] = "One systemic estimate reused across route-assembly contexts; historical snapshots remain in Prediction History."
+        merged.append(combined); consumed.update(same)
+    order = {"ACTIVITY": 0, "ADMET": 1, "METABOLISM": 2, "TOXICITY": 3, "PK": 4}
+    return sorted(merged, key=lambda row: (order.get(row["section"], 99), row["group"], row["species"], row["display_name"], row["route"]))
 
 
 def build_endpoint_comparison(db, version_id: int) -> dict:
@@ -582,4 +807,5 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     qualification = aggregate_qualification(qualification_items, prediction_endpoints=prediction_endpoint_ids)
     summary["qualification"] = qualification["global"]
     summary["source_qualification"] = qualification["sources"]
-    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "summary": summary}
+    scientific_rows = _scientific_rows(endpoints)
+    return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "scientific_rows": scientific_rows, "summary": summary}

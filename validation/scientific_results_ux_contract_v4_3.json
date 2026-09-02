@@ -1,0 +1,37 @@
+{
+  "contract": "ScientificComparisonRow-v4.3",
+  "engine": "drugopt-prediction-engine-v1@1.0.0",
+  "engine_hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+  "fields": [
+    "section",
+    "group",
+    "canonical_endpoint",
+    "display_name",
+    "species",
+    "route",
+    "dose",
+    "dose_unit",
+    "regimen",
+    "matrix",
+    "assay",
+    "direction",
+    "analyte",
+    "experimental_observations",
+    "primary_experimental_display",
+    "prediction",
+    "display_unit",
+    "difference",
+    "semantic_status",
+    "qualification_status",
+    "prediction_type",
+    "maturity",
+    "references",
+    "unmatched_reason"
+  ],
+  "rules": [
+    "Frontend renders persisted scientific_rows and does not join evidence/prediction/PK streams.",
+    "Caco-2 and solubility retain raw log scale while exposing exact scientist-facing display conversions.",
+    "CYP/P-gp heterogeneous measurement types are listed separately and never pooled into one numeric range.",
+    "PK primary rows require species/context identity; identical systemic Vd/Vss snapshots are collapsed only when values are identical."
+  ]
+}

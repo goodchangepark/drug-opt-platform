@@ -1556,6 +1556,22 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .maturity-level-text { color: #64748b; font-size: 0.78rem; font-weight: 600; margin-left: 3px; }
 .compact-evidence-table { font-size: 12px; }
 .compact-evidence-table th, .compact-evidence-table td { vertical-align: top; padding: 7px 8px; }
+.scientific-results-table .scientific-group-row td,
+.project-learning-table .scientific-group-row td {
+  background: #f1f5f9;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.scientific-results-table details { margin-top: 4px; }
+.scientific-results-table summary { cursor: pointer; color: #475569; }
+.scientific-pk-species { margin-top: 18px; }
+.scientific-pk-species > h4 { margin: 0 0 8px; color: #0f172a; }
+.scientific-metabolism-special { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); }
+.base-only-endpoints { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.base-only-endpoints > summary { cursor: pointer; font-weight: 700; }
 .compact-evidence-table .comparison-result { color: #1d4ed8; margin-top: 3px; }
 .unified-endpoint-comparison td { min-width: 110px; }
 .unified-endpoint-comparison td:nth-child(2), .unified-endpoint-comparison td:nth-child(3) { min-width: 150px; }
