@@ -421,6 +421,13 @@ VERSION_HISTORY = [
         "milestone": "Evidence Activation & Project Learning",
         "improvements": "Added project-wide qualified-evidence review, prediction-pairable filtering, explicit import tracking, frozen-prediction pairing, and endpoint-specific learning status. Search candidates never auto-import or promote maturity; candidate evaluation remains leakage-safe and activation remains explicit.",
     },
+    {
+        "version": "v4.7",
+        "release_date": "2026-09-02",
+        "stage": "Final scientific comparison milestone",
+        "milestone": "Final Scientific Comparison",
+        "improvements": "Qualified search evidence is automatically persisted and available for comparison without manual import; experimental and prediction rows use canonical scientist-facing units, deterministic differences, separate interpretation/agreement states, and strict learning eligibility. Ambiguous evidence remains in Review and AI interpretation is intentionally deferred.",
+    },
 ]
 
 
