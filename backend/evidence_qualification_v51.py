@@ -344,6 +344,20 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
             unresolved_reason=REASON_TOC_OR_FOOTNOTE_ARTIFACT, qualification_rule="footnote_artifact", displayed=False
         )
 
+    # Rule 3D: PBPK Simulation parameter text artifact (e.g. "permeability-limited organ accounting for 10% body weight")
+    if raw_ep.lower() == "permeability" and "%" in raw_u.lower() and any(w in full_context_lower for w in ("simcyp", "pbpk", "organ", "body weight", "ionization occurs", "qgut")):
+        funnel["drop_stage"] = FUNNEL_OBSERVATION_EXTRACTED
+        funnel["drop_reason"] = REASON_TOC_OR_FOOTNOTE_ARTIFACT
+        return QualificationDecision(
+            funnel=funnel, stages=stages, section="UNCLASSIFIED", canonical_endpoint_id="UNRESOLVED",
+            display_name="PBPK Parameter Artifact", measurement_type="PBPK_ARTIFACT", species=species, matrix="UNSPECIFIED",
+            route=route, dose=dose_val, dose_unit=dose_unit, regimen=regimen, analyte=analyte,
+            target_context=target_context, raw_value=raw_val_str, raw_unit=raw_u, normalized_value=None,
+            normalized_unit=raw_u, normalization_rule="pbpk_artifact_dropped", evidence_state=STATE_UNUSABLE,
+            qualification_status="ENDPOINT_NOT_QUALIFIED", comparability_status="UNSUPPORTED",
+            unresolved_reason=REASON_TOC_OR_FOOTNOTE_ARTIFACT, qualification_rule="pbpk_artifact", displayed=False
+        )
+
     # Non-numeric check
     if num_val is None:
         funnel["drop_stage"] = FUNNEL_OBSERVATION_EXTRACTED
@@ -811,20 +825,6 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
             normalized_unit=raw_u or "%", normalization_rule="bcrp_interaction_identity", evidence_state=STATE_AUTO_QUALIFIED,
             qualification_status="ENDPOINT_QUALIFIED", comparability_status="RELATED_NOT_SAME_ENDPOINT",
             unresolved_reason="", qualification_rule="bcrp_qualified", displayed=True
-        )
-
-    # PBPK Simulation parameter text artifact (e.g. "permeability-limited organ accounting for 10% body weight")
-    if raw_ep_lower == "permeability" and "%" in raw_u_lower and any(w in full_context_lower for w in ("simcyp", "pbpk", "organ", "body weight", "ionization occurs", "qgut")):
-        funnel["drop_stage"] = FUNNEL_OBSERVATION_EXTRACTED
-        funnel["drop_reason"] = REASON_TOC_OR_FOOTNOTE_ARTIFACT
-        return QualificationDecision(
-            funnel=funnel, stages=stages, section="UNCLASSIFIED", canonical_endpoint_id="UNRESOLVED",
-            display_name="PBPK Parameter Artifact", measurement_type="PBPK_ARTIFACT", species=species, matrix="UNSPECIFIED",
-            route=route, dose=dose_val, dose_unit=dose_unit, regimen=regimen, analyte=analyte,
-            target_context=target_context, raw_value=raw_val_str, raw_unit=raw_u, normalized_value=None,
-            normalized_unit=raw_u, normalization_rule="pbpk_artifact_dropped", evidence_state=STATE_UNUSABLE,
-            qualification_status="ENDPOINT_NOT_QUALIFIED", comparability_status="UNSUPPORTED",
-            unresolved_reason=REASON_TOC_OR_FOOTNOTE_ARTIFACT, qualification_rule="pbpk_artifact", displayed=False
         )
 
     # CYP Enzymes (CYP1A2, 2B6, 2C8, 2C9, 2C19, 2D6, 3A4, 3A, CYP450)
