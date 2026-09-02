@@ -1,0 +1,9 @@
+{
+  "policy": "Only a persisted prediction created before the experiment, with direct deterministic semantics, can become adaptation eligible.",
+  "manual_evidence_origin": "INTERNAL_EXPERIMENTAL",
+  "historical_prediction_mutated": false,
+  "ppb_normalization_example": {"raw_value": 0.096, "raw_unit": "fu", "canonical_value": 90.4, "canonical_unit": "% bound"},
+  "cyp_example": {"experimental": "IC50 18 uM", "prediction_semantics": "classifier probability", "numeric_difference": null, "status": "RELATED_SAME_SCIENTIFIC_GROUP"},
+  "e2e_disposable_result": "No eligible frozen PPB snapshot was available for the disposable structure; the record was retained as experimental-only and no historical prediction was changed.",
+  "pairing_test": "An isolated API test creates a PPB model snapshot before manual capture and verifies an eligible immutable PredictionExperimentalPair record with the frozen prediction ID."
+}

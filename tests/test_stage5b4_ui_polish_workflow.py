@@ -36,7 +36,7 @@ def test_app_version():
     vh = version_history()
     assert len(vh) >= 12
     assert any(entry["version"] == APP_VERSION for entry in vh)
-    assert vh[-1]["version"] == "v4.4"
+    assert vh[-1]["version"] == "v4.4A"
 
 
 

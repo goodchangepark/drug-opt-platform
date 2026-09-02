@@ -359,6 +359,7 @@ function App(){
   constraints:{potency_max_nm:'',do_not_worsen_fold:'2',clogp_max:'4',tpsa_min:'40',tpsa_max:'100',mw_max:'550',similarity_min:'0.6',logs_min:'-4',caco2_logpapp_min:'-5.5',herg_do_not_increase:true},endpoint_weights:{}
  });
  const [workspace,setWorkspace]=useState(null),[comparisonPairs,setComparisonPairs]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
+ const [manualEntryOptions,setManualEntryOptions]=useState(null),[manualEvidence,setManualEvidence]=useState({section:'ADMET',canonical_endpoint_id:'HUMAN_PPB',raw_value:'',raw_unit:'% bound',species:'Human',matrix:'plasma',direction:'',route:'',dose:'',dose_unit:'mg',regimen:'Single dose',analyte:'PARENT',measurement_type:'',study_id:'',batch_id:'',notes:''}),[manualEditingEvidenceId,setManualEditingEvidenceId]=useState(null);
  const [compareMetrics,setCompareMetrics]=useState(['MW','cLogP','TPSA','QED','Activity','Solubility','Caco-2','PPB','fu','HLM','RLM','MLM','DLM','CyLM','CYP3A4 Inh','P-gp Inh','Soft Spots','Mouse CL (IV)','Rat CL (IV)','Human CL (IVIVE)','Human Vd (pred)','Human t1/2 (pred)','Human AUC (1mg/kg IV)','hERG','Ames','DILI']),[compareAssay,setCompareAssay]=useState('');
  const [editorReady,setEditorReady]=useState(false);
  const [pkData,setPkData]=useState(null),[pkSelectedStudyId,setPkSelectedStudyId]=useState(null),[pkSelectedStudyDetails,setPkSelectedStudyDetails]=useState(null);
@@ -487,7 +488,7 @@ function App(){
   if(!id)return null;const data=await api.get('/proposals/'+id+'?view='+view);setProposalRun(data);setProposalView(view);return data;
  };
 
- useEffect(()=>{Promise.all([loadProjects(),loadDashboard(),loadHelpRegistry()]).catch(error=>setMessage(String(error)))},[]);
+ useEffect(()=>{Promise.all([loadProjects(),loadDashboard(),loadHelpRegistry(),api.get('/experimental-entry-options').then(setManualEntryOptions)]).catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
  const state={globalView,projectId:projectId||null,projectTab,detailId:detail?.row_id||null,detailTab};
   const key=JSON.stringify(state);
@@ -1322,6 +1323,62 @@ function integratedProfile(versionId){
 
  function ExperimentalDataPanel(){
   if(!detail?.version)return e('div',{className:'empty-state'},[StatusBadge({type:'Not applicable'}),e('p',{},'Add a valid structure before entering structure-linked experimental data.')]);
+  {
+   const update=(key,value)=>setManualEvidence(current=>({...current,[key]:value}));
+   const selectManual=(label,value,options,onChange)=>e('div',{},[e('label',{key:'label'},label),e('select',{key:'select',value:value||'',onChange:event=>onChange(event.target.value)},options.map(item=>{const option=typeof item==='string'?{value:item,label:item}:item;return e('option',{key:option.value,value:option.value},option.label)}))]);
+   const entries=(manualEntryOptions?.endpoints||[]).filter(item=>item.section===manualEvidence.section);
+   const endpointKey=item=>item.canonical_endpoint_id||('RAW:'+item.raw_endpoint);
+   const endpoint=entries.find(item=>endpointKey(item)===(manualEvidence.endpoint_choice||manualEvidence.canonical_endpoint_id))||entries[0];
+   const isPk=manualEvidence.section==='PK', isPpb=(manualEvidence.canonical_endpoint_id||'').includes('PPB'), isCaco=(manualEvidence.canonical_endpoint_id||'').startsWith('CACO2');
+   const unitKey=isPpb?'PPB':isCaco?'CACO2':(isPk?(manualEvidence.parameter?.startsWith('AUC')?'PK_AUC':manualEvidence.parameter==='Cmax'?'PK_CMAX':['Tmax','t1/2'].includes(manualEvidence.parameter)?'PK_TIME':['CL','CL/F'].includes(manualEvidence.parameter)?'PK_CL':['Vd','Vss','Vd/F'].includes(manualEvidence.parameter)?'PK_VOLUME':manualEvidence.parameter==='F'?'PK_F':'PK_CMAX'):'');
+   const units=(manualEntryOptions?.units||{})[unitKey]||[endpoint?.canonical_unit||''];
+   const internalRecords=(workspace?.endpoint_comparison?.scientific_rows||[]).flatMap(row=>(row.experimental_observations||[]).filter(item=>item.origin==='INTERNAL_EXPERIMENTAL').map(item=>({...item,section:row.section})));
+   const prediction=(workspace?.endpoint_comparison?.scientific_rows||[]).find(row=>row.canonical_endpoint===(isPk?undefined:manualEvidence.canonical_endpoint_id))?.prediction;
+   const save=async()=>{try{
+    setAdmetBusy(true);
+    const payload={...manualEvidence,raw_endpoint:isPk?manualEvidence.parameter:(endpoint?.raw_endpoint||endpoint?.display_name||manualEvidence.measurement_type),canonical_endpoint_id:isPk?'':manualEvidence.canonical_endpoint_id};
+    const path='/projects/'+projectId+'/compounds/'+detail.row_id+'/experimental'+(manualEditingEvidenceId?'/'+manualEditingEvidenceId:'');
+    const result=manualEditingEvidenceId?await api.patch(path,payload):await api.post(path,payload);
+    await loadWorkspace(detail.version.id);setManualEditingEvidenceId(null);setExperimentalOpen(false);setMessage((manualEditingEvidenceId?'Revised':'Saved')+' internal experimental evidence #'+result.evidence.id+' after server commit.');
+   }catch(error){setMessage(String(error))}finally{setAdmetBusy(false)}};
+   const canonicalPreview=isPpb&&String(manualEvidence.raw_unit).toLowerCase()==='fu'&&manualEvidence.raw_value!==''?(100-(Number(manualEvidence.raw_value)*100)).toFixed(2)+' % bound':null;
+   return e('div',{className:'experimental-panel canonical-experimental-panel'},[
+    e('h3',{key:'title'},'Experimental Data · Canonical Evidence Capture'),
+    e('p',{key:'intro',className:'small'},'Saved values are persisted as INTERNAL_EXPERIMENTAL evidence, then reloaded from the canonical scientific comparison API.'),
+    e('div',{className:'experimental-fields',key:'step-1'},[
+     selectManual('1. Scientific section',manualEvidence.section,['ACTIVITY','ADMET','METABOLISM','TOXICITY','PK'],value=>setManualEvidence(current=>({...current,section:value,canonical_endpoint_id:'',endpoint_choice:'',parameter:value==='PK'?'Cmax':'',raw_value:'',raw_unit:'',measurement_type:'',assay_id:''}))),
+     !isPk&&selectManual('2. Canonical endpoint',manualEvidence.endpoint_choice||manualEvidence.canonical_endpoint_id,[{value:'',label:'Select endpoint'},...entries.map(item=>({value:endpointKey(item),label:item.display_name}))],value=>{const chosen=entries.find(item=>endpointKey(item)===value);setManualEvidence(current=>({...current,endpoint_choice:value,canonical_endpoint_id:chosen?.canonical_endpoint_id||'',raw_unit:chosen?.canonical_unit||'',measurement_type:''}))}),
+     isPk&&selectManual('2. PK parameter',manualEvidence.parameter||'Cmax',(manualEntryOptions?.pk_parameters||[]),value=>update('parameter',value)),
+     e(Field,{key:'value',label:'3. Raw value',type:'number',value:manualEvidence.raw_value,onChange:value=>update('raw_value',value)}),
+     selectManual('Raw unit',manualEvidence.raw_unit,[{value:'',label:'Select unit'},...units],value=>update('raw_unit',value))
+    ]),
+    e('div',{className:'experimental-fields',key:'context'},[
+     (isPpb||isPk)&&selectManual('Species',manualEvidence.species,['Human','Rat','Mouse','Dog','Monkey','Other'],value=>update('species',value)),
+     (isPpb)&&selectManual('Matrix',manualEvidence.matrix,['plasma'],value=>update('matrix',value)),
+     isCaco&&selectManual('Direction',manualEvidence.direction,[{value:'',label:'Select direction'},'A→B','B→A'],value=>update('direction',value)),
+     (manualEvidence.section==='ACTIVITY')&&selectManual('Project assay',manualEvidence.assay_id||'',[{value:'',label:'Select project assay'},...(assays||[]).map(assay=>({value:String(assay.id),label:assay.name+' · '+assay.measurement_type}))],value=>update('assay_id',value)),
+     (manualEvidence.section==='METABOLISM')&&selectManual('Measurement type',manualEvidence.measurement_type,[{value:'',label:'Select type'},'IC50','Ki','% inhibition','categorical'],value=>update('measurement_type',value)),
+     isPk&&selectManual('Route',manualEvidence.route,[{value:'',label:'Select route'},'IV','ORAL','SC','IP','IM'],value=>update('route',value)),
+     isPk&&e(Field,{key:'dose',label:'Dose',type:'number',value:manualEvidence.dose,onChange:value=>update('dose',value)}),
+     isPk&&e(Field,{key:'doseunit',label:'Dose unit',value:manualEvidence.dose_unit,onChange:value=>update('dose_unit',value)}),
+     isPk&&e(Field,{key:'regimen',label:'Regimen',value:manualEvidence.regimen,onChange:value=>update('regimen',value)}),
+     e(Field,{key:'study',label:'Internal study ID',value:manualEvidence.study_id,onChange:value=>update('study_id',value)}),
+     e(Field,{key:'batch',label:'Batch / assay ID',value:manualEvidence.batch_id,onChange:value=>update('batch_id',value)}),
+     e(Field,{key:'notes',label:'Notes',value:manualEvidence.notes,onChange:value=>update('notes',value)})
+    ]),
+    e('div',{className:'card',key:'preview'},[
+     e('strong',{},'Normalization & comparison preview'),
+     e('div',{className:'small'},canonicalPreview?'Canonical: '+canonicalPreview:'Canonical endpoint: '+(endpoint?.display_name||manualEvidence.parameter||'Select endpoint')),
+     e('div',{className:'small'},isCaco&&!manualEvidence.direction?'Direction required for direct Caco-2 comparison; this can be saved as Needs Review.':prediction?.available?'Current prediction is persisted; numeric difference is calculated only after semantic validation.':'Prediction: not available for this context')
+    ]),
+    e('div',{className:'row',key:'actions'},[e('button',{disabled:admetBusy||!manualEvidence.raw_value||(!isPk&&!endpoint)|| (isPk&&!manualEvidence.parameter)||(manualEvidence.section==='ACTIVITY'&&!manualEvidence.assay_id),onClick:save},admetBusy?'Saving…':(manualEditingEvidenceId?'Save revision':'Save Experimental Data')),e('button',{className:'secondary',onClick:()=>{setManualEditingEvidenceId(null);setExperimentalOpen(false)}},'Cancel')]),
+    internalRecords.length>0&&e('details',{key:'history',className:'card'},[e('summary',{},'Internal evidence history ('+internalRecords.length+')'),...internalRecords.map(item=>e('div',{key:item.id,className:'row small'},[
+      e('span',{},item.endpoint+': '+item.raw_value+' '+item.raw_unit),
+      e('button',{className:'secondary',onClick:()=>{const ctx=item.context||{}, isPkRow=item.section==='PK', rawEndpoint=item.raw_endpoint||'';setManualEditingEvidenceId(item.id);setManualEvidence(current=>({...current,section:item.section,canonical_endpoint_id:isPkRow?'':(item.raw_persisted_canonical_endpoint_id||item.canonical_endpoint_id||''),endpoint_choice:item.section==='ACTIVITY'?'RAW:'+rawEndpoint:(item.raw_persisted_canonical_endpoint_id||item.canonical_endpoint_id||''),parameter:isPkRow?rawEndpoint:'',raw_value:item.raw_value,raw_unit:item.raw_unit,species:ctx.species||item.species||'',matrix:ctx.matrix||'',direction:ctx.direction||'',route:ctx.route||item.route||'',dose:ctx.dose||'',dose_unit:ctx.dose_unit||'',regimen:ctx.regimen||'',analyte:ctx.analyte||'',measurement_type:item.measurement_type||'',study_id:ctx.study_id||'',batch_id:ctx.batch_id||'',notes:ctx.internal_notes||'',assay_id:ctx.assay_id||''}))}},'Edit'),
+      e('button',{className:'danger',onClick:async()=>{if(!window.confirm('Invalidate this internal evidence record?'))return;try{await api.delete('/projects/'+projectId+'/compounds/'+detail.row_id+'/experimental/'+item.id);await loadWorkspace(detail.version.id);setMessage('Internal evidence #'+item.id+' invalidated.')}catch(error){setMessage(String(error))}}},'Invalidate')
+    ]))])
+   ]);
+  }
   const select=(label,value,options,onChange)=>e('div',{},[e('label',{key:'label'},label),e('select',{key:'select',value,onChange:event=>onChange(event.target.value)},options.map(option=>{const item=typeof option==='object'?option:{value:option,label:option};return e('option',{key:item.value,value:item.value},item.label)}))]);
   const input=(name,row,key,label,type='text')=>Field({label,type,value:row[key],onChange:value=>setExperimentValue(name,key,value)});
   const formFor=name=>{

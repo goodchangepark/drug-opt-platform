@@ -1,0 +1,14 @@
+{
+  "shared_storage": "external_experimental_evidence",
+  "origins": ["INTERNAL_EXPERIMENTAL", "EXTERNAL_CANDIDATE", "EXTERNAL_IMPORTED"],
+  "shared_fields": ["canonical endpoint", "raw and normalized value/unit", "context", "qualification", "comparability", "provenance", "lifecycle"],
+  "canonical_comparison_source": "GET /api/compound-versions/{version_id}/scientific-comparison",
+  "frontend_manual_dom_injection": false,
+  "same_row_results": {
+    "activity": "project-assay keyed row",
+    "ppb": "Human PPB row",
+    "caco2": "direction-specific row",
+    "cyp": "related scientific group without numeric error",
+    "pk": "species/route/parameter keyed row"
+  }
+}

@@ -14,7 +14,7 @@ from sqlalchemy import select
 from .admet import ADMETEndpoint, ADMETMeasurement, ADMETPrediction, ADMETModelRegistry, ADMETPredictionRun, PredictionEndpointSnapshot
 from .activity_models import ActivityMeasurement, ActivityPrediction, AssayDefinition
 from .canonical_endpoints import (
-    CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION, CONVERTED, DIRECT,
+    CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION, CONDITIONAL, CONVERTED, DIRECT,
     RELATED, REGISTRY, UNSUPPORTED, canonicalize_prediction_endpoint,
     endpoint_contract, normalize_experimental_observation, normalize_species,
     prediction_source_label, prediction_source_type, PREDICTION_DERIVED,
@@ -494,8 +494,11 @@ def _pk_internal_item(study, nca, raw_endpoint, value, unit, mapped):
 
 
 def _add_experiment(row, item):
+    qualification = item.get("qualification")
+    context_status = (qualification.get("context_status") if isinstance(qualification, dict) else "") or (item.get("qualification_details") or {}).get("context_status", "")
     if item["comparability"] == RELATED: row["related_evidence"].append(item)
-    elif item["qualification"] in {"NEEDS_REVIEW", "UNSUPPORTED"} or item["comparability"] == UNSUPPORTED: row["needs_review"].append(item)
+    elif qualification in {"NEEDS_REVIEW", "UNSUPPORTED"} or context_status == "CONTEXT_NOT_QUALIFIED" or item["comparability"] in {UNSUPPORTED, CONDITIONAL}: row["needs_review"].append(item)
+    elif item["state"] == "INTERNAL_EXPERIMENTAL": row["experimental_internal"].append(item)
     elif item["state"] == "EXTERNAL_IMPORTED": row["experimental_external_imported"].append(item)
     else: row["experimental_external_candidates"].append(item)
     row["references"].append(item["reference"])
@@ -735,8 +738,33 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
         if pred is not None: row["prediction"] = {"available": True, "raw_endpoint": assay.measurement_type, "canonical_endpoint_id": eid, "base_value": pred.predicted_value_nm, "project_value": None, "display_value": pred.predicted_value_nm, "unit": assay.unit, "prediction_type": pred.prediction_type, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "ood": pred.applicability_domain, "timestamp": _iso(pred.created_at), "model_count": 1}
         for m in measured: row["experimental_internal"].append({"id": m.id, "origin": "INTERNAL_EXPERIMENTAL", "state": "INTERNAL_EXPERIMENTAL", "raw_endpoint": assay.measurement_type, "raw_value": m.raw_value, "normalized_value": m.normalized_value_nm, "raw_unit": m.original_unit, "normalized_unit": "nM", "relation": m.qualifier, "species": normalize_species(assay.species), "context": {"target": assay.target, "cell_line": assay.cell_line, "assay": assay.name}, "reference": {"source": m.source, "reference": m.notes}, "qualification": "QUALIFIED_DIRECT", "comparability": DIRECT, "importable": False, "adaptation_eligibility": True})
 
-    for evidence in db.scalars(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == version_id)).all():
-        item, mapped = _mapped_external(evidence); eid = mapped["canonical_endpoint_id"]; row = endpoint_rows.setdefault(eid, _blank(eid, evidence.raw_endpoint_name)); row["section"] = mapped["section"]; row["display_name"] = _display_name(eid, evidence.raw_endpoint_name); row["species"] = mapped.get("species", "UNSPECIFIED"); row["route"] = mapped.get("route", "UNSPECIFIED"); row["canonical_comparison_key"] = mapped["comparison_key"]; _add_experiment(row, item)
+    for evidence in db.scalars(select(ExternalExperimentalEvidence).where(
+        ExternalExperimentalEvidence.compound_version_id == version_id,
+        ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
+    )).all():
+        item, mapped = _mapped_external(evidence); eid = mapped["canonical_endpoint_id"]
+        # Manual activity evidence uses the shared evidence row while retaining
+        # the selected project assay identity.  This makes IC50/EC50/Ki/Kd
+        # appear beside that assay's prediction instead of in a parallel list.
+        assay_id = int(evidence.source_assay_id) if str(evidence.source_assay_id).isdigit() else None
+        assay = assays.get(assay_id) if assay_id else None
+        if mapped.get("section") == "ACTIVITY" and assay:
+            eid = f"ACTIVITY_{str(assay.measurement_type).upper()}:{assay.id}"
+            row = endpoint_rows.setdefault(eid, _blank(eid, f"{assay.name} ({assay.measurement_type})"))
+            row["section"] = "ACTIVITY"; row["display_name"] = f"{assay.name} ({assay.measurement_type})"
+            row["species"] = normalize_species(assay.species)
+            item["canonical_endpoint_id"] = eid; item["canonical_comparison_key"] = f"{eid}|{assay.target or 'UNSPECIFIED'}|{assay.name}"; item["endpoint"] = row["display_name"]
+            # The selected assay has already been checked at capture time for
+            # the same IC50/EC50/Ki/Kd semantics.  A direct activity row still
+            # requires the assay's own unit; unsupported conversions remain
+            # reviewable rather than silently compared.
+            if str(item.get("normalized_unit") or item.get("raw_unit") or "").lower() == str(assay.unit or "").lower():
+                item["comparability"] = DIRECT; item["qualification"] = "QUALIFIED_DIRECT"; item["routing_reason"] = ""
+            else:
+                item["comparability"] = CONDITIONAL; item["qualification"] = "NEEDS_REVIEW"; item["routing_reason"] = "Activity unit does not match the selected assay unit"
+        else:
+            row = endpoint_rows.setdefault(eid, _blank(eid, evidence.raw_endpoint_name)); row["section"] = mapped["section"]; row["display_name"] = _display_name(eid, evidence.raw_endpoint_name); row["species"] = mapped.get("species", "UNSPECIFIED"); row["route"] = mapped.get("route", "UNSPECIFIED"); row["canonical_comparison_key"] = mapped["comparison_key"]
+        _add_experiment(row, item)
 
     # Non-scalar metabolism predictions are still canonical prediction output.
     # Keep them in the scientific metabolism section, but do not pretend that

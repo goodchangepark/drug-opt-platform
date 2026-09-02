@@ -393,6 +393,13 @@ VERSION_HISTORY = [
         "milestone": "Verified PK Prediction & Benchmark",
         "improvements": "Fail-closed versioned PK prediction contract, explicit input provenance, benchmark validation gates, and a separate evidence-review queue. No unbenchmarked PK endpoint is presented as production-supported.",
     },
+    {
+        "version": "v4.4A",
+        "release_date": "2026-09-02",
+        "stage": "Scientific data-capture milestone",
+        "milestone": "Manual Experimental Data & Unified Evidence Capture",
+        "improvements": "Endpoint-aware internal experimental entry, canonical unit normalization, durable revisions and invalidation, and direct reuse of the persisted scientific comparison and project-learning evidence contract.",
+    },
 ]
 
 

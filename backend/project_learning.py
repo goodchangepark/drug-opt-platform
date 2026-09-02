@@ -178,6 +178,38 @@ def record_external_evidence_pair(db: Session, project_id: int, evidence: Extern
     return row
 
 
+def record_canonical_evidence_pair(db: Session, project_id: int, evidence: ExternalExperimentalEvidence):
+    """Pair shared internal/imported canonical evidence with a frozen model run."""
+    version = db.get(CompoundVersion, evidence.compound_version_id)
+    if not version:
+        return None
+    endpoint_name = {
+        "SOLUBILITY_GENERIC": "Solubility", "SOLUBILITY_KINETIC": "Solubility",
+        "SOLUBILITY_THERMODYNAMIC": "Solubility", "SOLUBILITY_INTRINSIC": "Solubility",
+        "CACO2_PAPP_AB": "Permeability", "HUMAN_PPB": "Plasma protein binding",
+        "HLM_CLINT": "HLM intrinsic clearance", "RLM_CLINT": "RLM intrinsic clearance",
+        "MLM_CLINT": "MLM intrinsic clearance",
+    }.get(evidence.canonical_endpoint_id, "")
+    if not endpoint_name:
+        return None
+    experiment_at = evidence.imported_at or evidence.retrieved_at or datetime.now(timezone.utc)
+    prediction, values, bundle = _prediction_bundle(db, version.id, endpoint_name, experiment_at)
+    origin = "INTERNAL_EXPERIMENTAL" if evidence.evidence_state == "INTERNAL_EXPERIMENTAL" else "EXTERNAL_IMPORTED"
+    row = _write_pair(
+        db, project_id=project_id, version=version, endpoint_name=endpoint_name,
+        prediction=prediction, values=values, bundle=bundle, experiment_id=None,
+        external_id=evidence.id, evidence_origin=origin, experiment_at=experiment_at,
+        experimental_value=evidence.normalized_value, experimental_unit=evidence.normalized_unit,
+        raw_value=evidence.raw_value, raw_unit=evidence.raw_unit, relation=evidence.raw_relation,
+        comparability_status=evidence.comparability_status,
+        independent_group=evidence.independent_experiment_group_id or evidence.source_record_id,
+        evidence_quality=evidence.source_quality_class,
+    )
+    if row:
+        db.add(row)
+    return row
+
+
 def ledger_out(row: PredictionExperimentalPairRecord):
     return {
         "id": row.id, "pair_key": row.pair_key, "project_id": row.project_id,

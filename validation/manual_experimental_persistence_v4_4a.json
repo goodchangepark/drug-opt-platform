@@ -1,0 +1,16 @@
+{
+  "validation_context": "disposable project and compounds; removed after validation",
+  "records_saved": 5,
+  "records": [
+    "Activity IC50 / project assay",
+    "Human PPB / fu",
+    "Caco-2 Papp A-to-B",
+    "CYP3A4 inhibition IC50",
+    "Human oral Cmax"
+  ],
+  "before_navigation": {"activity": 1, "ppb": 2, "caco2": 1, "cyp3a4": 1, "human_oral_cmax": 1},
+  "after_other_project_return": {"activity": 1, "ppb": 2, "caco2": 1, "cyp3a4": 1, "human_oral_cmax": 1},
+  "after_hard_reload": {"activity": 1, "ppb": 2, "caco2": 1, "cyp3a4": 1, "human_oral_cmax": 1},
+  "after_application_process_restart": {"activity": 1, "ppb": 2, "caco2": 1, "cyp3a4": 1, "human_oral_cmax": 1},
+  "result": "PASS"
+}

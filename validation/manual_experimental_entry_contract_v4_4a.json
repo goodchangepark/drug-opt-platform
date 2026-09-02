@@ -1,0 +1,17 @@
+{
+  "version": "drugopt-manual-experimental-capture-v4.4a",
+  "created_at": "2026-09-02",
+  "canonical_endpoint_version": "drugopt-canonical-endpoint-v1",
+  "comparison_unit_version": "drugopt-comparison-unit-v1",
+  "shared_evidence_table": "external_experimental_evidence",
+  "manual_origin": "INTERNAL_EXPERIMENTAL",
+  "contract": {
+    "save": "validate -> normalize -> qualify -> transaction commit -> canonical comparison refetch",
+    "revision": "immutable successor; prior evidence lifecycle is SUPERSEDED",
+    "invalidation": "soft lifecycle transition to INVALIDATED",
+    "prediction_mutation": false,
+    "legacy_manual_form_is_primary": false
+  },
+  "form_metadata_api": "/api/experimental-entry-options",
+  "capture_api": "/api/projects/{project_id}/compounds/{compound_id}/experimental"
+}

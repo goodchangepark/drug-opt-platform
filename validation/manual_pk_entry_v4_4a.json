@@ -1,0 +1,17 @@
+{
+  "example": {
+    "species": "HUMAN",
+    "route": "ORAL",
+    "dose": 200,
+    "dose_unit": "mg",
+    "regimen": "Single dose",
+    "parameter": "Cmax",
+    "raw_value": 0.42,
+    "raw_unit": "ug/mL",
+    "normalized_value": 420.0,
+    "normalized_unit": "ng/mL",
+    "canonical_endpoint_id": "HUMAN_PK_CMAX_ORAL",
+    "comparison_state_without_matching_prediction": "EXPERIMENTAL_ONLY"
+  },
+  "strict_separation": ["CL vs CL/F", "Vd vs Vd/F", "species", "route", "dose/regimen", "analyte"]
+}

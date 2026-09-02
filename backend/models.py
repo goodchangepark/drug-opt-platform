@@ -47,7 +47,12 @@ class Compound(Base):
 
 
 class ExternalExperimentalEvidence(Base):
-    """Immutable external experimental evidence; never replaces predictions or internal experiments."""
+    """Canonical persisted scientific evidence, regardless of external/internal origin.
+
+    The historical table name is retained for migration compatibility.  Its
+    lifecycle/origin fields, not its name, define the scientific evidence
+    contract used by search, import, and manual capture.
+    """
     __tablename__ = "external_experimental_evidence"
     id: Mapped[int] = mapped_column(primary_key=True)
     compound_version_id: Mapped[int] = mapped_column(ForeignKey("compound_versions.id", ondelete="CASCADE"), index=True)
@@ -105,6 +110,10 @@ class ExternalExperimentalEvidence(Base):
     routing_reason: Mapped[str] = mapped_column(Text, default="")
     retrieved_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    lifecycle_status: Mapped[str] = mapped_column(String(40), default="ACTIVE", index=True)
+    revision_number: Mapped[int] = mapped_column(Integer, default=1)
+    supersedes_evidence_id: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
 
 class CompoundVersion(Base):
@@ -307,12 +316,17 @@ def ensure_ui_schema(engine):
                 "display_evidence_group_id": "VARCHAR(120) NOT NULL DEFAULT ''",
                 "independent_experiment_group_id": "VARCHAR(160) NOT NULL DEFAULT ''",
                 "qualification_json": "JSON NOT NULL DEFAULT '{}'",
+                "lifecycle_status": "VARCHAR(40) NOT NULL DEFAULT 'ACTIVE'",
+                "revision_number": "INTEGER NOT NULL DEFAULT 1",
+                "supersedes_evidence_id": "INTEGER",
+                "updated_at": "DATETIME",
             }.items():
                 if name not in evidence_columns:
                     connection.execute(text(f"ALTER TABLE external_experimental_evidence ADD COLUMN {name} {definition}"))
             # Existing rows were created only by the explicit import endpoint;
             # preserve that meaning when the lifecycle columns are introduced.
             connection.execute(text("UPDATE external_experimental_evidence SET evidence_state='EXTERNAL_IMPORTED' WHERE evidence_state IS NULL OR trim(evidence_state)=''"))
+            connection.execute(text("UPDATE external_experimental_evidence SET lifecycle_status='ACTIVE' WHERE lifecycle_status IS NULL OR trim(lifecycle_status)=''"))
             connection.execute(text("UPDATE external_experimental_evidence SET first_seen_at=COALESCE(first_seen_at, imported_at), last_seen_at=COALESCE(last_seen_at, imported_at)"))
         if "experimental_search_runs" in tables:
             search_columns = {row["name"] for row in inspector.get_columns("experimental_search_runs")}

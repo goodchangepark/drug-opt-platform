@@ -79,6 +79,7 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
 from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, ExperimentalSearchRun, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
+from .evidence_capture import entry_options, save_internal_evidence
 from .pk import PKNCAResult, PKObservation, PKStudy, ensure_pk_schema, register_pk_routes
 from .ivive import (IVIVEInputSet, IVIVEMethodRegistry, IVIVERun, PKParameterSet, PhysiologicalParameterOverride,
                     ensure_ivive_schema, register_ivive_routes, get_multi_species_pk_profile,
@@ -114,7 +115,7 @@ from .project_adaptation_v2 import (ADAPTER_POLICY_VERSION, ENGINE_V1_HASH, ENGI
 from .project_adaptation_strategy import fit_project_adaptation_strategy
 from .project_learning_curve import build_learning_curve
 from .project_learning import (ledger_out, project_learning_summary,
-                               record_external_evidence_pair, record_internal_measurement_pair)
+                               record_canonical_evidence_pair, record_external_evidence_pair, record_internal_measurement_pair)
 from .prediction_maturity import maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 from .endpoint_comparison import (build_endpoint_comparison, ensure_admet_prediction_snapshot_index,
@@ -1711,6 +1712,75 @@ def import_external_experimental_data(row_id: int, payload: dict, db: Session = 
 @app.get("/api/evidence/display-contract")
 def experimental_display_contract():
     return contract_report()
+
+
+@app.get("/api/experimental-entry-options")
+def experimental_entry_options():
+    """Versioned canonical metadata for the manual evidence form."""
+    return entry_options()
+
+
+def _manual_evidence_out(row: ExternalExperimentalEvidence) -> dict:
+    return {"id": row.id, "revision": row.revision_number, "lifecycle_status": row.lifecycle_status,
+            "supersedes_evidence_id": row.supersedes_evidence_id, "origin": row.evidence_state,
+            "canonical_endpoint_id": row.canonical_endpoint_id, "raw_endpoint": row.raw_endpoint_name,
+            "raw_value": row.raw_value, "raw_unit": row.raw_unit, "normalized_value": row.normalized_value,
+            "normalized_unit": row.normalized_unit, "comparability_status": row.comparability_status,
+            "qualification": row.qualification_json or {}, "created_at": row.imported_at.isoformat() if row.imported_at else None,
+            "updated_at": row.updated_at.isoformat() if row.updated_at else None}
+
+
+@app.post("/api/projects/{project_id}/compounds/{compound_id}/experimental", status_code=201)
+def create_manual_experimental_evidence(project_id: int, compound_id: int, payload: dict, db: Session = Depends(get_db)):
+    """Transactional manual capture into the canonical evidence layer."""
+    try:
+        row = save_internal_evidence(db, project_id, compound_id, payload)
+        compound = db.get(Compound, compound_id)
+        if not compound:
+            raise HTTPException(status_code=404, detail="Compound not found")
+        # Pairing is best-effort evidence lifecycle work, never a reason to
+        # rewrite a pre-existing prediction.  It is persisted in the same
+        # transaction, so a successful response cannot be frontend-only.
+        pair = record_canonical_evidence_pair(db, project_id, row)
+        db.commit()
+        db.refresh(row)
+        version = next(item for item in compound.versions if item.version_number == compound.current_version)
+        return {"saved": True, "evidence": _manual_evidence_out(row),
+                "pair_created": bool(pair), "scientific_comparison": build_endpoint_comparison(db, version.id)}
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=400, detail=f"Experimental evidence was not saved: {exc}")
+
+
+@app.patch("/api/projects/{project_id}/compounds/{compound_id}/experimental/{evidence_id}")
+def revise_manual_experimental_evidence(project_id: int, compound_id: int, evidence_id: int, payload: dict, db: Session = Depends(get_db)):
+    existing = db.get(ExternalExperimentalEvidence, evidence_id)
+    if not existing or existing.evidence_state != "INTERNAL_EXPERIMENTAL":
+        raise HTTPException(status_code=404, detail="Internal experimental evidence not found")
+    try:
+        row = save_internal_evidence(db, project_id, compound_id, payload, supersedes=existing)
+        pair = record_canonical_evidence_pair(db, project_id, row)
+        db.commit(); db.refresh(row)
+        return {"saved": True, "evidence": _manual_evidence_out(row), "pair_created": bool(pair), "superseded_evidence_id": existing.id}
+    except HTTPException:
+        db.rollback(); raise
+    except Exception as exc:
+        db.rollback(); raise HTTPException(status_code=400, detail=f"Experimental evidence revision was not saved: {exc}")
+
+
+@app.delete("/api/projects/{project_id}/compounds/{compound_id}/experimental/{evidence_id}")
+def invalidate_manual_experimental_evidence(project_id: int, compound_id: int, evidence_id: int, db: Session = Depends(get_db)):
+    row = db.get(ExternalExperimentalEvidence, evidence_id)
+    compound = db.get(Compound, compound_id)
+    if not row or not compound or compound.project_id != project_id or row.compound_version_id not in {item.id for item in compound.versions} or row.evidence_state != "INTERNAL_EXPERIMENTAL":
+        raise HTTPException(status_code=404, detail="Internal experimental evidence not found")
+    row.lifecycle_status = "INVALIDATED"
+    row.routing_reason = "Invalidated by user"
+    db.commit()
+    return {"invalidated": True, "evidence_id": row.id, "lifecycle_status": row.lifecycle_status}
 
 
 @app.get("/api/evidence/canonical-endpoints")
