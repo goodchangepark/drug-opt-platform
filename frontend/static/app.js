@@ -1223,28 +1223,47 @@ function integratedProfile(versionId){
    }))
   ]));
  }
+ function scientificReviewRow(row){
+  return row.semantic_status==='NEEDS_REVIEW'||row.qualification_status==='CONTEXT_NOT_QUALIFIED';
+ }
+ function scientificReviewQueue(rows){
+  if(!rows.length)return null;
+  const reasons={};
+  rows.forEach(row=>{const reason=row.unmatched_reason||'Context requires review';(reasons[reason]??=[]).push(row);});
+  return e('details',{className:'scientific-review-queue',key:'review-queue'},[
+   e('summary',{},'Evidence Requiring Review ('+rows.length+' scientific rows)'),
+   e('p',{className:'small'},'These persisted observations remain available with provenance, but are excluded from primary comparison tables until a required scientific context is resolved.'),
+   ...Object.entries(reasons).map(([reason,items])=>e('section',{key:reason},[
+    e('h4',{},reason+' ('+items.length+')'),e(ScientificResultTable,{rows:items,pk:items.some(item=>item.section==='PK')})
+   ]))
+  ]);
+ }
  function routedEvidenceSection(section,title){
   const canonical=workspace?.endpoint_comparison||{};
   const scientificRows=(canonical.scientific_rows||[]).filter(row=>row.section===section);
   if(!scientificRows.length)return null;
-  const observationCount=scientificRows.reduce((n,row)=>n+(row.experimental_observations||[]).length,0);
+  const reviewRows=scientificRows.filter(scientificReviewRow);
+  const primaryRows=scientificRows.filter(row=>!scientificReviewRow(row));
+  const observationCount=primaryRows.reduce((n,row)=>n+(row.experimental_observations||[]).length,0);
   if(section==='PK'){
    const species=['HUMAN','RAT','MOUSE','DOG','MONKEY','OTHER','UNSPECIFIED'];
    return e('section',{className:'card routed-evidence-section scientific-pk-results',key:'routed-PK'},[
-    e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},'PK'),e('h3',{},'Species-context PK comparison'),e('p',{className:'small'},'One scientific row per species, parameter, and compatible context. Historical snapshots remain available in prediction history.')]),e('span',{className:'badge-intermediate'},scientificRows.length+' rows · '+observationCount+' observations')]),
-    ...species.filter(speciesName=>scientificRows.some(row=>row.species===speciesName)).map(speciesName=>e('section',{className:'scientific-pk-species',key:speciesName},[
+    e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},'PK'),e('h3',{},'Species-context PK comparison'),e('p',{className:'small'},'One scientific row per species, parameter, and compatible context. Historical snapshots remain available in prediction history.')]),e('span',{className:'badge-intermediate'},primaryRows.length+' rows · '+observationCount+' observations')]),
+    ...species.filter(speciesName=>primaryRows.some(row=>row.species===speciesName)).map(speciesName=>e('section',{className:'scientific-pk-species',key:speciesName},[
      e('h4',{},speciesName==='HUMAN'?'Human Clinical PK':(speciesName==='UNSPECIFIED'?'Other / needs-review PK':speciesName[0]+speciesName.slice(1).toLowerCase()+' PK')),
-     e(ScientificResultTable,{rows:scientificRows.filter(row=>row.species===speciesName),pk:true})
+     e(ScientificResultTable,{rows:primaryRows.filter(row=>row.species===speciesName),pk:true})
     ])),
+    scientificReviewQueue(reviewRows),
     e('p',{className:'small'},'A dash means no validated Drug-OPT prediction for the exact context. No route, dose, species, or analyte match is inferred by the browser.')
    ]);
   }
-  const special=section==='METABOLISM'?scientificRows.filter(row=>row.group==='PREDICTED METABOLISM'||row.group==='OBSERVED METABOLITES'||row.group==='EXCRETION / MASS BALANCE'):[];
-  const primary=section==='METABOLISM'?scientificRows.filter(row=>!special.includes(row)):scientificRows;
+  const special=section==='METABOLISM'?primaryRows.filter(row=>row.group==='PREDICTED METABOLISM'||row.group==='OBSERVED METABOLITES'||row.group==='EXCRETION / MASS BALANCE'):[];
+  const primary=section==='METABOLISM'?primaryRows.filter(row=>!special.includes(row)):primaryRows;
   return e('section',{className:'card routed-evidence-section',key:'routed-'+section},[
-   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title),e('p',{className:'small'},'Persisted scientific results; matching and qualification are resolved by the backend contract.')]),e('span',{className:'badge-intermediate'},scientificRows.length+' rows · '+observationCount+' observations')]),
+   e('div',{className:'row toolbar',key:'heading'},[e('div',{},[e('div',{className:'eyebrow'},section),e('h3',{},title),e('p',{className:'small'},'Persisted scientific results; matching and qualification are resolved by the backend contract.')]),e('span',{className:'badge-intermediate'},primaryRows.length+' rows · '+observationCount+' observations')]),
    e(ScientificResultTable,{rows:primary}),
    section==='METABOLISM'&&special.length>0&&e('section',{className:'scientific-metabolism-special',key:'special'},[e('h4',{},'Observed metabolism, excretion & predicted hypotheses'),e(ScientificResultTable,{rows:special})]),
+   scientificReviewQueue(reviewRows),
    e('p',{className:'small'},'Raw source values remain preserved; units, study context, qualification, and references are available in the observation details; no aggregate value is used for adaptation.')
   ]);
  }

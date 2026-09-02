@@ -30,7 +30,7 @@ def test_platform_version_and_history():
     stage5b4_entries = [entry for entry in vh if "Stage 5B-4 Refinement" in entry["stage"]]
     assert len(stage5b4_entries) > 0
     assert ("Unified Prediction Workflow" in stage5b4_entries[-1]["milestone"] or "Dashboard Redesign" in stage5b4_entries[-1]["milestone"])
-    assert vh[-1]["version"] == "v4.3"
+    assert vh[-1]["version"] == "v4.4"
 
 
 def test_api_health_endpoint():

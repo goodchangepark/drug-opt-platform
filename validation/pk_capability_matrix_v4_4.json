@@ -1,0 +1,81 @@
+{
+  "matrix": {
+    "DOG": {
+      "AUC0-inf": "NOT_IMPLEMENTED",
+      "AUC0-t": "NOT_IMPLEMENTED",
+      "AUCtau": "NOT_IMPLEMENTED",
+      "CL": "CURRENT_RESEARCH_ONLY",
+      "CL/F": "NOT_IMPLEMENTED",
+      "Cmax": "NOT_IMPLEMENTED",
+      "F": "NOT_IMPLEMENTED",
+      "Tmax": "NOT_IMPLEMENTED",
+      "Vd": "CURRENT_RESEARCH_ONLY",
+      "Vd/F": "NOT_IMPLEMENTED",
+      "Vss": "NOT_IMPLEMENTED",
+      "ka": "NOT_IMPLEMENTED",
+      "t1/2": "CURRENT_RESEARCH_ONLY"
+    },
+    "HUMAN": {
+      "AUC0-inf": "NOT_IMPLEMENTED",
+      "AUC0-t": "NOT_IMPLEMENTED",
+      "AUCtau": "NOT_IMPLEMENTED",
+      "CL": "CURRENT_RESEARCH_ONLY",
+      "CL/F": "NOT_IMPLEMENTED",
+      "Cmax": "NOT_IMPLEMENTED",
+      "F": "NOT_IMPLEMENTED",
+      "Tmax": "NOT_IMPLEMENTED",
+      "Vd": "CURRENT_RESEARCH_ONLY",
+      "Vd/F": "NOT_IMPLEMENTED",
+      "Vss": "NOT_IMPLEMENTED",
+      "ka": "NOT_IMPLEMENTED",
+      "t1/2": "CURRENT_RESEARCH_ONLY"
+    },
+    "MONKEY": {
+      "AUC0-inf": "NOT_IMPLEMENTED",
+      "AUC0-t": "NOT_IMPLEMENTED",
+      "AUCtau": "NOT_IMPLEMENTED",
+      "CL": "CURRENT_RESEARCH_ONLY",
+      "CL/F": "NOT_IMPLEMENTED",
+      "Cmax": "NOT_IMPLEMENTED",
+      "F": "NOT_IMPLEMENTED",
+      "Tmax": "NOT_IMPLEMENTED",
+      "Vd": "CURRENT_RESEARCH_ONLY",
+      "Vd/F": "NOT_IMPLEMENTED",
+      "Vss": "NOT_IMPLEMENTED",
+      "ka": "NOT_IMPLEMENTED",
+      "t1/2": "CURRENT_RESEARCH_ONLY"
+    },
+    "MOUSE": {
+      "AUC0-inf": "NOT_IMPLEMENTED",
+      "AUC0-t": "NOT_IMPLEMENTED",
+      "AUCtau": "NOT_IMPLEMENTED",
+      "CL": "CURRENT_RESEARCH_ONLY",
+      "CL/F": "NOT_IMPLEMENTED",
+      "Cmax": "NOT_IMPLEMENTED",
+      "F": "NOT_IMPLEMENTED",
+      "Tmax": "NOT_IMPLEMENTED",
+      "Vd": "CURRENT_RESEARCH_ONLY",
+      "Vd/F": "NOT_IMPLEMENTED",
+      "Vss": "NOT_IMPLEMENTED",
+      "ka": "NOT_IMPLEMENTED",
+      "t1/2": "CURRENT_RESEARCH_ONLY"
+    },
+    "RAT": {
+      "AUC0-inf": "NOT_IMPLEMENTED",
+      "AUC0-t": "NOT_IMPLEMENTED",
+      "AUCtau": "NOT_IMPLEMENTED",
+      "CL": "CURRENT_RESEARCH_ONLY",
+      "CL/F": "NOT_IMPLEMENTED",
+      "Cmax": "NOT_IMPLEMENTED",
+      "F": "NOT_IMPLEMENTED",
+      "Tmax": "NOT_IMPLEMENTED",
+      "Vd": "CURRENT_RESEARCH_ONLY",
+      "Vd/F": "NOT_IMPLEMENTED",
+      "Vss": "NOT_IMPLEMENTED",
+      "ka": "NOT_IMPLEMENTED",
+      "t1/2": "CURRENT_RESEARCH_ONLY"
+    }
+  },
+  "pk_engine_version": "drugopt-pk-engine-v1",
+  "policy": "No endpoint is production-supported without an independent public benchmark."
+}

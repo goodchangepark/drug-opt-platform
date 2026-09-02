@@ -1,0 +1,18 @@
+{
+  "insufficient_validation": [
+    "Human CL",
+    "Human Vd",
+    "Human Cmax",
+    "Human AUC",
+    "Human Tmax",
+    "Oral F"
+  ],
+  "pk_engine_version": "drugopt-pk-engine-v1",
+  "production_supported": [],
+  "research_only": [
+    "one_compartment_experiment_informed"
+  ],
+  "unavailable": [
+    "structure_only human Cmax/AUC/Tmax"
+  ]
+}

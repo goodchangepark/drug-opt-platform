@@ -386,6 +386,13 @@ VERSION_HISTORY = [
         "milestone": "Final Scientific Results & PK Comparison",
         "improvements": "Cleaner project-learning overview, normalized experimental-to-prediction scientific rows, measurement-type-aware metabolism presentation, species/context-specific PK comparison, and regulatory clinical-PK context qualification.",
     },
+    {
+        "version": "v4.4",
+        "release_date": "2026-09-02",
+        "stage": "PK validation milestone",
+        "milestone": "Verified PK Prediction & Benchmark",
+        "improvements": "Fail-closed versioned PK prediction contract, explicit input provenance, benchmark validation gates, and a separate evidence-review queue. No unbenchmarked PK endpoint is presented as production-supported.",
+    },
 ]
 
 

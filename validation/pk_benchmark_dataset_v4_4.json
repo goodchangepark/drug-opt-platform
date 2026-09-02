@@ -1,0 +1,11 @@
+{
+  "reason": "No versioned, context-complete 20-compound PK set was available in this repository; no values were fabricated or scraped into a benchmark.",
+  "records": [],
+  "sources": [
+    "FDA regulatory labels/reviews (per-observation source)",
+    "Douguet 2018 PMID:29541361",
+    "Sakaeda 2001 PMID:11510489",
+    "Obach 2018 PMID:30115648"
+  ],
+  "status": "NO_DEFENSIBLE_MACHINE_READABLE_PUBLIC_BENCHMARK_CURATED"
+}

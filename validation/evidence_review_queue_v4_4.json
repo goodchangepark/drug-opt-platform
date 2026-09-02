@@ -1,0 +1,3422 @@
+{
+  "by_reason": {
+    "DOSE_MISSING": 29,
+    "ENDPOINT_UNRESOLVED": 5,
+    "Hepatocyte Clint is not HLM Clint": 3,
+    "NO_CURRENT_PREDICTION_ENDPOINT": 4,
+    "NUMERIC_PARSE": 105,
+    "ROUTE_MISSING": 62,
+    "UNIT_UNSUPPORTED": 5
+  },
+  "count": 213,
+  "items": [
+    {
+      "id": 44,
+      "raw_endpoint": "Hepatocyte",
+      "raw_value": "03",
+      "reason": "Hepatocyte Clint is not HLM Clint",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2652",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 97,
+      "raw_endpoint": "CYP3A",
+      "raw_value": "38.8",
+      "reason": "Hepatocyte Clint is not HLM Clint",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13673",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 129,
+      "raw_endpoint": "CLH",
+      "raw_value": "2.77",
+      "reason": "NO_CURRENT_PREDICTION_ENDPOINT",
+      "reference": {
+        "document_id": "CHEMBL5365460",
+        "page": null,
+        "reference": "ChEMBL 25638203 \u00b7 CHEMBL5365460",
+        "section": null,
+        "source": "ChEMBL",
+        "source_record_id": "25638203",
+        "table": null,
+        "url": "https://www.ebi.ac.uk/chembl/explore/activities/25638203"
+      }
+    },
+    {
+      "id": 470,
+      "raw_endpoint": "Hepatocyte",
+      "raw_value": "03",
+      "reason": "Hepatocyte Clint is not HLM Clint",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2653",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 21,
+      "raw_endpoint": "Cmax",
+      "raw_value": "1.21",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1603",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 442,
+      "raw_endpoint": "Cmax",
+      "raw_value": "1.21",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1604",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 54,
+      "raw_endpoint": "clearance",
+      "raw_value": "89",
+      "reason": "UNIT_UNSUPPORTED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5083",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 478,
+      "raw_endpoint": "clearance",
+      "raw_value": "89",
+      "reason": "UNIT_UNSUPPORTED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5084",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 71,
+      "raw_endpoint": "tmax",
+      "raw_value": "7",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5473",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 22,
+      "raw_endpoint": "Cmax",
+      "raw_value": "1.21",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1605",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 424,
+      "raw_endpoint": "AUC",
+      "raw_value": "45",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L577",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 35,
+      "raw_endpoint": "Cmax",
+      "raw_value": "39.6",
+      "reason": "UNIT_UNSUPPORTED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2457",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 36,
+      "raw_endpoint": "Cmax",
+      "raw_value": "5",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2492",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 38,
+      "raw_endpoint": "Cmax",
+      "raw_value": "51.1",
+      "reason": "UNIT_UNSUPPORTED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2501",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 480,
+      "raw_endpoint": "Cmax",
+      "raw_value": "38",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5131",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 484,
+      "raw_endpoint": "Cmax",
+      "raw_value": "23",
+      "reason": "UNIT_UNSUPPORTED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5158",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 6,
+      "raw_endpoint": "Cmax",
+      "raw_value": "50",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L581",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 20,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1599",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 55,
+      "raw_endpoint": "Cmax",
+      "raw_value": "36",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5110",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 58,
+      "raw_endpoint": "Cmax",
+      "raw_value": "24",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5133",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 59,
+      "raw_endpoint": "Cmax",
+      "raw_value": "41",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5164",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 68,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60.7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5467",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 72,
+      "raw_endpoint": "Cmax",
+      "raw_value": "90",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5481",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 118,
+      "raw_endpoint": "Cmax",
+      "raw_value": "3.2",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L14032",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 426,
+      "raw_endpoint": "Cmax",
+      "raw_value": "50",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L582",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 440,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1600",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 441,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1601",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 481,
+      "raw_endpoint": "Cmax",
+      "raw_value": "38",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5132",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 486,
+      "raw_endpoint": "Cmax",
+      "raw_value": "36",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5160",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 492,
+      "raw_endpoint": "Cmax",
+      "raw_value": "40",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5229",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 501,
+      "raw_endpoint": "Cmax",
+      "raw_value": "42",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5453",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 502,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60.7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5468",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 504,
+      "raw_endpoint": "Cmax",
+      "raw_value": "50",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5476",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 110,
+      "raw_endpoint": "CL/F",
+      "raw_value": "50",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13952",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 538,
+      "raw_endpoint": "CL/F",
+      "raw_value": "50",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13953",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 539,
+      "raw_endpoint": "CL/F",
+      "raw_value": "50",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13954",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 457,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "39.6",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2426",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 458,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "39.6",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2427",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 459,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "39.6",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2428",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 463,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "39.6",
+      "reason": "NO_CURRENT_PREDICTION_ENDPOINT",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2455",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 464,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "39.6",
+      "reason": "NO_CURRENT_PREDICTION_ENDPOINT",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2456",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 467,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "51.1",
+      "reason": "NO_CURRENT_PREDICTION_ENDPOINT",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2500",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 31,
+      "raw_endpoint": "bioavailability",
+      "raw_value": "39.6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2331",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 32,
+      "raw_endpoint": "half-life",
+      "raw_value": "7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2334",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 103,
+      "raw_endpoint": "half-life",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13805",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 455,
+      "raw_endpoint": "half-life",
+      "raw_value": "7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2335",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 456,
+      "raw_endpoint": "half-life",
+      "raw_value": "7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2336",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 39,
+      "raw_endpoint": "tmax",
+      "raw_value": "5",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2514",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 468,
+      "raw_endpoint": "tmax",
+      "raw_value": "5",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2515",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 30,
+      "raw_endpoint": "tmax",
+      "raw_value": "4",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2328",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 453,
+      "raw_endpoint": "tmax",
+      "raw_value": "4",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2329",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 454,
+      "raw_endpoint": "tmax",
+      "raw_value": "4",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2330",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 4,
+      "raw_endpoint": "tmax",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L578",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 425,
+      "raw_endpoint": "tmax",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L579",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 431,
+      "raw_endpoint": "AUC",
+      "raw_value": "10",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L593",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 3,
+      "raw_endpoint": "AUC",
+      "raw_value": "45",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L575",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 5,
+      "raw_endpoint": "AUC",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L580",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 46,
+      "raw_endpoint": "AUC",
+      "raw_value": "1",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L4246",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 47,
+      "raw_endpoint": "AUC",
+      "raw_value": "24",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L4248",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 49,
+      "raw_endpoint": "AUC",
+      "raw_value": "2",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L4377",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 423,
+      "raw_endpoint": "AUC",
+      "raw_value": "45",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L576",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 471,
+      "raw_endpoint": "AUC",
+      "raw_value": "1",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L4247",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 472,
+      "raw_endpoint": "AUC",
+      "raw_value": "2",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L4378",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 473,
+      "raw_endpoint": "AUC",
+      "raw_value": "24",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L4379",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 511,
+      "raw_endpoint": "AUC",
+      "raw_value": "45",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12112",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 465,
+      "raw_endpoint": "Cmax",
+      "raw_value": "5",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2493",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 466,
+      "raw_endpoint": "Cmax",
+      "raw_value": "5",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2494",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 56,
+      "raw_endpoint": "Cmax",
+      "raw_value": "32",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5124",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 66,
+      "raw_endpoint": "Cmax",
+      "raw_value": "42",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5452",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 92,
+      "raw_endpoint": "Cmax",
+      "raw_value": "21",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13660",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 448,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2233",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 449,
+      "raw_endpoint": "Cmax",
+      "raw_value": "60",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L2234",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 479,
+      "raw_endpoint": "Cmax",
+      "raw_value": "36",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5111",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 487,
+      "raw_endpoint": "Cmax",
+      "raw_value": "36",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5161",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 488,
+      "raw_endpoint": "Cmax",
+      "raw_value": "41",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5165",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 505,
+      "raw_endpoint": "Cmax",
+      "raw_value": "90",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5482",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 84,
+      "raw_endpoint": "CL/F",
+      "raw_value": "95",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12289",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 111,
+      "raw_endpoint": "CL/F",
+      "raw_value": "27.9",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13955",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 112,
+      "raw_endpoint": "CL/F",
+      "raw_value": "45",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13956",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 520,
+      "raw_endpoint": "CL/F",
+      "raw_value": "95",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12324",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 521,
+      "raw_endpoint": "CL/F",
+      "raw_value": "95",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12325",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 7,
+      "raw_endpoint": "volume of distribution",
+      "raw_value": "2,116",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L584",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 427,
+      "raw_endpoint": "volume of distribution",
+      "raw_value": "2,116",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L585",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 428,
+      "raw_endpoint": "volume of distribution",
+      "raw_value": "2,116",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L586",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 69,
+      "raw_endpoint": "Bioavailability",
+      "raw_value": "50.1",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5470",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 99,
+      "raw_endpoint": "clearance",
+      "raw_value": "36",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13678",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 9,
+      "raw_endpoint": "half-life",
+      "raw_value": "50",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L588",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 429,
+      "raw_endpoint": "half-life",
+      "raw_value": "50",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L589",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 8,
+      "raw_endpoint": "half-life",
+      "raw_value": "89",
+      "reason": "DOSE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_LABEL",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:82754:L587",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 26,
+      "raw_endpoint": "half-life",
+      "raw_value": "47",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1716",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 88,
+      "raw_endpoint": "half-life",
+      "raw_value": "57.3",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12635",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 443,
+      "raw_endpoint": "half-life",
+      "raw_value": "47",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1717",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 444,
+      "raw_endpoint": "half-life",
+      "raw_value": "47",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L1718",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 508,
+      "raw_endpoint": "half-life",
+      "raw_value": "50",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L11154",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 509,
+      "raw_endpoint": "half-life",
+      "raw_value": "50",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L11155",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 510,
+      "raw_endpoint": "half-life",
+      "raw_value": "50",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L11156",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 523,
+      "raw_endpoint": "half-life",
+      "raw_value": "57.3",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12636",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 524,
+      "raw_endpoint": "half-life",
+      "raw_value": "57.3",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L12637",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 70,
+      "raw_endpoint": "tmax",
+      "raw_value": "7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5471",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 503,
+      "raw_endpoint": "tmax",
+      "raw_value": "7",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L5472",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 532,
+      "raw_endpoint": "Tmax",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13802",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 533,
+      "raw_endpoint": "Tmax",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13803",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 534,
+      "raw_endpoint": "Tmax",
+      "raw_value": "6",
+      "reason": "ROUTE_MISSING",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L13804",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 117,
+      "raw_endpoint": "CYP2D6",
+      "raw_value": "3.2",
+      "reason": "ENDPOINT_UNRESOLVED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L14030",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 119,
+      "raw_endpoint": "CYP2D6",
+      "raw_value": "25",
+      "reason": "ENDPOINT_UNRESOLVED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L14045",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 132,
+      "raw_endpoint": "Ratio",
+      "raw_value": "0.85",
+      "reason": "ENDPOINT_UNRESOLVED",
+      "reference": {
+        "document_id": "CHEMBL6121053",
+        "page": null,
+        "reference": "ChEMBL 29225362 \u00b7 CHEMBL6121053",
+        "section": null,
+        "source": "ChEMBL",
+        "source_record_id": "29225362",
+        "table": null,
+        "url": "https://www.ebi.ac.uk/chembl/explore/activities/29225362"
+      }
+    },
+    {
+      "id": 317,
+      "raw_endpoint": "BioAssay",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PubChem AID ",
+        "section": null,
+        "source": "PubChem BioAssay",
+        "source_record_id": "AID::CID:139377809",
+        "table": null,
+        "url": "https://pubchem.ncbi.nlm.nih.gov/bioassay/"
+      }
+    },
+    {
+      "id": 318,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41742823",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41742823",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 319,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41897316",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41897316",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 320,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41700896",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41700896",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 321,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42154197",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42154197",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 322,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42186262",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42186262",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 323,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42123300",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42123300",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 324,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42052191",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42052191",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 325,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40858103",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40858103",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 326,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41837169",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41837169",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 327,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41799114",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41799114",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 328,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38511563",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38511563",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 329,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42100320",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42100320",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 330,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 36568522",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "36568522",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 331,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41694159",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41694159",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 332,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41807809",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41807809",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 333,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41976235",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41976235",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 334,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40334661",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40334661",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 335,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41380312",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41380312",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 336,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40371155",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40371155",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 337,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41587611",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41587611",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 338,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39473122",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39473122",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 339,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41212379",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41212379",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 340,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "DOI: ",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "PMC11875462",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 341,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42212913",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42212913",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 342,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42179048",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42179048",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 343,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42079859",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42079859",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 344,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41054700",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41054700",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 345,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42123494",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42123494",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 346,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41816478",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41816478",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 347,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41964727",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41964727",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 348,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41683395",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41683395",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 349,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41584508",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41584508",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 350,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41722572",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41722572",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 351,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40618881",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40618881",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 352,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40782807",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40782807",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 353,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41736521",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41736521",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 354,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42180980",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42180980",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 355,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41578514",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41578514",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 356,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42352924",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42352924",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 357,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41373464",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41373464",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 358,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42198421",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42198421",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 359,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39647463",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39647463",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 360,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38892105",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38892105",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 361,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41499692",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41499692",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 362,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40923280",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40923280",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 363,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39143613",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39143613",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 364,
+      "raw_endpoint": "Supplementary file",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMCID: PMC11323653 \u00b7 DOI: 10.1186/s12967-024-05522-y",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "PMC11323653:SUP:46",
+        "table": null,
+        "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11323653/bin/12967_2024_Article_5522.pdf"
+      }
+    },
+    {
+      "id": 365,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 35404393",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "35404393",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 366,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41613789",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41613789",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 367,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38919530",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38919530",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 368,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40988453",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40988453",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 369,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39417568",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39417568",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 370,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40465424",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40465424",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 371,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38924456",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38924456",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 372,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40153991",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40153991",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 373,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41373672",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41373672",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 374,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39374568",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39374568",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 375,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41822907",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41822907",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 376,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37669923",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37669923",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 377,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39980520",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39980520",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 378,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38774882",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38774882",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 379,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41889421",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41889421",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 380,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41470036",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41470036",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 381,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39670018",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39670018",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 382,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40993146",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40993146",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 383,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41234561",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41234561",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 384,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38611728",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38611728",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 385,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40394562",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40394562",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 386,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39941723",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39941723",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 387,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38229766",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38229766",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 388,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38611009",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38611009",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 389,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39179992",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39179992",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 390,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37962831",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37962831",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 391,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37577308",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37577308",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 392,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42291349",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42291349",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 393,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37795778",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37795778",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 394,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38101437",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38101437",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 395,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41686417",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41686417",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 396,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40034596",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40034596",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 397,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40951918",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40951918",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 398,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39522047",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39522047",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 399,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39471218",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39471218",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 400,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 42170297",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "42170297",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 401,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40691459",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40691459",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 402,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37666482",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37666482",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 403,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 36756143",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "36756143",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 404,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38705930",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38705930",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 405,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39499485",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39499485",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 406,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39138146",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39138146",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 407,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41779981",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41779981",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 408,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40751250",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40751250",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 409,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37592034",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37592034",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 410,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39697713",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39697713",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 411,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40517166",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40517166",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 412,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 38938224",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "38938224",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 413,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 40836025",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "40836025",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 414,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 36508072",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "36508072",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 415,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 39582541",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "39582541",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 416,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37277579",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37277579",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 417,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37004599",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37004599",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 418,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 37879869",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "37879869",
+        "table": null,
+        "url": ""
+      }
+    },
+    {
+      "id": 419,
+      "raw_endpoint": "Regulatory document",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 Label",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:DOC:82754",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/219839s000lbl.pdf"
+      }
+    },
+    {
+      "id": 437,
+      "raw_endpoint": "Regulatory review",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 542,
+      "raw_endpoint": "CYP2D6",
+      "raw_value": "3.2",
+      "reason": "ENDPOINT_UNRESOLVED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L14031",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 543,
+      "raw_endpoint": "CYP2D6",
+      "raw_value": "25",
+      "reason": "ENDPOINT_UNRESOLVED",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "Drugs@FDA NDA219839 \u00b7 FDA_MULTIDISCIPLINARY_REVIEW",
+        "section": null,
+        "source": "FDA / Regulatory",
+        "source_record_id": "NDA219839:MultidisciplineR.pdf:L14046",
+        "table": null,
+        "url": "https://www.accessdata.fda.gov/drugsatfda_docs/nda/2025/219839Orig1s000MultidisciplineR.pdf"
+      }
+    },
+    {
+      "id": 554,
+      "raw_endpoint": "Literature candidate",
+      "raw_value": "",
+      "reason": "NUMERIC_PARSE",
+      "reference": {
+        "document_id": "",
+        "page": null,
+        "reference": "PMID: 41559619",
+        "section": null,
+        "source": "Europe PMC",
+        "source_record_id": "41559619",
+        "table": null,
+        "url": ""
+      }
+    }
+  ]
+}

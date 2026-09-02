@@ -1,0 +1,22 @@
+{
+  "clinical": {
+    "AUC": {
+      "context": "Human oral 200 mg/day",
+      "unit": "ng*h/mL",
+      "value": 8060
+    },
+    "Cmax": {
+      "context": "Human oral 200 mg",
+      "unit": "ng/mL",
+      "value": 412
+    },
+    "Tmax": {
+      "context": "Human oral",
+      "unit": "h",
+      "value": 7
+    }
+  },
+  "invalid_f_100_percent_absent": true,
+  "no_fabricated_predictions": true,
+  "pk_engine_status": "INSUFFICIENT_INPUT"
+}
