@@ -134,26 +134,54 @@ def resolve_route_v51(context_text: str) -> str:
     return "UNSPECIFIED"
 
 
-def resolve_dose_and_regimen_v51(context_text: str) -> Tuple[Optional[float], str, str]:
-    """Extract dose magnitude, dose unit, and regimen."""
+def resolve_dose_and_regimen_v51(context_text: str, conds: Optional[dict] = None) -> Tuple[Optional[float], str, str, Optional[int]]:
+    """Extract dose magnitude, dose unit, regimen, and study day."""
     s = context_text.lower()
     regimen = "UNSPECIFIED"
-    if re.search(r"\b(steady[- ]state|multiple dose|repeated|qd\b|bid\b|tid\b|once daily|twice daily|daily)\b", s):
+    day = None
+    if conds and conds.get("day") is not None:
+        try:
+            day = int(conds["day"])
+        except (ValueError, TypeError):
+            pass
+
+    if day is None:
+        m_day = re.search(r"\bday\s*(\d+)\b", s)
+        if m_day:
+            try:
+                day = int(m_day.group(1))
+            except ValueError:
+                pass
+
+    if day is not None:
+        if day == 1:
+            regimen = "DAY_1_SINGLE_DOSE"
+        elif day > 1:
+            regimen = f"DAY_{day}_STEADY_STATE"
+    elif re.search(r"\b(steady[- ]state|multiple dose|repeated|qd\b|bid\b|tid\b|once daily|twice daily|daily)\b", s):
         regimen = "MULTIPLE_DOSE"
     elif re.search(r"\b(single dose|single oral|single iv|single administration)\b", s):
         regimen = "SINGLE_DOSE"
 
     dose_val = None
     dose_unit = ""
-    m_dose = re.search(r"(\d+(?:\.\d+)?)\s*(mg/kg|mg|ug/kg|µg/kg|g/kg|mg/m2|mg/day)", s)
-    if m_dose:
+    if conds and conds.get("dose") is not None:
         try:
-            dose_val = float(m_dose.group(1))
-            dose_unit = m_dose.group(2)
-        except ValueError:
+            dose_val = float(conds["dose"])
+            dose_unit = str(conds.get("dose_unit") or "")
+        except (ValueError, TypeError):
             pass
+
+    if dose_val is None:
+        m_dose = re.search(r"(\d+(?:\.\d+)?)\s*(mg/kg|mg|ug/kg|µg/kg|g/kg|mg/m2|mg/day)", s)
+        if m_dose:
+            try:
+                dose_val = float(m_dose.group(1))
+                dose_unit = m_dose.group(2)
+            except ValueError:
+                pass
             
-    return dose_val, dose_unit, regimen
+    return dose_val, dose_unit, regimen, day
 
 
 def resolve_analyte_v51(raw_endpoint: str, context_text: str) -> str:
@@ -205,21 +233,22 @@ class QualificationDecision:
     regimen: str
     analyte: str
     target_context: str
+    day: Optional[int] = None
     
     # Values
-    raw_value: str
-    raw_unit: str
-    normalized_value: Optional[float]
-    normalized_unit: str
-    normalization_rule: str
+    raw_value: str = ""
+    raw_unit: str = ""
+    normalized_value: Optional[float] = None
+    normalized_unit: str = ""
+    normalization_rule: str = ""
     
     # Lifecycle
-    evidence_state: str
-    qualification_status: str
-    comparability_status: str
-    unresolved_reason: str
-    qualification_rule: str
-    displayed: bool
+    evidence_state: str = "REVIEW_REQUIRED"
+    qualification_status: str = "ENDPOINT_NOT_QUALIFIED"
+    comparability_status: str = "UNSUPPORTED"
+    unresolved_reason: str = ""
+    qualification_rule: str = ""
+    displayed: bool = False
 
 
 def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
@@ -265,7 +294,7 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
     # Resolve context entities
     species = resolve_species_v51(raw_species, full_context, source_db)
     route = resolve_route_v51(full_context)
-    dose_val, dose_unit, regimen = resolve_dose_and_regimen_v51(full_context)
+    dose_val, dose_unit, regimen, day = resolve_dose_and_regimen_v51(full_context, conds)
     analyte = resolve_analyte_v51(raw_ep, full_context)
     target_context = resolve_target_context_v51(full_context)
 
@@ -444,16 +473,22 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
     act_mtype = None
     if not is_explicit_pk and not is_explicit_solubility and not is_explicit_caco2 and not is_explicit_ppb and not is_explicit_metabolism:
         if re.search(r"\b(ic50|ec50|ki|kd|gi50|id50)\b", raw_ep_lower) or \
-           (raw_ep in {"Inhibition", "Activity", "TGI", "Emax", "Ratio IC50", "RatioGI50", "Ratio", "Selectivity ratio"}):
+           (raw_ep in {"Inhibition", "Activity", "TGI", "Emax", "Ratio IC50", "RatioGI50", "Ratio", "Selectivity ratio", "Ratio EC50"}):
             is_activity = True
-            if "ec50" in raw_ep_lower or "ec50" in full_context_lower: act_mtype = "EC50"
-            elif "ic50" in raw_ep_lower or "ratio ic50" in raw_ep_lower or "id50" in raw_ep_lower or "ic50" in full_context_lower: act_mtype = "IC50"
-            elif "ki" in raw_ep_lower or "ki" in full_context_lower: act_mtype = "Ki"
-            elif "kd" in raw_ep_lower or "kd" in full_context_lower: act_mtype = "Kd"
-            elif "gi50" in raw_ep_lower or "ratiogi50" in raw_ep_lower or "gi50" in full_context_lower: act_mtype = "GI50"
+            if "ratio" in raw_ep_lower or "shift" in raw_ep_lower or raw_ep in {"Selectivity ratio", "Ratio", "Ratio IC50", "RatioGI50", "Ratio EC50"}:
+                act_mtype = "Selectivity_Ratio"
+            elif "ec50" in raw_ep_lower: act_mtype = "EC50"
+            elif "ic50" in raw_ep_lower or "id50" in raw_ep_lower: act_mtype = "IC50"
+            elif "ki" in raw_ep_lower: act_mtype = "Ki"
+            elif "kd" in raw_ep_lower: act_mtype = "Kd"
+            elif "gi50" in raw_ep_lower: act_mtype = "GI50"
             elif raw_ep == "Emax": act_mtype = "Emax"
             elif raw_ep == "TGI": act_mtype = "TGI"
-            elif raw_ep in {"Selectivity ratio", "Ratio"}: act_mtype = "Selectivity_Ratio"
+            elif "ec50" in full_context_lower: act_mtype = "EC50"
+            elif "ic50" in full_context_lower: act_mtype = "IC50"
+            elif "ki" in full_context_lower: act_mtype = "Ki"
+            elif "kd" in full_context_lower: act_mtype = "Kd"
+            elif "gi50" in full_context_lower: act_mtype = "GI50"
             elif raw_ep in {"Inhibition", "Activity"}: act_mtype = "Inhibition"
             else: act_mtype = "IC50"
 
@@ -462,6 +497,8 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
         canonical_id = f"ACTIVITY_{act_mtype.upper()}"
         disp_name = f"{target_context} {act_mtype}" if target_context != "GENERAL" else f"Activity {act_mtype}"
         
+        act_state = STATE_AUTO_QUALIFIED
+        act_comp = "DIRECTLY_COMPARABLE"
         # Unit normalization to nM for molar concentrations
         if raw_u_lower in {"um", "umol/l", "µm"}:
             norm_v = num_val * 1000.0
@@ -487,6 +524,8 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
             norm_v = num_val
             norm_u = "ratio"
             norm_rule = "selectivity_ratio_identity"
+            act_state = STATE_RELATED
+            act_comp = "RELATED_NOT_SAME_ENDPOINT"
         else:
             norm_v = num_val
             norm_u = raw_u or "nM"
@@ -494,21 +533,21 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
 
         funnel["endpoint_classified"] = True
         funnel["unit_normalized"] = True
-        funnel["qualification_state"] = STATE_AUTO_QUALIFIED
+        funnel["qualification_state"] = act_state
         funnel["displayed"] = True
         stages["ENDPOINT_QUALIFIED"] = True
         stages["CONTEXT_QUALIFIED"] = True
         stages["UNIT_NORMALIZED"] = True
-        stages["IMPORTABLE"] = True
-        stages["PREDICTION_PAIRABLE"] = True
+        stages["IMPORTABLE"] = (act_state == STATE_AUTO_QUALIFIED)
+        stages["PREDICTION_PAIRABLE"] = (act_state == STATE_AUTO_QUALIFIED)
 
         return QualificationDecision(
             funnel=funnel, stages=stages, section=section, canonical_endpoint_id=canonical_id,
             display_name=disp_name, measurement_type=act_mtype, species=species, matrix="BIOCHEMICAL_ASSAY",
             route=route, dose=dose_val, dose_unit=dose_unit, regimen=regimen, analyte=analyte,
-            target_context=target_context, raw_value=raw_val_str, raw_unit=raw_u, normalized_value=round(norm_v, 3),
-            normalized_unit=norm_u, normalization_rule=norm_rule, evidence_state=STATE_AUTO_QUALIFIED,
-            qualification_status="ENDPOINT_QUALIFIED", comparability_status="DIRECTLY_COMPARABLE",
+            target_context=target_context, day=day, raw_value=raw_val_str, raw_unit=raw_u, normalized_value=round(norm_v, 3),
+            normalized_unit=norm_u, normalization_rule=norm_rule, evidence_state=act_state,
+            qualification_status="ENDPOINT_QUALIFIED", comparability_status=act_comp,
             unresolved_reason="", qualification_rule="biochemical_activity_qualified", displayed=True
         )
 
@@ -1092,8 +1131,9 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
             disp_param = "PK Parameter"
             norm_v = num_val; norm_u = raw_u; norm_rule = "preserved"
 
-        canonical_id = f"{species}_PK_{pk_param}_{route}" if route != "UNSPECIFIED" else f"{species}_PK_{pk_param}_UNSPECIFIED"
-        disp_name = f"{species.title()} {disp_param}" if species != "UNSPECIFIED" else disp_param
+        day_tag = f"_DAY{day}" if day is not None else ""
+        canonical_id = f"{species}_PK_{pk_param}_{route}{day_tag}" if route != "UNSPECIFIED" else f"{species}_PK_{pk_param}_UNSPECIFIED{day_tag}"
+        disp_name = f"{species.title()} {disp_param} (Day {day})" if (day is not None and species != "UNSPECIFIED") else (f"{species.title()} {disp_param}" if species != "UNSPECIFIED" else disp_param)
 
         funnel["endpoint_classified"] = True
         funnel["unit_normalized"] = True
@@ -1109,7 +1149,7 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
             funnel=funnel, stages=stages, section=section, canonical_endpoint_id=canonical_id,
             display_name=disp_name, measurement_type=pk_param, species=species, matrix="PLASMA",
             route=route, dose=dose_val, dose_unit=dose_unit, regimen=regimen, analyte=analyte,
-            target_context=target_context, raw_value=raw_val_str, raw_unit=raw_u,
+            target_context=target_context, day=day, raw_value=raw_val_str, raw_unit=raw_u,
             normalized_value=round(norm_v, 2) if norm_v is not None else None,
             normalized_unit=norm_u, normalization_rule=norm_rule, evidence_state=STATE_AUTO_QUALIFIED,
             qualification_status="ENDPOINT_QUALIFIED", comparability_status="DIRECTLY_COMPARABLE",

@@ -78,6 +78,13 @@ def _section(endpoint_id):
 def _display_name(endpoint_id, fallback=""):
     contract = endpoint_contract(endpoint_id)
     if contract: return contract.display_name
+    m_day = re.search(r"_DAY(\d+)$", str(endpoint_id))
+    if m_day:
+        base_id = str(endpoint_id)[:m_day.start()]
+        base_contract = endpoint_contract(base_id)
+        day_num = m_day.group(1)
+        base_name = base_contract.display_name if base_contract else (fallback or base_id.replace("_", " ").title())
+        return f"{base_name} (Day {day_num})"
     if str(endpoint_id).startswith("ACTIVITY_"): return str(endpoint_id).removeprefix("ACTIVITY_").split(":", 1)[0]
     return fallback or str(endpoint_id).replace("_", " ").title()
 
@@ -103,6 +110,15 @@ def _mapped_external(row):
         mapped["comparability_status"] = UNSUPPORTED
         mapped["reason"] = context["measurement_semantics_issue"]
         mapped["normalized_value"] = None
+
+    q_json = row.qualification_json or {}
+    day = context.get("day") or q_json.get("day")
+    if day is not None and mapped.get("section") == "PK":
+        eid_base = mapped["canonical_endpoint_id"]
+        if not eid_base.endswith(f"_DAY{day}"):
+            mapped["canonical_endpoint_id"] = f"{eid_base}_DAY{day}"
+            mapped["comparison_key"] = f"{mapped['canonical_endpoint_id']}|{mapped.get('species', 'UNSPECIFIED')}|{mapped.get('route', 'UNSPECIFIED')}|DAY{day}"
+
     state = row.evidence_state or ("EXTERNAL_IMPORTED" if row.accepted_at else "EXTERNAL_CANDIDATE")
     if state in {"EXTERNAL_CANDIDATE", "AUTO_QUALIFIED_EXTERNAL"}:
         stages = (row.qualification_json or {}).get("stages", {})

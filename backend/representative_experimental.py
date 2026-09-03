@@ -66,14 +66,21 @@ def representative_rank(item: dict) -> tuple:
     else:
         clinical_rank = 5
 
-    # 2. Target Specificity / Assay Relevance Rank
-    # Target mutation (e.g. Exon20ins, cAMP) > General activity > Kinome screening
-    if any(m in target_context for m in ("EXON20INS", "CAMP", "MUTANT", "T790M", "L858R")):
+    # 2. Target Specificity / Pharmacologic Assay Relevance Rank
+    # Direct Agonist / Primary Functional Response > Target Specific Mutation > General Agonist/Inhibitor > Allosteric Modulation (PAM/NAM) > Kinome / Binding panel
+    ctx_str = f"{str(context)} {str(qualification)} {item.get('raw_endpoint', '')}".upper()
+    is_pam_or_nam = any(term in ctx_str for term in ("ALLOSTERIC", "PAM", "NAM", "POTENTIATION"))
+    has_primary_functional = any(term in ctx_str for term in ("CAMP ASSAY", "AGONIST ACTIVITY", "KINASE ACTIVITY", "AUTOPHOSPHORYLATION"))
+    has_target_mutation = any(m in target_context for m in ("EXON20INS", "CAMP", "MUTANT", "T790M", "L858R"))
+
+    if (has_primary_functional or has_target_mutation) and not is_pam_or_nam:
         target_rank = 0
-    elif target_context not in {"", "GENERAL", "UNSPECIFIED"}:
+    elif not is_pam_or_nam and target_context not in {"", "GENERAL", "UNSPECIFIED"}:
         target_rank = 1
-    else:
+    elif is_pam_or_nam:
         target_rank = 2
+    else:
+        target_rank = 3
 
     # 3. Context Completeness
     complete_context = bool(stages.get("CONTEXT_QUALIFIED")) or (

@@ -194,6 +194,10 @@ def normalize_experimental_observation(raw_endpoint: Any, raw_value: Any = None,
 
     # Activity has precedence over CYP/PPB words mentioned in assay prose.
     if re.search(r"\b(ic50|ec50|ki|kd)\b", raw.lower()) and not re.search(r"(?:cyp\s*[0-9a-z]+|herg|p-gp|pgp)", f"{raw} {target}".lower()):
+        if "ratio" in raw.lower() or "shift" in raw.lower():
+            subtype = "RATIO"
+            endpoint = "ACTIVITY_RATIO"
+            return {"canonical_endpoint_id": endpoint, "section": "ACTIVITY", "display_name": "Activity Ratio", "species": normalized_species, "route": route, "measurement_subtype": "Ratio", "normalized_value": number, "normalized_unit": raw_unit or "ratio", "comparability_status": RELATED, "normalization_rule": "ratio_identity", "reason": "Ratio/fold-shift is related, not direct concentration potency", "comparison_key": f"{endpoint}|{target or 'UNSPECIFIED'}|{assay_type or 'UNSPECIFIED'}"}
         subtype = re.search(r"ic50|ec50|ki|kd", raw.lower()).group(0).upper()
         endpoint = f"ACTIVITY_{subtype}"
         return {"canonical_endpoint_id": endpoint, "section": "ACTIVITY", "display_name": subtype, "species": normalized_species, "route": route, "measurement_subtype": subtype, "normalized_value": number, "normalized_unit": raw_unit or "", "comparability_status": RELATED, "normalization_rule": "activity_semantic_group", "reason": "Project assay/target mapping is required for a direct activity comparison", "comparison_key": f"{endpoint}|{target or 'UNSPECIFIED'}|{assay_type or 'UNSPECIFIED'}"}
