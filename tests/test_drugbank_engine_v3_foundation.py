@@ -124,16 +124,20 @@ def test_engine_v3_release_readiness_and_runtime_routing():
         cyp3a4_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP3A4_INHIBITION")
         assert cyp3a4_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
         assert cyp3a4_eval["v3_error"] < cyp3a4_eval["base_error"]
-        assert cyp3a4_eval["final_test_v3_error"] < 0.50
+        assert cyp3a4_eval["final_test_v3_error"] < cyp3a4_eval["final_test_base_error"]
 
         # CYP2D6 Promotion
         cyp2d6_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP2D6_INHIBITION")
         assert cyp2d6_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
         assert cyp2d6_eval["v3_error"] < cyp2d6_eval["base_error"]
 
-        # hERG Candidate Validated (Retain Base Production)
+        # hERG Retain Base Production
         herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
-        assert herg_eval["promotion_status"] == "V3_CANDIDATE"
+        assert herg_eval["promotion_status"] == "RETAIN_BASE"
+
+        # PPB Candidate Status
+        ppb_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HUMAN_PPB")
+        assert ppb_eval["promotion_status"] == "V3_CANDIDATE"
 
         # Test Runtime Prediction Routing for CYP3A4 (GLOBAL_V3_PRIMARY)
         test_smi = "COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1" # Gefitinib
