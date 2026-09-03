@@ -1,13 +1,17 @@
 """
-Validation Pair Recovery & Quantitative DMPK Prediction Expansion (Drug-OPT v5.7).
+Validation Pair Recovery & Quantitative DMPK Prediction Expansion (Drug-OPT v5.7.1).
 
 Provides:
 - Strict evidence funnel audit and 7-record reconciliation (1,364 total qualified records, silent loss = 0)
 - Quantitative DMPK model expansion governance & provenance isolation
-- CYP Assay-Matched Validation (Stage 5C):
-    * Separates HLM, recombinant enzyme (rhCYP), hepatocytes, probe substrates, and reversible vs TDI mechanisms
-    * OpenADMET CheMeleon training assay matching (reversible direct inhibition = MATCHED; TDI = RELATED_CONTEXT_TDI)
-    * Table schema: Endpoint | Assay | Experimental | Prediction | Fold Error | AD | Context Match
+- CYP Validation Semantics Fix (Stage 5C / v5.7.1):
+    * Separates Recombinant Human Enzyme (rhCYP, MATCHED) from HLM (RELATED_CONTEXT_HLM_DIRECT)
+    * Recombinant-only validation MAE strictly excludes HLM
+    * Two-tier performance reporting:
+        - Tier 1: Assay-matched recombinant validation (rhCYP)
+        - Tier 2: Related HLM validation (HLM direct)
+        - Strictly decoupled (no combined hybrid MAE)
+    * Formal terminology: RETROSPECTIVE_EXTERNAL_VALIDATION / EXTERNAL_HOLDOUT (no "prospective")
 - Real chemical space Applicability Domain (AD) evaluation (Morgan/Tanimoto + descriptor envelope)
 - Model training label contract enforcement for classification endpoints
 - Independent compound grouping (1 observation per compound per endpoint)
@@ -34,7 +38,8 @@ from backend.openadmet_cyp import (
     PROVENANCE_OPENADMET_PRETRAINED,
     PROVENANCE_DRUGOPT_CV,
     PROVENANCE_DRUGOPT_FINAL,
-    CONTEXT_MATCHED_DIRECT,
+    CONTEXT_MATCHED_RECOMBINANT,
+    CONTEXT_RELATED_HLM_DIRECT,
     CONTEXT_RELATED_TDI,
     CONTEXT_RELATED_HEPATOCYTE,
     CONTEXT_RELATED_SCREENING_LIMIT,
@@ -343,7 +348,8 @@ def run_endpoint_validation() -> List[Dict[str, Any]]:
 
 def build_cyp_assay_matched_validation_table() -> List[Dict[str, Any]]:
     """
-    Builds the explicit Assay-Matched CYP Validation Table (Drug-OPT v5.7).
+    Builds the explicit Assay-Matched CYP Validation Table (Drug-OPT v5.7.1).
+    Separates Recombinant (rhCYP, MATCHED) from HLM (RELATED_CONTEXT_HLM_DIRECT).
     Schema: Endpoint | Assay | Experimental | Prediction | Fold Error | AD | Context Match
     """
     db = SessionLocal()
@@ -351,104 +357,124 @@ def build_cyp_assay_matched_validation_table() -> List[Dict[str, Any]]:
         # Reference observations across clinical/regulatory compounds
         cyp_reference_observations = [
             {
+                "compound": "Poziotinib",
+                "endpoint": "CYP3A4 direct inhibition",
+                "isoform": "CYP3A4",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "matrix": "rhCYP",
+                "exp_value": "0.10 µM (100 nM)",
+                "exp_nm": 100.0,
+                "context_match": CONTEXT_MATCHED_RECOMBINANT,
+                "eligible_recombinant": True,
+                "eligible_hlm": False,
+            },
+            {
+                "compound": "Poziotinib",
+                "endpoint": "CYP2D6 direct inhibition",
+                "isoform": "CYP2D6",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "matrix": "rhCYP",
+                "exp_value": "0.25 µM (250 nM)",
+                "exp_nm": 250.0,
+                "context_match": CONTEXT_MATCHED_RECOMBINANT,
+                "eligible_recombinant": True,
+                "eligible_hlm": False,
+            },
+            {
+                "compound": "Poziotinib",
+                "endpoint": "CYP1A2 direct inhibition",
+                "isoform": "CYP1A2",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "matrix": "rhCYP",
+                "exp_value": "1.0 µM (1000 nM)",
+                "exp_nm": 1000.0,
+                "context_match": CONTEXT_MATCHED_RECOMBINANT,
+                "eligible_recombinant": True,
+                "eligible_hlm": False,
+            },
+            {
+                "compound": "Sunvozertinib",
+                "endpoint": "CYP3A4 direct inhibition",
+                "isoform": "CYP3A4",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "matrix": "rhCYP",
+                "exp_value": "0.15 µM (150 nM)",
+                "exp_nm": 150.0,
+                "context_match": CONTEXT_MATCHED_RECOMBINANT,
+                "eligible_recombinant": True,
+                "eligible_hlm": False,
+            },
+            {
+                "compound": "Sunvozertinib",
+                "endpoint": "CYP2D6 direct inhibition",
+                "isoform": "CYP2D6",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "matrix": "rhCYP",
+                "exp_value": "0.32 µM (320 nM)",
+                "exp_nm": 320.0,
+                "context_match": CONTEXT_MATCHED_RECOMBINANT,
+                "eligible_recombinant": True,
+                "eligible_hlm": False,
+            },
+            {
                 "compound": "Orforglipron",
                 "endpoint": "CYP3A4 direct inhibition",
                 "isoform": "CYP3A4",
                 "assay": "HLM, Testosterone/Midazolam substrate, 0-min pre-incubation",
+                "matrix": "HLM",
                 "exp_value": "0.17 µM (170 nM)",
                 "exp_nm": 170.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
+                "context_match": CONTEXT_RELATED_HLM_DIRECT,
+                "eligible_recombinant": False,
+                "eligible_hlm": True,
             },
             {
                 "compound": "Orforglipron",
                 "endpoint": "CYP3A4 time-dependent inhibition",
                 "isoform": "CYP3A4",
                 "assay": "HLM + NADPH, 30-min pre-incubation (TDI shift)",
+                "matrix": "TDI",
                 "exp_value": "0.0073 µM (7.3 nM)",
                 "exp_nm": 7.3,
                 "context_match": CONTEXT_RELATED_TDI,
-                "eligible_for_mae": False,
+                "eligible_recombinant": False,
+                "eligible_hlm": False,
             },
             {
                 "compound": "Orforglipron",
                 "endpoint": "CYP2C9 direct inhibition",
                 "isoform": "CYP2C9",
                 "assay": "HLM, Diclofenac substrate, 0-min pre-incubation",
+                "matrix": "HLM",
                 "exp_value": "0.02 µM (20 nM)",
                 "exp_nm": 20.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
+                "context_match": CONTEXT_RELATED_HLM_DIRECT,
+                "eligible_recombinant": False,
+                "eligible_hlm": True,
             },
             {
                 "compound": "Orforglipron",
                 "endpoint": "CYP1A2 direct inhibition",
                 "isoform": "CYP1A2",
                 "assay": "HLM, Phenacetin substrate, 0-min pre-incubation",
+                "matrix": "HLM",
                 "exp_value": "50 µM (50000 nM)",
                 "exp_nm": 50000.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
+                "context_match": CONTEXT_RELATED_HLM_DIRECT,
+                "eligible_recombinant": False,
+                "eligible_hlm": True,
             },
             {
                 "compound": "Mobocertinib",
                 "endpoint": "CYP1A2 screening bound",
                 "isoform": "CYP1A2",
                 "assay": "HLM, Phenacetin substrate, screening limit",
+                "matrix": "Screening-limit",
                 "exp_value": "> 1 µM (> 1000 nM)",
                 "exp_nm": 1000.0,
                 "context_match": CONTEXT_RELATED_SCREENING_LIMIT,
-                "eligible_for_mae": False,
-            },
-            {
-                "compound": "Poziotinib",
-                "endpoint": "CYP3A4 direct inhibition",
-                "isoform": "CYP3A4",
-                "assay": "rhCYP recombinant enzyme, direct substrate assay",
-                "exp_value": "0.10 µM (100 nM)",
-                "exp_nm": 100.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
-            },
-            {
-                "compound": "Poziotinib",
-                "endpoint": "CYP2D6 direct inhibition",
-                "isoform": "CYP2D6",
-                "assay": "rhCYP recombinant enzyme, direct substrate assay",
-                "exp_value": "0.25 µM (250 nM)",
-                "exp_nm": 250.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
-            },
-            {
-                "compound": "Poziotinib",
-                "endpoint": "CYP1A2 direct inhibition",
-                "isoform": "CYP1A2",
-                "assay": "rhCYP recombinant enzyme, direct substrate assay",
-                "exp_value": "1.0 µM (1000 nM)",
-                "exp_nm": 1000.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
-            },
-            {
-                "compound": "Sunvozertinib",
-                "endpoint": "CYP3A4 direct inhibition",
-                "isoform": "CYP3A4",
-                "assay": "rhCYP recombinant enzyme, direct substrate assay",
-                "exp_value": "0.15 µM (150 nM)",
-                "exp_nm": 150.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
-            },
-            {
-                "compound": "Sunvozertinib",
-                "endpoint": "CYP2D6 direct inhibition",
-                "isoform": "CYP2D6",
-                "assay": "rhCYP recombinant enzyme, direct substrate assay",
-                "exp_value": "0.32 µM (320 nM)",
-                "exp_nm": 320.0,
-                "context_match": CONTEXT_MATCHED_DIRECT,
-                "eligible_for_mae": True,
+                "eligible_recombinant": False,
+                "eligible_hlm": False,
             },
         ]
 
@@ -472,6 +498,7 @@ def build_cyp_assay_matched_validation_table() -> List[Dict[str, Any]]:
                 "compound": cname,
                 "endpoint": f"{iso} quantitative inhibition",
                 "assay": item["assay"],
+                "matrix": item.get("matrix", "HLM"),
                 "experimental": item["exp_value"],
                 "prediction": f"{pred.pic50:.2f} pIC50 ({pred.ic50_um:.2f} µM, {pred.ic50_nm:.1f} nM)",
                 "pred_pic50": pred.pic50,
@@ -481,7 +508,9 @@ def build_cyp_assay_matched_validation_table() -> List[Dict[str, Any]]:
                 "fold_error_float": fold,
                 "ad": pred.applicability_domain,
                 "context_match": item["context_match"],
-                "eligible_for_mae": item["eligible_for_mae"],
+                "eligible_recombinant": item["eligible_recombinant"],
+                "eligible_hlm": item["eligible_hlm"],
+                "eligible_for_mae": item["eligible_recombinant"],  # Recombinant-only MAE contract
             })
 
         return table_rows
@@ -491,29 +520,46 @@ def build_cyp_assay_matched_validation_table() -> List[Dict[str, Any]]:
 
 def audit_cyp_quantitative_validation() -> Dict[str, Any]:
     """
-    Performs the rigorous CYP Quantitative Validation Audit (Drug-OPT v5.7).
-    Isolates model provenance, applies assay-context matching, and computes true reversible MAE.
+    Performs the rigorous CYP Quantitative Validation Audit (Drug-OPT v5.7.1).
+    Isolates model provenance, applies two-tier (Recombinant vs HLM) performance breakdown,
+    and enforces RETROSPECTIVE_EXTERNAL_VALIDATION nomenclature without combining tiers.
     """
     table_rows = build_cyp_assay_matched_validation_table()
     
     iso_reports = {}
     for iso in ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]:
         iso_rows = [r for r in table_rows if r["endpoint"].startswith(iso)]
-        matched_rows = [r for r in iso_rows if r["eligible_for_mae"]]
+        recombinant_rows = [r for r in iso_rows if r["eligible_recombinant"]]
+        hlm_rows = [r for r in iso_rows if r["eligible_hlm"]]
         pub_bench = OPENADMET_PUBLISHER_BENCHMARKS.get(iso, {})
 
-        if matched_rows:
-            mae = float(np.mean([r["pic50_error"] for r in matched_rows]))
-            geom_fold = float(np.exp(np.mean(np.log([r["fold_error_float"] for r in matched_rows]))))
-            ood_cnt = sum(1 for r in matched_rows if r["ad"] == "OUT_OF_DOMAIN")
-            border_cnt = sum(1 for r in matched_rows if r["ad"] == "BORDERLINE")
-            in_cnt = sum(1 for r in matched_rows if r["ad"] == "IN_DOMAIN")
+        # Tier 1: Assay-Matched Recombinant Validation (rhCYP)
+        if recombinant_rows:
+            rec_mae = float(np.mean([r["pic50_error"] for r in recombinant_rows]))
+            rec_geom_fold = float(np.exp(np.mean(np.log([r["fold_error_float"] for r in recombinant_rows]))))
+            rec_ood = sum(1 for r in recombinant_rows if r["ad"] == "OUT_OF_DOMAIN")
+            rec_border = sum(1 for r in recombinant_rows if r["ad"] == "BORDERLINE")
+            rec_in = sum(1 for r in recombinant_rows if r["ad"] == "IN_DOMAIN")
         else:
-            mae = None
-            geom_fold = None
-            ood_cnt = 0
-            border_cnt = 0
-            in_cnt = 0
+            rec_mae = None
+            rec_geom_fold = None
+            rec_ood = 0
+            rec_border = 0
+            rec_in = 0
+
+        # Tier 2: Related HLM Validation (HLM Direct)
+        if hlm_rows:
+            hlm_mae = float(np.mean([r["pic50_error"] for r in hlm_rows]))
+            hlm_geom_fold = float(np.exp(np.mean(np.log([r["fold_error_float"] for r in hlm_rows]))))
+            hlm_ood = sum(1 for r in hlm_rows if r["ad"] == "OUT_OF_DOMAIN")
+            hlm_border = sum(1 for r in hlm_rows if r["ad"] == "BORDERLINE")
+            hlm_in = sum(1 for r in hlm_rows if r["ad"] == "IN_DOMAIN")
+        else:
+            hlm_mae = None
+            hlm_geom_fold = None
+            hlm_ood = 0
+            hlm_border = 0
+            hlm_in = 0
 
         iso_reports[iso] = {
             "publisher_benchmarks": {
@@ -525,28 +571,49 @@ def audit_cyp_quantitative_validation() -> Dict[str, Any]:
             },
             "drugopt_cv_status": "RETRACTED_NOT_LOCALLY_RETRAINED",
             "drugopt_final_trained_status": "NOT_APPLICABLE",
-            "assay_matched_holdout": {
-                "matched_reversible_n": len(matched_rows),
-                "related_context_n": len(iso_rows) - len(matched_rows),
+            "validation_nomenclature": "RETROSPECTIVE_EXTERNAL_VALIDATION",
+            "tier1_recombinant_validation": {
+                "context": CONTEXT_MATCHED_RECOMBINANT,
+                "independent_n": len(recombinant_rows),
                 "exact_overlap_n": 0,
-                "mae_pic50": round(mae, 2) if mae is not None else "No Data",
-                "geom_fold_error": f"{geom_fold:.2f}x" if geom_fold is not None else "No Data",
-                "ad_breakdown": {"in_domain": in_cnt, "borderline": border_cnt, "out_of_domain": ood_cnt},
-                "rows": iso_rows,
+                "mae_pic50": round(rec_mae, 2) if rec_mae is not None else "No Data",
+                "geom_fold_error": f"{rec_geom_fold:.2f}x" if rec_geom_fold is not None else "No Data",
+                "ad_breakdown": {"in_domain": rec_in, "borderline": rec_border, "out_of_domain": rec_ood},
+                "rows": recombinant_rows,
+            },
+            "tier2_hlm_related_validation": {
+                "context": CONTEXT_RELATED_HLM_DIRECT,
+                "independent_n": len(hlm_rows),
+                "exact_overlap_n": 0,
+                "mae_pic50": round(hlm_mae, 2) if hlm_mae is not None else "No Data",
+                "geom_fold_error": f"{hlm_geom_fold:.2f}x" if hlm_geom_fold is not None else "No Data",
+                "ad_breakdown": {"in_domain": hlm_in, "borderline": hlm_border, "out_of_domain": hlm_ood},
+                "rows": hlm_rows,
+            },
+            # Backward-compatible aliases
+            "assay_matched_holdout": {
+                "matched_reversible_n": len(recombinant_rows),
+                "related_context_n": len(iso_rows) - len(recombinant_rows),
+                "exact_overlap_n": 0,
+                "mae_pic50": round(rec_mae, 2) if rec_mae is not None else "No Data",
+                "geom_fold_error": f"{rec_geom_fold:.2f}x" if rec_geom_fold is not None else "No Data",
+                "ad_breakdown": {"in_domain": rec_in, "borderline": rec_border, "out_of_domain": rec_ood},
+                "rows": recombinant_rows,
             },
             "external_holdout": {
-                "independent_n": len(matched_rows),
+                "independent_n": len(recombinant_rows),
                 "exact_overlap_n": 0,
-                "mae_pic50": round(mae, 2) if mae is not None else "No Data",
-                "geom_fold_error": f"{geom_fold:.2f}x" if geom_fold is not None else "No Data",
-                "ad_breakdown": {"in_domain": in_cnt, "borderline": border_cnt, "out_of_domain": ood_cnt},
-                "rows": iso_rows,
+                "mae_pic50": round(rec_mae, 2) if rec_mae is not None else "No Data",
+                "geom_fold_error": f"{rec_geom_fold:.2f}x" if rec_geom_fold is not None else "No Data",
+                "ad_breakdown": {"in_domain": rec_in, "borderline": rec_border, "out_of_domain": rec_ood},
+                "rows": recombinant_rows,
             },
-            "promotion_decision": "RETAIN_CANDIDATE_STATUS (Promotion Blocked: Candidate External Model Evaluated)",
+            "promotion_decision": "RETAIN_CANDIDATE_STATUS (Promotion Strictly Prohibited: Candidate External Model Evaluated)",
         }
 
     return {
-        "audit_version": "CYP_ASSAY_MATCHED_VALIDATION_V57",
+        "audit_version": "CYP_VALIDATION_SEMANTICS_V571",
+        "validation_nomenclature": "RETROSPECTIVE_EXTERNAL_VALIDATION",
         "isoforms": iso_reports,
         "table_rows": table_rows,
     }
@@ -554,7 +621,7 @@ def audit_cyp_quantitative_validation() -> Dict[str, Any]:
 
 def build_dmpk_quantitative_expansion_report() -> List[Dict[str, Any]]:
     """
-    Builds the Quantitative DMPK Prediction Expansion table (Drug-OPT v5.7).
+    Builds the Quantitative DMPK Prediction Expansion table (Drug-OPT v5.7.1).
     Schema: Endpoint | N | Existing classifier | Quantitative model | MAE/RMSE | Coverage | OOD
     """
     validation_rows = run_endpoint_validation()
@@ -626,24 +693,24 @@ def build_dmpk_quantitative_expansion_report() -> List[Dict[str, Any]]:
         },
         {
             "endpoint": "CYP3A4 quantitative inhibition",
-            "n": cyp_isos.get("CYP3A4", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 2),
+            "n": cyp_isos.get("CYP3A4", {}).get("tier1_recombinant_validation", {}).get("independent_n", 2),
             "existing_classifier": "Admetica CYP3A4 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP3A4 pIC50",
-            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP3A4', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP3A4', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Recombinant MAE: {cyp_isos.get('CYP3A4', {}).get('tier1_recombinant_validation', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP3A4', {}).get('tier1_recombinant_validation', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP3A4", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
+            "ood": cyp_isos.get("CYP3A4", {}).get("tier1_recombinant_validation", {}).get("ad_breakdown", {}).get("out_of_domain", 0),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
         },
         {
             "endpoint": "CYP2D6 quantitative inhibition",
-            "n": cyp_isos.get("CYP2D6", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 2),
+            "n": cyp_isos.get("CYP2D6", {}).get("tier1_recombinant_validation", {}).get("independent_n", 2),
             "existing_classifier": "Admetica CYP2D6 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP2D6 pIC50",
-            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP2D6', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP2D6', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Recombinant MAE: {cyp_isos.get('CYP2D6', {}).get('tier1_recombinant_validation', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP2D6', {}).get('tier1_recombinant_validation', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP2D6", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 0),
+            "ood": cyp_isos.get("CYP2D6", {}).get("tier1_recombinant_validation", {}).get("ad_breakdown", {}).get("out_of_domain", 0),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
@@ -662,24 +729,24 @@ def build_dmpk_quantitative_expansion_report() -> List[Dict[str, Any]]:
         },
         {
             "endpoint": "CYP2C9 quantitative inhibition",
-            "n": cyp_isos.get("CYP2C9", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 1),
+            "n": cyp_isos.get("CYP2C9", {}).get("tier1_recombinant_validation", {}).get("independent_n", 0),
             "existing_classifier": "Admetica CYP2C9 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP2C9 pIC50",
-            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP2C9', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP2C9', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Recombinant: No Data (HLM MAE: {cyp_isos.get('CYP2C9', {}).get('tier2_hlm_related_validation', {}).get('mae_pic50')} pIC50)",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP2C9", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
+            "ood": 0,
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
         },
         {
             "endpoint": "CYP1A2 quantitative inhibition",
-            "n": cyp_isos.get("CYP1A2", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 2),
+            "n": cyp_isos.get("CYP1A2", {}).get("tier1_recombinant_validation", {}).get("independent_n", 1),
             "existing_classifier": "Admetica CYP1A2 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP1A2 pIC50",
-            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP1A2', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP1A2', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Recombinant MAE: {cyp_isos.get('CYP1A2', {}).get('tier1_recombinant_validation', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP1A2', {}).get('tier1_recombinant_validation', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP1A2", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
+            "ood": cyp_isos.get("CYP1A2", {}).get("tier1_recombinant_validation", {}).get("ad_breakdown", {}).get("out_of_domain", 0),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
@@ -720,7 +787,7 @@ if __name__ == "__main__":
         print(f"  * {r:<55}: {c:4d}")
     print("\n" + "=" * 160 + "\n")
     audit_res = audit_cyp_quantitative_validation()
-    print(f"{'Endpoint':<28} | {'Assay':<40} | {'Experimental':<20} | {'Prediction':<32} | {'Fold Error':<10} | {'AD':<14} | {'Context Match'}")
-    print("-" * 175)
+    print(f"{'Endpoint':<28} | {'Assay':<40} | {'Matrix':<16} | {'Experimental':<20} | {'Prediction':<32} | {'Fold Error':<10} | {'AD':<14} | {'Context Match'}")
+    print("-" * 190)
     for row in audit_res["table_rows"]:
-        print(f"{row['endpoint']:<28} | {row['assay']:<40} | {row['experimental']:<20} | {row['prediction']:<32} | {row['fold_error']:<10} | {row['ad']:<14} | {row['context_match']}")
+        print(f"{row['endpoint']:<28} | {row['assay']:<40} | {row['matrix']:<16} | {row['experimental']:<20} | {row['prediction']:<32} | {row['fold_error']:<10} | {row['ad']:<14} | {row['context_match']}")

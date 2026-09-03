@@ -767,8 +767,18 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
             for iso in ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]:
                 if iso in source["endpoint_id"]:
                     try:
-                        from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
+                        from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50, classify_cyp_assay_context, CONTEXT_MATCHED_RECOMBINANT
                         q_pred = predict_chemeleon_cyp_pic50(smiles, iso)
+                        exp_mat = primary_item.get("context", {}).get("matrix") or primary_item.get("assay_type") or "HLM"
+                        ref_txt = str(primary_item.get("reference", {}).get("reference") or "")
+                        ctx_label, ctx_reason, is_rec, is_hlm = classify_cyp_assay_context(
+                            raw_endpoint=source["endpoint_id"],
+                            raw_value=primary.get("value"),
+                            raw_unit=primary.get("unit", ""),
+                            raw_relation=primary_item.get("relation", "="),
+                            assay_matrix=exp_mat,
+                            reference_text=ref_txt,
+                        )
                         cyp_quant = {
                             "model": f"OpenADMET CheMeleon {iso} pIC50",
                             "status": "CANDIDATE_EXTERNAL_MODEL",
@@ -776,6 +786,10 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
                             "ic50_um": q_pred.ic50_um,
                             "ic50_nm": q_pred.ic50_nm,
                             "display_text": f"{q_pred.pic50:.2f} pIC50 ({q_pred.ic50_um:.2f} µM)",
+                            "model_training_matrix": "rhCYP (Recombinant human enzyme)",
+                            "experimental_matrix": exp_mat,
+                            "context_match": ctx_label,
+                            "comparison_badge": "Matched recombinant" if is_rec else "Related context",
                         }
                         if primary.get("value") is not None and primary.get("unit") in ("nM", "µM", "uM"):
                             exp_v = float(primary["value"])

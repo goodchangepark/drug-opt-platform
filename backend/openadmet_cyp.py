@@ -9,7 +9,8 @@ Provides:
     * DRUGOPT_CYP_CV_MODEL (Retracted - not locally retrained)
     * DRUGOPT_FINAL_TRAINED_MODEL (Not applicable)
 - Assay Context Isolation:
-    * MATCHED_DIRECT_INHIBITION (Direct / Reversible inhibition on rhCYP or 0-min HLM)
+    * MATCHED_RECOMBINANT_DIRECT (Direct / Reversible inhibition on rhCYP recombinant enzyme)
+    * RELATED_CONTEXT_HLM_DIRECT (Direct inhibition in human liver microsomes HLM)
     * RELATED_CONTEXT_TDI (Time-Dependent Inhibition / Mechanism-based / 30-min shift)
     * RELATED_CONTEXT_HEPATOCYTE (Intact cell clearance / hepatocyte context)
     * RELATED_CONTEXT_SCREENING_LIMIT (Threshold inequality bounds e.g. >1 µM)
@@ -18,7 +19,7 @@ Provides:
     IC50 [µM] = 10^(6 - pIC50)
     IC50 [nM] = 10^(9 - pIC50)
 - Chemical space applicability domain: Morgan fingerprint (radius 2, 2048-bit) Tanimoto + descriptor envelope
-- Prospective external holdout validation & exact InChIKey overlap checker
+- External Holdout / Retrospective External Validation checker
 """
 from __future__ import annotations
 
@@ -40,7 +41,9 @@ PROVENANCE_DRUGOPT_CV = "DRUGOPT_CYP_CV_MODEL"
 PROVENANCE_DRUGOPT_FINAL = "DRUGOPT_FINAL_TRAINED_MODEL"
 
 # Assay Context labels
-CONTEXT_MATCHED_DIRECT = "MATCHED_DIRECT_INHIBITION"
+CONTEXT_MATCHED_RECOMBINANT = "MATCHED_RECOMBINANT_DIRECT"
+CONTEXT_MATCHED_DIRECT = CONTEXT_MATCHED_RECOMBINANT  # Backward-compatible alias
+CONTEXT_RELATED_HLM_DIRECT = "RELATED_CONTEXT_HLM_DIRECT"
 CONTEXT_RELATED_TDI = "RELATED_CONTEXT_TDI"
 CONTEXT_RELATED_HEPATOCYTE = "RELATED_CONTEXT_HEPATOCYTE"
 CONTEXT_RELATED_SCREENING_LIMIT = "RELATED_CONTEXT_SCREENING_LIMIT"
@@ -302,7 +305,7 @@ def predict_chemeleon_cyp_pic50(canonical_smiles: str, isoform: str) -> Quantita
             "publisher_benchmarks": OPENADMET_PUBLISHER_BENCHMARKS.get(isoform, {}),
             "status": "CANDIDATE_EXTERNAL_MODEL",
             "promotion_eligible": False,
-            "promotion_blockers": ["Insufficient independent external holdout N (N < 3)", "Prospective holdout validation audit required"],
+            "promotion_blockers": ["Insufficient independent external holdout N (N < 3)", "External holdout validation audit required"],
         }
     )
 
@@ -314,20 +317,22 @@ def classify_cyp_assay_context(
     raw_relation: str = "=",
     assay_matrix: str = "HLM",
     reference_text: str = "",
-) -> Tuple[str, str, bool]:
+) -> Tuple[str, str, bool, bool]:
     """
     Classifies CYP observation assay context against OpenADMET CheMeleon training semantics.
-    Returns: (context_classification, reason, is_eligible_for_reversible_mae)
+    Returns: (context_classification, reason, is_recombinant_match, is_hlm_match)
     """
     ref_upper = str(reference_text).upper()
     unit_str = str(raw_unit).strip()
     val_str = str(raw_value).strip()
+    mat_upper = str(assay_matrix).upper()
 
     # 1. Time-Dependent Inhibition (TDI / mechanism-based / pre-incubation shift)
     if "TDI" in ref_upper or "TIME-DEPENDENT" in ref_upper or "PRE-INCUBATION" in ref_upper or "SHIFT" in ref_upper or val_str == "0.0073":
         return (
             CONTEXT_RELATED_TDI,
             "Time-dependent / mechanism-based inhibition (30-min pre-incubation); distinct from direct reversible inhibition.",
+            False,
             False,
         )
 
@@ -337,26 +342,38 @@ def classify_cyp_assay_context(
             CONTEXT_RELATED_SCREENING_LIMIT,
             "Screening upper/lower bound or limit-of-detection threshold, not an exact continuous IC50 point estimate.",
             False,
+            False,
         )
 
     # 3. Hepatocyte intact cell assays
-    if "HEPATOCYTE" in ref_upper or assay_matrix.upper() == "HEPATOCYTE":
+    if "HEPATOCYTE" in ref_upper or mat_upper == "HEPATOCYTE":
         return (
             CONTEXT_RELATED_HEPATOCYTE,
             "Intact cell hepatocyte assay reflecting cellular permeability and active transport; distinct from direct enzyme inhibition.",
             False,
+            False,
         )
 
-    # 4. Direct/Reversible Inhibition Point Estimates
+    # 4. Direct Reversible Point Estimates
     if unit_str in ("nM", "uM", "µM"):
-        return (
-            CONTEXT_MATCHED_DIRECT,
-            "Direct functional reversible substrate inhibition point estimate matching OpenADMET training assay semantics.",
-            True,
-        )
+        if "RHCYP" in ref_upper or "RECOMBINANT" in ref_upper or "SUPERSOME" in ref_upper or "RHCYP" in mat_upper or "RECOMBINANT" in mat_upper:
+            return (
+                CONTEXT_MATCHED_RECOMBINANT,
+                "Direct functional reversible substrate inhibition on recombinant human enzyme (rhCYP) exactly matching OpenADMET training semantics.",
+                True,
+                False,
+            )
+        else:
+            return (
+                CONTEXT_RELATED_HLM_DIRECT,
+                "Direct reversible substrate inhibition in Human Liver Microsomes (HLM); related microsomal matrix distinct from recombinant enzyme.",
+                False,
+                True,
+            )
 
     return (
         CONTEXT_INCOMPATIBLE,
         f"Non-matching unit ({unit_str}) or assay modality.",
+        False,
         False,
     )
