@@ -69,32 +69,35 @@ def test_upstream_training_overlap_isolation_and_holdouts():
         db.close()
 
 
-def test_engine_v3_readiness_audit_and_dual_cohort_herg():
-    """Verify Engine v3 readiness evaluates dual-cohort holdouts and qualifies hERG as V3_PRIMARY_PROMOTION_CANDIDATE."""
+def test_engine_v3_candidate_integrity_and_empirical_audit():
+    """Verify Engine v3 candidate models are 100% empirical with zero synthetic multipliers and zero leakage."""
     db = SessionLocal()
     try:
         v3_eval = evaluate_global_engine_v3_readiness(db)
         assert "global-prediction-engine-v3" in v3_eval["engine_version"]
         assert v3_eval["total_compounds"] == 15
-        assert len(v3_eval["herg_learning_curve"]) == 15
 
-        # Verify hERG dual-cohort breakdown
-        herg_cb = v3_eval["herg_cohort_breakdown"]
-        assert herg_cb["cohort_1"]["n"] == 6
-        assert herg_cb["cohort_2"]["n"] == 5
-        assert herg_cb["replication_status"] == "REPLICATED_INDEPENDENT_IMPROVEMENT"
+        # PPB must have Dev N=0 and UNAVAILABLE_NO_TRAINING_FIT
+        ppb_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HUMAN_PPB")
+        assert ppb_eval["development_training_n"] == 0
+        assert ppb_eval["actual_candidate_mae"] == "UNAVAILABLE_NO_TRAINING_FIT"
+        assert "Dev Training N=0" in ppb_eval["decision"]
 
-        herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
-        assert herg_eval["evolution_status"] == "V3_PRIMARY_PROMOTION_CANDIDATE"
-        assert "V3_PRIMARY_PROMOTION_CANDIDATE" in herg_eval["decision"]
-        assert herg_eval["fine_tuned_v3_mae"] < herg_eval["actual_base_mae"]
-
-        # Verify other endpoints reached Holdout N >= 5
+        # CYP3A4 must have real empirical improvement on N=8 holdouts
         cyp3a4_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP3A4_INHIBITION")
-        assert cyp3a4_eval["immutable_holdout_n"] >= 5
-        assert isinstance(cyp3a4_eval["fine_tuned_v3_mae"], float)
+        assert cyp3a4_eval["development_training_n"] == 4
+        assert cyp3a4_eval["immutable_holdout_n"] == 8
+        assert cyp3a4_eval["actual_candidate_mae"] < cyp3a4_eval["actual_base_mae"]
+        assert cyp3a4_eval["evolution_status"] == "V3_CANDIDATE_VALIDATED"
 
-        sol_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "SOLUBILITY_GENERIC")
-        assert sol_eval["immutable_holdout_n"] >= 5
+        # CYP2D6 must have real empirical improvement on holdouts
+        cyp2d6_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP2D6_INHIBITION")
+        assert cyp2d6_eval["actual_candidate_mae"] < cyp2d6_eval["actual_base_mae"]
+        assert cyp2d6_eval["evolution_status"] == "V3_CANDIDATE_VALIDATED"
+
+        # hERG calibration audit: if candidate does not beat base, retain base status
+        herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
+        assert herg_eval["evolution_status"] == "CANDIDATE_EVALUATED_RETAIN_BASE"
+        assert "RETAIN_BASE_STATUS" in herg_eval["decision"]
     finally:
         db.close()

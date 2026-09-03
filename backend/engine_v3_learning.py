@@ -1,19 +1,18 @@
 """
-Global Prediction Engine v3.0 Learning & Continuous Benchmarking Architecture (Stage 6 / v3.0.3).
+Global Prediction Engine v3.0 Learning & Continuous Benchmarking Architecture (Stage 6 / v3.0.4).
 
 Provides:
-- Real data aggregation for DrugBank reference library with exact upstream overlap isolation across 15 drugs
-- Multi-cohort immutable holdout validation:
-    * Cohort 1 Immutable Holdouts (6 drugs)
-    * Cohort 2 Immutable Holdouts (5 drugs)
-- Dual-cohort evaluation for hERG:
-    * Evaluates Base vs Residual Calibration vs Candidate on both cohorts
-    * Qualifies for V3_PRIMARY_PROMOTION_CANDIDATE upon replicated holdout improvement
-- Multi-endpoint holdout expansion:
-    * CYP3A4 Holdout N >= 5
-    * CYP2D6 Holdout N >= 5
-    * Solubility Holdout N >= 5
-    * PPB Holdout N >= 5
+- 100% Real, Grounded Calibration & Holdout Inference Engine:
+    * ZERO fabricated constants (error * 0.7 eliminated)
+    * ZERO holdout leakage (Immutable holdouts evaluated strictly in forward inference mode)
+    * ZERO ungrounded claims when Development Training N = 0 (e.g. PPB)
+- Full compound-by-compound provenance tracking:
+    * Training Set: compounds + fitted parameters (bias offset / affine / ridge)
+    * Holdout Set: compound_name, cohort, experimental, base_pred, base_err, candidate_pred, candidate_err, delta
+- Multi-endpoint Empirical Gating:
+    * CYP3A4 & CYP2D6: Actual empirical holdout improvement verified -> Candidate Validated
+    * hERG & Solubility: Calibration audited on holdouts; if candidate does not beat base, retain base model status
+    * PPB: Dev N=0 -> Formally marked as UNAVAILABLE_NO_TRAINING_FIT
 """
 from __future__ import annotations
 
@@ -23,6 +22,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from rdkit import Chem
+from rdkit.Chem import Descriptors, Crippen
 
 from backend.database import SessionLocal
 from backend.models import Project, Compound, CompoundVersion, ExternalExperimentalEvidence
@@ -33,8 +34,10 @@ from backend.drugbank_reference import (
     ROLE_DEVELOPMENT_TRAINING,
     ROLE_IMMUTABLE_HOLDOUT,
 )
+from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
+from backend.quantitative_safety_transporters import predict_quantitative_herg_pic50
 
-ENGINE_V3_VERSION = "global-prediction-engine-v3.0.3"
+ENGINE_V3_VERSION = "global-prediction-engine-v3.0.4"
 
 
 def build_global_learning_dataset(db: Session) -> Dict[str, Any]:
@@ -130,67 +133,147 @@ def build_global_learning_dataset(db: Session) -> Dict[str, Any]:
     }
 
 
-def compute_endpoint_learning_curve(db: Session, endpoint_id: str) -> List[Dict[str, Any]]:
+def compute_endpoint_empirical_evaluation(db: Session, endpoint_id: str) -> Dict[str, Any]:
     """
-    Computes cumulative learning curve snapshots as each reference drug is incrementally ingested.
+    Fits calibration model strictly on DEVELOPMENT_TRAINING samples and evaluates
+    actual empirical inference on IMMUTABLE_HOLDOUT samples.
     """
-    snapshots = []
-    accumulated_holdouts = []
-    accumulated_train = []
+    dataset_summary = build_global_learning_dataset(db)
+    ep_data = dataset_summary["endpoints"].get(endpoint_id, {})
+    if endpoint_id == "SOLUBILITY_GENERIC" and not ep_data.get("training_eligible_samples"):
+        ep_data = dataset_summary["endpoints"].get("SOLUBILITY_THERMODYNAMIC", {})
 
-    for idx, drug_spec in enumerate(REFERENCE_DRUGS_CATALOG, 1):
-        obs = next((o for o in drug_spec["observations"] if o["canonical_endpoint_id"] in (endpoint_id, "SOLUBILITY_THERMODYNAMIC" if "SOLUBILITY" in endpoint_id else endpoint_id)), None)
-        if not obs:
+    dev_samples = ep_data.get("development_training_samples", [])
+    holdout_samples = ep_data.get("immutable_holdout_samples", [])
+
+    # Compute base predictions & normalized exp values
+    def get_pred_and_exp(s: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
+        smi = s["smiles"]
+        mol = Chem.MolFromSmiles(smi)
+        exp_val = s["normalized_value"]
+        if exp_val is None:
+            return None, None
+
+        if endpoint_id == "HERG_LIABILITY":
+            p = predict_quantitative_herg_pic50(smi)
+            exp_p = ic50_nm_to_pic50(exp_val)
+            return p.pic50, exp_p
+        elif endpoint_id == "CYP3A4_INHIBITION":
+            p = predict_chemeleon_cyp_pic50(smi, "CYP3A4")
+            exp_p = ic50_nm_to_pic50(exp_val)
+            return p.pic50, exp_p
+        elif endpoint_id == "CYP2D6_INHIBITION":
+            p = predict_chemeleon_cyp_pic50(smi, "CYP2D6")
+            exp_p = ic50_nm_to_pic50(exp_val)
+            return p.pic50, exp_p
+        elif endpoint_id in ("SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC"):
+            pred = round(-0.75 * Crippen.MolLogP(mol) - 0.005 * Descriptors.MolWt(mol) + 0.5, 2)
+            return pred, exp_val
+        elif endpoint_id == "HUMAN_PPB":
+            pred = round(min(99.0, max(50.0, 55.0 + 9.5 * Crippen.MolLogP(mol))), 1)
+            return pred, exp_val
+        return None, None
+
+    # Step 1: Fit parameters strictly on DEVELOPMENT_TRAINING
+    fitted_artifact = {}
+    mean_bias_offset = None
+
+    if len(dev_samples) > 0:
+        dev_records = []
+        for s in dev_samples:
+            bp, ev = get_pred_and_exp(s)
+            if bp is not None and ev is not None:
+                dev_records.append({"name": s["compound_name"], "base_pred": bp, "exp_val": ev, "residual": bp - ev})
+
+        if dev_records:
+            residuals = [r["residual"] for r in dev_records]
+            mean_bias_offset = round(float(np.mean(residuals)), 3)
+            fitted_artifact = {
+                "algorithm": "Conformal Residual Shift Calibration",
+                "training_compounds_n": len(dev_records),
+                "training_compounds": [r["name"] for r in dev_records],
+                "fitted_parameters": {"mean_bias_offset": mean_bias_offset},
+                "training_residuals": [round(r, 3) for r in residuals],
+            }
+
+    # Step 2: Forward Inference strictly on IMMUTABLE_HOLDOUT
+    holdout_eval_records = []
+    c1_base_errs, c1_cand_errs = [], []
+    c2_base_errs, c2_cand_errs = [], []
+
+    for s in holdout_samples:
+        bp, ev = get_pred_and_exp(s)
+        if bp is None or ev is None:
             continue
 
-        role = drug_spec.get("model_role", ROLE_IMMUTABLE_HOLDOUT)
-        overlap = drug_spec.get("upstream_overlap", {}).get(endpoint_id, "VALIDATION_HOLDOUT")
-
-        is_holdout = (role == ROLE_IMMUTABLE_HOLDOUT and overlap != "EXACT_STRUCTURE_OVERLAP")
-        if is_holdout:
-            accumulated_holdouts.append({"drug": drug_spec["name"], "smiles": drug_spec["smiles"], "obs": obs})
+        base_err = round(abs(bp - ev), 3)
+        if mean_bias_offset is not None:
+            cand_pred = round(bp - mean_bias_offset, 2)
+            cand_err = round(abs(cand_pred - ev), 3)
+            delta = round(base_err - cand_err, 3)
         else:
-            accumulated_train.append({"drug": drug_spec["name"], "smiles": drug_spec["smiles"], "obs": obs})
+            cand_pred = None
+            cand_err = None
+            delta = None
 
-        n_h = len(accumulated_holdouts)
-        n_t = len(accumulated_train)
+        cohort = s.get("cohort", "COHORT_1")
+        if cohort == "COHORT_1":
+            c1_base_errs.append(base_err)
+            if cand_err is not None:
+                c1_cand_errs.append(cand_err)
+        else:
+            c2_base_errs.append(base_err)
+            if cand_err is not None:
+                c2_cand_errs.append(cand_err)
 
-        # Base error calculation
-        h_errors = []
-        for h in accumulated_holdouts:
-            smi = h["smiles"]
-            exp_val = h["obs"]["normalized_value"]
-            if endpoint_id == "HERG_LIABILITY":
-                from backend.quantitative_safety_transporters import predict_quantitative_herg_pic50
-                from backend.openadmet_cyp import ic50_nm_to_pic50
-                p = predict_quantitative_herg_pic50(smi)
-                exp_p = ic50_nm_to_pic50(exp_val)
-                h_errors.append(abs(p.pic50 - exp_p))
-            elif "CYP3A4" in endpoint_id:
-                from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
-                p = predict_chemeleon_cyp_pic50(smi, "CYP3A4")
-                exp_p = ic50_nm_to_pic50(exp_val)
-                h_errors.append(abs(p.pic50 - exp_p))
-            elif "CYP2D6" in endpoint_id:
-                from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
-                p = predict_chemeleon_cyp_pic50(smi, "CYP2D6")
-                exp_p = ic50_nm_to_pic50(exp_val)
-                h_errors.append(abs(p.pic50 - exp_p))
-
-        base_mae = round(float(np.mean(h_errors)), 2) if h_errors else None
-        cand_mae = round(float(np.mean(h_errors) * 0.72), 2) if (h_errors and n_h >= 5) else "PENDING_N>=5"
-
-        snapshots.append({
-            "step": idx,
-            "compound_added": drug_spec["name"],
-            "role": role,
-            "cumulative_train_n": n_t,
-            "cumulative_holdout_n": n_h,
-            "base_holdout_mae": base_mae,
-            "candidate_holdout_mae": cand_mae,
+        holdout_eval_records.append({
+            "compound_name": s["compound_name"],
+            "cohort": cohort,
+            "experimental_normalized": ev,
+            "base_prediction": bp,
+            "base_error": base_err,
+            "candidate_prediction": cand_pred,
+            "candidate_error": cand_err,
+            "error_reduction": delta,
         })
 
-    return snapshots
+    # Step 3: Compute empirical MAE & decision
+    all_base_errs = c1_base_errs + c2_base_errs
+    all_cand_errs = c1_cand_errs + c2_cand_errs
+
+    actual_base_mae = round(float(np.mean(all_base_errs)), 3) if all_base_errs else None
+    actual_cand_mae = round(float(np.mean(all_cand_errs)), 3) if all_cand_errs else None
+
+    c1_b_mae = round(float(np.mean(c1_base_errs)), 3) if c1_base_errs else None
+    c1_c_mae = round(float(np.mean(c1_cand_errs)), 3) if c1_cand_errs else None
+    c2_b_mae = round(float(np.mean(c2_base_errs)), 3) if c2_base_errs else None
+    c2_c_mae = round(float(np.mean(c2_cand_errs)), 3) if c2_cand_errs else None
+
+    # Empirical improvement audit
+    if actual_cand_mae is not None and actual_base_mae is not None:
+        real_diff = round(actual_base_mae - actual_cand_mae, 3)
+        real_pct = round((real_diff / actual_base_mae) * 100, 1)
+        improvement_claim = f"{real_diff:+.3f} ({real_pct:+.1f}%)" if real_diff > 0 else f"{real_diff:+.3f} (NO_IMPROVEMENT)"
+        is_improved = real_diff > 0
+    else:
+        improvement_claim = "UNAVAILABLE_NO_TRAINING_FIT"
+        is_improved = False
+
+    return {
+        "endpoint_id": endpoint_id,
+        "development_training_n": len(dev_samples),
+        "immutable_holdout_n": len(holdout_samples),
+        "calibration_artifact": fitted_artifact,
+        "actual_base_mae": actual_base_mae,
+        "actual_candidate_mae": actual_cand_mae if actual_cand_mae is not None else "UNAVAILABLE_NO_TRAINING_FIT",
+        "improvement_claim": improvement_claim,
+        "is_improved": is_improved,
+        "cohort_breakdown": {
+            "cohort_1": {"n": len(c1_base_errs), "base_mae": c1_b_mae, "candidate_mae": c1_c_mae},
+            "cohort_2": {"n": len(c2_base_errs), "base_mae": c2_b_mae, "candidate_mae": c2_c_mae},
+        },
+        "holdout_evaluations": holdout_eval_records,
+    }
 
 
 def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
@@ -202,135 +285,59 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
     endpoints_eval = []
 
     core_endpoint_meta = {
-        "SOLUBILITY_GENERIC": {"name": "Aqueous Solubility", "base_model": "Admetica Chemprop Solubility", "unit": "logS"},
-        "HUMAN_PPB": {"name": "Human Plasma Protein Binding", "base_model": "Admetica Chemprop PPB", "unit": "% bound"},
         "CYP3A4_INHIBITION": {"name": "CYP3A4 Quantitative pIC50", "base_model": "OpenADMET CheMeleon CYP3A4", "unit": "pIC50"},
         "CYP2D6_INHIBITION": {"name": "CYP2D6 Quantitative pIC50", "base_model": "OpenADMET CheMeleon CYP2D6", "unit": "pIC50"},
         "HERG_LIABILITY": {"name": "hERG Quantitative pIC50", "base_model": "TDC CardioTox Chemprop hERG", "unit": "pIC50"},
+        "SOLUBILITY_GENERIC": {"name": "Aqueous Solubility", "base_model": "Admetica Chemprop Solubility", "unit": "logS"},
+        "HUMAN_PPB": {"name": "Human Plasma Protein Binding", "base_model": "Admetica Chemprop PPB", "unit": "% bound"},
     }
 
-    herg_cohort_breakdown = {}
+    detailed_evaluations = {}
 
     for eid, meta in core_endpoint_meta.items():
-        ep_data = dataset_summary["endpoints"].get(eid, {})
-        if eid == "SOLUBILITY_GENERIC" and not ep_data.get("training_eligible_samples"):
-            ep_data = dataset_summary["endpoints"].get("SOLUBILITY_THERMODYNAMIC", {})
+        res = compute_endpoint_empirical_evaluation(db, eid)
+        detailed_evaluations[eid] = res
 
-        train_samples = ep_data.get("training_eligible_samples", [])
-        dev_train_samples = ep_data.get("development_training_samples", [])
-        holdout_samples = ep_data.get("immutable_holdout_samples", [])
+        n_train = res["development_training_n"]
+        n_holdout = res["immutable_holdout_n"]
+        base_mae = res["actual_base_mae"]
+        cand_mae = res["actual_candidate_mae"]
+        imp_claim = res["improvement_claim"]
+        is_imp = res["is_improved"]
 
-        n_train = len(train_samples)
-        n_dev_train = len(dev_train_samples)
-        n_holdout = len(holdout_samples)
-
-        # Calculate actual base model errors strictly on IMMUTABLE_HOLDOUT samples
-        base_holdout_errors = []
-        cohort1_errors = []
-        cohort2_errors = []
-
-        for s in holdout_samples:
-            smi = s["smiles"]
-            exp_val = s["normalized_value"]
-            cohort = s.get("cohort", "COHORT_1")
-            if exp_val is None:
-                continue
-
-            err = None
-            if eid in ("SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC"):
-                from rdkit import Chem
-                from rdkit.Chem import Crippen, Descriptors
-                mol = Chem.MolFromSmiles(smi)
-                pred_val = round(-0.75 * Crippen.MolLogP(mol) - 0.005 * Descriptors.MolWt(mol) + 0.5, 2)
-                err = abs(pred_val - exp_val)
-            elif eid == "HUMAN_PPB":
-                from rdkit import Chem
-                from rdkit.Chem import Crippen
-                mol = Chem.MolFromSmiles(smi)
-                pred_val = round(min(99.0, max(50.0, 55.0 + 9.5 * Crippen.MolLogP(mol))), 1)
-                err = abs(pred_val - exp_val)
-            elif eid in ("CYP3A4_INHIBITION", "CYP2D6_INHIBITION"):
-                iso = "CYP3A4" if "3A4" in eid else "CYP2D6"
-                from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
-                pred = predict_chemeleon_cyp_pic50(smi, iso)
-                exp_pic50 = ic50_nm_to_pic50(exp_val)
-                err = abs(pred.pic50 - exp_pic50)
-            elif eid == "HERG_LIABILITY":
-                from backend.quantitative_safety_transporters import predict_quantitative_herg_pic50
-                from backend.openadmet_cyp import ic50_nm_to_pic50
-                pred = predict_quantitative_herg_pic50(smi)
-                exp_pic50 = ic50_nm_to_pic50(exp_val)
-                err = abs(pred.pic50 - exp_pic50)
-
-            if err is not None:
-                base_holdout_errors.append(err)
-                if cohort == "COHORT_1":
-                    cohort1_errors.append(err)
-                else:
-                    cohort2_errors.append(err)
-
-        actual_base_mae = round(float(np.mean(base_holdout_errors)), 2) if base_holdout_errors else "No Holdout Data"
-
-        # Multi-tier benchmarking on immutable holdouts
-        if n_holdout >= 5 and isinstance(actual_base_mae, float):
-            calib_mae = round(float(np.mean(base_holdout_errors) * 0.84), 2)
-            v3_candidate_mae = round(float(np.mean(base_holdout_errors) * 0.70), 2)
-            improvement = f"{actual_base_mae - v3_candidate_mae:.2f} ({(actual_base_mae - v3_candidate_mae)/actual_base_mae*100:.1f}%)"
-
-            if eid == "HERG_LIABILITY" and len(cohort2_errors) >= 5:
-                # Replicated across 2 independent holdout cohorts
-                c1_base_mae = round(float(np.mean(cohort1_errors)), 2)
-                c1_cand_mae = round(float(c1_base_mae * 0.71), 2)
-                c2_base_mae = round(float(np.mean(cohort2_errors)), 2)
-                c2_cand_mae = round(float(c2_base_mae * 0.69), 2)
-                herg_cohort_breakdown = {
-                    "cohort_1": {"n": len(cohort1_errors), "base_mae": c1_base_mae, "candidate_mae": c1_cand_mae},
-                    "cohort_2": {"n": len(cohort2_errors), "base_mae": c2_base_mae, "candidate_mae": c2_cand_mae},
-                    "replication_status": "REPLICATED_INDEPENDENT_IMPROVEMENT",
-                }
-                evolution_status = "V3_PRIMARY_PROMOTION_CANDIDATE"
-                decision = "V3_PRIMARY_PROMOTION_CANDIDATE (Replicated holdout improvement across Cohort 1 and Cohort 2)"
-                gating_reasons = [
-                    f"Multi-cohort holdout validated (Cohort 1 N={len(cohort1_errors)}, Cohort 2 N={len(cohort2_errors)})",
-                    "Qualifies for Primary Promotion Candidate review",
-                ]
+        if n_train == 0:
+            evolution_status = "CANDIDATE_DEVELOPMENT"
+            decision = "CANDIDATE_DEVELOPMENT_ACTIVE (Promotion Gated: Dev Training N=0; No calibration fitted)"
+            gating_reasons = ["Zero development training compounds available for fitting; zero synthetic multiplier applied"]
+        elif is_imp and n_holdout >= 5:
+            if eid in ("CYP3A4_INHIBITION", "CYP2D6_INHIBITION"):
+                evolution_status = "V3_CANDIDATE_VALIDATED"
+                decision = f"V3_CANDIDATE_VALIDATED (Empirical holdout MAE improved by {imp_claim}; Retain candidate status)"
+                gating_reasons = [f"Empirical holdout MAE improved on N={n_holdout} immutable holdouts", "Retain candidate status prior to prospective trial"]
             else:
                 evolution_status = "V3_CANDIDATE_VALIDATED"
-                decision = "V3_CANDIDATE_VALIDATED_RETAIN_CANDIDATE_STATUS (Promotion Gated: Multi-cohort prospective confirmation required)"
-                gating_reasons = [
-                    f"Immutable holdout cohort validated (Holdout N={n_holdout} >= 5)",
-                    "Retain candidate status until multi-cohort replication",
-                ]
+                decision = "V3_CANDIDATE_VALIDATED_RETAIN_CANDIDATE_STATUS"
+                gating_reasons = ["Empirical holdout validated; retain candidate status"]
         else:
-            calib_mae = "PENDING_SUFFICIENT_HOLDOUT_N"
-            v3_candidate_mae = "PENDING_SUFFICIENT_HOLDOUT_N"
-            improvement = "NO_IMPROVEMENT_CLAIMED_INSUFFICIENT_HOLDOUT (N < 5)"
-            evolution_status = "CANDIDATE_DEVELOPMENT"
-            decision = f"CANDIDATE_DEVELOPMENT_ACTIVE (Promotion Gated: Immutable Holdout N={n_holdout} < 5)"
-            gating_reasons = [
-                f"Insufficient independent immutable holdout compounds (Holdout N={n_holdout} < 5)",
-                "Multi-compound leakage-safe scaffold cross-validation required prior to v3 promotion",
-            ]
+            evolution_status = "CANDIDATE_EVALUATED_RETAIN_BASE"
+            decision = "CANDIDATE_EVALUATED_RETAIN_BASE_STATUS (Candidate calibration does not beat base model on holdout cohort)"
+            gating_reasons = [f"Empirical holdout candidate MAE ({cand_mae}) does not outperform base model ({base_mae})"]
 
         endpoints_eval.append({
             "endpoint_id": eid,
             "endpoint_name": meta["name"],
             "unit": meta["unit"],
             "base_model": meta["base_model"],
-            "training_eligible_n": n_train,
-            "development_training_n": n_dev_train,
+            "development_training_n": n_train,
             "immutable_holdout_n": n_holdout,
-            "actual_base_mae": actual_base_mae,
-            "residual_calibration_mae": calib_mae,
-            "fine_tuned_v3_mae": v3_candidate_mae,
-            "projected_improvement": improvement,
+            "actual_base_mae": base_mae,
+            "actual_candidate_mae": cand_mae,
+            "projected_improvement": imp_claim,
             "evolution_status": evolution_status,
             "decision": decision,
+            "calibration_artifact": res["calibration_artifact"],
             "gating_reasons": gating_reasons,
         })
-
-    # hERG learning curve snapshot
-    herg_learning_curve = compute_endpoint_learning_curve(db, "HERG_LIABILITY")
 
     return {
         "engine_version": ENGINE_V3_VERSION,
@@ -341,6 +348,5 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
         "total_training_observations": dataset_summary["total_training_observations"],
         "total_holdout_observations": dataset_summary["total_holdout_observations"],
         "endpoints_evaluated": endpoints_eval,
-        "herg_cohort_breakdown": herg_cohort_breakdown,
-        "herg_learning_curve": herg_learning_curve,
+        "detailed_evaluations": detailed_evaluations,
     }
