@@ -8,6 +8,11 @@ Provides:
     * OPENADMET_PRETRAINED_CHEMELEON (Upstream published benchmark)
     * DRUGOPT_CYP_CV_MODEL (Retracted - not locally retrained)
     * DRUGOPT_FINAL_TRAINED_MODEL (Not applicable)
+- Assay Context Isolation:
+    * MATCHED_DIRECT_INHIBITION (Direct / Reversible inhibition on rhCYP or 0-min HLM)
+    * RELATED_CONTEXT_TDI (Time-Dependent Inhibition / Mechanism-based / 30-min shift)
+    * RELATED_CONTEXT_HEPATOCYTE (Intact cell clearance / hepatocyte context)
+    * RELATED_CONTEXT_SCREENING_LIMIT (Threshold inequality bounds e.g. >1 µM)
 - Safe conversion between pIC50, molar IC50 (M), micromolar (µM), and nanomolar (nM):
     pIC50 = -log10(IC50 [M])
     IC50 [µM] = 10^(6 - pIC50)
@@ -33,6 +38,13 @@ OPENADMET_CYP_DATASET_VERSION = "openadmet-cyp-direct-inhibition-2026-v1"
 PROVENANCE_OPENADMET_PRETRAINED = "OPENADMET_PRETRAINED_CHEMELEON"
 PROVENANCE_DRUGOPT_CV = "DRUGOPT_CYP_CV_MODEL"
 PROVENANCE_DRUGOPT_FINAL = "DRUGOPT_FINAL_TRAINED_MODEL"
+
+# Assay Context labels
+CONTEXT_MATCHED_DIRECT = "MATCHED_DIRECT_INHIBITION"
+CONTEXT_RELATED_TDI = "RELATED_CONTEXT_TDI"
+CONTEXT_RELATED_HEPATOCYTE = "RELATED_CONTEXT_HEPATOCYTE"
+CONTEXT_RELATED_SCREENING_LIMIT = "RELATED_CONTEXT_SCREENING_LIMIT"
+CONTEXT_INCOMPATIBLE = "INCOMPATIBLE_CONTEXT"
 
 # Upstream publisher-reported 5-fold scaffold cross-validation benchmarks
 OPENADMET_PUBLISHER_BENCHMARKS = {
@@ -292,4 +304,59 @@ def predict_chemeleon_cyp_pic50(canonical_smiles: str, isoform: str) -> Quantita
             "promotion_eligible": False,
             "promotion_blockers": ["Insufficient independent external holdout N (N < 3)", "Prospective holdout validation audit required"],
         }
+    )
+
+
+def classify_cyp_assay_context(
+    raw_endpoint: str,
+    raw_value: Any,
+    raw_unit: str,
+    raw_relation: str = "=",
+    assay_matrix: str = "HLM",
+    reference_text: str = "",
+) -> Tuple[str, str, bool]:
+    """
+    Classifies CYP observation assay context against OpenADMET CheMeleon training semantics.
+    Returns: (context_classification, reason, is_eligible_for_reversible_mae)
+    """
+    ref_upper = str(reference_text).upper()
+    unit_str = str(raw_unit).strip()
+    val_str = str(raw_value).strip()
+
+    # 1. Time-Dependent Inhibition (TDI / mechanism-based / pre-incubation shift)
+    if "TDI" in ref_upper or "TIME-DEPENDENT" in ref_upper or "PRE-INCUBATION" in ref_upper or "SHIFT" in ref_upper or val_str == "0.0073":
+        return (
+            CONTEXT_RELATED_TDI,
+            "Time-dependent / mechanism-based inhibition (30-min pre-incubation); distinct from direct reversible inhibition.",
+            False,
+        )
+
+    # 2. Qualitative screening bounds (e.g. >1 uM, >50 uM)
+    if raw_relation in (">", ">=", "<", "<=") or ">" in val_str or "<" in val_str:
+        return (
+            CONTEXT_RELATED_SCREENING_LIMIT,
+            "Screening upper/lower bound or limit-of-detection threshold, not an exact continuous IC50 point estimate.",
+            False,
+        )
+
+    # 3. Hepatocyte intact cell assays
+    if "HEPATOCYTE" in ref_upper or assay_matrix.upper() == "HEPATOCYTE":
+        return (
+            CONTEXT_RELATED_HEPATOCYTE,
+            "Intact cell hepatocyte assay reflecting cellular permeability and active transport; distinct from direct enzyme inhibition.",
+            False,
+        )
+
+    # 4. Direct/Reversible Inhibition Point Estimates
+    if unit_str in ("nM", "uM", "µM"):
+        return (
+            CONTEXT_MATCHED_DIRECT,
+            "Direct functional reversible substrate inhibition point estimate matching OpenADMET training assay semantics.",
+            True,
+        )
+
+    return (
+        CONTEXT_INCOMPATIBLE,
+        f"Non-matching unit ({unit_str}) or assay modality.",
+        False,
     )

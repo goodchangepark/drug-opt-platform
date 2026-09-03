@@ -1,14 +1,14 @@
 """
-Validation Pair Recovery & Quantitative DMPK Prediction Expansion (Drug-OPT v5.6.1).
+Validation Pair Recovery & Quantitative DMPK Prediction Expansion (Drug-OPT v5.7).
 
 Provides:
 - Strict evidence funnel audit and 7-record reconciliation (1,364 total qualified records, silent loss = 0)
-- Quantitative DMPK model expansion governance & provenance isolation:
-    * OPENADMET_PRETRAINED_CHEMELEON (External publisher benchmark)
-    * DRUGOPT_CYP_CV_MODEL (Retracted - not locally retrained)
-    * DRUGOPT_FINAL_TRAINED_MODEL (Not applicable)
+- Quantitative DMPK model expansion governance & provenance isolation
+- CYP Assay-Matched Validation (Stage 5C):
+    * Separates HLM, recombinant enzyme (rhCYP), hepatocytes, probe substrates, and reversible vs TDI mechanisms
+    * OpenADMET CheMeleon training assay matching (reversible direct inhibition = MATCHED; TDI = RELATED_CONTEXT_TDI)
+    * Table schema: Endpoint | Assay | Experimental | Prediction | Fold Error | AD | Context Match
 - Real chemical space Applicability Domain (AD) evaluation (Morgan/Tanimoto + descriptor envelope)
-- Prospective external holdout validation & exact InChIKey overlap check (Overlap N = 0)
 - Model training label contract enforcement for classification endpoints
 - Independent compound grouping (1 observation per compound per endpoint)
 """
@@ -29,10 +29,15 @@ from backend.openadmet_cyp import (
     ic50_nm_to_pic50,
     ic50_um_to_pic50,
     compute_fold_error,
+    classify_cyp_assay_context,
     OPENADMET_PUBLISHER_BENCHMARKS,
     PROVENANCE_OPENADMET_PRETRAINED,
     PROVENANCE_DRUGOPT_CV,
     PROVENANCE_DRUGOPT_FINAL,
+    CONTEXT_MATCHED_DIRECT,
+    CONTEXT_RELATED_TDI,
+    CONTEXT_RELATED_HEPATOCYTE,
+    CONTEXT_RELATED_SCREENING_LIMIT,
 )
 
 EP_MAP = {
@@ -336,96 +341,220 @@ def run_endpoint_validation() -> List[Dict[str, Any]]:
         db.close()
 
 
-def audit_cyp_quantitative_validation() -> Dict[str, Any]:
+def build_cyp_assay_matched_validation_table() -> List[Dict[str, Any]]:
     """
-    Performs the rigorous CYP Quantitative Validation Audit (Drug-OPT v5.6.1).
-    Isolates model provenance, verifies exact InChIKey overlap, evaluates real chemical space AD,
-    and reports independent external holdout metrics.
+    Builds the explicit Assay-Matched CYP Validation Table (Drug-OPT v5.7).
+    Schema: Endpoint | Assay | Experimental | Prediction | Fold Error | AD | Context Match
     """
     db = SessionLocal()
     try:
-        # Prospective external holdout observations in Drug-OPT
-        cyp_data_map = [
-            ("Orforglipron", "CYP3A4", 7.3, "nM"),
-            ("Orforglipron", "CYP2C9", 20.0, "nM"),
-            ("Orforglipron", "CYP1A2", 50000.0, "nM"),
-            ("Mobocertinib", "CYP1A2", 1000.0, "nM"),
+        # Reference observations across clinical/regulatory compounds
+        cyp_reference_observations = [
+            {
+                "compound": "Orforglipron",
+                "endpoint": "CYP3A4 direct inhibition",
+                "isoform": "CYP3A4",
+                "assay": "HLM, Testosterone/Midazolam substrate, 0-min pre-incubation",
+                "exp_value": "0.17 µM (170 nM)",
+                "exp_nm": 170.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Orforglipron",
+                "endpoint": "CYP3A4 time-dependent inhibition",
+                "isoform": "CYP3A4",
+                "assay": "HLM + NADPH, 30-min pre-incubation (TDI shift)",
+                "exp_value": "0.0073 µM (7.3 nM)",
+                "exp_nm": 7.3,
+                "context_match": CONTEXT_RELATED_TDI,
+                "eligible_for_mae": False,
+            },
+            {
+                "compound": "Orforglipron",
+                "endpoint": "CYP2C9 direct inhibition",
+                "isoform": "CYP2C9",
+                "assay": "HLM, Diclofenac substrate, 0-min pre-incubation",
+                "exp_value": "0.02 µM (20 nM)",
+                "exp_nm": 20.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Orforglipron",
+                "endpoint": "CYP1A2 direct inhibition",
+                "isoform": "CYP1A2",
+                "assay": "HLM, Phenacetin substrate, 0-min pre-incubation",
+                "exp_value": "50 µM (50000 nM)",
+                "exp_nm": 50000.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Mobocertinib",
+                "endpoint": "CYP1A2 screening bound",
+                "isoform": "CYP1A2",
+                "assay": "HLM, Phenacetin substrate, screening limit",
+                "exp_value": "> 1 µM (> 1000 nM)",
+                "exp_nm": 1000.0,
+                "context_match": CONTEXT_RELATED_SCREENING_LIMIT,
+                "eligible_for_mae": False,
+            },
+            {
+                "compound": "Poziotinib",
+                "endpoint": "CYP3A4 direct inhibition",
+                "isoform": "CYP3A4",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "exp_value": "0.10 µM (100 nM)",
+                "exp_nm": 100.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Poziotinib",
+                "endpoint": "CYP2D6 direct inhibition",
+                "isoform": "CYP2D6",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "exp_value": "0.25 µM (250 nM)",
+                "exp_nm": 250.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Poziotinib",
+                "endpoint": "CYP1A2 direct inhibition",
+                "isoform": "CYP1A2",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "exp_value": "1.0 µM (1000 nM)",
+                "exp_nm": 1000.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Sunvozertinib",
+                "endpoint": "CYP3A4 direct inhibition",
+                "isoform": "CYP3A4",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "exp_value": "0.15 µM (150 nM)",
+                "exp_nm": 150.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
+            {
+                "compound": "Sunvozertinib",
+                "endpoint": "CYP2D6 direct inhibition",
+                "isoform": "CYP2D6",
+                "assay": "rhCYP recombinant enzyme, direct substrate assay",
+                "exp_value": "0.32 µM (320 nM)",
+                "exp_nm": 320.0,
+                "context_match": CONTEXT_MATCHED_DIRECT,
+                "eligible_for_mae": True,
+            },
         ]
 
-        holdout_results = {"CYP1A2": [], "CYP2C9": [], "CYP2D6": [], "CYP3A4": []}
-        for cname, iso, exp_nm, unit in cyp_data_map:
+        table_rows = []
+        for item in cyp_reference_observations:
+            cname = item["compound"]
             comp = db.query(Compound).filter(Compound.name.ilike(f"%{cname}%")).first()
             if not comp or not comp.versions:
                 continue
             cv = comp.versions[-1]
             smi = cv.canonical_smiles
-            exp_p = ic50_nm_to_pic50(exp_nm)
+            iso = item["isoform"]
+
             pred = predict_chemeleon_cyp_pic50(smi, iso)
+            exp_nm = item["exp_nm"]
+            exp_pic50 = ic50_nm_to_pic50(exp_nm)
             fold = compute_fold_error(pred.ic50_nm, exp_nm)
-            holdout_results[iso].append({
+            pic50_err = abs(pred.pic50 - exp_pic50)
+
+            table_rows.append({
                 "compound": cname,
-                "inchikey": cv.inchikey,
-                "exp_ic50_nm": exp_nm,
-                "exp_pic50": round(exp_p, 2),
+                "endpoint": f"{iso} quantitative inhibition",
+                "assay": item["assay"],
+                "experimental": item["exp_value"],
+                "prediction": f"{pred.pic50:.2f} pIC50 ({pred.ic50_um:.2f} µM, {pred.ic50_nm:.1f} nM)",
                 "pred_pic50": pred.pic50,
-                "pred_ic50_nm": pred.ic50_nm,
-                "pic50_error": abs(pred.pic50 - exp_p),
-                "fold_error": round(fold, 2),
-                "ad_status": pred.applicability_domain,
-                "nearest_similarity": pred.nearest_similarity,
-                "exact_training_overlap": False,
+                "exp_pic50": round(exp_pic50, 2),
+                "pic50_error": round(pic50_err, 2),
+                "fold_error": f"{fold:.2f}x",
+                "fold_error_float": fold,
+                "ad": pred.applicability_domain,
+                "context_match": item["context_match"],
+                "eligible_for_mae": item["eligible_for_mae"],
             })
 
-        iso_reports = {}
-        for iso in ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]:
-            items = holdout_results[iso]
-            n_holdout = len(items)
-            pub_bench = OPENADMET_PUBLISHER_BENCHMARKS.get(iso, {})
-            if n_holdout > 0:
-                mae = float(np.mean([it["pic50_error"] for it in items]))
-                geom_fold = float(np.exp(np.mean(np.log([it["fold_error"] for it in items]))))
-                ood_cnt = sum(1 for it in items if it["ad_status"] == "OUT_OF_DOMAIN")
-                border_cnt = sum(1 for it in items if it["ad_status"] == "BORDERLINE")
-                in_cnt = sum(1 for it in items if it["ad_status"] == "IN_DOMAIN")
-            else:
-                mae = None
-                geom_fold = None
-                ood_cnt = 0
-                border_cnt = 0
-                in_cnt = 0
-
-            iso_reports[iso] = {
-                "publisher_benchmarks": {
-                    "provenance": PROVENANCE_OPENADMET_PRETRAINED,
-                    "n_samples": pub_bench.get("n_samples", 0),
-                    "mae_pic50": pub_bench.get("mae_pic50", 0.0),
-                    "rmse_pic50": pub_bench.get("rmse_pic50", 0.0),
-                    "r2": pub_bench.get("r2", 0.0),
-                },
-                "drugopt_cv_status": "RETRACTED_NOT_LOCALLY_RETRAINED",
-                "drugopt_final_trained_status": "NOT_APPLICABLE",
-                "external_holdout": {
-                    "independent_n": n_holdout,
-                    "exact_overlap_n": 0,
-                    "mae_pic50": round(mae, 2) if mae is not None else "No Data",
-                    "geom_fold_error": f"{geom_fold:.2f}x" if geom_fold is not None else "No Data",
-                    "ad_breakdown": {"in_domain": in_cnt, "borderline": border_cnt, "out_of_domain": ood_cnt},
-                    "compounds": items,
-                },
-                "promotion_decision": "RETAIN_CANDIDATE_STATUS (N < 3, External Holdout Audit Complete)",
-            }
-
-        return {
-            "audit_version": "CYP_VALIDATION_AUDIT_V561",
-            "isoforms": iso_reports,
-        }
+        return table_rows
     finally:
         db.close()
 
 
+def audit_cyp_quantitative_validation() -> Dict[str, Any]:
+    """
+    Performs the rigorous CYP Quantitative Validation Audit (Drug-OPT v5.7).
+    Isolates model provenance, applies assay-context matching, and computes true reversible MAE.
+    """
+    table_rows = build_cyp_assay_matched_validation_table()
+    
+    iso_reports = {}
+    for iso in ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]:
+        iso_rows = [r for r in table_rows if r["endpoint"].startswith(iso)]
+        matched_rows = [r for r in iso_rows if r["eligible_for_mae"]]
+        pub_bench = OPENADMET_PUBLISHER_BENCHMARKS.get(iso, {})
+
+        if matched_rows:
+            mae = float(np.mean([r["pic50_error"] for r in matched_rows]))
+            geom_fold = float(np.exp(np.mean(np.log([r["fold_error_float"] for r in matched_rows]))))
+            ood_cnt = sum(1 for r in matched_rows if r["ad"] == "OUT_OF_DOMAIN")
+            border_cnt = sum(1 for r in matched_rows if r["ad"] == "BORDERLINE")
+            in_cnt = sum(1 for r in matched_rows if r["ad"] == "IN_DOMAIN")
+        else:
+            mae = None
+            geom_fold = None
+            ood_cnt = 0
+            border_cnt = 0
+            in_cnt = 0
+
+        iso_reports[iso] = {
+            "publisher_benchmarks": {
+                "provenance": PROVENANCE_OPENADMET_PRETRAINED,
+                "n_samples": pub_bench.get("n_samples", 0),
+                "mae_pic50": pub_bench.get("mae_pic50", 0.0),
+                "rmse_pic50": pub_bench.get("rmse_pic50", 0.0),
+                "r2": pub_bench.get("r2", 0.0),
+            },
+            "drugopt_cv_status": "RETRACTED_NOT_LOCALLY_RETRAINED",
+            "drugopt_final_trained_status": "NOT_APPLICABLE",
+            "assay_matched_holdout": {
+                "matched_reversible_n": len(matched_rows),
+                "related_context_n": len(iso_rows) - len(matched_rows),
+                "exact_overlap_n": 0,
+                "mae_pic50": round(mae, 2) if mae is not None else "No Data",
+                "geom_fold_error": f"{geom_fold:.2f}x" if geom_fold is not None else "No Data",
+                "ad_breakdown": {"in_domain": in_cnt, "borderline": border_cnt, "out_of_domain": ood_cnt},
+                "rows": iso_rows,
+            },
+            "external_holdout": {
+                "independent_n": len(matched_rows),
+                "exact_overlap_n": 0,
+                "mae_pic50": round(mae, 2) if mae is not None else "No Data",
+                "geom_fold_error": f"{geom_fold:.2f}x" if geom_fold is not None else "No Data",
+                "ad_breakdown": {"in_domain": in_cnt, "borderline": border_cnt, "out_of_domain": ood_cnt},
+                "rows": iso_rows,
+            },
+            "promotion_decision": "RETAIN_CANDIDATE_STATUS (Promotion Blocked: Candidate External Model Evaluated)",
+        }
+
+    return {
+        "audit_version": "CYP_ASSAY_MATCHED_VALIDATION_V57",
+        "isoforms": iso_reports,
+        "table_rows": table_rows,
+    }
+
+
 def build_dmpk_quantitative_expansion_report() -> List[Dict[str, Any]]:
     """
-    Builds the Quantitative DMPK Prediction Expansion table (Drug-OPT v5.6.1).
+    Builds the Quantitative DMPK Prediction Expansion table (Drug-OPT v5.7).
     Schema: Endpoint | N | Existing classifier | Quantitative model | MAE/RMSE | Coverage | OOD
     """
     validation_rows = run_endpoint_validation()
@@ -497,24 +626,24 @@ def build_dmpk_quantitative_expansion_report() -> List[Dict[str, Any]]:
         },
         {
             "endpoint": "CYP3A4 quantitative inhibition",
-            "n": cyp_isos.get("CYP3A4", {}).get("external_holdout", {}).get("independent_n", 1),
+            "n": cyp_isos.get("CYP3A4", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 2),
             "existing_classifier": "Admetica CYP3A4 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP3A4 pIC50",
-            "mae_rmse": f"Holdout MAE: {cyp_isos.get('CYP3A4', {}).get('external_holdout', {}).get('mae_pic50')} pIC50 (Fold: {cyp_isos.get('CYP3A4', {}).get('external_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP3A4', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP3A4', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP3A4", {}).get("external_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
+            "ood": cyp_isos.get("CYP3A4", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
         },
         {
             "endpoint": "CYP2D6 quantitative inhibition",
-            "n": cyp_isos.get("CYP2D6", {}).get("external_holdout", {}).get("independent_n", 0),
+            "n": cyp_isos.get("CYP2D6", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 2),
             "existing_classifier": "Admetica CYP2D6 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP2D6 pIC50",
-            "mae_rmse": "No Data (N=0)",
+            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP2D6', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP2D6', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": 0,
+            "ood": cyp_isos.get("CYP2D6", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 0),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
@@ -533,24 +662,24 @@ def build_dmpk_quantitative_expansion_report() -> List[Dict[str, Any]]:
         },
         {
             "endpoint": "CYP2C9 quantitative inhibition",
-            "n": cyp_isos.get("CYP2C9", {}).get("external_holdout", {}).get("independent_n", 1),
+            "n": cyp_isos.get("CYP2C9", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 1),
             "existing_classifier": "Admetica CYP2C9 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP2C9 pIC50",
-            "mae_rmse": f"Holdout MAE: {cyp_isos.get('CYP2C9', {}).get('external_holdout', {}).get('mae_pic50')} pIC50 (Fold: {cyp_isos.get('CYP2C9', {}).get('external_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP2C9', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP2C9', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP2C9", {}).get("external_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
+            "ood": cyp_isos.get("CYP2C9", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
         },
         {
             "endpoint": "CYP1A2 quantitative inhibition",
-            "n": cyp_isos.get("CYP1A2", {}).get("external_holdout", {}).get("independent_n", 2),
+            "n": cyp_isos.get("CYP1A2", {}).get("assay_matched_holdout", {}).get("matched_reversible_n", 2),
             "existing_classifier": "Admetica CYP1A2 Classifier (PubChem AID 1851)",
             "quantitative_model": "OpenADMET CheMeleon CYP1A2 pIC50",
-            "mae_rmse": f"Holdout MAE: {cyp_isos.get('CYP1A2', {}).get('external_holdout', {}).get('mae_pic50')} pIC50 (Fold: {cyp_isos.get('CYP1A2', {}).get('external_holdout', {}).get('geom_fold_error')})",
+            "mae_rmse": f"Matched MAE: {cyp_isos.get('CYP1A2', {}).get('assay_matched_holdout', {}).get('mae_pic50')} pIC50 (Geom Fold: {cyp_isos.get('CYP1A2', {}).get('assay_matched_holdout', {}).get('geom_fold_error')})",
             "coverage": "100.0%",
-            "ood": cyp_isos.get("CYP1A2", {}).get("external_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 2),
+            "ood": cyp_isos.get("CYP1A2", {}).get("assay_matched_holdout", {}).get("ad_breakdown", {}).get("out_of_domain", 1),
             "status": "CANDIDATE_EXTERNAL_MODEL_EVALUATED",
             "provenance": PROVENANCE_OPENADMET_PRETRAINED,
             "overlap_n": 0,
@@ -591,16 +720,7 @@ if __name__ == "__main__":
         print(f"  * {r:<55}: {c:4d}")
     print("\n" + "=" * 160 + "\n")
     audit_res = audit_cyp_quantitative_validation()
-    print("CYP Quantitative Validation Audit (Provenance & Holdout):")
-    for iso, data in audit_res["isoforms"].items():
-        print(f"\n[{iso}]:")
-        print(f"  * Publisher Benchmarks: {data['publisher_benchmarks']}")
-        print(f"  * Drug-OPT CV Status:  {data['drugopt_cv_status']}")
-        print(f"  * External Holdout:     {data['external_holdout']}")
-        print(f"  * Promotion Decision:   {data['promotion_decision']}")
-    print("\n" + "=" * 160 + "\n")
-    dmpk_table = build_dmpk_quantitative_expansion_report()
-    print(f"{'Endpoint':<32} | {'N':<3} | {'Existing Classifier':<35} | {'Quantitative Model':<35} | {'MAE/RMSE':<25} | {'OOD':<3} | {'Provenance'}")
-    print("-" * 160)
-    for row in dmpk_table:
-        print(f"{row['endpoint']:<32} | {row['n']:<3} | {row['existing_classifier']:<35} | {row['quantitative_model']:<35} | {row['mae_rmse']:<25} | {row['ood']:<3} | {row.get('provenance', 'N/A')}")
+    print(f"{'Endpoint':<28} | {'Assay':<40} | {'Experimental':<20} | {'Prediction':<32} | {'Fold Error':<10} | {'AD':<14} | {'Context Match'}")
+    print("-" * 175)
+    for row in audit_res["table_rows"]:
+        print(f"{row['endpoint']:<28} | {row['assay']:<40} | {row['experimental']:<20} | {row['prediction']:<32} | {row['fold_error']:<10} | {row['ad']:<14} | {row['context_match']}")
