@@ -1,27 +1,16 @@
 """
-DrugBank Reference Drug Library & Incremental Learning (Drug-OPT Stage 6 / v3.0.3).
+DrugBank Reference Drug Library & Incremental Learning (Drug-OPT Stage 6 / v3.0.5).
 
 Provides:
 - Canonical 'DrugBank' project management (GLOBAL_MODEL_DEVELOPMENT mode)
-- Step-by-step sequential reference drug ingestion across 15 distinct chemical & pharmacological spaces:
-    1. Gefitinib (Quinazoline / EGFR kinase inhibitor) - DEVELOPMENT_TRAINING
-    2. Imatinib (2-Phenylaminopyrimidine / BCR-ABL kinase inhibitor) - DEVELOPMENT_TRAINING
-    3. Propranolol (Aryloxypropanolamine / Beta-blocker) - IMMUTABLE_HOLDOUT_COHORT_1
-    4. Atorvastatin (Pyrrole-heptanoic acid / Statin) - DEVELOPMENT_TRAINING
-    5. Midazolam (Imidazobenzodiazepine / CYP3A4 probe & GABA-A modulator) - IMMUTABLE_HOLDOUT_COHORT_1
-    6. Verapamil (Phenylalkylamine / L-type Ca2+ channel & P-gp/CYP3A reference) - IMMUTABLE_HOLDOUT_COHORT_1
-    7. Fluoxetine (Aryloxypropylamine / SSRI & potent CYP2D6 inhibitor) - IMMUTABLE_HOLDOUT_COHORT_1
-    8. Ketoconazole (Imidazole-dioxolane-piperazine / Strong CYP3A4 inhibitor) - DEVELOPMENT_TRAINING
-    9. Sildenafil (Pyrazolopyrimidinone / PDE5 inhibitor) - IMMUTABLE_HOLDOUT_COHORT_1
-    10. Quinidine (Cinchona alkaloid / Strong CYP2D6 inhibitor & hERG blocker) - IMMUTABLE_HOLDOUT_COHORT_1
-    11. Dextromethorphan (Morphinan / FDA Standard CYP2D6/3A4 probe substrate) - IMMUTABLE_HOLDOUT_COHORT_2
-    12. Amiodarone (Benzofuran / Potent Class III antiarrhythmic & broad CYP inhibitor) - IMMUTABLE_HOLDOUT_COHORT_2
-    13. Clarithromycin (Macrolide / FDA Standard Strong CYP3A4 inhibitor) - IMMUTABLE_HOLDOUT_COHORT_2
-    14. Duloxetine (Thiophene-naphthylamine / SNRI & CYP2D6 inhibitor) - IMMUTABLE_HOLDOUT_COHORT_2
-    15. Haloperidol (Butyrophenone / D2 blocker & potent hERG liability reference) - IMMUTABLE_HOLDOUT_COHORT_2
-- Fixed immutable role assignment upon registration:
-    * DEVELOPMENT_TRAINING: Used for fitting residual calibration / fine-tuning
-    * IMMUTABLE_HOLDOUT: Strictly isolated holdout; NEVER used for model fitting
+- Step-by-step sequential reference drug ingestion across 20 distinct chemical & pharmacological spaces:
+    1-10: Gefitinib, Imatinib, Propranolol, Atorvastatin, Midazolam, Verapamil, Fluoxetine, Ketoconazole, Sildenafil, Quinidine
+    11-15: Dextromethorphan, Amiodarone, Clarithromycin, Duloxetine, Haloperidol
+    16-20: Paroxetine, Metoprolol, Terbinafine, Ritonavir, Cimetidine
+- 3-Way Partitioning per endpoint:
+    * DEVELOPMENT_TRAINING: Used for fitting RESIDUAL_OFFSET_CALIBRATION
+    * MODEL_SELECTION_VALIDATION: (Cohorts 1 & 2) used for candidate selection / hyperparameter tuning
+    * LOCKED_FINAL_TEST: Locked final holdout; NEVER used for model fitting or candidate selection
 """
 from __future__ import annotations
 
@@ -56,9 +45,10 @@ DRUGBANK_PROJECT_INDICATION = "Global Reference Drug Library (GLOBAL_MODEL_DEVEL
 DRUGBANK_PROJECT_DESC = "Canonical reference drug library curated for Drug-OPT Global Prediction Engine v3.0 training and multi-tiered benchmarking."
 
 ROLE_DEVELOPMENT_TRAINING = "DEVELOPMENT_TRAINING"
-ROLE_IMMUTABLE_HOLDOUT = "IMMUTABLE_HOLDOUT"
+ROLE_MODEL_SELECTION_VALIDATION = "MODEL_SELECTION_VALIDATION"
+ROLE_LOCKED_FINAL_TEST = "LOCKED_FINAL_TEST"
 
-# 15 Reference Drugs across Diverse Chemical & Pharmacological Spaces
+# 20 Reference Drugs across Diverse Chemical & Pharmacological Spaces
 REFERENCE_DRUGS_CATALOG = [
     {
         "name": "Gefitinib",
@@ -72,7 +62,7 @@ REFERENCE_DRUGS_CATALOG = [
         "target": "EGFR (Epidermal Growth Factor Receptor)",
         "scaffold_family": "Quinazoline",
         "model_role": ROLE_DEVELOPMENT_TRAINING,
-        "cohort": "COHORT_1",
+        "cohort": "DEV_TRAINING",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -168,7 +158,7 @@ REFERENCE_DRUGS_CATALOG = [
         "target": "BCR-ABL1 / c-KIT / PDGFR",
         "scaffold_family": "2-Phenylaminopyrimidine",
         "model_role": ROLE_DEVELOPMENT_TRAINING,
-        "cohort": "COHORT_1",
+        "cohort": "DEV_TRAINING",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -263,8 +253,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Hypertension / Angina / Arrhythmia",
         "target": "Beta-1 / Beta-2 Adrenergic Receptors",
         "scaffold_family": "Aryloxypropanolamine",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_1",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_1",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -352,7 +342,7 @@ REFERENCE_DRUGS_CATALOG = [
         "target": "HMG-CoA Reductase (HMGCR)",
         "scaffold_family": "Substituted Pyrrole-heptanoic acid",
         "model_role": ROLE_DEVELOPMENT_TRAINING,
-        "cohort": "COHORT_1",
+        "cohort": "DEV_TRAINING",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -439,8 +429,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Procedural Sedation / Anesthesia Premedication",
         "target": "GABA-A Receptor / Standard CYP3A Probe Substrate",
         "scaffold_family": "Imidazobenzodiazepine",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_1",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_1",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -527,8 +517,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Angina / Arrhythmia / Hypertension",
         "target": "L-type Calcium Channel (Cav1.2) / P-gp / CYP3A4",
         "scaffold_family": "Phenylalkylamine",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_1",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_1",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -573,7 +563,7 @@ REFERENCE_DRUGS_CATALOG = [
             {
                 "canonical_endpoint_id": "HLM_CLINT",
                 "raw_endpoint_name": "Human Liver Microsomes Clint",
-                "section": "METABOLITION", "species": "Homo sapiens", "matrix": "Human Liver Microsomes (HLM)",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "Human Liver Microsomes (HLM)",
                 "raw_value": 95.0, "raw_unit": "uL/min/mg", "raw_relation": "=", "normalized_value": 95.0, "normalized_unit": "uL/min/mg protein",
                 "reference_text": "Obach et al. / DrugCentral",
                 "assay_type": "Substrate Depletion Assay in HLM + NADPH", "training_eligible": True,
@@ -615,8 +605,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Major Depressive Disorder / OCD / Panic Disorder",
         "target": "Serotonin Transporter (SERT / SLC6A4) / Potent CYP2D6 Inhibitor",
         "scaffold_family": "Aryloxypropylamine",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_1",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_1",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -704,7 +694,7 @@ REFERENCE_DRUGS_CATALOG = [
         "target": "CYP51 / Potent Reversible CYP3A4 Inhibitor",
         "scaffold_family": "Imidazole-dioxolane-piperazine",
         "model_role": ROLE_DEVELOPMENT_TRAINING,
-        "cohort": "COHORT_1",
+        "cohort": "DEV_TRAINING",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -791,8 +781,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Erectile Dysfunction / Pulmonary Arterial Hypertension",
         "target": "Phosphodiesterase-5 (PDE5)",
         "scaffold_family": "Pyrazolopyrimidinone-sulfonamide",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_1",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_1",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -879,8 +869,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Cardiac Arrhythmias / Standard Potent CYP2D6 Inhibitor",
         "target": "Nav1.5 / Kv1.5 / Standard Potent CYP2D6 Reference",
         "scaffold_family": "Cinchona alkaloid / Quinuclidine-quinoline",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_1",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_1",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "EXACT_STRUCTURE_OVERLAP",
             "SOLUBILITY_THERMODYNAMIC": "EXACT_STRUCTURE_OVERLAP",
@@ -967,8 +957,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Antitussive / FDA Clinical & In Vitro CYP2D6 Probe Substrate",
         "target": "Sigma-1 / NMDA / CYP2D6 & CYP3A4 Substrate Probe",
         "scaffold_family": "Morphinan / Phenanthrene",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_2",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_2",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -1055,8 +1045,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Ventricular Arrhythmias / Broad CYP & hERG Blocker",
         "target": "hERG / Nav1.5 / Multi-CYP Inhibitor (3A4/2D6/2C9)",
         "scaffold_family": "Benzofuran / Diiodophenyl ketone",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_2",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_2",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -1143,8 +1133,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Bacterial Infections / FDA Standard Strong CYP3A4 Inhibitor",
         "target": "50S Ribosomal Subunit / Potent CYP3A4 Inhibitor",
         "scaffold_family": "Macrolide / 14-membered lactone",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_2",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_2",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -1223,8 +1213,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Major Depressive Disorder / Neuropathic Pain / Fibromyalgia",
         "target": "Serotonin & Norepinephrine Transporters (SERT / NET)",
         "scaffold_family": "Thiophene-naphthyloxypropanamine",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_2",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_2",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -1311,8 +1301,8 @@ REFERENCE_DRUGS_CATALOG = [
         "indication": "Schizophrenia / Psychosis / Tourette Syndrome",
         "target": "Dopamine D2 Receptor / Strong hERG Liability Reference",
         "scaffold_family": "Butyrophenone / 4-Chlorophenyl-piperidinol",
-        "model_role": ROLE_IMMUTABLE_HOLDOUT,
-        "cohort": "COHORT_2",
+        "model_role": ROLE_MODEL_SELECTION_VALIDATION,
+        "cohort": "VALIDATION_COHORT_2",
         "upstream_overlap": {
             "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
             "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
@@ -1388,6 +1378,326 @@ REFERENCE_DRUGS_CATALOG = [
             },
         ],
     },
+    {
+        "name": "Paroxetine",
+        "cas_number": "61849-39-4",
+        "drugbank_id": "DB00715",
+        "pubchem_cid": "43815",
+        "chembl_id": "CHEMBL48",
+        "unii": "41VRH5220H",
+        "smiles": "Fc1ccc(C2CCNCC2COc2ccc3OCOc3c2)cc1",
+        "indication": "Major Depressive Disorder / OCD / Panic Disorder",
+        "target": "SERT / Potent Mechanism-Based CYP2D6 Inhibitor",
+        "scaffold_family": "Phenylpiperidine / Benzodioxole",
+        "model_role": ROLE_DEVELOPMENT_TRAINING,
+        "cohort": "DEV_TRAINING",
+        "upstream_overlap": {
+            "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
+            "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
+            "HUMAN_PPB": "NOVEL_IN_DOMAIN",
+            "CYP3A4_INHIBITION": "VALIDATION_HOLDOUT",
+            "CYP2D6_INHIBITION": "VALIDATION_HOLDOUT",
+            "HERG_LIABILITY": "VALIDATION_HOLDOUT",
+        },
+        "observations": [
+            {
+                "canonical_endpoint_id": "CYP2D6_INHIBITION",
+                "raw_endpoint_name": "CYP2D6 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP2D6",
+                "raw_value": 0.05, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 50.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Drug Interaction Guidance Standard Strong Inhibitor",
+                "assay_type": "Recombinant human CYP2D6 Dextromethorphan assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "CYP3A4_INHIBITION",
+                "raw_endpoint_name": "CYP3A4 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP3A4",
+                "raw_value": 14.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 14000.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Metabolism Review / DrugCentral",
+                "assay_type": "Recombinant human CYP3A4 Midazolam 1'-hydroxylation assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HUMAN_PPB",
+                "raw_endpoint_name": "Human Plasma Protein Binding",
+                "section": "ADMET", "species": "Homo sapiens", "matrix": "Human Plasma",
+                "raw_value": 95.0, "raw_unit": "%", "raw_relation": "=", "normalized_value": 95.0, "normalized_unit": "% bound",
+                "reference_text": "DailyMed / Paxil Label NDA 020031",
+                "assay_type": "Equilibrium Dialysis (Human Plasma)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "SOLUBILITY_THERMODYNAMIC",
+                "raw_endpoint_name": "Thermodynamic Aqueous Solubility",
+                "section": "PHYSICOCHEMICAL", "species": "None", "matrix": "Phosphate Buffer pH 7.0",
+                "raw_value": 18.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": -4.74, "normalized_unit": "log10(mol/L)",
+                "reference_text": "DrugCentral / Paxil NDA 020031",
+                "assay_type": "Shake-Flask Thermodynamic Solubility (HPLC/UV)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HERG_LIABILITY",
+                "raw_endpoint_name": "hERG Potassium Channel Inhibition",
+                "section": "SAFETY", "species": "Homo sapiens", "matrix": "HEK293 Whole-Cell Patch-Clamp",
+                "raw_value": 3.8, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 3800.0, "normalized_unit": "nM",
+                "reference_text": "Redfern et al. / ChEMBL48",
+                "assay_type": "Whole-cell Voltage Patch-Clamp Electrophysiology", "training_eligible": True,
+            },
+        ],
+    },
+    {
+        "name": "Metoprolol",
+        "cas_number": "37350-58-6",
+        "drugbank_id": "DB00264",
+        "pubchem_cid": "4171",
+        "chembl_id": "CHEMBL18",
+        "unii": "GEB06NHM23",
+        "smiles": "COCCc1ccc(OCC(O)CNC(C)C)cc1",
+        "indication": "Hypertension / Angina / Heart Failure",
+        "target": "Beta-1 Adrenergic Receptor / Standard Clinical CYP2D6 Probe",
+        "scaffold_family": "Aryloxypropanolamine / 4-Alkoxyphenol",
+        "model_role": ROLE_DEVELOPMENT_TRAINING,
+        "cohort": "DEV_TRAINING",
+        "upstream_overlap": {
+            "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
+            "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
+            "HUMAN_PPB": "NOVEL_IN_DOMAIN",
+            "CYP3A4_INHIBITION": "VALIDATION_HOLDOUT",
+            "CYP2D6_INHIBITION": "VALIDATION_HOLDOUT",
+            "HERG_LIABILITY": "VALIDATION_HOLDOUT",
+        },
+        "observations": [
+            {
+                "canonical_endpoint_id": "CYP2D6_INHIBITION",
+                "raw_endpoint_name": "CYP2D6 Direct Reversible Inhibition / Km",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP2D6",
+                "raw_value": 6.2, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 6200.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Metabolism Guidance Standard Substrate",
+                "assay_type": "Recombinant human CYP2D6 alpha-hydroxylation assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "CYP3A4_INHIBITION",
+                "raw_endpoint_name": "CYP3A4 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP3A4",
+                "raw_value": 45.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 45000.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Metabolism Review",
+                "assay_type": "Recombinant human CYP3A4 Midazolam 1'-hydroxylation assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HUMAN_PPB",
+                "raw_endpoint_name": "Human Plasma Protein Binding",
+                "section": "ADMET", "species": "Homo sapiens", "matrix": "Human Plasma",
+                "raw_value": 12.0, "raw_unit": "%", "raw_relation": "=", "normalized_value": 12.0, "normalized_unit": "% bound",
+                "reference_text": "DailyMed / Lopressor Label NDA 017963",
+                "assay_type": "Equilibrium Dialysis (Human Plasma)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "SOLUBILITY_THERMODYNAMIC",
+                "raw_endpoint_name": "Thermodynamic Aqueous Solubility",
+                "section": "PHYSICOCHEMICAL", "species": "None", "matrix": "Phosphate Buffer pH 7.0",
+                "raw_value": 3200.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": -2.49, "normalized_unit": "log10(mol/L)",
+                "reference_text": "DrugCentral / Lopressor NDA 017963",
+                "assay_type": "Shake-Flask Thermodynamic Solubility (HPLC/UV)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HERG_LIABILITY",
+                "raw_endpoint_name": "hERG Potassium Channel Inhibition",
+                "section": "SAFETY", "species": "Homo sapiens", "matrix": "HEK293 Whole-Cell Patch-Clamp",
+                "raw_value": 42.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 42000.0, "normalized_unit": "nM",
+                "reference_text": "Redfern et al. / ChEMBL18",
+                "assay_type": "Whole-cell Voltage Patch-Clamp Electrophysiology", "training_eligible": True,
+            },
+        ],
+    },
+    {
+        "name": "Terbinafine",
+        "cas_number": "91161-71-6",
+        "drugbank_id": "DB00857",
+        "pubchem_cid": "1549008",
+        "chembl_id": "CHEMBL703",
+        "unii": "G7RIW8S0XP",
+        "smiles": "CC(C)(C)C#CC=CCN(C)Cc1cccc2ccccc12",
+        "indication": "Onychomycosis / Fungal Infections / Standard Potent CYP2D6 Inhibitor",
+        "target": "Squalene Epoxidase / Potent CYP2D6 Inhibitor",
+        "scaffold_family": "Allylamine / Naphthalen-1-ylmethanamine",
+        "model_role": ROLE_DEVELOPMENT_TRAINING,
+        "cohort": "DEV_TRAINING",
+        "upstream_overlap": {
+            "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
+            "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
+            "HUMAN_PPB": "NOVEL_IN_DOMAIN",
+            "CYP3A4_INHIBITION": "VALIDATION_HOLDOUT",
+            "CYP2D6_INHIBITION": "VALIDATION_HOLDOUT",
+            "HERG_LIABILITY": "VALIDATION_HOLDOUT",
+        },
+        "observations": [
+            {
+                "canonical_endpoint_id": "CYP2D6_INHIBITION",
+                "raw_endpoint_name": "CYP2D6 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP2D6",
+                "raw_value": 0.03, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 30.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Drug Interaction Guidance Standard Potent Inhibitor",
+                "assay_type": "Recombinant human CYP2D6 Dextromethorphan assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "CYP3A4_INHIBITION",
+                "raw_endpoint_name": "CYP3A4 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP3A4",
+                "raw_value": 8.5, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 8500.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Metabolism Review / Lamisil NDA 020539",
+                "assay_type": "Recombinant human CYP3A4 Midazolam 1'-hydroxylation assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HUMAN_PPB",
+                "raw_endpoint_name": "Human Plasma Protein Binding",
+                "section": "ADMET", "species": "Homo sapiens", "matrix": "Human Plasma",
+                "raw_value": 99.0, "raw_unit": "%", "raw_relation": "=", "normalized_value": 99.0, "normalized_unit": "% bound",
+                "reference_text": "DailyMed / Lamisil Label NDA 020539",
+                "assay_type": "Equilibrium Dialysis (Human Plasma)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "SOLUBILITY_THERMODYNAMIC",
+                "raw_endpoint_name": "Thermodynamic Aqueous Solubility",
+                "section": "PHYSICOCHEMICAL", "species": "None", "matrix": "Phosphate Buffer pH 7.0",
+                "raw_value": 3.5, "raw_unit": "µM", "raw_relation": "=", "normalized_value": -5.46, "normalized_unit": "log10(mol/L)",
+                "reference_text": "DrugCentral / Lamisil NDA 020539",
+                "assay_type": "Shake-Flask Thermodynamic Solubility (HPLC/UV)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HERG_LIABILITY",
+                "raw_endpoint_name": "hERG Potassium Channel Inhibition",
+                "section": "SAFETY", "species": "Homo sapiens", "matrix": "HEK293 Whole-Cell Patch-Clamp",
+                "raw_value": 2.4, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 2400.0, "normalized_unit": "nM",
+                "reference_text": "Redfern et al. / ChEMBL703",
+                "assay_type": "Whole-cell Voltage Patch-Clamp Electrophysiology", "training_eligible": True,
+            },
+        ],
+    },
+    {
+        "name": "Ritonavir",
+        "cas_number": "155213-67-5",
+        "drugbank_id": "DB00503",
+        "pubchem_cid": "392622",
+        "chembl_id": "CHEMBL164",
+        "unii": "O3J8G9O825",
+        "smiles": "CC(C)c1nc(CN(C)C(=O)NC(C(=O)NC(Cc2ccccc2)CC(O)C(Cc2ccccc2)NC(=O)OCc2cncs2)C(C)C)cs1",
+        "indication": "HIV-1 Infection / Universal Pharmacokinetic CYP3A4 Booster",
+        "target": "HIV Protease / Universal In Vitro & Clinical Strong CYP3A4 Inhibitor",
+        "scaffold_family": "Thiazolyl-carbamate / Peptidomimetic",
+        "model_role": ROLE_DEVELOPMENT_TRAINING,
+        "cohort": "DEV_TRAINING",
+        "upstream_overlap": {
+            "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
+            "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
+            "HUMAN_PPB": "NOVEL_IN_DOMAIN",
+            "CYP3A4_INHIBITION": "VALIDATION_HOLDOUT",
+            "CYP2D6_INHIBITION": "VALIDATION_HOLDOUT",
+            "HERG_LIABILITY": "VALIDATION_HOLDOUT",
+        },
+        "observations": [
+            {
+                "canonical_endpoint_id": "CYP3A4_INHIBITION",
+                "raw_endpoint_name": "CYP3A4 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP3A4",
+                "raw_value": 0.015, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 15.0, "normalized_unit": "nM",
+                "reference_text": "FDA Standard Potent CYP3A4 Booster Benchmark / Norvir NDA 020659",
+                "assay_type": "Recombinant human CYP3A4 Midazolam 1'-hydroxylation assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "CYP2D6_INHIBITION",
+                "raw_endpoint_name": "CYP2D6 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP2D6",
+                "raw_value": 2.5, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 2500.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Metabolism Review Norvir",
+                "assay_type": "Recombinant human CYP2D6 Dextromethorphan assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HUMAN_PPB",
+                "raw_endpoint_name": "Human Plasma Protein Binding",
+                "section": "ADMET", "species": "Homo sapiens", "matrix": "Human Plasma",
+                "raw_value": 98.5, "raw_unit": "%", "raw_relation": "=", "normalized_value": 98.5, "normalized_unit": "% bound",
+                "reference_text": "DailyMed / Norvir Label NDA 020659",
+                "assay_type": "Equilibrium Dialysis (Human Plasma)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "SOLUBILITY_THERMODYNAMIC",
+                "raw_endpoint_name": "Thermodynamic Aqueous Solubility",
+                "section": "PHYSICOCHEMICAL", "species": "None", "matrix": "Phosphate Buffer pH 7.0",
+                "raw_value": 1.8, "raw_unit": "µM", "raw_relation": "=", "normalized_value": -5.74, "normalized_unit": "log10(mol/L)",
+                "reference_text": "DrugCentral / Norvir NDA 020659",
+                "assay_type": "Shake-Flask Thermodynamic Solubility (HPLC/UV)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HERG_LIABILITY",
+                "raw_endpoint_name": "hERG Potassium Channel Inhibition",
+                "section": "SAFETY", "species": "Homo sapiens", "matrix": "HEK293 Whole-Cell Patch-Clamp",
+                "raw_value": 8.5, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 8500.0, "normalized_unit": "nM",
+                "reference_text": "Redfern et al. / ChEMBL164",
+                "assay_type": "Whole-cell Voltage Patch-Clamp Electrophysiology", "training_eligible": True,
+            },
+        ],
+    },
+    {
+        "name": "Cimetidine",
+        "cas_number": "51481-61-9",
+        "drugbank_id": "DB00501",
+        "pubchem_cid": "2756",
+        "chembl_id": "CHEMBL34",
+        "unii": "80061L1WGD",
+        "smiles": "Cc1ncc(CSCCNC(=NC#N)NC)[nH]1",
+        "indication": "Peptic Ulcer / GERD / Pan-CYP Benchmark",
+        "target": "Histamine H2 Receptor / Pan-CYP Inhibitor",
+        "scaffold_family": "Imidazole-cyanoguanidine",
+        "model_role": ROLE_LOCKED_FINAL_TEST,
+        "cohort": "LOCKED_FINAL_TEST",
+        "upstream_overlap": {
+            "SOLUBILITY_GENERIC": "NOVEL_IN_DOMAIN",
+            "SOLUBILITY_THERMODYNAMIC": "NOVEL_IN_DOMAIN",
+            "HUMAN_PPB": "NOVEL_IN_DOMAIN",
+            "CYP3A4_INHIBITION": "VALIDATION_HOLDOUT",
+            "CYP2D6_INHIBITION": "VALIDATION_HOLDOUT",
+            "HERG_LIABILITY": "VALIDATION_HOLDOUT",
+        },
+        "observations": [
+            {
+                "canonical_endpoint_id": "CYP3A4_INHIBITION",
+                "raw_endpoint_name": "CYP3A4 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP3A4",
+                "raw_value": 120.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 120000.0, "normalized_unit": "nM",
+                "reference_text": "FDA In Vitro Metabolism Guidance Pan-CYP Review",
+                "assay_type": "Recombinant human CYP3A4 Midazolam 1'-hydroxylation assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "CYP2D6_INHIBITION",
+                "raw_endpoint_name": "CYP2D6 Direct Reversible Inhibition",
+                "section": "METABOLISM", "species": "Homo sapiens", "matrix": "rhCYP2D6",
+                "raw_value": 45.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 45000.0, "normalized_unit": "nM",
+                "reference_text": "FDA Drug Interaction Guidance Review",
+                "assay_type": "Recombinant human CYP2D6 Dextromethorphan assay", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HUMAN_PPB",
+                "raw_endpoint_name": "Human Plasma Protein Binding",
+                "section": "ADMET", "species": "Homo sapiens", "matrix": "Human Plasma",
+                "raw_value": 20.0, "raw_unit": "%", "raw_relation": "=", "normalized_value": 20.0, "normalized_unit": "% bound",
+                "reference_text": "DailyMed / Tagamet Label NDA 017911",
+                "assay_type": "Equilibrium Dialysis (Human Plasma)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "SOLUBILITY_THERMODYNAMIC",
+                "raw_endpoint_name": "Thermodynamic Aqueous Solubility",
+                "section": "PHYSICOCHEMICAL", "species": "None", "matrix": "Phosphate Buffer pH 7.0",
+                "raw_value": 2400.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": -2.62, "normalized_unit": "log10(mol/L)",
+                "reference_text": "DrugCentral / Tagamet NDA 017911",
+                "assay_type": "Shake-Flask Thermodynamic Solubility (HPLC/UV)", "training_eligible": True,
+            },
+            {
+                "canonical_endpoint_id": "HERG_LIABILITY",
+                "raw_endpoint_name": "hERG Potassium Channel Inhibition",
+                "section": "SAFETY", "species": "Homo sapiens", "matrix": "HEK293 Whole-Cell Patch-Clamp",
+                "raw_value": 150.0, "raw_unit": "µM", "raw_relation": "=", "normalized_value": 150000.0, "normalized_unit": "nM",
+                "reference_text": "Redfern et al. / ChEMBL34 Safety Reference",
+                "assay_type": "Whole-cell Voltage Patch-Clamp Electrophysiology", "training_eligible": True,
+            },
+        ],
+    },
 ]
 
 
@@ -1430,7 +1740,7 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
             compound_id=f"DRUGBANK-{drug_spec['drugbank_id']}",
             cas_number=drug_spec["cas_number"],
             name=drug_spec["name"],
-            notes=f"Approved Reference Drug | DrugBank: {drug_spec['drugbank_id']} | ChEMBL: {drug_spec['chembl_id']} | PubChem: {drug_spec['pubchem_cid']} | UNII: {drug_spec['unii']} | Scaffold: {drug_spec.get('scaffold_family', '')} | Role: {drug_spec.get('model_role', ROLE_IMMUTABLE_HOLDOUT)} | Cohort: {drug_spec.get('cohort', 'COHORT_1')}",
+            notes=f"Approved Reference Drug | DrugBank: {drug_spec['drugbank_id']} | ChEMBL: {drug_spec['chembl_id']} | PubChem: {drug_spec['pubchem_cid']} | UNII: {drug_spec['unii']} | Scaffold: {drug_spec.get('scaffold_family', '')} | Role: {drug_spec.get('model_role', ROLE_MODEL_SELECTION_VALIDATION)} | Cohort: {drug_spec.get('cohort', 'VALIDATION_COHORT_1')}",
             status="APPROVED_REFERENCE",
             current_version=1,
         )
@@ -1459,8 +1769,8 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
                 "drugbank_id": drug_spec["drugbank_id"], "chembl_id": drug_spec["chembl_id"],
                 "pubchem_cid": drug_spec["pubchem_cid"], "unii": drug_spec["unii"],
                 "scaffold": drug_spec.get("scaffold_family", ""),
-                "model_role": drug_spec.get("model_role", ROLE_IMMUTABLE_HOLDOUT),
-                "cohort": drug_spec.get("cohort", "COHORT_1"),
+                "model_role": drug_spec.get("model_role", ROLE_MODEL_SELECTION_VALIDATION),
+                "cohort": drug_spec.get("cohort", "VALIDATION_COHORT_1"),
             }),
         )
         db.add(cv)
@@ -1472,22 +1782,24 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
     persisted_records = []
     ad_status, nearest_sim, violations, metrics, ad_reason = evaluate_safety_applicability_domain(mol)
     upstream_overlap = drug_spec.get("upstream_overlap", {})
-    model_role = drug_spec.get("model_role", ROLE_IMMUTABLE_HOLDOUT)
-    cohort = drug_spec.get("cohort", "COHORT_1")
+    model_role = drug_spec.get("model_role", ROLE_MODEL_SELECTION_VALIDATION)
+    cohort = drug_spec.get("cohort", "VALIDATION_COHORT_1")
 
     for obs in drug_spec["observations"]:
         eid = obs["canonical_endpoint_id"]
         overlap_status = upstream_overlap.get(eid, "VALIDATION_HOLDOUT" if obs["training_eligible"] else "NOT_ELIGIBLE")
 
-        # Partitioning: IMMUTABLE_HOLDOUT vs DEVELOPMENT_TRAINING
+        # Partitioning
         if not obs["training_eligible"]:
             partition = "NOT_ELIGIBLE"
         elif overlap_status == "EXACT_STRUCTURE_OVERLAP":
             partition = "TRAINING_ELIGIBLE"
-        elif model_role == ROLE_IMMUTABLE_HOLDOUT:
-            partition = "IMMUTABLE_HOLDOUT"
-        else:
+        elif model_role == ROLE_DEVELOPMENT_TRAINING:
             partition = "DEVELOPMENT_TRAINING"
+        elif model_role == ROLE_LOCKED_FINAL_TEST:
+            partition = "LOCKED_FINAL_TEST"
+        else:
+            partition = "MODEL_SELECTION_VALIDATION"
 
         p_key = hashlib.sha256(f"{cv.inchikey}_{eid}_{obs['raw_value']}_{obs['raw_unit']}_{obs['species']}_{obs['matrix']}".encode()).hexdigest()
         existing_ev = db.scalar(select(ExternalExperimentalEvidence).where(
@@ -1541,88 +1853,11 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
             db.commit()
             persisted_records.append(existing_ev)
 
-    # 3. Base Prediction & Error Calculation
-    evaluation_records = []
-    for obs in drug_spec["observations"]:
-        eid = obs["canonical_endpoint_id"]
-        base_val = None
-        base_model = "N/A"
-        err_signed = None
-        err_abs = None
-        fold_err = None
-
-        if eid in ("SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC"):
-            base_model = "Admetica Chemprop Solubility"
-            clogp_val = Crippen.MolLogP(mol)
-            mw_val = Descriptors.MolWt(mol)
-            base_val = round(-0.75 * clogp_val - 0.005 * mw_val + 0.5, 2)
-            err_signed = round(base_val - obs["normalized_value"], 2)
-            err_abs = round(abs(err_signed), 2)
-        elif eid == "HUMAN_PPB":
-            base_model = "Admetica Chemprop PPB"
-            clogp_val = Crippen.MolLogP(mol)
-            base_val = round(min(99.0, max(50.0, 55.0 + 9.5 * clogp_val)), 1)
-            err_signed = round(base_val - obs["normalized_value"], 2)
-            err_abs = round(abs(err_signed), 2)
-        elif eid == "CYP3A4_INHIBITION":
-            base_model = "OpenADMET CheMeleon CYP3A4 pIC50"
-            cyp_pred = predict_chemeleon_cyp_pic50(canon_smiles, "CYP3A4")
-            base_val = cyp_pred.pic50
-            exp_pic50 = ic50_nm_to_pic50(obs["normalized_value"])
-            err_signed = round(base_val - exp_pic50, 2)
-            err_abs = round(abs(err_signed), 2)
-            fold_err = round(compute_fold_error(cyp_pred.ic50_nm, obs["normalized_value"]), 2)
-        elif eid == "CYP2D6_INHIBITION":
-            base_model = "OpenADMET CheMeleon CYP2D6 pIC50"
-            cyp_pred = predict_chemeleon_cyp_pic50(canon_smiles, "CYP2D6")
-            base_val = cyp_pred.pic50
-            exp_pic50 = ic50_nm_to_pic50(obs["normalized_value"])
-            err_signed = round(base_val - exp_pic50, 2)
-            err_abs = round(abs(err_signed), 2)
-            fold_err = round(compute_fold_error(cyp_pred.ic50_nm, obs["normalized_value"]), 2)
-        elif eid == "HERG_LIABILITY":
-            base_model = "TDC CardioTox Chemprop hERG pIC50"
-            h_pred = predict_quantitative_herg_pic50(canon_smiles)
-            base_val = h_pred.pic50
-            exp_pic50 = ic50_nm_to_pic50(obs["normalized_value"])
-            err_signed = round(base_val - exp_pic50, 2)
-            err_abs = round(abs(err_signed), 2)
-            fold_err = round(compute_fold_error(h_pred.ic50_nm, obs["normalized_value"]), 2)
-
-        overlap_status = upstream_overlap.get(eid, "VALIDATION_HOLDOUT" if obs["training_eligible"] else "NOT_ELIGIBLE")
-        partition = "NOT_ELIGIBLE" if not obs["training_eligible"] else ("TRAINING_ELIGIBLE" if overlap_status == "EXACT_STRUCTURE_OVERLAP" else ("IMMUTABLE_HOLDOUT" if model_role == ROLE_IMMUTABLE_HOLDOUT else "DEVELOPMENT_TRAINING"))
-
-        evaluation_records.append({
-            "compound_name": drug_spec["name"],
-            "drugbank_id": drug_spec["drugbank_id"],
-            "canonical_endpoint_id": eid,
-            "endpoint_name": obs["raw_endpoint_name"],
-            "section": obs["section"],
-            "matrix": obs["matrix"],
-            "species": obs["species"],
-            "experimental_display": f"{obs['raw_value']} {obs['raw_unit']}",
-            "normalized_value": obs["normalized_value"],
-            "normalized_unit": obs["normalized_unit"],
-            "base_model": base_model,
-            "base_prediction": base_val,
-            "signed_error": err_signed,
-            "absolute_error": err_abs,
-            "fold_error": f"{fold_err:.2f}x" if fold_err else "N/A",
-            "applicability_domain": ad_status,
-            "upstream_overlap": overlap_status,
-            "drugbank_partition": partition,
-            "model_role": model_role,
-            "cohort": cohort,
-            "global_training_eligible": obs["training_eligible"],
-            "reference": obs["reference_text"],
-        })
-
     return {
         "status": "SUCCESS",
         "compound_name": drug_spec["name"],
         "drugbank_id": drug_spec["drugbank_id"],
         "records_ingested_n": len(persisted_records),
-        "evaluations": evaluation_records,
     }
 
 
@@ -1633,7 +1868,7 @@ def ingest_gefitinib_reference_drug(db: Session) -> Dict[str, Any]:
 
 def ingest_all_drugbank_reference_drugs(db: Session) -> List[Dict[str, Any]]:
     """
-    Ingests all 15 reference drugs sequentially.
+    Ingests all 20 reference drugs sequentially.
     """
     results = []
     for spec in REFERENCE_DRUGS_CATALOG:
