@@ -23,18 +23,23 @@ def test_drugbank_project_creation():
         db.close()
 
 
-def test_five_reference_drugs_sequential_ingestion():
-    """Verify all 5 reference drugs are ingested with exact identifiers and qualified records."""
+def test_ten_reference_drugs_sequential_ingestion_and_roles():
+    """Verify all 10 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
     db = SessionLocal()
     try:
         res_list = ingest_all_drugbank_reference_drugs(db)
-        assert len(res_list) == 5
+        assert len(res_list) == 10
         names = [r["compound_name"] for r in res_list]
         assert "Gefitinib" in names
         assert "Imatinib" in names
         assert "Propranolol" in names
         assert "Atorvastatin" in names
         assert "Midazolam" in names
+        assert "Verapamil" in names
+        assert "Fluoxetine" in names
+        assert "Ketoconazole" in names
+        assert "Sildenafil" in names
+        assert "Quinidine" in names
 
         for r in res_list:
             assert r["records_ingested_n"] >= 8
@@ -44,40 +49,34 @@ def test_five_reference_drugs_sequential_ingestion():
 
 
 def test_upstream_training_overlap_isolation_and_holdouts():
-    """Verify upstream training overlap is partitioned into TRAINING_ELIGIBLE vs VALIDATION_HOLDOUT."""
+    """Verify upstream training overlap is partitioned into DEVELOPMENT_TRAINING vs IMMUTABLE_HOLDOUT."""
     db = SessionLocal()
     try:
         dataset = build_global_learning_dataset(db)
-        assert dataset["total_compounds_registered"] == 5
-        assert dataset["total_eligible_observations"] >= 30
-        assert dataset["total_holdout_observations"] >= 20
+        assert dataset["total_compounds_registered"] == 10
+        assert dataset["total_eligible_observations"] >= 70
+        assert dataset["total_holdout_observations"] >= 25
 
-        ppb_data = dataset["endpoints"]["HUMAN_PPB"]
-        # PPB compounds have exact structure overlap in upstream datasets
-        assert len(ppb_data["training_eligible_samples"]) == 5
-        assert len(ppb_data["validation_holdout_samples"]) == 0
-
-        cyp3a4_data = dataset["endpoints"]["CYP3A4_INHIBITION"]
-        assert len(cyp3a4_data["validation_holdout_samples"]) >= 3
+        herg_data = dataset["endpoints"]["HERG_LIABILITY"]
+        assert len(herg_data["development_training_samples"]) == 4
+        assert len(herg_data["immutable_holdout_samples"]) == 6
     finally:
         db.close()
 
 
-def test_engine_v3_readiness_audit_zero_unproven_claims():
-    """Verify Engine v3 readiness computes real holdout MAE and prohibits unproven v3 claims when N < 5."""
+def test_engine_v3_readiness_audit_and_learning_curve():
+    """Verify Engine v3 readiness evaluates immutable holdouts and computes learning curve snapshots."""
     db = SessionLocal()
     try:
         v3_eval = evaluate_global_engine_v3_readiness(db)
         assert "global-prediction-engine-v3" in v3_eval["engine_version"]
-        assert v3_eval["total_compounds"] == 5
+        assert v3_eval["total_compounds"] == 10
+        assert len(v3_eval["herg_learning_curve"]) == 10
 
-        for ep in v3_eval["endpoints_evaluated"]:
-            if ep["true_holdout_n"] < 5:
-                assert ep["fine_tuned_v3_mae"] == "PENDING_SUFFICIENT_HOLDOUT_N"
-                assert "Promotion Gated" in ep["decision"]
-                assert "NO_IMPROVEMENT_CLAIMED" in ep["projected_improvement"]
-            else:
-                assert ep["decision"] == "V3_CALIBRATION_READY_FOR_VALIDATION"
-                assert isinstance(ep["fine_tuned_v3_mae"], float)
+        herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
+        assert herg_eval["immutable_holdout_n"] == 6
+        assert herg_eval["actual_base_mae"] < 0.50
+        assert herg_eval["fine_tuned_v3_mae"] < herg_eval["actual_base_mae"]
+        assert "RETAIN_CANDIDATE_STATUS" in herg_eval["decision"]
     finally:
         db.close()
