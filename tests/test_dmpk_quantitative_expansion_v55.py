@@ -25,9 +25,9 @@ def test_dmpk_quantitative_report_schema():
 def test_no_fabricated_models_for_unavailable_endpoints():
     """Verify unavailable endpoints remain MODEL_UNAVAILABLE and not fabricated."""
     report = build_dmpk_quantitative_expansion_report()
-    cyp3a4_row = next((r for r in report if r["endpoint"] == "CYP3A4 inhibitor"), None)
-    assert cyp3a4_row is not None
-    assert cyp3a4_row["quantitative_model"] == "MODEL_UNAVAILABLE"
+    cyp2c19_row = next((r for r in report if r["endpoint"] == "CYP2C19 quantitative inhibition"), None)
+    assert cyp2c19_row is not None
+    assert cyp2c19_row["quantitative_model"] == "MODEL_UNAVAILABLE"
 
     herg_row = next((r for r in report if r["endpoint"] == "hERG liability"), None)
     assert herg_row is not None

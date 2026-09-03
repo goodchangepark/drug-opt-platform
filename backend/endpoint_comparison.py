@@ -696,7 +696,7 @@ def _presentation_prediction(prediction: dict, endpoint_id: str) -> dict:
     return result
 
 
-def _scientific_rows(endpoints: list[dict]) -> list[dict]:
+def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
     from .classifier_interpretation import interpret_classifier_prediction, compare_classifier_with_experiment, CLASSIFIER_REGISTRY
 
     rows = []
@@ -761,6 +761,35 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
         prim_mid = strat.primary_model_ids[0] if (strat and strat.primary_model_ids) else ""
         alt_mids = strat.shadow_model_ids if strat else []
 
+        # Quantitative CYP pIC50 prediction
+        cyp_quant = None
+        if smiles:
+            for iso in ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]:
+                if iso in source["endpoint_id"]:
+                    try:
+                        from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
+                        q_pred = predict_chemeleon_cyp_pic50(smiles, iso)
+                        cyp_quant = {
+                            "model": f"OpenADMET CheMeleon {iso} pIC50",
+                            "status": "CANDIDATE_EXTERNAL_MODEL",
+                            "pic50": q_pred.pic50,
+                            "ic50_um": q_pred.ic50_um,
+                            "ic50_nm": q_pred.ic50_nm,
+                            "display_text": f"{q_pred.pic50:.2f} pIC50 ({q_pred.ic50_um:.2f} µM)",
+                        }
+                        if primary.get("value") is not None and primary.get("unit") in ("nM", "µM", "uM"):
+                            exp_v = float(primary["value"])
+                            exp_nm = exp_v if primary["unit"] == "nM" else exp_v * 1000.0
+                            exp_pic50 = ic50_nm_to_pic50(exp_nm)
+                            fold_ratio = q_pred.ic50_nm / exp_nm if exp_nm > 0 else None
+                            cyp_quant["experimental_ic50_nm"] = exp_nm
+                            cyp_quant["experimental_pic50"] = round(exp_pic50, 2)
+                            cyp_quant["pic50_delta"] = round(q_pred.pic50 - exp_pic50, 2)
+                            cyp_quant["fold_error"] = round(fold_ratio, 2) if fold_ratio else None
+                    except Exception:
+                        pass
+                    break
+
         grp = _scientific_group(source["endpoint_id"], source["section"], source.get("route", ""))
         rows.append({
             "section": source["section"], "group": grp,
@@ -783,6 +812,8 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
             "primary_model": prim_mid, "primary_prediction": (prediction.get("display") or {}).get("value"),
             "alternative_models": alt_mids, "consensus": (prediction.get("display") or {}).get("value"),
             "validation_n": len(experiments), "model_performance": "Qualified Production Model" if prim_mid else "N/A",
+            "quantitative_prediction": cyp_quant,
+            "classification_prediction": prediction.get("display", {}).get("value") if (interp and interp.get("is_classifier")) else None,
             "difference_display_value": (display_comparison or {}).get("signed_error"), "difference_display_unit": (display_comparison or {}).get("unit"),
             "scientific_interpretation": interpretation["value_assessment"], "agreement_interpretation": interpretation["agreement"], "interpretation": interpretation,
             "interpretation_policy": SCIENTIFIC_INTERPRETATION_VERSION, "agreement_policy": AGREEMENT_POLICY_VERSION,
@@ -958,7 +989,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     for source in endpoints:
         source["project_id"] = compound.project_id
         source["compound_id"] = compound.id
-    scientific_rows = _scientific_rows(endpoints)
+    scientific_rows = _scientific_rows(endpoints, smiles=version.canonical_smiles if version else "")
     section_summary = {}
     for row in scientific_rows:
         section = row["section"]

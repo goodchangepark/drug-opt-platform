@@ -1314,6 +1314,74 @@ class DerivedLogD74Adapter(BaseModelAdapter):
             )
 
 
+class OpenADMETCheMeleonCYPAdapter(BaseModelAdapter):
+    """
+    Candidate External Model: OpenADMET CheMeleon Multi-Task pIC50 Regression.
+    Supports CYP1A2, CYP2C9, CYP2D6, CYP3A4.
+    Outputs continuous pIC50 along with converted IC50 in µM and nM.
+    """
+    def __init__(self, isoform: str):
+        self.isoform = isoform
+        self.endpoint_name = f"{isoform} quantitative inhibition"
+        self.model_id = f"openadmet_chemeleon_{isoform.lower()}_pic50"
+        self.model_name = f"OpenADMET CheMeleon {isoform} pIC50"
+        self.model_family = "openadmet_cyp_chemeleon"
+        self.model_version = "openadmet-cyp-chemeleon-2026.1"
+        self.supported_endpoints = {self.endpoint_name}
+        self.execution_tier = ExecutionTier.TIER_1_LOCAL_FAST
+        self.arm64_status = ARM64Status.RUNS_LOCAL_ARM64
+        self.standardizer_version = "CHEM_STANDARDIZER_V1"
+
+    def is_available(self) -> Tuple[bool, str]:
+        return True, ""
+
+    def execute(self, canonical_smiles: str, contract: Optional[EndpointContract] = None) -> ModelExecutionPayload:
+        t0 = time.perf_counter()
+        try:
+            from backend.openadmet_cyp import predict_chemeleon_cyp_pic50
+            pred = predict_chemeleon_cyp_pic50(canonical_smiles, self.isoform)
+            elapsed_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+            eid = contract.endpoint_id if contract else f"cyp_{self.isoform.lower()}_pic50"
+            cunit = contract.canonical_unit if contract else "pIC50"
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=eid,
+                endpoint_name=self.endpoint_name,
+                canonical_unit=cunit,
+                execution_status=ExecutionStatus.SUCCESS,
+                value=pred.pic50,
+                applicability_domain=pred.applicability_domain,
+                confidence=pred.confidence,
+                runtime_ms=elapsed_ms,
+                standardizer_version=self.standardizer_version,
+                canonical_smiles=canonical_smiles,
+                raw_outputs={
+                    "pIC50": pred.pic50,
+                    "IC50_uM": pred.ic50_um,
+                    "IC50_nM": pred.ic50_nm,
+                    "status": "CANDIDATE_EXTERNAL_MODEL",
+                },
+                provenance=pred.provenance,
+            )
+        except Exception as exc:
+            return ModelExecutionPayload(
+                model_id=self.model_id,
+                model_name=self.model_name,
+                model_family=self.model_family,
+                model_version=self.model_version,
+                endpoint_id=contract.endpoint_id if contract else "unknown",
+                endpoint_name=self.endpoint_name,
+                canonical_unit="pIC50",
+                execution_status=ExecutionStatus.RUNTIME_ERROR,
+                error_message=str(exc),
+                canonical_smiles=canonical_smiles,
+                runtime_ms=round((time.perf_counter() - t0) * 1000.0, 2),
+            )
+
+
 # ==============================================================================
 # GLOBAL MODEL ADAPTER REGISTRY & RESOURCE-AWARE SCHEDULER
 # ==============================================================================
@@ -1411,6 +1479,10 @@ def initialize_default_adapters() -> None:
     register_v2_adapter(PhyschemHumanPPBAdapter())
     register_v2_adapter(RDKitIonizationPkaAdapter())
     register_v2_adapter(DerivedLogD74Adapter())
+
+    # 8. OpenADMET CheMeleon CYP pIC50 Candidate External Models
+    for iso in ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]:
+        register_v2_adapter(OpenADMETCheMeleonCYPAdapter(iso))
 
 
 # Auto-initialize on module import
