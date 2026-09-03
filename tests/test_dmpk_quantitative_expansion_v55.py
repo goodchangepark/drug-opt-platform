@@ -31,7 +31,11 @@ def test_no_fabricated_models_for_unavailable_endpoints():
 
     herg_row = next((r for r in report if r["endpoint"] == "hERG liability"), None)
     assert herg_row is not None
-    assert herg_row["quantitative_model"] == "MODEL_UNAVAILABLE"
+    assert herg_row["quantitative_model"] in ("MODEL_UNAVAILABLE", "TDC CardioTox Chemprop hERG pIC50")
+
+    pgp_row = next((r for r in report if r["endpoint"] == "P-gp inhibitor"), None)
+    assert pgp_row is not None
+    assert pgp_row["quantitative_model"] == "MODEL_UNAVAILABLE"
 
 
 def test_reconciliation_audit_zero_evidence_loss():

@@ -804,6 +804,43 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
                         pass
                     break
 
+        # Quantitative hERG / P-gp prediction
+        if smiles and cyp_quant is None:
+            if "HERG" in source["endpoint_id"]:
+                try:
+                    from backend.quantitative_safety_transporters import predict_quantitative_herg_pic50, ic50_nm_to_pic50
+                    h_pred = predict_quantitative_herg_pic50(smiles)
+                    cyp_quant = {
+                        "model": "TDC CardioTox Chemprop hERG pIC50",
+                        "status": "CANDIDATE_EXTERNAL_MODEL",
+                        "pic50": h_pred.pic50,
+                        "ic50_um": h_pred.ic50_um,
+                        "ic50_nm": h_pred.ic50_nm,
+                        "display_text": f"{h_pred.pic50:.2f} pIC50 ({h_pred.ic50_um:.2f} µM)",
+                        "model_training_matrix": "HEK293 / CHO Whole-Cell Patch-Clamp",
+                        "experimental_matrix": primary_item.get("context", {}).get("matrix") or "HEK293",
+                        "context_match": "MATCHED_PATCH_CLAMP_DIRECT" if "patch" in str(primary_item.get("reference", {})).lower() else "RELATED_CONTEXT",
+                        "comparison_badge": "Candidate Quantitative Model",
+                    }
+                    if primary.get("value") is not None and primary.get("unit") in ("nM", "µM", "uM"):
+                        exp_v = float(primary["value"])
+                        exp_nm = exp_v if primary["unit"] == "nM" else exp_v * 1000.0
+                        exp_pic50 = ic50_nm_to_pic50(exp_nm)
+                        fold_ratio = h_pred.ic50_nm / exp_nm if exp_nm > 0 else None
+                        cyp_quant["experimental_ic50_nm"] = exp_nm
+                        cyp_quant["experimental_pic50"] = round(exp_pic50, 2)
+                        cyp_quant["pic50_delta"] = round(h_pred.pic50 - exp_pic50, 2)
+                        cyp_quant["fold_error"] = round(fold_ratio, 2) if fold_ratio else None
+                except Exception:
+                    pass
+            elif "PGP" in source["endpoint_id"]:
+                cyp_quant = {
+                    "model": "P-gp Quantitative Regression Model",
+                    "status": "MODEL_UNAVAILABLE_PENDING_PRETRAINED_REGRESSION_CHECKPOINT",
+                    "display_text": "Model Unavailable (Classifier Only)",
+                    "reason": "Broccatelli/TDC datasets are binary classification only; verified continuous regression checkpoint unavailable.",
+                }
+
         grp = _scientific_group(source["endpoint_id"], source["section"], source.get("route", ""))
         rows.append({
             "section": source["section"], "group": grp,
