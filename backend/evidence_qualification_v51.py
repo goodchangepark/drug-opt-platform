@@ -383,12 +383,19 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
     raw_ep_lower = raw_ep.lower()
     raw_u_lower = raw_u.lower().replace("μ", "u").replace("µ", "u")
 
+    is_explicit_pk = bool(re.search(r"\b(cmax|tmax|auc|auclast|auc0[- ]24|auc0[- ]t|auc0[- ]inf|half[- ]?life|t1/2|clearance|\bcl\b|cl/f|volume|vd|vd/f|vss|vss/f|bioavailability|\bf\b)\b", raw_ep_lower))
+    is_explicit_solubility = bool(re.search(r"\b(solubility|logs|log s|aqueous solubility)\b", raw_ep_lower))
+    is_explicit_caco2 = bool(re.search(r"\b(caco[- ]?2|caco2|papp|apparent permeability|efflux ratio)\b", raw_ep_lower))
+    is_explicit_ppb = bool(re.search(r"\b(protein binding|plasma protein|\bppb\b|fraction unbound|\bfu\b)\b", raw_ep_lower))
+    is_explicit_metabolism = bool(re.search(r"\b(cyp\s*[0-9a-z]+|cyp3a|cyp3a4|cyp450|cyp2c8|cyp2b6|cyp2c9|cyp2c19|cyp2d6|cyp1a2|hlm|rlm|mlm|hepatocyte|metabolite|feces|urine|excretion|p[- ]?gp|bcrp)\b", raw_ep_lower))
+    is_explicit_herg = bool("herg" in raw_ep_lower)
+
     # -------------------------------------------------------------------------
     # A. ACTIVITY ENDPOINTS (IC50, EC50, Ki, Kd, GI50, Emax, Inhibition %, TGI)
     # -------------------------------------------------------------------------
     # Special: hERG inhibition reported in text as IC50 or current inhibition
-    if ("herg" in raw_ep_lower or "herg" in full_context_lower) and \
-       (re.search(r"inhib|current|block", full_context_lower) or "herg" in raw_ep_lower):
+    if (is_explicit_herg or ("herg" in full_context_lower and not is_explicit_pk and not is_explicit_metabolism and not is_explicit_solubility and not is_explicit_ppb)) and \
+       (re.search(r"inhib|current|block", full_context_lower) or is_explicit_herg):
         section = "TOXICITY"
         canonical_id = "HERG_LIABILITY"
         disp_name = "hERG liability"
@@ -435,19 +442,20 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
     # General Kinase / Target Activity (IC50, EC50, Ki, Kd, GI50, ID50, Selectivity Ratio)
     is_activity = False
     act_mtype = None
-    if re.search(r"\b(ic50|ec50|ki|kd|gi50|id50)\b", raw_ep_lower + " " + full_context_lower) or \
-       (raw_ep in {"Inhibition", "Activity", "TGI", "Emax", "Ratio IC50", "RatioGI50", "Ratio", "Selectivity ratio"}):
-        is_activity = True
-        if "ec50" in raw_ep_lower or "ec50" in full_context_lower: act_mtype = "EC50"
-        elif "ic50" in raw_ep_lower or "ratio ic50" in raw_ep_lower or "id50" in raw_ep_lower or "ic50" in full_context_lower: act_mtype = "IC50"
-        elif "ki" in raw_ep_lower or "ki" in full_context_lower: act_mtype = "Ki"
-        elif "kd" in raw_ep_lower or "kd" in full_context_lower: act_mtype = "Kd"
-        elif "gi50" in raw_ep_lower or "ratiogi50" in raw_ep_lower or "gi50" in full_context_lower: act_mtype = "GI50"
-        elif raw_ep == "Emax": act_mtype = "Emax"
-        elif raw_ep == "TGI": act_mtype = "TGI"
-        elif raw_ep in {"Selectivity ratio", "Ratio"}: act_mtype = "Selectivity_Ratio"
-        elif raw_ep in {"Inhibition", "Activity"}: act_mtype = "Inhibition"
-        else: act_mtype = "IC50"
+    if not is_explicit_pk and not is_explicit_solubility and not is_explicit_caco2 and not is_explicit_ppb and not is_explicit_metabolism:
+        if re.search(r"\b(ic50|ec50|ki|kd|gi50|id50)\b", raw_ep_lower) or \
+           (raw_ep in {"Inhibition", "Activity", "TGI", "Emax", "Ratio IC50", "RatioGI50", "Ratio", "Selectivity ratio"}):
+            is_activity = True
+            if "ec50" in raw_ep_lower or "ec50" in full_context_lower: act_mtype = "EC50"
+            elif "ic50" in raw_ep_lower or "ratio ic50" in raw_ep_lower or "id50" in raw_ep_lower or "ic50" in full_context_lower: act_mtype = "IC50"
+            elif "ki" in raw_ep_lower or "ki" in full_context_lower: act_mtype = "Ki"
+            elif "kd" in raw_ep_lower or "kd" in full_context_lower: act_mtype = "Kd"
+            elif "gi50" in raw_ep_lower or "ratiogi50" in raw_ep_lower or "gi50" in full_context_lower: act_mtype = "GI50"
+            elif raw_ep == "Emax": act_mtype = "Emax"
+            elif raw_ep == "TGI": act_mtype = "TGI"
+            elif raw_ep in {"Selectivity ratio", "Ratio"}: act_mtype = "Selectivity_Ratio"
+            elif raw_ep in {"Inhibition", "Activity"}: act_mtype = "Inhibition"
+            else: act_mtype = "IC50"
 
     if is_activity and not re.search(r"\b(cyp\s*[0-9a-z]+|p[- ]?gp|bcrp)\b", raw_ep_lower):
         section = "ACTIVITY"
@@ -535,7 +543,8 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
             unresolved_reason="", qualification_rule="microsomal_binding_qualified", displayed=True
         )
 
-    if re.search(r"protein binding|plasma protein|\bppb\b|fraction unbound|\bfu\b", raw_ep_lower + " " + full_context_lower) and \
+    if not is_explicit_pk and not is_explicit_metabolism and not is_explicit_solubility and not is_explicit_caco2 and \
+       (is_explicit_ppb or (re.search(r"protein binding|plasma protein|\bppb\b", full_context_lower) and raw_ep_lower in {"ppb", "fraction unbound", "fu", "binding", "plasma binding"})) and \
        not re.search(r"\b(volume of distribution|apparent.*volume|\bvd\b|\bvss\b)\b", raw_ep_lower):
         section = "ADMET"
         ep_species = species if species in {"HUMAN", "RAT", "MOUSE", "DOG", "MONKEY"} else "HUMAN"
@@ -581,7 +590,7 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
     # -------------------------------------------------------------------------
     # C. ADMET: PERMEABILITY & CACO-2
     # -------------------------------------------------------------------------
-    if re.search(r"caco[- ]?2|caco2|papp|apparent permeability", raw_ep_lower + " " + full_context_lower):
+    if not is_explicit_pk and not is_explicit_solubility and not is_explicit_ppb and not is_explicit_metabolism and is_explicit_caco2:
         section = "ADMET"
         if "efflux" in full_context_lower:
             canonical_id = "CACO2_EFFLUX_RATIO"
@@ -647,7 +656,7 @@ def qualify_evidence_record_v51(record: dict) -> QualificationDecision:
     # -------------------------------------------------------------------------
     # D. ADMET: SOLUBILITY
     # -------------------------------------------------------------------------
-    if re.search(r"\bsolubility\b", raw_ep_lower) or (raw_ep_lower in {"log s", "logs"} and "aqueous" in full_context_lower):
+    if not is_explicit_pk and not is_explicit_ppb and not is_explicit_caco2 and not is_explicit_metabolism and is_explicit_solubility:
         section = "ADMET"
         if "intrinsic" in full_context_lower: canonical_id = "SOLUBILITY_INTRINSIC"; disp_name = "Intrinsic solubility"
         elif "kinetic" in full_context_lower: canonical_id = "SOLUBILITY_KINETIC"; disp_name = "Kinetic solubility"

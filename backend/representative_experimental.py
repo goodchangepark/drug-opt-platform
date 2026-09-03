@@ -1,13 +1,31 @@
-"""Deterministic experimental representative selection for scientific rows."""
+"""Deterministic experimental representative selection for scientific rows.
+
+Policy Version: drugopt-representative-experimental-v5.2
+
+Context-Specific Representative Hierarchy:
+1. Approved/Clinical Human Context (e.g. therapeutic clinical dose/regimen, steady state, human plasma)
+2. Validated Human In-Vitro (recombinant kinase / primary cell assay / human hepatocytes/microsomes)
+3. Relevant Animal In-Vivo / In-Vitro (Rat, Dog, Mouse, NHP)
+4. Context Completeness (species, matrix, route, dose, target context)
+5. Origin Priority (INTERNAL_EXPERIMENTAL > EXTERNAL_IMPORTED > AUTO_QUALIFIED_EXTERNAL > EXTERNAL_CANDIDATE > RELATED_EXTERNAL)
+6. Semantic Comparability (DIRECTLY_COMPARABLE > COMPARABLE_AFTER_DETERMINISTIC_CONVERSION > RELATED_SAME_SCIENTIFIC_GROUP)
+7. Source/Reference Quality
+8. Stable Identity Determinism
+
+PREDICTION PROXIMITY IS NEVER CONSULTED.
+"""
 from __future__ import annotations
 
-REPRESENTATIVE_EXPERIMENTAL_VERSION = "drugopt-representative-experimental-v1"
+REPRESENTATIVE_EXPERIMENTAL_VERSION = "drugopt-representative-experimental-v5.2"
 
 _ORIGIN_PRIORITY = {
     "INTERNAL_EXPERIMENTAL": 0,
     "EXTERNAL_IMPORTED": 1,
-    "EXTERNAL_CANDIDATE": 2,
+    "AUTO_QUALIFIED_EXTERNAL": 2,
+    "EXTERNAL_CANDIDATE": 3,
+    "RELATED_EXTERNAL": 4,
 }
+
 _SEMANTIC_PRIORITY = {
     "DIRECTLY_COMPARABLE": 0,
     "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION": 1,
@@ -24,15 +42,54 @@ def representative_rank(item: dict) -> tuple:
     stages = qualification.get("stages") or {}
     origin = item.get("origin") or item.get("state") or "EXTERNAL_CANDIDATE"
     semantic = item.get("comparability") or item.get("qualification") or ""
-    complete_context = bool(stages.get("CONTEXT_QUALIFIED")) or all(
-        context.get(key) not in (None, "", "UNSPECIFIED", "UNRESOLVED")
-        for key in ("species",) if key in context
+
+    # 1. Clinical / Approved Human Context Hierarchy
+    species = str(qualification.get("species") or context.get("species") or item.get("species") or "").upper()
+    regimen = str(qualification.get("regimen") or context.get("regimen") or item.get("regimen") or "").upper()
+    target_context = str(qualification.get("target_context") or context.get("target") or "").upper()
+
+    # Clinical relevance rank
+    # Human steady-state clinical dose: 0
+    # Human clinical single-dose: 1
+    # Human in-vitro / primary assay: 2
+    # Animal in-vivo / in-vitro: 3
+    # Unspecified: 5
+    if species == "HUMAN":
+        if "STEADY" in regimen or "QD" in regimen or "DAILY" in regimen or "CLINICAL" in str(context).upper():
+            clinical_rank = 0
+        elif "SINGLE" in regimen or "ORAL" in str(context).upper() or "IV" in str(context).upper():
+            clinical_rank = 1
+        else:
+            clinical_rank = 2
+    elif species in {"RAT", "DOG", "MOUSE", "MONKEY"}:
+        clinical_rank = 3
+    else:
+        clinical_rank = 5
+
+    # 2. Target Specificity / Assay Relevance Rank
+    # Target mutation (e.g. Exon20ins, cAMP) > General activity > Kinome screening
+    if any(m in target_context for m in ("EXON20INS", "CAMP", "MUTANT", "T790M", "L858R")):
+        target_rank = 0
+    elif target_context not in {"", "GENERAL", "UNSPECIFIED"}:
+        target_rank = 1
+    else:
+        target_rank = 2
+
+    # 3. Context Completeness
+    complete_context = bool(stages.get("CONTEXT_QUALIFIED")) or (
+        species not in {"", "UNSPECIFIED"} and
+        context.get("matrix") not in {None, "", "UNSPECIFIED"}
     )
+
+    # 4. Source Quality
     source_quality = str(context.get("source_quality") or item.get("source_quality") or "D").upper()
     reference = item.get("reference") or {}
     reference_present = bool(reference.get("reference") or reference.get("url") or reference.get("source_record_id"))
     stable_id = str(item.get("display_evidence_group_id") or item.get("independent_experiment_group_id") or item.get("id") or "")
+
     return (
+        clinical_rank,
+        target_rank,
         _ORIGIN_PRIORITY.get(origin, 9),
         _SEMANTIC_PRIORITY.get(semantic, 5),
         0 if complete_context else 1,
@@ -47,5 +104,4 @@ def select_representative(items: list[dict]) -> tuple[dict | None, str]:
     if not eligible:
         return None, "NO_DISPLAYABLE_NUMERIC_OBSERVATION"
     selected = min(eligible, key=representative_rank)
-    origin = selected.get("origin") or selected.get("state") or "EXTERNAL_CANDIDATE"
-    return selected, f"{REPRESENTATIVE_EXPERIMENTAL_VERSION}: origin, semantic compatibility, context completeness, source/reference quality, stable identity"
+    return selected, f"{REPRESENTATIVE_EXPERIMENTAL_VERSION}: clinical context, target specificity, origin priority, semantic comparability, completeness, source quality"
