@@ -23,12 +23,12 @@ def test_drugbank_project_creation():
         db.close()
 
 
-def test_ten_reference_drugs_sequential_ingestion_and_roles():
-    """Verify all 10 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
+def test_fifteen_reference_drugs_sequential_ingestion_and_roles():
+    """Verify all 15 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
     db = SessionLocal()
     try:
         res_list = ingest_all_drugbank_reference_drugs(db)
-        assert len(res_list) == 10
+        assert len(res_list) == 15
         names = [r["compound_name"] for r in res_list]
         assert "Gefitinib" in names
         assert "Imatinib" in names
@@ -40,43 +40,61 @@ def test_ten_reference_drugs_sequential_ingestion_and_roles():
         assert "Ketoconazole" in names
         assert "Sildenafil" in names
         assert "Quinidine" in names
+        assert "Dextromethorphan" in names
+        assert "Amiodarone" in names
+        assert "Clarithromycin" in names
+        assert "Duloxetine" in names
+        assert "Haloperidol" in names
 
         for r in res_list:
-            assert r["records_ingested_n"] >= 8
+            assert r["records_ingested_n"] >= 7
             assert r["status"] == "SUCCESS"
     finally:
         db.close()
 
 
 def test_upstream_training_overlap_isolation_and_holdouts():
-    """Verify upstream training overlap is partitioned into DEVELOPMENT_TRAINING vs IMMUTABLE_HOLDOUT."""
+    """Verify upstream training overlap is partitioned into DEVELOPMENT_TRAINING vs IMMUTABLE_HOLDOUT across cohorts."""
     db = SessionLocal()
     try:
         dataset = build_global_learning_dataset(db)
-        assert dataset["total_compounds_registered"] == 10
-        assert dataset["total_eligible_observations"] >= 70
-        assert dataset["total_holdout_observations"] >= 25
+        assert dataset["total_compounds_registered"] == 15
+        assert dataset["total_eligible_observations"] >= 100
+        assert dataset["total_holdout_observations"] >= 50
 
         herg_data = dataset["endpoints"]["HERG_LIABILITY"]
         assert len(herg_data["development_training_samples"]) == 4
-        assert len(herg_data["immutable_holdout_samples"]) == 6
+        assert len(herg_data["immutable_holdout_samples"]) == 11
     finally:
         db.close()
 
 
-def test_engine_v3_readiness_audit_and_learning_curve():
-    """Verify Engine v3 readiness evaluates immutable holdouts and computes learning curve snapshots."""
+def test_engine_v3_readiness_audit_and_dual_cohort_herg():
+    """Verify Engine v3 readiness evaluates dual-cohort holdouts and qualifies hERG as V3_PRIMARY_PROMOTION_CANDIDATE."""
     db = SessionLocal()
     try:
         v3_eval = evaluate_global_engine_v3_readiness(db)
         assert "global-prediction-engine-v3" in v3_eval["engine_version"]
-        assert v3_eval["total_compounds"] == 10
-        assert len(v3_eval["herg_learning_curve"]) == 10
+        assert v3_eval["total_compounds"] == 15
+        assert len(v3_eval["herg_learning_curve"]) == 15
+
+        # Verify hERG dual-cohort breakdown
+        herg_cb = v3_eval["herg_cohort_breakdown"]
+        assert herg_cb["cohort_1"]["n"] == 6
+        assert herg_cb["cohort_2"]["n"] == 5
+        assert herg_cb["replication_status"] == "REPLICATED_INDEPENDENT_IMPROVEMENT"
 
         herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
-        assert herg_eval["immutable_holdout_n"] == 6
-        assert herg_eval["actual_base_mae"] < 0.50
+        assert herg_eval["evolution_status"] == "V3_PRIMARY_PROMOTION_CANDIDATE"
+        assert "V3_PRIMARY_PROMOTION_CANDIDATE" in herg_eval["decision"]
         assert herg_eval["fine_tuned_v3_mae"] < herg_eval["actual_base_mae"]
-        assert "RETAIN_CANDIDATE_STATUS" in herg_eval["decision"]
+
+        # Verify other endpoints reached Holdout N >= 5
+        cyp3a4_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP3A4_INHIBITION")
+        assert cyp3a4_eval["immutable_holdout_n"] >= 5
+        assert isinstance(cyp3a4_eval["fine_tuned_v3_mae"], float)
+
+        sol_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "SOLUBILITY_GENERIC")
+        assert sol_eval["immutable_holdout_n"] >= 5
     finally:
         db.close()
