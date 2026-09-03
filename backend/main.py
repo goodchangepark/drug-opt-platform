@@ -5096,6 +5096,11 @@ def register_hardening_routes(app):
         min_delta = float(payload.get("min_delta_fold") or 1.5)
         return evaluate_mmp_directional_accuracy(pairs, min_delta_fold=min_delta)
 
+    @app.get("/api/models/endpoint-validation-report")
+    def endpoint_validation_report_endpoint():
+        from backend.endpoint_model_validation import run_endpoint_validation
+        return {"status": "SUCCESS", "report": run_endpoint_validation()}
+
 
 register_pk_routes(app)
 register_ivive_routes(app)

@@ -31,6 +31,7 @@ from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
 from .pk_context import PK_CONTEXT_QUALIFICATION_VERSION, resolve_pk_study_context
 from .representative_experimental import REPRESENTATIVE_EXPERIMENTAL_VERSION, select_representative
 from .scientific_interpretation import interpret_row, SCIENTIFIC_INTERPRETATION_VERSION, AGREEMENT_POLICY_VERSION
+from .endpoint_strategy_registry import get_endpoint_strategy
 
 
 CANONICAL_ENDPOINTS = {
@@ -756,6 +757,10 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
                     display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
                 interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in {DIRECT, CONVERTED}, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
 
+        strat = get_endpoint_strategy(source["endpoint_id"]) or get_endpoint_strategy(display_name)
+        prim_mid = strat.primary_model_ids[0] if (strat and strat.primary_model_ids) else ""
+        alt_mids = strat.shadow_model_ids if strat else []
+
         grp = _scientific_group(source["endpoint_id"], source["section"], source.get("route", ""))
         rows.append({
             "section": source["section"], "group": grp,
@@ -775,6 +780,9 @@ def _scientific_rows(endpoints: list[dict]) -> list[dict]:
             "representative_observation_id": primary.get("representative_observation_id"), "representative_reason": primary.get("representative_reason"), "additional_observation_count": primary.get("additional_observation_count", 0),
             "experimental_display_value": primary.get("value"), "experimental_display_unit": primary.get("unit"),
             "prediction_display_value": (prediction.get("display") or {}).get("value"), "prediction_display_unit": (prediction.get("display") or {}).get("unit"),
+            "primary_model": prim_mid, "primary_prediction": (prediction.get("display") or {}).get("value"),
+            "alternative_models": alt_mids, "consensus": (prediction.get("display") or {}).get("value"),
+            "validation_n": len(experiments), "model_performance": "Qualified Production Model" if prim_mid else "N/A",
             "difference_display_value": (display_comparison or {}).get("signed_error"), "difference_display_unit": (display_comparison or {}).get("unit"),
             "scientific_interpretation": interpretation["value_assessment"], "agreement_interpretation": interpretation["agreement"], "interpretation": interpretation,
             "interpretation_policy": SCIENTIFIC_INTERPRETATION_VERSION, "agreement_policy": AGREEMENT_POLICY_VERSION,
