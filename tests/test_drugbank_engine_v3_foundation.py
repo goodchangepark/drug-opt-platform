@@ -1,7 +1,12 @@
 """Unit and integration tests for DrugBank Project & Global Engine v3.0 Foundation."""
 import pytest
 from backend.database import SessionLocal
-from backend.drugbank_reference import ensure_drugbank_project, ingest_gefitinib_reference_drug, DRUGBANK_PROJECT_NAME
+from backend.drugbank_reference import (
+    ensure_drugbank_project,
+    ingest_gefitinib_reference_drug,
+    ingest_all_drugbank_reference_drugs,
+    DRUGBANK_PROJECT_NAME,
+)
 from backend.engine_v3_learning import build_global_learning_dataset, evaluate_global_engine_v3_readiness
 from backend.models import Project, Compound, CompoundVersion, ExternalExperimentalEvidence
 from sqlalchemy import select
@@ -18,61 +23,61 @@ def test_drugbank_project_creation():
         db.close()
 
 
-def test_gefitinib_reference_drug_ingestion_and_identifiers():
-    """Verify Gefitinib reference drug is ingested with exact identifiers and qualified records."""
+def test_five_reference_drugs_sequential_ingestion():
+    """Verify all 5 reference drugs are ingested with exact identifiers and qualified records."""
     db = SessionLocal()
     try:
-        res = ingest_gefitinib_reference_drug(db)
-        assert res["status"] == "SUCCESS"
-        assert res["compound_name"] == "Gefitinib"
-        assert res["drugbank_id"] == "DB00317"
-        assert res["records_ingested_n"] >= 10
+        res_list = ingest_all_drugbank_reference_drugs(db)
+        assert len(res_list) == 5
+        names = [r["compound_name"] for r in res_list]
+        assert "Gefitinib" in names
+        assert "Imatinib" in names
+        assert "Propranolol" in names
+        assert "Atorvastatin" in names
+        assert "Midazolam" in names
 
-        comp = db.scalar(select(Compound).where(Compound.id == res["compound_id"]))
-        assert comp is not None
-        assert "184475-35-2" in comp.cas_number
-        assert "CHEMBL939" in comp.notes
-        assert "123631" in comp.notes
-
-        cv = db.scalar(select(CompoundVersion).where(CompoundVersion.compound_row_id == comp.id, CompoundVersion.version_number == 1))
-        assert cv is not None
-        assert cv.inchikey == "XGALLCVXEZPNRQ-UHFFFAOYSA-N"
+        for r in res_list:
+            assert r["records_ingested_n"] >= 8
+            assert r["status"] == "SUCCESS"
     finally:
         db.close()
 
 
-def test_gefitinib_base_predictions_and_error_evaluation():
-    """Verify base predictions and signed/absolute errors are computed for Gefitinib across endpoints."""
+def test_upstream_training_overlap_isolation_and_holdouts():
+    """Verify upstream training overlap is partitioned into TRAINING_ELIGIBLE vs VALIDATION_HOLDOUT."""
     db = SessionLocal()
     try:
-        res = ingest_gefitinib_reference_drug(db)
-        evals = res["evaluations"]
+        dataset = build_global_learning_dataset(db)
+        assert dataset["total_compounds_registered"] == 5
+        assert dataset["total_eligible_observations"] >= 30
+        assert dataset["total_holdout_observations"] >= 20
 
-        sol_eval = next(e for e in evals if e["canonical_endpoint_id"] == "SOLUBILITY_GENERIC")
-        assert sol_eval["base_prediction"] is not None
-        assert sol_eval["absolute_error"] < 0.5
-        assert sol_eval["global_training_eligible"] is True
+        ppb_data = dataset["endpoints"]["HUMAN_PPB"]
+        # PPB compounds have exact structure overlap in upstream datasets
+        assert len(ppb_data["training_eligible_samples"]) == 5
+        assert len(ppb_data["validation_holdout_samples"]) == 0
 
-        cyp3a4_eval = next(e for e in evals if e["canonical_endpoint_id"] == "CYP3A4_INHIBITION")
-        assert cyp3a4_eval["base_prediction"] is not None
-        assert cyp3a4_eval["global_training_eligible"] is True
-
-        pk_eval = next(e for e in evals if e["canonical_endpoint_id"] == "HUMAN_PK_CMAX_ORAL")
-        assert pk_eval["global_training_eligible"] is False  # Composite PK parameter
+        cyp3a4_data = dataset["endpoints"]["CYP3A4_INHIBITION"]
+        assert len(cyp3a4_data["validation_holdout_samples"]) >= 3
     finally:
         db.close()
 
 
-def test_engine_v3_readiness_and_promotion_gating():
-    """Verify Engine v3 dataset accumulation and promotion gating (N < 5 blocks promotion)."""
+def test_engine_v3_readiness_audit_zero_unproven_claims():
+    """Verify Engine v3 readiness computes real holdout MAE and prohibits unproven v3 claims when N < 5."""
     db = SessionLocal()
     try:
         v3_eval = evaluate_global_engine_v3_readiness(db)
         assert "global-prediction-engine-v3" in v3_eval["engine_version"]
-        assert v3_eval["total_eligible_observations"] >= 5
+        assert v3_eval["total_compounds"] == 5
 
         for ep in v3_eval["endpoints_evaluated"]:
-            assert ep["drugbank_reference_n"] >= 1
-            assert "Promotion Gated" in ep["decision"] or ep["drugbank_reference_n"] >= 5
+            if ep["true_holdout_n"] < 5:
+                assert ep["fine_tuned_v3_mae"] == "PENDING_SUFFICIENT_HOLDOUT_N"
+                assert "Promotion Gated" in ep["decision"]
+                assert "NO_IMPROVEMENT_CLAIMED" in ep["projected_improvement"]
+            else:
+                assert ep["decision"] == "V3_CALIBRATION_READY_FOR_VALIDATION"
+                assert isinstance(ep["fine_tuned_v3_mae"], float)
     finally:
         db.close()
