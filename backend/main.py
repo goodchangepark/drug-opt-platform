@@ -5101,6 +5101,16 @@ def register_hardening_routes(app):
         from backend.endpoint_model_validation import run_endpoint_validation
         return {"status": "SUCCESS", "report": run_endpoint_validation()}
 
+    @app.get("/api/engine-v3/status")
+    def engine_v3_status_endpoint(db: Session = Depends(get_db)):
+        from backend.engine_v3_learning import evaluate_global_engine_v3_readiness
+        return evaluate_global_engine_v3_readiness(db)
+
+    @app.get("/api/engine-v3/drugbank-summary")
+    def engine_v3_drugbank_summary_endpoint(db: Session = Depends(get_db)):
+        from backend.engine_v3_learning import build_global_learning_dataset
+        return build_global_learning_dataset(db)
+
 
 register_pk_routes(app)
 register_ivive_routes(app)
