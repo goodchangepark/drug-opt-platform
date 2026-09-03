@@ -53,12 +53,12 @@ def test_real_applicability_domain_evaluation():
     """Verify real chemical space AD evaluates Morgan/Tanimoto similarity and descriptor envelope."""
     # Small standard drug within domain (e.g. Caffeine)
     caffeine = Chem.MolFromSmiles("CN1C=NC2=C1C(=O)N(C(=O)N2C)C")
-    status_caf, sim_caf, viol_caf = evaluate_cyp_applicability_domain(caffeine)
+    status_caf, sim_caf, viol_caf, metrics_caf, reason_caf = evaluate_cyp_applicability_domain(caffeine)
     assert len(viol_caf) == 0
 
     # Large complex drug exceeding MW envelope (e.g. Orforglipron MW 883)
     orforglipron = Chem.MolFromSmiles("CC1(CN(C1)C(=O)C2=CC=C(C=C2)C3=NN=C(N3)C4=CC(=C(C=C4)C#N)N5C=C(C=N5)C6=CC=CC=C6)C7=CC=CC=C7")
-    status_orf, sim_orf, viol_orf = evaluate_cyp_applicability_domain(orforglipron)
+    status_orf, sim_orf, viol_orf, metrics_orf, reason_orf = evaluate_cyp_applicability_domain(orforglipron)
     assert status_orf in ("BORDERLINE", "OUT_OF_DOMAIN")
 
 

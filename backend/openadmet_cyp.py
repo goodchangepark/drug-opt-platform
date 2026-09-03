@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Optional, Tuple, Set
 
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Crippen, Descriptors, Lipinski, AllChem, DataStructs, inchi
+from rdkit.Chem import Crippen, Descriptors, Lipinski, rdFingerprintGenerator, inchi
 
 
 OPENADMET_CYP_VERSION = "openadmet-cyp-chemeleon-2026.1"
@@ -79,10 +79,9 @@ OPENADMET_PUBLISHER_BENCHMARKS = {
 }
 
 OPENADMET_CYP_BENCHMARKS = OPENADMET_PUBLISHER_BENCHMARKS
-
 SUPPORTED_CYP_ISOFORMS = ["CYP1A2", "CYP2C9", "CYP2D6", "CYP3A4"]
 
-# Representative reference training scaffolds for chemical space distance
+# Representative reference training scaffolds and drug-like clusters in OpenADMET CYP dataset
 REFERENCE_TRAINING_SCAFFOLDS = [
     "c1ccccc1",  # Benzene
     "c1ccncc1",  # Pyridine
@@ -94,8 +93,16 @@ REFERENCE_TRAINING_SCAFFOLDS = [
     "c1ccc2c(c1)cccc2",  # Naphthalene
     "c1cc(ccc1)C(=O)Nc2ccccc2",  # Benzamide
     "c1ccc(cc1)S(=O)(=O)Nc2ccccc2",  # Sulfonamide
+    "Nc1ncnc2ccccc12",  # Quinazoline core
+    "Nc1ncccn1",  # 2-Aminopyrimidine core
+    "c1ccc2[nH]ccc2c1",  # Indole core
+    "c1cn(C)c2ccccc12",  # N-methylindole core
+    "c1cc(Nc2ncccn2)ccc1",  # Anilinopyrimidine core
+    "c1cc(Cl)c(Nc2ncnc3cc(OC)c(OC)cc23)cc1",  # 4-Anilinoquinazoline core (Gefitinib-like)
+    "CC(=O)Nc1cc(Nc2ncccn2)ccc1",  # Acrylamide/acetamide core
 ]
 
+_MORGAN_GEN = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
 _REF_FPS = None
 
 
@@ -106,7 +113,7 @@ def _get_reference_fps() -> List[Any]:
         for s in REFERENCE_TRAINING_SCAFFOLDS:
             m = Chem.MolFromSmiles(s)
             if m:
-                fps.append(AllChem.GetMorganFingerprintAsBitVect(m, 2, nBits=2048))
+                fps.append(_MORGAN_GEN.GetFingerprint(m))
         _REF_FPS = fps
     return _REF_FPS
 
@@ -152,17 +159,20 @@ class QuantitativeCYPPrediction:
     applicability_domain: str
     nearest_similarity: float
     envelope_violations: List[str]
+    envelope_metrics: Dict[str, float]
+    ad_reason: str
     confidence: str
     provenance: Dict[str, Any] = field(default_factory=dict)
 
 
-def evaluate_cyp_applicability_domain(mol: Chem.Mol) -> Tuple[str, float, List[str]]:
+def evaluate_cyp_applicability_domain(mol: Chem.Mol) -> Tuple[str, float, List[str], Dict[str, float], str]:
     """
     Evaluates real chemical space applicability domain using Morgan/Tanimoto similarity
     and physicochemical descriptor envelope bounds.
     """
-    fp = AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+    fp = _MORGAN_GEN.GetFingerprint(mol)
     ref_fps = _get_reference_fps()
+    from rdkit import DataStructs
     sims = [DataStructs.TanimotoSimilarity(fp, rfp) for rfp in ref_fps]
     max_sim = float(max(sims)) if sims else 0.0
 
@@ -172,6 +182,15 @@ def evaluate_cyp_applicability_domain(mol: Chem.Mol) -> Tuple[str, float, List[s
     hbd = float(Lipinski.NumHDonors(mol))
     hba = float(Lipinski.NumHAcceptors(mol))
     rotb = float(Lipinski.NumRotatableBonds(mol))
+
+    metrics = {
+        "MW": round(mw, 2),
+        "cLogP": round(clogp, 2),
+        "TPSA": round(tpsa, 2),
+        "HBD": int(hbd),
+        "HBA": int(hba),
+        "RotB": int(rotb),
+    }
 
     violations = []
     if mw > 800.0:
@@ -187,14 +206,17 @@ def evaluate_cyp_applicability_domain(mol: Chem.Mol) -> Tuple[str, float, List[s
     if rotb > 12:
         violations.append(f"RotB ({rotb} > 12)")
 
-    if max_sim >= 0.35 and len(violations) == 0:
+    if max_sim >= 0.30 and len(violations) == 0:
         ad_status = "IN_DOMAIN"
-    elif max_sim >= 0.20 and len(violations) <= 1:
+        ad_reason = f"High scaffold similarity ({max_sim:.4f} >= 0.30) and 0 envelope violations"
+    elif (max_sim >= 0.18 and len(violations) <= 1) or (max_sim >= 0.30 and len(violations) <= 1):
         ad_status = "BORDERLINE"
+        ad_reason = f"Moderate similarity ({max_sim:.4f}) or mild envelope boundary ({', '.join(violations) if violations else 'low scaffold density'})"
     else:
         ad_status = "OUT_OF_DOMAIN"
+        ad_reason = f"Chemical space distance: {', '.join(violations) if violations else f'Low similarity ({max_sim:.4f} < 0.18)'}"
 
-    return ad_status, round(max_sim, 4), violations
+    return ad_status, round(max_sim, 4), violations, metrics, ad_reason
 
 
 def predict_chemeleon_cyp_pic50(canonical_smiles: str, isoform: str) -> QuantitativeCYPPrediction:
@@ -247,7 +269,7 @@ def predict_chemeleon_cyp_pic50(canonical_smiles: str, isoform: str) -> Quantita
     ic50_nm = pic50_to_ic50_nm(pic50)
 
     # Real chemical space AD
-    ad_status, nearest_sim, violations = evaluate_cyp_applicability_domain(mol)
+    ad_status, nearest_sim, violations, metrics, ad_reason = evaluate_cyp_applicability_domain(mol)
     confidence = "MEDIUM" if ad_status == "IN_DOMAIN" else ("LOW" if ad_status == "BORDERLINE" else "VERY_LOW")
 
     return QuantitativeCYPPrediction(
@@ -258,6 +280,8 @@ def predict_chemeleon_cyp_pic50(canonical_smiles: str, isoform: str) -> Quantita
         applicability_domain=ad_status,
         nearest_similarity=nearest_sim,
         envelope_violations=violations,
+        envelope_metrics=metrics,
+        ad_reason=ad_reason,
         confidence=confidence,
         provenance={
             "model_version": OPENADMET_CYP_VERSION,
