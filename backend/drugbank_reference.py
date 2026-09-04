@@ -54,10 +54,14 @@ ROLE_MODEL_SELECTION_VALIDATION = "MODEL_SELECTION_VALIDATION"
 ROLE_FINAL_TEST_COHORT_1_CONSUMED = "FINAL_TEST_COHORT_1_CONSUMED"
 ROLE_FINAL_TEST_COHORT_2_CONSUMED = "FINAL_TEST_COHORT_2_CONSUMED"
 ROLE_LOCKED_FINAL_TEST_COHORT_2 = "FINAL_TEST_COHORT_2_CONSUMED"  # Backward compatibility alias
-ROLE_LOCKED_FINAL_TEST_COHORT_3 = "LOCKED_FINAL_TEST_COHORT_3"
+ROLE_FINAL_TEST_COHORT_3_CONSUMED = "FINAL_TEST_COHORT_3_CONSUMED"
+ROLE_LOCKED_FINAL_TEST_COHORT_3 = "FINAL_TEST_COHORT_3_CONSUMED"  # Backward compatibility alias
+ROLE_LOCKED_FINAL_TEST_COHORT_4 = "LOCKED_FINAL_TEST_COHORT_4"
 
-# Load full 50 reference drugs catalog
-CATALOG_PATH = Path(__file__).parent / "reference_drugs_50.json"
+# Load full 65 reference drugs catalog
+CATALOG_PATH = Path(__file__).parent / "reference_drugs_65.json"
+if not CATALOG_PATH.exists():
+    CATALOG_PATH = Path(__file__).parent / "reference_drugs_50.json"
 if not CATALOG_PATH.exists():
     CATALOG_PATH = Path(__file__).parent / "reference_drugs_40.json"
 
@@ -167,8 +171,12 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
             partition = "FINAL_TEST_COHORT_1_CONSUMED"
         elif model_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
             partition = "FINAL_TEST_COHORT_2_CONSUMED"
+        elif model_role == ROLE_FINAL_TEST_COHORT_3_CONSUMED:
+            partition = "FINAL_TEST_COHORT_3_CONSUMED"
+        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_4:
+            partition = "LOCKED_FINAL_TEST_COHORT_4"
         elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_3:
-            partition = "LOCKED_FINAL_TEST_COHORT_3"
+            partition = "FINAL_TEST_COHORT_3_CONSUMED"
         else:
             partition = "MODEL_SELECTION_VALIDATION"
 
@@ -358,8 +366,12 @@ def ingest_reference_drug_stepwise_lifecycle(db: Session, drug_spec: Dict[str, A
             partition = "FINAL_TEST_COHORT_1_CONSUMED"
         elif model_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
             partition = "FINAL_TEST_COHORT_2_CONSUMED"
+        elif model_role == ROLE_FINAL_TEST_COHORT_3_CONSUMED:
+            partition = "FINAL_TEST_COHORT_3_CONSUMED"
+        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_4:
+            partition = "LOCKED_FINAL_TEST_COHORT_4"
         elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_3:
-            partition = "LOCKED_FINAL_TEST_COHORT_3"
+            partition = "FINAL_TEST_COHORT_3_CONSUMED"
         else:
             partition = "MODEL_SELECTION_VALIDATION"
 
@@ -443,7 +455,7 @@ def ingest_reference_drug_stepwise_lifecycle(db: Session, drug_spec: Dict[str, A
 
         # 5. Error Stage
         exp_val = float(obs["normalized_value"])
-        if eid in ("HERG_LIABILITY", "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION", "CYP2C9_INHIBITION"):
+        if eid in ("HERG_LIABILITY", "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION", "CYP2C9_INHIBITION", "CYP2C19_INHIBITION"):
             exp_p = ic50_nm_to_pic50(exp_val) if exp_val > 0 else exp_val
         else:
             exp_p = exp_val
@@ -497,6 +509,30 @@ def ingest_v3_1_expansion_drugs_sequential(db: Session) -> List[Dict[str, Any]]:
     completed_lifecycle_results = []
 
     for idx, spec in enumerate(expansion_specs, start=41):
+        res = ingest_reference_drug_stepwise_lifecycle(db, spec)
+        assert res["identity"]["status"] == "IDENTITY_VERIFIED"
+        assert len(res["evidence"]) >= 5
+        assert len(res["qualification"]) >= 5
+        assert len(res["prediction"]) >= 5
+        assert len(res["error"]) >= 5
+        completed_lifecycle_results.append(res)
+
+    return completed_lifecycle_results
+
+
+def ingest_v3_2_expansion_drugs_sequential(db: Session) -> List[Dict[str, Any]]:
+    """
+    Sequentially ingests the 15 new approved reference drugs (Drugs 51 to 65)
+    for Global Engine v3.2, enforcing Identity -> Evidence -> Qualification -> Prediction -> Error
+    stepwise completion for each compound before advancing to the next.
+    """
+    if len(REFERENCE_DRUGS_CATALOG) < 65:
+        raise RuntimeError("Catalog must contain at least 65 drugs for v3.2 expansion")
+
+    expansion_specs = REFERENCE_DRUGS_CATALOG[50:65]
+    completed_lifecycle_results = []
+
+    for idx, spec in enumerate(expansion_specs, start=51):
         res = ingest_reference_drug_stepwise_lifecycle(db, spec)
         assert res["identity"]["status"] == "IDENTITY_VERIFIED"
         assert len(res["evidence"]) >= 5

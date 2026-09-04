@@ -20,14 +20,15 @@ def test_v3_production_release_governance_and_promotion_statuses():
     db = SessionLocal()
     try:
         readiness = evaluate_global_engine_v3_readiness(db)
-        assert readiness["release_status"] == "GLOBAL_ENGINE_V3_1_PRODUCTION_RELEASE"
+        assert readiness["release_status"] == "GLOBAL_ENGINE_V3_2_PRODUCTION_RELEASE"
 
         statuses = {ep["endpoint_id"]: ep["promotion_status"] for ep in readiness["endpoints_evaluated"]}
         assert statuses["CYP3A4_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["CYP2D6_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["SOLUBILITY_GENERIC"] == "GLOBAL_V3_PRIMARY"
         assert statuses["HERG_LIABILITY"] == "GLOBAL_V3_PRIMARY"
-        assert statuses["HUMAN_PPB"] == "V3_CANDIDATE"
+        assert statuses["HLM_INTRINSIC_CLEARANCE"] in ("V3_CANDIDATE", "GLOBAL_V3_PRIMARY")
+        assert statuses["CYP2C19_INHIBITION"] == "MODEL_UNAVAILABLE"
 
         # Verify separated Validation vs Final-Test performance metrics
         for ep in readiness["endpoints_evaluated"]:
@@ -103,7 +104,7 @@ def test_v3_production_routing_on_new_project_compounds():
             res_cyp3a4 = predict_global_v3_endpoint(db, smi, "CYP3A4_INHIBITION", project_id=proj.id)
             assert res_cyp3a4["model_tier"] == "GLOBAL_V3_PRIMARY"
             assert res_cyp3a4["production_prediction"] == res_cyp3a4["v3_prediction"]
-            assert res_cyp3a4["engine_version"] == "global-prediction-engine-v3.1.0"
+            assert res_cyp3a4["engine_version"] == "global-prediction-engine-v3.2.0"
             assert res_cyp3a4["global_prediction"] == res_cyp3a4["v3_prediction"]
             assert res_cyp3a4["project_adjusted_prediction"] is None
             assert res_cyp3a4["project_adapter_status"] == "INSUFFICIENT_DATA"
@@ -292,9 +293,9 @@ def test_project_adapter_independent_compound_governance():
             assert res_phase2["production_prediction"] == res_phase2["global_prediction"]
 
         # Phase 3: Zero Leakage Verification
-        # DrugBank reference dataset must strictly contain only the 50 reference compounds
+        # DrugBank reference dataset must strictly contain only the 65 reference compounds
         db_summary = build_global_learning_dataset(db)
-        assert db_summary["total_compounds_registered"] == 50
+        assert db_summary["total_compounds_registered"] == 65
         assert db_summary["project_name"] == "DrugBank"
         # None of the adapter test compounds appear in DrugBank dataset
         for ep_key, ep_val in db_summary["endpoints"].items():

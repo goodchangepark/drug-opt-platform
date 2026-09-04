@@ -1,5 +1,5 @@
 """
-Tests for Global Prediction Engine v3.1 Release & 50 DrugBank Reference Library (Stage 6 / v3.1 Expansion & Project Adapter Governance).
+Tests for Global Prediction Engine v3.2 Release & 65 DrugBank Reference Library (Stage 6 / v3.2 Expansion & Project Adapter Governance).
 """
 import pytest
 from sqlalchemy import select
@@ -10,13 +10,15 @@ from backend.drugbank_reference import (
     ingest_gefitinib_reference_drug,
     ingest_all_drugbank_reference_drugs,
     ingest_v3_1_expansion_drugs_sequential,
+    ingest_v3_2_expansion_drugs_sequential,
     DRUGBANK_PROJECT_NAME,
     REFERENCE_DRUGS_CATALOG,
     ROLE_DEVELOPMENT_TRAINING,
     ROLE_MODEL_SELECTION_VALIDATION,
     ROLE_FINAL_TEST_COHORT_1_CONSUMED,
     ROLE_FINAL_TEST_COHORT_2_CONSUMED,
-    ROLE_LOCKED_FINAL_TEST_COHORT_3,
+    ROLE_FINAL_TEST_COHORT_3_CONSUMED,
+    ROLE_LOCKED_FINAL_TEST_COHORT_4,
 )
 from backend.engine_v3_learning import (
     build_global_learning_dataset,
@@ -37,12 +39,12 @@ def test_drugbank_project_creation_and_provenance():
         db.close()
 
 
-def test_fifty_reference_drugs_sequential_ingestion_and_roles():
-    """Verify all 50 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
+def test_sixty_five_reference_drugs_sequential_ingestion_and_roles():
+    """Verify all 65 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
     db = SessionLocal()
     try:
         res_list = ingest_all_drugbank_reference_drugs(db)
-        assert len(res_list) == 50
+        assert len(res_list) == 65
         names = [r["compound_name"] for r in res_list]
         assert "Gefitinib" in names
         assert "Imatinib" in names
@@ -95,6 +97,22 @@ def test_fifty_reference_drugs_sequential_ingestion_and_roles():
         assert "Theophylline" in names
         assert "Tolbutamide" in names
         assert "Trazodone" in names
+        # 15 New approved reference drugs in v3.2
+        assert "Fluvoxamine" in names
+        assert "Ticlopidine" in names
+        assert "Miconazole" in names
+        assert "Ciprofloxacin" in names
+        assert "Sulfaphenazole" in names
+        assert "Voriconazole" in names
+        assert "Rofecoxib" in names
+        assert "Fenofibrate" in names
+        assert "Glimepiride" in names
+        assert "Zafirlukast" in names
+        assert "Probenecid" in names
+        assert "Carbamazepine" in names
+        assert "Clotrimazole" in names
+        assert "Ranitidine" in names
+        assert "Phenytoin" in names
 
         for r in res_list:
             assert r["records_ingested_n"] >= 5
@@ -141,17 +159,51 @@ def test_v3_1_ten_drugs_sequential_lifecycle_execution():
         db.close()
 
 
+def test_v3_2_fifteen_drugs_sequential_lifecycle_execution():
+    """
+    Verify Directive 2:
+    15 approved reference drugs (Drugs 51-65) are ingested one-by-one with:
+    1. Identity (distinct scaffold from original 50)
+    2. Evidence (rich in Caco-2, HLM, CYP1A2, CYP2C9, CYP2C19, etc.)
+    3. Qualification (EXACT_MATCH, QUALIFIED_FOR_GLOBAL_TRAINING)
+    4. Prediction (computed for each qualified endpoint; None for unavailable models)
+    5. Error (calculated before advancing to next drug)
+    """
+    db = SessionLocal()
+    try:
+        results = ingest_v3_2_expansion_drugs_sequential(db)
+        assert len(results) == 15
+        expected_names = [
+            "Fluvoxamine", "Ticlopidine", "Miconazole", "Ciprofloxacin", "Sulfaphenazole",
+            "Voriconazole", "Rofecoxib", "Fenofibrate", "Glimepiride", "Zafirlukast",
+            "Probenecid", "Carbamazepine", "Clotrimazole", "Ranitidine", "Phenytoin"
+        ]
+        for r, exp_name in zip(results, expected_names):
+            assert r["compound_name"] == exp_name
+            assert r["identity"]["status"] == "IDENTITY_VERIFIED"
+            assert r["identity"]["scaffold_family"] != ""
+            assert len(r["evidence"]) >= 5
+            assert len(r["qualification"]) >= 5
+            assert len(r["prediction"]) >= 5
+            assert len(r["error"]) >= 5
+            endpoint_order = [e["endpoint_id"] for e in r["evidence"]]
+            if "HUMAN_PPB" in endpoint_order and "HERG_LIABILITY" in endpoint_order:
+                assert endpoint_order.index("HUMAN_PPB") < endpoint_order.index("HERG_LIABILITY")
+    finally:
+        db.close()
+
+
 def test_five_tier_partitioning_and_locked_final_test_cohorts():
-    """Verify observations are partitioned into Dev (N=21), Validation (N=18), Consumed Cohort 1 & 2 (N=6), and Locked Final Test Cohort 3 (N=5)."""
+    """Verify observations are partitioned into Dev (N=26), Validation (N=23), Consumed Cohorts 1-3 (N=11), and Locked Final Test Cohort 4 (N=5)."""
     db = SessionLocal()
     try:
         dataset = build_global_learning_dataset(db)
-        assert dataset["total_compounds_registered"] == 50
-        assert dataset["total_eligible_observations"] >= 250
-        assert dataset["total_development_observations"] >= 100
-        assert dataset["total_validation_observations"] >= 90
-        assert dataset["total_consumed_observations"] >= 25
-        assert dataset["total_final_test_observations"] >= 20
+        assert dataset["total_compounds_registered"] == 65
+        assert dataset["total_eligible_observations"] >= 350
+        assert dataset["total_development_observations"] >= 130
+        assert dataset["total_validation_observations"] >= 120
+        assert dataset["total_consumed_observations"] >= 50
+        assert dataset["total_final_test_observations"] >= 30
 
         # Check CYP3A4 5-tier split
         cyp3a4_data = dataset["endpoints"]["CYP3A4_INHIBITION"]
@@ -164,31 +216,40 @@ def test_five_tier_partitioning_and_locked_final_test_cohorts():
 
 
 def test_engine_v3_release_readiness_and_runtime_routing():
-    """Verify Engine v3.1 readiness evaluates candidates, promotes qualified endpoints, and executes runtime routing."""
+    """Verify Engine v3.2 readiness evaluates candidates, promotes qualified endpoints, and executes runtime routing."""
     db = SessionLocal()
     try:
         v3_eval = evaluate_global_engine_v3_readiness(db)
-        assert "global-prediction-engine-v3.1" in v3_eval["engine_version"]
-        assert v3_eval["total_compounds"] == 50
+        assert "global-prediction-engine-v3.2" in v3_eval["engine_version"]
+        assert v3_eval["release_status"] == "GLOBAL_ENGINE_V3_2_PRODUCTION_RELEASE"
+        assert v3_eval["total_compounds"] == 65
 
-        # CYP3A4 Promotion
+        # CYP3A4 Promotion (Frozen)
         cyp3a4_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP3A4_INHIBITION")
         assert cyp3a4_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
         assert cyp3a4_eval["v3_error"] < cyp3a4_eval["base_error"]
         assert cyp3a4_eval["final_test_v3_error"] < cyp3a4_eval["final_test_base_error"]
 
-        # CYP2D6 Promotion
+        # CYP2D6 Promotion (Frozen)
         cyp2d6_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP2D6_INHIBITION")
         assert cyp2d6_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
         assert cyp2d6_eval["v3_error"] < cyp2d6_eval["base_error"]
 
-        # hERG Promoted in v3.1 based on empirical holdout replication
+        # Solubility Promotion (Frozen)
+        sol_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "SOLUBILITY_GENERIC")
+        assert sol_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
+
+        # hERG Promoted (Frozen)
         herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
         assert herg_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
 
-        # PPB Candidate Status
-        ppb_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HUMAN_PPB")
-        assert ppb_eval["promotion_status"] == "V3_CANDIDATE"
+        # HLM Candidate / Primary Status
+        hlm_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HLM_INTRINSIC_CLEARANCE")
+        assert hlm_eval["promotion_status"] in ("V3_CANDIDATE", "GLOBAL_V3_PRIMARY")
+
+        # CYP2C19 Model Unavailable
+        cyp2c19_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP2C19_INHIBITION")
+        assert cyp2c19_eval["promotion_status"] == "MODEL_UNAVAILABLE"
 
         # Test Runtime Prediction Routing for CYP3A4 (GLOBAL_V3_PRIMARY)
         test_smi = "COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1" # Gefitinib

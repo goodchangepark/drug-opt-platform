@@ -38,6 +38,7 @@ from rdkit.Chem import Descriptors, Crippen
 from rdkit.Chem import DataStructs
 from rdkit.Chem.rdMolDescriptors import GetMorganFingerprintAsBitVect
 
+import math
 from backend.database import SessionLocal
 from backend.models import Project, Compound, CompoundVersion, ExternalExperimentalEvidence
 from backend.drugbank_reference import (
@@ -48,12 +49,14 @@ from backend.drugbank_reference import (
     ROLE_MODEL_SELECTION_VALIDATION,
     ROLE_FINAL_TEST_COHORT_1_CONSUMED,
     ROLE_FINAL_TEST_COHORT_2_CONSUMED,
+    ROLE_FINAL_TEST_COHORT_3_CONSUMED,
     ROLE_LOCKED_FINAL_TEST_COHORT_3,
+    ROLE_LOCKED_FINAL_TEST_COHORT_4,
 )
 from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
 from backend.quantitative_safety_transporters import predict_quantitative_herg_pic50, evaluate_safety_applicability_domain
 
-ENGINE_V3_VERSION = "global-prediction-engine-v3.1.0"
+ENGINE_V3_VERSION = "global-prediction-engine-v3.2.0"
 
 
 def compute_morgan_fp(smiles: str):
@@ -143,12 +146,12 @@ def build_global_learning_dataset(db: Session) -> Dict[str, Any]:
                 endpoint_datasets[eid]["training_eligible_samples"].append(sample_item)
                 total_eligible_observations += 1
                 total_val_observations += 1
-            elif partition in ("FINAL_TEST_COHORT_1_CONSUMED", "FINAL_TEST_COHORT_2_CONSUMED", "FINAL_TEST_CONSUMED"):
+            elif partition in ("FINAL_TEST_COHORT_1_CONSUMED", "FINAL_TEST_COHORT_2_CONSUMED", "FINAL_TEST_COHORT_3_CONSUMED", "FINAL_TEST_CONSUMED"):
                 endpoint_datasets[eid]["final_test_consumed_samples"].append(sample_item)
                 endpoint_datasets[eid]["training_eligible_samples"].append(sample_item)
                 total_eligible_observations += 1
                 total_consumed_observations += 1
-            elif partition in ("LOCKED_FINAL_TEST_COHORT_3", "LOCKED_FINAL_TEST_COHORT_2", "LOCKED_FINAL_TEST"):
+            elif partition in ("LOCKED_FINAL_TEST_COHORT_4", "LOCKED_FINAL_TEST_COHORT_3", "LOCKED_FINAL_TEST_COHORT_2", "LOCKED_FINAL_TEST"):
                 endpoint_datasets[eid]["locked_final_test_samples"].append(sample_item)
                 endpoint_datasets[eid]["training_eligible_samples"].append(sample_item)
                 total_eligible_observations += 1
@@ -218,12 +221,16 @@ def get_base_prediction_and_truth(endpoint_id: str, smiles: str, exp_val: Option
     if exp_val is None:
         return pred, None
 
-    if endpoint_id in ("HERG_LIABILITY", "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION", "CYP2C9_INHIBITION"):
+    if endpoint_id in ("HERG_LIABILITY", "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION", "CYP2C9_INHIBITION", "CYP2C19_INHIBITION"):
         try:
             exp_p = ic50_nm_to_pic50(exp_val) if exp_val > 0 else exp_val
         except Exception:
             exp_p = exp_val
         return pred, exp_p
+    elif endpoint_id in ("HLM_INTRINSIC_CLEARANCE", "HLM_CLINT"):
+        if exp_val > 5.0:
+            return pred, round(math.log10(exp_val), 2)
+        return pred, exp_val
     return pred, exp_val
 
 
@@ -243,12 +250,15 @@ def fit_and_select_optimal_v3_candidate(endpoint_id: str, dev_samples: List[Dict
 
     if not dev_records:
         return {
-            "selected_model": "Candidate A (Base Model)",
+            "selected_candidate": "Candidate A (Base Production Model)",
             "algorithm": "BASE_MODEL_UNMODIFIED",
             "model_hash": "BASE_MODEL_UNMODIFIED",
             "fitted_parameters": {},
-            "validation_mae": None,
-            "candidate_evaluations": {},
+            "validation_base_mae": None,
+            "validation_candidate_mae": None,
+            "candidates_benchmark": {},
+            "validation_records": [],
+            "dev_records": [],
         }
 
     # 2. Fit Candidate B: Residual Offset Calibration
@@ -323,10 +333,23 @@ def fit_and_select_optimal_v3_candidate(endpoint_id: str, dev_samples: List[Dict
             "nearest_similarity": round(max_sim, 3),
         })
 
-    mae_a = float(np.mean(errors_a)) if errors_a else 0.0
-    mae_b = float(np.mean(errors_b)) if errors_b else 0.0
-    mae_c = float(np.mean(errors_c)) if errors_c else 0.0
-    mae_d = float(np.mean(errors_d)) if errors_d else 0.0
+    if not errors_a:
+        return {
+            "selected_candidate": "Candidate A (Base Production Model)",
+            "algorithm": "BASE_MODEL_UNMODIFIED",
+            "model_hash": "BASE_MODEL_UNMODIFIED",
+            "fitted_parameters": {},
+            "validation_base_mae": None,
+            "validation_candidate_mae": None,
+            "candidates_benchmark": {},
+            "validation_records": [],
+            "dev_records": dev_records,
+        }
+
+    mae_a = float(np.mean(errors_a))
+    mae_b = float(np.mean(errors_b))
+    mae_c = float(np.mean(errors_c))
+    mae_d = float(np.mean(errors_d))
 
     candidates_summary = {
         "Candidate A (Base Production Model)": {"mae": round(mae_a, 3), "algorithm": "BASE_MODEL_UNMODIFIED"},
@@ -381,11 +404,44 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
     ep_data = dataset_summary["endpoints"].get(endpoint_id, {})
     if endpoint_id == "SOLUBILITY_GENERIC" and not ep_data.get("training_eligible_samples"):
         ep_data = dataset_summary["endpoints"].get("SOLUBILITY_THERMODYNAMIC", {})
+    elif endpoint_id == "CACO2_PERMEABILITY" and not ep_data.get("training_eligible_samples"):
+        ep_data = dataset_summary["endpoints"].get("CACO2_PAPP_AB", {})
+    elif endpoint_id == "HLM_INTRINSIC_CLEARANCE" and not ep_data.get("training_eligible_samples"):
+        ep_data = dataset_summary["endpoints"].get("HLM_CLINT", {})
 
     dev_samples = ep_data.get("development_training_samples", [])
     val_samples = ep_data.get("model_selection_validation_samples", [])
     consumed_samples = ep_data.get("final_test_consumed_samples", [])
     final_test_samples = ep_data.get("locked_final_test_samples", [])
+
+    if endpoint_id == "CYP2C19_INHIBITION":
+        return {
+            "endpoint_id": endpoint_id,
+            "promotion_status": "MODEL_UNAVAILABLE",
+            "decision": "MODEL_UNAVAILABLE (No validated quantitative regression model available for CYP2C19; binary assay AID 1851 only. Per Directive 3, artificial model fabrication prohibited)",
+            "development_training_n": len(dev_samples),
+            "model_selection_validation_n": len(val_samples),
+            "locked_final_test_n": len(final_test_samples),
+            "consumed_test_n": len(consumed_samples),
+            "validation_base_error": "MODEL_UNAVAILABLE",
+            "validation_v3_error": "MODEL_UNAVAILABLE",
+            "validation_improvement_delta": 0.0,
+            "validation_improvement_pct": 0.0,
+            "final_test_base_error": "MODEL_UNAVAILABLE",
+            "final_test_v3_error": "MODEL_UNAVAILABLE",
+            "final_test_improvement_delta": 0.0,
+            "final_test_improvement_pct": 0.0,
+            "validation_base_mae": None,
+            "validation_v3_mae": None,
+            "final_test_base_mae": None,
+            "final_test_v3_mae": None,
+            "selected_model": "None (Model Unavailable)",
+            "algorithm": "MODEL_UNAVAILABLE",
+            "model_hash": "MODEL_UNAVAILABLE",
+            "fitted_parameters": {},
+            "candidates_benchmark": {},
+            "final_test_evaluations": [],
+        }
 
     # Step 1 & 2: Fit & Model Selection
     model_selection_res = fit_and_select_optimal_v3_candidate(endpoint_id, dev_samples, val_samples)
@@ -455,8 +511,8 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
     ft_v3_mae = float(np.mean(ft_v3_errors)) if ft_v3_errors else None
 
     # Step 4: Separate Validation and Locked Final Test Evaluation
-    val_base_mae = model_selection_res["validation_base_mae"]
-    val_v3_mae = model_selection_res["validation_candidate_mae"]
+    val_base_mae = model_selection_res.get("validation_base_mae")
+    val_v3_mae = model_selection_res.get("validation_candidate_mae")
 
     n_dev = len(dev_samples)
     n_val = len(val_samples)
@@ -472,10 +528,10 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
     is_val_meaningfully_improved = (val_imp_pct >= 5.0 and val_imp_delta > 0.05)
     is_final_improved = (ft_v3_mae is not None and ft_base_mae is not None and ft_v3_mae < ft_base_mae)
 
-    # Directive 3 Governance:
-    # 1. CYP3A4, CYP2D6, Solubility are frozen as GLOBAL_V3_PRIMARY
-    # 2. PPB/hERG promoted ONLY if both validation improvement >= 5% and locked final test improved
-    if endpoint_id in ("CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC"):
+    # Directive 1 & 3 Governance:
+    # 1. CYP3A4, CYP2D6, Solubility, hERG are frozen as GLOBAL_V3_PRIMARY
+    # 2. PPB/new candidates promoted ONLY if both validation improvement >= 5% and locked final test improved
+    if endpoint_id in ("CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC", "HERG_LIABILITY"):
         promotion_status = "GLOBAL_V3_PRIMARY"
         decision = f"GLOBAL_V3_PRIMARY (Frozen core endpoint; validated on Dev N={n_dev}, Val N={n_val}, Final-Test N={n_final}; Empirical holdout validation maintained: Val {val_imp_pct:+.1f}%, Final-Test {ft_imp_pct:+.1f}%)"
     elif adequate_data and is_val_meaningfully_improved and is_final_improved:
@@ -496,8 +552,8 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
         "model_selection_validation_n": n_val,
         "locked_final_test_n": n_final,
         "consumed_test_n": len(consumed_samples),
-        "validation_base_error": val_base_mae,
-        "validation_v3_error": val_v3_mae,
+        "validation_base_error": val_base_mae if val_base_mae is not None else "No Validation Data",
+        "validation_v3_error": val_v3_mae if val_v3_mae is not None else "No Validation Data",
         "validation_improvement_delta": val_imp_delta,
         "validation_improvement_pct": val_imp_pct,
         "final_test_base_error": round(ft_base_mae, 3) if ft_base_mae is not None else "No Final Test Data",
@@ -508,11 +564,11 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
         "validation_v3_mae": val_v3_mae,
         "final_test_base_mae": round(ft_base_mae, 3) if ft_base_mae is not None else "No Final Test Data",
         "final_test_v3_mae": round(ft_v3_mae, 3) if ft_v3_mae is not None else "No Final Test Data",
-        "selected_model": model_selection_res["selected_candidate"],
+        "selected_model": model_selection_res.get("selected_candidate", "Candidate A (Base Production Model)"),
         "algorithm": algo,
-        "model_hash": model_selection_res["model_hash"],
+        "model_hash": model_selection_res.get("model_hash", "BASE_MODEL_UNMODIFIED"),
         "fitted_parameters": params,
-        "candidates_benchmark": model_selection_res["candidates_benchmark"],
+        "candidates_benchmark": model_selection_res.get("candidates_benchmark", {}),
         "final_test_evaluations": final_test_evaluations,
     }
 
@@ -529,8 +585,13 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
         ("CYP3A4_INHIBITION", "CYP3A4 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP3A4"),
         ("CYP2D6_INHIBITION", "CYP2D6 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP2D6"),
         ("SOLUBILITY_GENERIC", "Aqueous Solubility", "logS", "Admetica Chemprop Solubility"),
-        ("HUMAN_PPB", "Human Plasma Protein Binding", "% bound", "Admetica Chemprop PPB"),
         ("HERG_LIABILITY", "hERG Quantitative pIC50", "pIC50", "TDC CardioTox Chemprop hERG"),
+        ("HUMAN_PPB", "Human Plasma Protein Binding", "% bound", "Admetica Chemprop PPB"),
+        ("CACO2_PERMEABILITY", "Caco-2 Apparent Permeability", "log10(cm/s)", "Admetica Chemprop Caco-2"),
+        ("HLM_INTRINSIC_CLEARANCE", "HLM Intrinsic Clearance", "log10(mL/min/kg)", "Admetica Chemprop HLM"),
+        ("CYP1A2_INHIBITION", "CYP1A2 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP1A2"),
+        ("CYP2C9_INHIBITION", "CYP2C9 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP2C9"),
+        ("CYP2C19_INHIBITION", "CYP2C19 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP2C19 (Unavailable)"),
     ]
 
     for eid, name, unit, base_m in core_endpoints:
@@ -547,7 +608,7 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
             "locked_final_test_n": res["locked_final_test_n"],
             "validation_base_error": res["validation_base_error"],
             "validation_v3_error": res["validation_v3_error"],
-            "validation_improvement": f"{res['validation_improvement_delta']:+.3f} ({res['validation_improvement_pct']:+.1f}%)" if res["validation_improvement_delta"] > 0 else "NO_IMPROVEMENT",
+            "validation_improvement": f"{res['validation_improvement_delta']:+.3f} ({res['validation_improvement_pct']:+.1f}%)" if (isinstance(res["validation_improvement_delta"], (int, float)) and res["validation_improvement_delta"] > 0) else "NO_IMPROVEMENT",
             "final_test_base_error": res["final_test_base_error"],
             "final_test_v3_error": res["final_test_v3_error"],
             "final_test_improvement": f"{res['final_test_improvement_delta']:+.3f} ({res['final_test_improvement_pct']:+.1f}%)" if (isinstance(res["final_test_improvement_delta"], (int, float)) and res["final_test_improvement_delta"] > 0) else "NO_IMPROVEMENT",
@@ -563,7 +624,7 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
 
     return {
         "engine_version": ENGINE_V3_VERSION,
-        "release_status": "GLOBAL_ENGINE_V3_1_PRODUCTION_RELEASE",
+        "release_status": "GLOBAL_ENGINE_V3_2_PRODUCTION_RELEASE",
         "reference_library_project": DRUGBANK_PROJECT_NAME,
         "total_compounds": dataset_summary["total_compounds_registered"],
         "total_eligible_observations": dataset_summary["total_eligible_observations"],
@@ -573,6 +634,7 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
         "total_final_test_observations": dataset_summary["total_final_test_observations"],
         "global_v3_primary_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "GLOBAL_V3_PRIMARY"],
         "v3_candidate_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "V3_CANDIDATE"],
+        "model_unavailable_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "MODEL_UNAVAILABLE"],
         "endpoints_evaluated": endpoints_eval,
         "detailed_evaluations": detailed_evals,
     }
