@@ -5044,14 +5044,15 @@ function integratedProfile(versionId){
      e('section',{className:'card help-section',id:'help-prediction-model-history',key:'prediction-model-history'},[
       e('div',{className:'eyebrow'},'PREDICTION ENGINE EVOLUTION & PRODUCTION REPLACEMENT'),
       e('h2',{},'Prediction Model History & Production Readiness Comparison'),
-      e('p',{className:'small'},'Dedicated version history of Drug-OPT Prediction Engines from legacy v1.0 baseline to production default v3.3, including empirical holdout benchmark comparisons.'),
+      e('p',{className:'small'},'Dedicated version history of Drug-OPT Prediction Engines from legacy v1.0 baseline, production baseline v3.3, to candidate v3.3.1 multi-model stacking ensemble.'),
       e('div',{style:{display:'flex',gap:'12px',margin:'12px 0',flexWrap:'wrap'}},[
-       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Active Default Engine: drugopt-prediction-engine-v3@3.3.0'),
-       e('div',{className:'badge-intermediate',style:{padding:'6px 12px',fontSize:'13px'}},'Legacy Baseline: drugopt-prediction-engine-v1@1.0.0'),
-       e('div',{className:'badge-info',style:{padding:'6px 12px',fontSize:'13px'}},'Decision: READY_TO_REPLACE_V1 (+36.6% Avg Primary Error Reduction)')
+       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Candidate Engine: drugopt-prediction-engine-v3@3.3.1'),
+       e('div',{className:'badge-intermediate',style:{padding:'6px 12px',fontSize:'13px'}},'Frozen Production Baseline: drugopt-prediction-engine-v3@3.3.0'),
+       e('div',{className:'badge-info',style:{padding:'6px 12px',fontSize:'13px'}},'Legacy Baseline: drugopt-prediction-engine-v1@1.0.0'),
+       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Decision: READY_TO_REPLACE_V3_3 (DrugBank 150 + Stacking)')
       ]),
-      e('h3',{style:{marginTop:'16px'}},'v1.0 vs v3.3 Production Readiness Comparison'),
-      e('p',{className:'small'},'Empirical evaluation on DrugBank reference holdout cohorts and locked test sets, strictly separated by governance tiers.'),
+      e('h3',{style:{marginTop:'16px'}},'v1.0 vs v3.3 vs v3.3.1 Production Readiness Comparison'),
+      e('p',{className:'small'},'Empirical evaluation on DrugBank 150 reference holdout cohorts and locked test sets (Cohort 5 N=5, Cohort 6 N=13), strictly separated by governance tiers.'),
       e('h4',{style:{marginTop:'12px',color:'#237804'}},'1. Global v3 Primary Endpoints (6 Promoted Models — +36.6% Avg Error Reduction)'),
       e('div',{className:'table-scroll'},e('table',{},[
        e('thead',{},e('tr',{},['Endpoint','Unit','v1/Base Error','v3.3 Error','Improvement','Validation N','Locked Test N','AD/OOD','Production Decision'].map(label=>e('th',{key:label},label)))),

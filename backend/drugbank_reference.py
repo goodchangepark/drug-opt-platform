@@ -59,9 +59,12 @@ ROLE_LOCKED_FINAL_TEST_COHORT_3 = "FINAL_TEST_COHORT_3_CONSUMED"  # Backward com
 ROLE_FINAL_TEST_COHORT_4_CONSUMED = "FINAL_TEST_COHORT_4_CONSUMED"
 ROLE_LOCKED_FINAL_TEST_COHORT_4 = "FINAL_TEST_COHORT_4_CONSUMED"  # Backward compatibility alias
 ROLE_LOCKED_FINAL_TEST_COHORT_5 = "LOCKED_FINAL_TEST_COHORT_5"
+ROLE_LOCKED_FINAL_TEST_COHORT_6 = "LOCKED_FINAL_TEST_COHORT_6"
 
-# Load full 100 reference drugs catalog
-CATALOG_PATH = Path(__file__).parent / "reference_drugs_100.json"
+# Load full 150 reference drugs catalog (with fallbacks)
+CATALOG_PATH = Path(__file__).parent / "reference_drugs_150.json"
+if not CATALOG_PATH.exists():
+    CATALOG_PATH = Path(__file__).parent / "reference_drugs_100.json"
 if not CATALOG_PATH.exists():
     CATALOG_PATH = Path(__file__).parent / "reference_drugs_80.json"
 if not CATALOG_PATH.exists():
@@ -184,6 +187,8 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
             partition = "FINAL_TEST_COHORT_4_CONSUMED"
         elif obs_role == ROLE_LOCKED_FINAL_TEST_COHORT_5:
             partition = "LOCKED_FINAL_TEST_COHORT_5"
+        elif obs_role == ROLE_LOCKED_FINAL_TEST_COHORT_6:
+            partition = "LOCKED_FINAL_TEST_COHORT_6"
         elif obs_role == "LOCKED_FINAL_TEST_COHORT_4":
             partition = "FINAL_TEST_COHORT_4_CONSUMED"
         elif obs_role == "LOCKED_FINAL_TEST_COHORT_3":

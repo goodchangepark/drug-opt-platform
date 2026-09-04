@@ -1,0 +1,647 @@
+{
+  "SOLUBILITY": {
+    "models": {
+      "admetica_solubility": {
+        "name": "Admetica Chemprop",
+        "dev_mae": 1.0805,
+        "dev_rmse": 1.4476,
+        "test_mae": 0.7465,
+        "test_rmse": 0.9547,
+        "test_r2": 0.5833
+      },
+      "esol_delaney_v1": {
+        "name": "Delaney ESOL",
+        "dev_mae": 0.6798,
+        "dev_rmse": 0.8251,
+        "test_mae": 0.7068,
+        "test_rmse": 0.9064,
+        "test_r2": 0.6244
+      },
+      "rdkit_gbr_solubility_v1": {
+        "name": "Descriptor GBR",
+        "dev_mae": 0.7422,
+        "dev_rmse": 0.9169,
+        "test_mae": 0.9656,
+        "test_rmse": 1.2804,
+        "test_r2": 0.2506
+      },
+      "drugopt_calibrated_solubility_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 0.8422,
+        "dev_rmse": 1.0546,
+        "test_mae": 1.3093,
+        "test_rmse": 1.6124,
+        "test_r2": -0.1885
+      }
+    },
+    "best_single": {
+      "model_id": "esol_delaney_v1",
+      "name": "Delaney ESOL",
+      "test_mae": 0.7068
+    },
+    "equal_weight": {
+      "test_mae": 0.8329,
+      "test_rmse": 1.1043,
+      "test_r2": 0.4425,
+      "weights": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 0.8326,
+      "test_rmse": 1.1071,
+      "test_r2": 0.4396,
+      "weights": [
+        0.1877,
+        0.2983,
+        0.2732,
+        0.2408
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 0.7102,
+      "test_rmse": 0.9023,
+      "test_r2": 0.6278,
+      "weights": [
+        0.1907,
+        0.7234,
+        0.0859,
+        0.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 67,
+      "val_n": 35,
+      "locked_test_n": 13
+    }
+  },
+  "CACO2": {
+    "models": {
+      "admetica_caco2": {
+        "name": "Admetica Chemprop",
+        "dev_mae": 0.3678,
+        "dev_rmse": 0.4732,
+        "test_mae": 0.4021,
+        "test_rmse": 0.5293,
+        "test_r2": -1.8454
+      },
+      "physchem_caco2_v1": {
+        "name": "Physchem Polar Surface",
+        "dev_mae": 0.5419,
+        "dev_rmse": 0.6416,
+        "test_mae": 0.4145,
+        "test_rmse": 0.5683,
+        "test_r2": -2.28
+      },
+      "descriptor_gbr_caco2_v1": {
+        "name": "Descriptor GBR",
+        "dev_mae": 0.5849,
+        "dev_rmse": 0.6803,
+        "test_mae": 0.3963,
+        "test_rmse": 0.5091,
+        "test_r2": -1.6318
+      },
+      "drugopt_calibrated_caco2_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 0.5619,
+        "dev_rmse": 0.6579,
+        "test_mae": 0.3828,
+        "test_rmse": 0.5114,
+        "test_r2": -1.6564
+      }
+    },
+    "best_single": {
+      "model_id": "admetica_caco2",
+      "name": "Admetica Chemprop",
+      "test_mae": 0.4021
+    },
+    "equal_weight": {
+      "test_mae": 0.376,
+      "test_rmse": 0.4484,
+      "test_r2": -1.042,
+      "weights": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 0.3725,
+      "test_rmse": 0.4317,
+      "test_r2": -0.8923,
+      "weights": [
+        0.3376,
+        0.2291,
+        0.2123,
+        0.221
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 0.3642,
+      "test_rmse": 0.4429,
+      "test_r2": -0.9925,
+      "weights": [
+        0.7042,
+        0.2958,
+        0.0,
+        0.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 38,
+      "val_n": 31,
+      "locked_test_n": 13
+    }
+  },
+  "PPB": {
+    "models": {
+      "admetica_ppbr": {
+        "name": "Admetica Chemprop",
+        "dev_mae": 8.413,
+        "dev_rmse": 14.5626,
+        "test_mae": 14.3243,
+        "test_rmse": 17.1148,
+        "test_r2": 0.5843
+      },
+      "physchem_human_ppb_v1": {
+        "name": "Albumin Mechanistic",
+        "dev_mae": 13.0779,
+        "dev_rmse": 20.5188,
+        "test_mae": 24.6254,
+        "test_rmse": 31.8248,
+        "test_r2": -0.4374
+      },
+      "descriptor_gbr_ppb_v1": {
+        "name": "Descriptor GBR",
+        "dev_mae": 15.3157,
+        "dev_rmse": 20.5806,
+        "test_mae": 23.9077,
+        "test_rmse": 28.0551,
+        "test_r2": -0.117
+      },
+      "drugopt_calibrated_ppb_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 15.9551,
+        "dev_rmse": 20.9775,
+        "test_mae": 24.3315,
+        "test_rmse": 28.4035,
+        "test_r2": -0.1449
+      }
+    },
+    "best_single": {
+      "model_id": "admetica_ppbr",
+      "name": "Admetica Chemprop",
+      "test_mae": 14.3243
+    },
+    "equal_weight": {
+      "test_mae": 18.4599,
+      "test_rmse": 22.0343,
+      "test_r2": 0.311,
+      "weights": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 16.486,
+      "test_rmse": 19.3116,
+      "test_r2": 0.4707,
+      "weights": [
+        0.3677,
+        0.2365,
+        0.202,
+        0.1939
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 12.5019,
+      "test_rmse": 14.2043,
+      "test_r2": 0.7137,
+      "weights": [
+        0.7283,
+        0.2234,
+        0.0483,
+        0.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 82,
+      "val_n": 50,
+      "locked_test_n": 13
+    }
+  },
+  "HLM": {
+    "models": {
+      "openadmet_hlm": {
+        "name": "OpenADMET CheMeleon",
+        "dev_mae": 2.0867,
+        "dev_rmse": 2.2038,
+        "test_mae": 2.0078,
+        "test_rmse": 2.0857,
+        "test_r2": -57.5973
+      },
+      "tdc_hlm_chemprop_v1": {
+        "name": "TDC HLM Chemprop",
+        "dev_mae": 1.7739,
+        "dev_rmse": 1.8294,
+        "test_mae": 1.2531,
+        "test_rmse": 1.3171,
+        "test_r2": -22.3675
+      },
+      "descriptor_ridge_hlm_v1": {
+        "name": "Descriptor Ridge",
+        "dev_mae": 1.7181,
+        "dev_rmse": 1.7752,
+        "test_mae": 1.2086,
+        "test_rmse": 1.2778,
+        "test_r2": -20.9937
+      },
+      "drugopt_hlm_chemical_space_v1": {
+        "name": "Drug-OPT Chemical Space",
+        "dev_mae": 1.573,
+        "dev_rmse": 1.632,
+        "test_mae": 1.0587,
+        "test_rmse": 1.1428,
+        "test_r2": -16.5911
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_hlm_chemical_space_v1",
+      "name": "Drug-OPT Chemical Space",
+      "test_mae": 1.0587
+    },
+    "equal_weight": {
+      "test_mae": 1.3821,
+      "test_rmse": 1.4329,
+      "test_r2": -26.6544,
+      "weights": [
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 1.347,
+      "test_rmse": 1.3996,
+      "test_r2": -25.3848,
+      "weights": [
+        0.212,
+        0.2494,
+        0.2575,
+        0.2812
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 1.0587,
+      "test_rmse": 1.1428,
+      "test_r2": -16.5911,
+      "weights": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 35,
+      "val_n": 31,
+      "locked_test_n": 13
+    }
+  },
+  "CYP3A4_PIC50": {
+    "models": {
+      "openadmet_chemeleon_cyp3a4_pic50": {
+        "name": "CheMeleon CYP3A4",
+        "dev_mae": 1.7093,
+        "dev_rmse": 1.8656,
+        "test_mae": 0.7844,
+        "test_rmse": 0.9837,
+        "test_r2": -15.0424
+      },
+      "morgan_ecfp4_cyp3a4_pic50": {
+        "name": "Morgan ECFP4 GBDT",
+        "dev_mae": 1.7906,
+        "dev_rmse": 1.9456,
+        "test_mae": 0.6301,
+        "test_rmse": 0.7519,
+        "test_r2": -8.3735
+      },
+      "drugopt_calibrated_cyp3a4_pic50": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.6929,
+        "dev_rmse": 1.8115,
+        "test_mae": 0.827,
+        "test_rmse": 0.9775,
+        "test_r2": -14.841
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_calibrated_cyp3a4_pic50",
+      "name": "Drug-OPT Calibrated",
+      "test_mae": 0.827
+    },
+    "equal_weight": {
+      "test_mae": 0.7179,
+      "test_rmse": 0.8901,
+      "test_r2": -12.1349,
+      "weights": [
+        0.3333,
+        0.3333,
+        0.3333
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 0.7209,
+      "test_rmse": 0.8927,
+      "test_r2": -12.2118,
+      "weights": [
+        0.3373,
+        0.322,
+        0.3406
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 0.822,
+      "test_rmse": 0.9738,
+      "test_r2": -14.7229,
+      "weights": [
+        0.1182,
+        0.0,
+        0.8818
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 60,
+      "val_n": 32,
+      "locked_test_n": 13
+    }
+  },
+  "CYP2D6_PIC50": {
+    "models": {
+      "openadmet_chemeleon_cyp2d6_pic50": {
+        "name": "CheMeleon CYP2D6",
+        "dev_mae": 1.9925,
+        "dev_rmse": 2.1441,
+        "test_mae": 0.9323,
+        "test_rmse": 1.0267,
+        "test_r2": -9.5919
+      },
+      "morgan_ecfp4_cyp2d6_pic50": {
+        "name": "Morgan ECFP4 GBDT",
+        "dev_mae": 2.0985,
+        "dev_rmse": 2.2267,
+        "test_mae": 1.3914,
+        "test_rmse": 1.4754,
+        "test_r2": -20.8723
+      },
+      "drugopt_calibrated_cyp2d6_pic50": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.9891,
+        "dev_rmse": 2.1154,
+        "test_mae": 1.2921,
+        "test_rmse": 1.3847,
+        "test_r2": -18.2665
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_calibrated_cyp2d6_pic50",
+      "name": "Drug-OPT Calibrated",
+      "test_mae": 1.2921
+    },
+    "equal_weight": {
+      "test_mae": 1.2053,
+      "test_rmse": 1.2936,
+      "test_r2": -15.8149,
+      "weights": [
+        0.3333,
+        0.3333,
+        0.3333
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 1.2021,
+      "test_rmse": 1.2906,
+      "test_r2": -15.736,
+      "weights": [
+        0.3388,
+        0.3217,
+        0.3394
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 1.1536,
+      "test_rmse": 1.245,
+      "test_r2": -14.5753,
+      "weights": [
+        0.3849,
+        0.0,
+        0.6151
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 42,
+      "val_n": 25,
+      "locked_test_n": 5
+    }
+  },
+  "CYP1A2_PIC50": {
+    "models": {
+      "openadmet_chemeleon_cyp1a2_pic50": {
+        "name": "CheMeleon CYP1A2",
+        "dev_mae": 1.9595,
+        "dev_rmse": 2.1812,
+        "test_mae": 1.416,
+        "test_rmse": 1.5021,
+        "test_r2": -137.8753
+      },
+      "morgan_ecfp4_cyp1a2_pic50": {
+        "name": "Morgan ECFP4 GBDT",
+        "dev_mae": 1.9127,
+        "dev_rmse": 2.125,
+        "test_mae": 1.3562,
+        "test_rmse": 1.4389,
+        "test_r2": -126.4435
+      },
+      "drugopt_calibrated_cyp1a2_pic50": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.7812,
+        "dev_rmse": 1.9736,
+        "test_mae": 1.1432,
+        "test_rmse": 1.2431,
+        "test_r2": -94.1119
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_calibrated_cyp1a2_pic50",
+      "name": "Drug-OPT Calibrated",
+      "test_mae": 1.1432
+    },
+    "equal_weight": {
+      "test_mae": 1.3051,
+      "test_rmse": 1.392,
+      "test_r2": -118.2677,
+      "weights": [
+        0.3333,
+        0.3333,
+        0.3333
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 1.3003,
+      "test_rmse": 1.3875,
+      "test_r2": -117.498,
+      "weights": [
+        0.32,
+        0.3279,
+        0.3521
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 1.1432,
+      "test_rmse": 1.2431,
+      "test_r2": -94.1119,
+      "weights": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 19,
+      "val_n": 12,
+      "locked_test_n": 5
+    }
+  },
+  "CYP2C9_PIC50": {
+    "models": {
+      "openadmet_chemeleon_cyp2c9_pic50": {
+        "name": "CheMeleon CYP2C9",
+        "dev_mae": 1.6652,
+        "dev_rmse": 1.9317,
+        "test_mae": 1.11,
+        "test_rmse": 1.1898,
+        "test_r2": -86.138
+      },
+      "morgan_ecfp4_cyp2c9_pic50": {
+        "name": "Morgan ECFP4 GBDT",
+        "dev_mae": 1.6723,
+        "dev_rmse": 1.9931,
+        "test_mae": 1.2304,
+        "test_rmse": 1.3396,
+        "test_r2": -109.4534
+      },
+      "drugopt_calibrated_cyp2c9_pic50": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.6172,
+        "dev_rmse": 1.8663,
+        "test_mae": 0.9166,
+        "test_rmse": 1.0512,
+        "test_r2": -67.01
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_calibrated_cyp2c9_pic50",
+      "name": "Drug-OPT Calibrated",
+      "test_mae": 0.9166
+    },
+    "equal_weight": {
+      "test_mae": 1.0857,
+      "test_rmse": 1.191,
+      "test_r2": -86.3059,
+      "weights": [
+        0.3333,
+        0.3333,
+        0.3333
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 1.0838,
+      "test_rmse": 1.1893,
+      "test_r2": -86.0675,
+      "weights": [
+        0.3305,
+        0.3291,
+        0.3403
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 0.9166,
+      "test_rmse": 1.0512,
+      "test_r2": -67.01,
+      "weights": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 26,
+      "val_n": 11,
+      "locked_test_n": 5
+    }
+  },
+  "HERG_PIC50": {
+    "models": {
+      "physchem_gbr_herg_pic50_v1": {
+        "name": "Physchem GBR",
+        "dev_mae": 1.5705,
+        "dev_rmse": 1.6842,
+        "test_mae": 0.8118,
+        "test_rmse": 0.9781,
+        "test_r2": -3.2963
+      },
+      "drugopt_calibrated_herg_pic50_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.5862,
+        "dev_rmse": 1.7054,
+        "test_mae": 0.7094,
+        "test_rmse": 0.8681,
+        "test_r2": -2.384
+      }
+    },
+    "best_single": {
+      "model_id": "physchem_gbr_herg_pic50_v1",
+      "name": "Physchem GBR",
+      "test_mae": 0.8118
+    },
+    "equal_weight": {
+      "test_mae": 0.7606,
+      "test_rmse": 0.9226,
+      "test_r2": -2.8229,
+      "weights": [
+        0.5,
+        0.5
+      ]
+    },
+    "inverse_error_weight": {
+      "test_mae": 0.7608,
+      "test_rmse": 0.9229,
+      "test_r2": -2.8251,
+      "weights": [
+        0.5025,
+        0.4975
+      ]
+    },
+    "stacking_ensemble": {
+      "test_mae": 0.8118,
+      "test_rmse": 0.9781,
+      "test_r2": -3.2963,
+      "weights": [
+        1.0,
+        0.0
+      ]
+    },
+    "sample_counts": {
+      "dev_n": 74,
+      "val_n": 44,
+      "locked_test_n": 13
+    }
+  }
+}

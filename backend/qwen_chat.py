@@ -3,7 +3,6 @@
 from __future__ import annotations
 import json
 import logging
-import re
 import urllib.request
 import urllib.error
 from typing import Any, List, Dict, Optional
@@ -24,46 +23,73 @@ logger = logging.getLogger("drugopt.qwen_chat")
 OLLAMA_URL = "http://localhost:11434"
 QWEN_MODEL = "qwen3.5:9b"
 
-SYSTEM_PROMPT = """You are a concise, expert medicinal chemistry AI assistant in Drug-OPT.
-Answer researcher questions in 2 to 5 clear, focused sentences based strictly on the provided structured Drug-OPT data.
-Rules:
-1. Never fabricate numbers or experimental values not present in the data.
-2. If the requested information is absent or not included in the context, reply: "현재 데이터에서는 확인할 수 없습니다."
-3. Highlight key scientific differences, advantages, and liabilities when comparing or analyzing.
-4. Keep the answer concise and direct (3~6 sentences max). Do not generate long essay-style reports.
+SYSTEM_PROMPT = """당신은 Drug-OPT에서 저분자 신약개발과 medicinal chemistry를 지원하는 전문 AI assistant이다.
+
+기본 규칙:
+1. 사용자가 다른 언어를 명시하지 않는 한 모든 답변은 한국어로 작성한다.
+2. 제공된 Drug-OPT의 구조, 실험값, prediction 결과를 최우선 근거로 사용한다.
+3. 데이터에 없는 숫자, 실험 결과, 구조적 특징을 만들어내지 않는다.
+4. 정보가 없으면 "현재 데이터에서는 확인할 수 없습니다."라고 명확히 표현한다.
+5. 답변은 핵심 위주로 간결하게 작성하며 최대 3가지 주요 제안으로 제한한다.
+
+Medicinal chemistry 규칙:
+6. CYP inhibition, metabolic stability, permeability, BBB/CNS penetration,
+   PPB, P-gp, hERG, potency를 서로 구분하고 trade-off를 함께 고려한다.
+7. CYP inhibition과 metabolic stability를 동일한 현상으로 취급하지 않는다.
+8. metabolic soft-spot blocking이 CYP inhibition 감소를 보장한다고 표현하지 않는다.
+9. 구조 또는 SMILES가 제공되지 않은 경우 C-2, para-position 등 특정 위치나
+   특정 substituent가 실제 존재한다고 가정하거나 만들어내지 않는다.
+10. 구조 정보가 부족하면 "해당 기능기가 존재한다면"과 같은 조건부 표현을 사용한다.
+11. 실제 구조가 제공되면 구조에 존재하는 functional group을 중심으로 제안한다.
+12. SMILES만으로 특정 원자 위치를 확신하기 어려운 경우 위치를 임의로 단정하지 않는다.
+13. P-gp, hERG, BBB 효과는 예측값이나 구조적 근거가 없으면 단정하지 않는다.
+14. CNS 최적화에서는 cLogP/logD, TPSA, HBD, pKa, P-gp 및 unbound fraction의
+    균형을 고려한다.
+15. fluorination, heteroaryl replacement, pKa 조절, bioisostere replacement,
+    soft-spot blocking 등의 전략은 적용 가능한 구조적 근거가 있을 때만 제안한다.
+16. 근거가 제한적이면 사실처럼 단정하지 말고 가능성 또는 가설이라고 표현한다.
+
+비교 질문에서는 각 물질의 장점, liability 및 중요한 차이를 명확하게 설명한다.
+답변은 원칙적으로 3~6개의 짧은 문장 또는 3개의 간단한 항목 이내로 작성한다.
 """
 
-def _call_qwen(prompt: str, timeout: int = 45) -> str:
-    """Send formatted prompt to local Ollama Qwen3.5 9B and extract response."""
+def _call_qwen(prompt: str, timeout: int = 75) -> str:
+    """Send prompt to local Ollama Qwen3.5 9B using native chat API."""
     payload = {
         "model": QWEN_MODEL,
-        "prompt": prompt,
-        "raw": True,
-        "options": {
-            "num_predict": 250,
-            "temperature": 0.15,
-        },
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt},
+        ],
         "stream": False,
+        "think": False,
+        "keep_alive": "30m",
+        "options": {
+            "num_ctx": 4096,
+            "num_predict": 300,
+            "temperature": 0.2,
+        },
     }
+
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
-        f"{OLLAMA_URL}/api/generate",
+        f"{OLLAMA_URL}/api/chat",
         data=data,
         headers={"Content-Type": "application/json"},
     )
+
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             body = json.loads(resp.read().decode("utf-8"))
-            raw_response = body.get("response", "")
-            cleaned = re.sub(r"<think>.*?</think>", "", raw_response, flags=re.DOTALL).strip()
-            return cleaned or "현재 데이터에서는 확인할 수 없습니다."
+            message = body.get("message") or {}
+            answer = message.get("content", "").strip()
+            return answer or "현재 데이터에서는 확인할 수 없습니다."
     except urllib.error.URLError as exc:
         logger.error(f"Ollama connection error: {exc}")
         return f"로컬 Qwen3.5 9B 서비스 연결에 실패했습니다: {exc}"
     except Exception as exc:
         logger.error(f"Qwen generation error: {exc}")
         return f"답변 생성 중 오류가 발생했습니다: {exc}"
-
 
 def build_compound_section_context(
     db: Session,
@@ -293,18 +319,11 @@ def answer_section_question(
     version = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1] if compound.versions else None)
     context_text = build_compound_section_context(db, compound, version, section, workspace_data)
 
-    chatml_prompt = f"""<|im_start|>system
-{SYSTEM_PROMPT}<|im_end|>
-<|im_start|>user
-[Current Structured Context]
+    user_prompt = f"""[Current Structured Context]
 {context_text}
 
-Question: {question.strip()}<|im_end|>
-<|im_start|>assistant
-<think>
-</think>
-"""
-    answer = _call_qwen(chatml_prompt)
+Question: {question.strip()}"""
+    answer = _call_qwen(user_prompt)
     return {
         "model": QWEN_MODEL,
         "compound_name": compound.name,
@@ -331,18 +350,11 @@ def answer_comparison_question(
 
     context_text = build_comparison_context(db, project, compounds, comparison_data)
 
-    chatml_prompt = f"""<|im_start|>system
-{SYSTEM_PROMPT}<|im_end|>
-<|im_start|>user
-[Selected Compounds Comparison Context]
+    user_prompt = f"""[Selected Compounds Comparison Context]
 {context_text}
 
-Question: {question.strip()}<|im_end|>
-<|im_start|>assistant
-<think>
-</think>
-"""
-    answer = _call_qwen(chatml_prompt)
+Question: {question.strip()}"""
+    answer = _call_qwen(user_prompt)
     return {
         "model": QWEN_MODEL,
         "project_name": project.name,
