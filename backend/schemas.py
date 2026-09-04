@@ -11,6 +11,7 @@ class ProjectCreate(BaseModel):
     indication: str = ""
     mechanism_modality: str = ""
     description: str = ""
+    is_test_fixture: bool = False
 
 
 class ProjectUpdate(BaseModel):
@@ -20,6 +21,7 @@ class ProjectUpdate(BaseModel):
     indication: Optional[str] = None
     mechanism_modality: Optional[str] = None
     description: Optional[str] = None
+    is_test_fixture: Optional[bool] = None
 
 
 class ProjectOut(ProjectCreate):

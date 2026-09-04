@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, text
+from sqlalchemy import Boolean, JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -20,6 +20,7 @@ class Project(Base):
     indication: Mapped[str] = mapped_column(String(300), default="")
     mechanism_modality: Mapped[str] = mapped_column(String(300), default="")
     description: Mapped[str] = mapped_column(Text, default="")
+    is_test_fixture: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
@@ -290,6 +291,9 @@ def ensure_ui_schema(engine):
         compound_schema = inspector.get_columns("compounds")
         compound_columns = {row["name"] for row in compound_schema}
     with engine.begin() as connection:
+        if "is_test_fixture" not in project_columns:
+            connection.execute(text("ALTER TABLE projects ADD COLUMN is_test_fixture BOOLEAN NOT NULL DEFAULT 0"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS ix_projects_is_test_fixture ON projects (is_test_fixture)"))
         if "molecule_type" not in project_columns:
             connection.execute(text("ALTER TABLE projects ADD COLUMN molecule_type VARCHAR(40) NOT NULL DEFAULT 'Small Molecule'"))
         if "status" not in compound_columns:

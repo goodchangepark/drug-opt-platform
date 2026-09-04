@@ -270,9 +270,92 @@ def validate_structure(payload: dict):
     }
 
 
+def resolve_cas_to_structure(cas_number: str, db: Session | None = None) -> dict:
+    cas_clean = str(cas_number or "").strip()
+    if not cas_clean or not valid_cas(cas_clean):
+        return {"found": False, "error": "Invalid CAS number format"}
+
+    # 1. Local database lookup
+    if db is not None:
+        existing_cv = db.scalar(
+            select(CompoundVersion)
+            .join(Compound, Compound.id == CompoundVersion.compound_row_id)
+            .where(Compound.cas_number == cas_clean)
+            .order_by(CompoundVersion.id.desc())
+        )
+        if existing_cv and existing_cv.canonical_smiles:
+            try:
+                analysis = analyze_smiles(existing_cv.canonical_smiles)
+                return {
+                    "found": True,
+                    "cas_number": cas_clean,
+                    "smiles": existing_cv.canonical_smiles,
+                    "name": existing_cv.compound.name if existing_cv.compound else "",
+                    "source": "local_database",
+                    **analysis,
+                }
+            except ChemistryError:
+                pass
+
+    # 2. Local reference catalog lookup
+    ref_file = Path(__file__).parent / "reference_drugs_65.json"
+    if ref_file.exists():
+        try:
+            with open(ref_file, "r", encoding="utf-8") as f:
+                ref_drugs = json.load(f)
+                for drug in ref_drugs:
+                    if drug.get("cas_number") == cas_clean:
+                        sm = drug.get("smiles") or drug.get("canonical_smiles")
+                        if sm:
+                            analysis = analyze_smiles(sm)
+                            return {
+                                "found": True,
+                                "cas_number": cas_clean,
+                                "smiles": sm,
+                                "name": drug.get("name", ""),
+                                "source": "reference_catalog",
+                                **analysis,
+                            }
+        except Exception:
+            pass
+
+    # 3. PubChem PUG REST
+    try:
+        from .external_experimental import lookup
+        res = lookup(cas_clean, "")
+        identity = res.get("identity") or {}
+        sm = identity.get("isomeric_smiles") or identity.get("canonical_smiles")
+        if sm:
+            analysis = analyze_smiles(sm)
+            return {
+                "found": True,
+                "cas_number": cas_clean,
+                "smiles": sm,
+                "name": "",
+                "source": "pubchem",
+                **analysis,
+            }
+    except Exception as exc:
+        return {"found": False, "error": f"Resolution error: {exc}"}
+
+    return {"found": False, "error": f"CAS number '{cas_clean}' could not be resolved"}
+
+
+@app.post("/api/structure/resolve-cas")
+def resolve_cas_endpoint(payload: dict, db: Session = Depends(get_db)):
+    cas = str(payload.get("cas_number", "")).strip()
+    result = resolve_cas_to_structure(cas, db)
+    if not result.get("found"):
+        return JSONResponse(status_code=404, content=result)
+    return result
+
+
 @app.get("/api/projects")
-def list_projects(db: Session = Depends(get_db)):
-    return [_project_out(db, project) for project in db.scalars(select(Project).order_by(Project.created_at.desc()))]
+def list_projects(db: Session = Depends(get_db), include_test_fixtures: bool = False):
+    query = select(Project)
+    if not include_test_fixtures:
+        query = query.where(Project.is_test_fixture.is_(False))
+    return [_project_out(db, project) for project in db.scalars(query.order_by(Project.created_at.desc()))]
 
 
 def _workflow_status(covered: int, total: int):
@@ -282,9 +365,12 @@ def _workflow_status(covered: int, total: int):
 
 
 @app.get("/api/dashboard")
-def dashboard_summary(db: Session = Depends(get_db)):
+def dashboard_summary(db: Session = Depends(get_db), include_test_fixtures: bool = False):
     """Small read-only workspace summary for the main and project dashboards."""
-    projects = db.scalars(select(Project).order_by(Project.created_at.desc())).all()
+    query = select(Project)
+    if not include_test_fixtures:
+        query = query.where(Project.is_test_fixture.is_(False))
+    projects = db.scalars(query.order_by(Project.created_at.desc())).all()
     project_rows = []
     total_compounds = 0
     for project in projects:
@@ -600,6 +686,23 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
         db.execute(delete(ADMETAssayDefinition).where(ADMETAssayDefinition.endpoint_id.in_(endpoint_ids)))
         db.execute(delete(ADMETEndpoint).where(ADMETEndpoint.id.in_(endpoint_ids)))
 
+    # Evidence, search runs, and import batches
+    db.execute(delete(EvidenceImportBatch).where(EvidenceImportBatch.project_id.in_(project_ids)))
+    db.execute(delete(ExperimentalSearchRun).where(ExperimentalSearchRun.project_id.in_(project_ids)))
+    if compound_ids:
+        db.execute(delete(ExperimentalSearchRun).where(ExperimentalSearchRun.compound_id.in_(compound_ids)))
+
+    # Adapter & snapshots
+    db.execute(delete(ProjectAdapterVersion).where(ProjectAdapterVersion.project_id.in_(project_ids)))
+    db.execute(delete(PredictionExperimentalPairRecord).where(PredictionExperimentalPairRecord.project_id.in_(project_ids)))
+    db.execute(delete(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.project_id.in_(project_ids)))
+    db.execute(delete(ADMETExperimentalFeedbackEvent).where(ADMETExperimentalFeedbackEvent.project_id.in_(project_ids)))
+
+    # Qualification prediction freezes
+    from .production_qualification import QualificationPredictionFreezeRow
+    str_project_ids = [str(pid) for pid in project_ids]
+    db.execute(delete(QualificationPredictionFreezeRow).where(QualificationPredictionFreezeRow.project_id.in_(str_project_ids)))
+
     # PK and IVIVE project-level cleanup
     db.execute(delete(PKParameterSet).where(PKParameterSet.project_id.in_(project_ids)))
     db.execute(delete(PKSimulationRun).where(PKSimulationRun.project_id.in_(project_ids)))
@@ -614,6 +717,13 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
         db.execute(delete(PKStudy).where(PKStudy.id.in_(all_proj_pk_studies)))
 
     if version_ids:
+        str_version_ids = [str(vid) for vid in version_ids]
+        db.execute(delete(QualificationPredictionFreezeRow).where(QualificationPredictionFreezeRow.compound_version_id.in_(str_version_ids)))
+        db.execute(delete(PredictionEndpointSnapshot).where(PredictionEndpointSnapshot.compound_version_id.in_(version_ids)))
+        db.execute(delete(PredictionExperimentalPairRecord).where(PredictionExperimentalPairRecord.compound_version_id.in_(version_ids)))
+        db.execute(delete(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(version_ids)))
+        db.execute(delete(ADMETAdaptivePrediction).where(ADMETAdaptivePrediction.version_id.in_(version_ids)))
+        db.execute(delete(ADMETExperimentalFeedbackEvent).where(ADMETExperimentalFeedbackEvent.version_id.in_(version_ids)))
         db.execute(delete(PKParameterSet).where(PKParameterSet.version_id.in_(version_ids)))
         db.execute(delete(PKSimulationRun).where(PKSimulationRun.version_id.in_(version_ids)))
         db.execute(delete(PKTranslationalSnapshot).where(PKTranslationalSnapshot.version_id.in_(version_ids)))
@@ -807,7 +917,12 @@ def create_compound(project_id: int, payload: CompoundCreate, db: Session = Depe
     compound = Compound(project_id=project_id, compound_id=compound_id, name=name, cas_number=_cas_storage_value(db, cas_number), notes=payload.notes, status="DRAFT")
     db.add(compound); db.flush()
     if not payload.smiles.strip():
-        db.commit(); db.refresh(compound); return compound_out(compound)
+        if cas_number:
+            cas_res = resolve_cas_to_structure(cas_number, db)
+            if cas_res.get("found") and cas_res.get("smiles"):
+                payload.smiles = cas_res["smiles"]
+        if not payload.smiles.strip():
+            db.commit(); db.refresh(compound); return compound_out(compound)
     if project.molecule_type != "Small Molecule":
         db.rollback(); raise HTTPException(status_code=400, detail="This model currently supports small molecules only. Save a peptide as a draft without structure calculations.")
     try:

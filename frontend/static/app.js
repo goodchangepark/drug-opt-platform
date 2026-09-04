@@ -58,7 +58,7 @@ const EXPERIMENT_PRESETS={
 const EMPTY_EXPERIMENT={value:'',unit:'',species:'Human',measurement:'',assay:'',role:'Inhibition',isoform:'3A4',transporter:'P-gp',matrix:'',pH:'7.4',medium:'',solubility_type:'Thermodynamic',source:'User experimental',notes:'',assay_id:'',pka_type:'macroscopic',method:'Potentiometric titration',temperature_c:'25.0',ionic_strength_m:'0.15'};
 
 function StatusBadge({type}){
- const labels={Experimental:'EXP',Calculated:'CALC',Predicted:'PRED','Not calculated':'NOT CALCULATED','Not measured':'NOT MEASURED','Not predicted':'NOT PREDICTED','Model unavailable':'MODEL UNAVAILABLE','Not applicable':'NOT APPLICABLE',DRAFT:'DRAFT',STRUCTURE_READY:'STRUCTURE READY',CALCULATED:'CALCULATED',READY:'READY',LIMITED:'LIMITED',MODEL_UNAVAILABLE:'MODEL UNAVAILABLE',UNAVAILABLE:'MODEL UNAVAILABLE',PLANNED:'PLANNED',PARTIAL:'PARTIAL',NOT_STARTED:'NOT STARTED',NOT_RUN:'NOT RUN',EXPERIMENTAL:'EXPERIMENTAL',PREDICTED:'PREDICTED',TRANSLATIONAL:'TRANSLATIONAL',EXPERIMENTAL_NCA:'EXPERIMENTAL NCA',HEPATIC_IVIVE:'HEPATIC IVIVE',HEPATIC_IVIVE_APPARENT:'IVIVE APPARENT',PREDICTED_VD:'PREDICTED VD'};
+ const labels={Experimental:'EXP',Calculated:'CALC',Predicted:'PRED','Not calculated':'NOT CALCULATED','Not measured':'NOT MEASURED','Not predicted':'NOT PREDICTED','Model unavailable':'MODEL UNAVAILABLE','Not applicable':'NOT APPLICABLE',DRAFT:'DRAFT',STRUCTURE_READY:'STRUCTURE READY',CALCULATED:'CALCULATED',READY:'READY',LIMITED:'LIMITED',MODEL_UNAVAILABLE:'MODEL UNAVAILABLE',UNAVAILABLE:'MODEL UNAVAILABLE',PLANNED:'PLANNED',PARTIAL:'PARTIAL',NOT_STARTED:'NOT STARTED',NOT_RUN:'NOT RUN',EXPERIMENTAL:'EXPERIMENTAL',PREDICTED:'PREDICTED',TRANSLATIONAL:'TRANSLATIONAL',EXPERIMENTAL_NCA:'EXPERIMENTAL NCA',HEPATIC_IVIVE:'HEPATIC IVIVE',HEPATIC_IVIVE_APPARENT:'IVIVE APPARENT',PREDICTED_VD:'PREDICTED VD',LOADING:'LOADING…',RUNNING:'RUNNING…',AVAILABLE:'AVAILABLE',SAVED:'SAVED',COMPLETE:'COMPLETE',FAILED:'FAILED'};
  return e('span',{className:'status-badge status-'+String(type||'not-applicable').toLowerCase().replace(/[^a-z]+/g,'-')},labels[type]||type||'NOT APPLICABLE');
 }
 
@@ -436,7 +436,7 @@ function App(){
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',cas_number:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
- const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false),[selectedEvidenceIds,setSelectedEvidenceIds]=useState([]),[qualificationSummary,setQualificationSummary]=useState(null),[evidenceFilter,setEvidenceFilter]=useState('PAIRABLE'),[harvestSources,setHarvestSources]=useState(['PubChem PUG View','PubChem BioAssay','ChEMBL','BindingDB','Europe PMC','PK-DB','FDA / Regulatory']);
+ const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false),[selectedEvidenceIds,setSelectedEvidenceIds]=useState([]),[qualificationSummary,setQualificationSummary]=useState(null),[evidenceFilter,setEvidenceFilter]=useState('ALL'),[harvestSources,setHarvestSources]=useState(['PubChem PUG View','PubChem BioAssay','ChEMBL','BindingDB','Europe PMC','PK-DB','FDA / Regulatory']);
  const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
  const previewRequest=useRef(0);
  const workspaceRequest=useRef(0),detailRequest=useRef(0);
@@ -691,20 +691,43 @@ function App(){
   return()=>clearInterval(timer);
  },[proposalRun?.id,proposalRun?.status,proposalView]);
  useEffect(()=>{
-  if(!addCompoundOpen||project?.molecule_type!=='Small Molecule'){setEditorReady(false);return}
-  setEditorReady(false);
-  let cancelled=false,source=null;
-  const attach=event=>{
-   if(event.origin!==window.location.origin||event.data?.eventType!=='init'||cancelled)return;
-   source?.removeEventListener('load',onLoad);
-   setEditorReady(true);
-  };
-  const onLoad=()=>{const frame=document.getElementById('ketcher-editor');frame?.contentWindow?.addEventListener('message',attach)};
-  window.addEventListener('message',attach);
-  const frame=document.getElementById('ketcher-editor');
-  frame?.addEventListener('load',onLoad);
-  return()=>{cancelled=true;window.removeEventListener('message',attach);frame?.removeEventListener('load',onLoad)};
- },[addCompoundOpen,projectId]);
+   if(!addCompoundOpen||project?.molecule_type!=='Small Molecule'){setEditorReady(false);return}
+   setEditorReady(false);
+   let cancelled=false,source=null;
+   const checkEditor=()=>{
+    if(cancelled)return false;
+    try{
+     const frame=document.getElementById('ketcher-editor');
+     if(frame?.contentWindow?.ketcher){
+      setEditorReady(true);
+      return true;
+     }
+    }catch(_){}
+    return false;
+   };
+   const attach=event=>{
+    if(event.origin!==window.location.origin||event.data?.eventType!=='init'||cancelled)return;
+    source?.removeEventListener('load',onLoad);
+    setEditorReady(true);
+   };
+   const onLoad=()=>{
+    checkEditor();
+    const frame=document.getElementById('ketcher-editor');
+    frame?.contentWindow?.addEventListener('message',attach);
+   };
+   window.addEventListener('message',attach);
+   const frame=document.getElementById('ketcher-editor');
+   frame?.addEventListener('load',onLoad);
+   const pollTimer=setInterval(()=>{
+    if(checkEditor())clearInterval(pollTimer);
+   },300);
+   return()=>{
+    cancelled=true;
+    clearInterval(pollTimer);
+    window.removeEventListener('message',attach);
+    frame?.removeEventListener('load',onLoad);
+   };
+  },[addCompoundOpen,projectId]);
  useEffect(()=>{
   if(!editorReady||!addCompoundOpen)return;
   const timer=setInterval(async()=>{
@@ -801,8 +824,14 @@ function App(){
     }
    }catch(_){}
   }
+  if(!smilesToUse&&casNumber&&smallMolecule){
+   try{
+    const res=await api.post('/structure/resolve-cas',{cas_number:casNumber});
+    if(res&&res.found&&res.smiles){smilesToUse=res.smiles;}
+   }catch(_){}
+  }
   if(smallMolecule&&!smilesToUse){
-   setMessage('Valid structure is required.');
+   setMessage('Valid structure or resolvable CAS number is required.');
    return;
   }
   setSavingCompound(true);
@@ -4184,7 +4213,7 @@ function integratedProfile(versionId){
    e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
     const storedStatus=workspace?.prediction_status?.[tab];
     const evidenceCount=(workspace?.external_experimental_evidence||[]).length;
-    const status=tab==='overview'?'READY':tab==='evidence'?(evidenceCount>0?'SAVED':'NO DATA'):(storedStatus|| (tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED'):tab==='activity'?((activity.measurements||[]).length||(activity.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='admet'?(detailPredictions.length?'COMPLETE':'NOT_STARTED'):tab==='metabolism'?((workspace?.metabolism?.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='pk'?(hasExpPk||detailPredictions.length>0?'COMPLETE':'NOT_STARTED'):'READY'));
+    const status=workspaceLoading ? 'LOADING…' : (tab==='overview'?'READY':tab==='evidence'?(evidenceCount>0?'SAVED':'NO DATA'):(storedStatus|| (tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED'):tab==='activity'?((activity.measurements||[]).length||(activity.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='admet'?(detailPredictions.length?'AVAILABLE':'NOT_STARTED'):tab==='metabolism'?((workspace?.metabolism?.predictions||[]).length?'AVAILABLE':'NOT_STARTED'):tab==='pk'?(hasExpPk||detailPredictions.length>0?'AVAILABLE':'NOT_STARTED'):'READY')));
     return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk','evidence'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
    })),
    detailTab==='overview'&&e('div',{key:'overview-tab'},[
@@ -4401,13 +4430,16 @@ function integratedProfile(versionId){
      e('div',{className:'row small',style:{gap:'6px',flexWrap:'wrap',marginTop:'8px'}},['PAIRABLE','READY','ALL','IMPORTED','DIRECT','RELATED','REVIEW'].map(filter=>e('button',{key:filter,type:'button',className:evidenceFilter===filter?'active-tab':'secondary',onClick:()=>setEvidenceFilter(filter)},filter==='PAIRABLE'?'Prediction-Pairable':filter==='ALL'?'All':filter==='READY'?'Ready to Import':filter==='IMPORTED'?'Imported':filter==='DIRECT'?'Directly Comparable':filter==='RELATED'?'Related Evidence':'Needs Review'))),
      (()=>{
       const records = (externalEvidence?.records?.length ? externalEvidence.records : workspace?.external_experimental_evidence) || [];
-      const filtered = records
-       .filter(row=>evidenceFilter!=='READY'||row.import_eligible||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL'||row.qualification_status==='ENDPOINT_QUALIFIED')
-       .filter(row=>evidenceFilter!=='PAIRABLE'||row.qualification?.stages?.PREDICTION_PAIRABLE||row.qualification_status==='PREDICTION_PAIRABLE'||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL')
-       .filter(row=>evidenceFilter!=='DIRECT'||row.qualification?.stages?.DIRECTLY_COMPARABLE||row.comparability_status==='DIRECTLY_COMPARABLE')
-       .filter(row=>evidenceFilter!=='RELATED'||row.qualification?.stages?.RELATED_SAME_GROUP||row.comparability_status==='RELATED_SAME_GROUP'||row.evidence_state==='RELATED_EXTERNAL')
-       .filter(row=>evidenceFilter!=='REVIEW'||row.qualification_status==='NEEDS_REVIEW'||row.evidence_state==='REVIEW_REQUIRED')
-       .filter(row=>evidenceFilter!=='IMPORTED'||row.evidence_state==='EXTERNAL_IMPORTED');
+       const filtered = records.filter(row=>{
+        if(evidenceFilter==='ALL')return true;
+        if(evidenceFilter==='READY')return Boolean(row.import_eligible||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL'||row.qualification_status==='ENDPOINT_QUALIFIED');
+        if(evidenceFilter==='PAIRABLE')return Boolean(row.qualification?.stages?.PREDICTION_PAIRABLE||row.qualification_status==='PREDICTION_PAIRABLE'||row.evidence_state==='AUTO_QUALIFIED_EXTERNAL'||row.comparability_status==='DIRECTLY_COMPARABLE'||row.comparability_status==='COMPARABLE_AFTER_DETERMINISTIC_CONVERSION'||(row.evidence_state==='EXTERNAL_IMPORTED'&&row.comparability_status!=='UNSUPPORTED'));
+        if(evidenceFilter==='DIRECT')return Boolean(row.qualification?.stages?.DIRECTLY_COMPARABLE||row.comparability_status==='DIRECTLY_COMPARABLE');
+        if(evidenceFilter==='RELATED')return Boolean(row.qualification?.stages?.RELATED_SAME_GROUP||row.comparability_status==='RELATED_SAME_GROUP'||row.evidence_state==='RELATED_EXTERNAL');
+        if(evidenceFilter==='REVIEW')return Boolean(row.qualification_status==='NEEDS_REVIEW'||row.evidence_state==='REVIEW_REQUIRED');
+        if(evidenceFilter==='IMPORTED')return Boolean(row.evidence_state==='EXTERNAL_IMPORTED');
+        return true;
+       });
       return filtered.length?e('div',{className:'table-scroll'},e('table',{className:'compact-evidence-table'},[
        e('thead',{},e('tr',{},['Select','Section','Endpoint','Representative Experimental Value','Source','Qualification','Pairability'].map(label=>e('th',{key:label},label)))),
        e('tbody',{},filtered.map(row=>e('tr',{key:row.id},[
@@ -4483,10 +4515,46 @@ function integratedProfile(versionId){
  function AddCompoundPanel(){
   if(!addCompoundOpen)return null;
   const smallMolecule=project.molecule_type==='Small Molecule';
+  const resolveCas=async()=>{
+   const cas=(compoundForm.cas_number||'').trim();
+   if(!cas){setMessage('Please enter a CAS number to resolve.');return;}
+   setSavingCompound(true);
+   try{
+    const res=await api.post('/structure/resolve-cas',{cas_number:cas});
+    if(res&&res.found&&res.smiles){
+     setCompoundForm(current=>({
+      ...current,
+      smiles:res.smiles,
+      name:current.name||res.name||current.name,
+     }));
+     setPreview(res);
+     setMessage('CAS resolved: '+cas+' → '+res.smiles);
+     try{
+      const editor=document.getElementById('ketcher-editor')?.contentWindow?.ketcher;
+      if(editor){await editor.setMolecule(res.smiles);editorSmiles.current=res.smiles;}
+     }catch(_){}
+    }else{
+     setMessage('Could not resolve CAS: '+(res?.error||'Not found'));
+    }
+   }catch(err){
+    setMessage('CAS resolution error: '+String(err));
+   }finally{
+    setSavingCompound(false);
+   }
+  };
+  const canSave = Boolean(compoundForm.smiles.trim() || compoundForm.cas_number.trim());
   return e('div',{className:'modal-backdrop'},e('div',{className:'card compound-modal'},[
    e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('div',{className:'eyebrow'},editingCompound?'EDIT COMPOUND':'NEW COMPOUND'),e('h2',{},editingCompound?'Edit Compound':'Add Compound')]),e('button',{type:'button',className:'secondary',onClick:()=>{setAddCompoundOpen(false);setEditingCompound(false)}},'Close')]),
    e('div',{className:'grid',key:'identity'},[e('div',{className:'col-6'},Field({label:'Compound Name *',value:compoundForm.name,onChange:value=>setCompoundForm(current=>({...current,name:value})),placeholder:'HIT-001'})),e('div',{className:'col-6'},Field({label:'Compound ID (optional)',value:compoundForm.compound_id,onChange:value=>setCompoundForm(current=>({...current,compound_id:value})),placeholder:'Generated from name if empty'}))]),
-   e('div',{className:'grid',key:'cas'},[e('div',{className:'col-6'},Field({label:'CAS No. (optional)',value:compoundForm.cas_number||'',onChange:value=>setCompoundForm(current=>({...current,cas_number:value})),placeholder:'Optional — mainly for public/reference compounds'})),e('p',{className:'col-6 small',style:{alignSelf:'end'}},'CAS is optional metadata. Invalid CAS does not block saving; it only prevents CAS-based lookup. Public search remains explicit and never sends a private structure.')]),
+   e('div',{className:'grid',key:'cas'},[
+    e('div',{className:'col-6'},[
+     Field({label:'CAS No. (optional)',value:compoundForm.cas_number||'',onChange:value=>setCompoundForm(current=>({...current,cas_number:value})),placeholder:'e.g. 50-00-0 or 15687-27-1'}),
+     e('div',{style:{marginTop:'6px',display:'flex',gap:'8px'}},[
+      e('button',{type:'button',className:'secondary',disabled:savingCompound||!compoundForm.cas_number?.trim(),onClick:resolveCas,style:{fontSize:'12px',padding:'4px 10px'}},savingCompound?'Resolving…':'🔍 Resolve Structure from CAS')
+     ])
+    ]),
+    e('p',{className:'col-6 small',style:{alignSelf:'end'}},'Enter CAS to automatically resolve 2D structure, formula, and SMILES. Structure drawing and direct SMILES entry are also supported.')
+   ]),
    smallMolecule?e(React.Fragment,{key:'editor'},[
     e('h3',{key:'title',style:{marginTop:'22px'}},'Draw Chemical Structure'),e('p',{key:'help',className:'small'},'Draw or edit the compound structure below. The SMILES field updates automatically while you draw.'),
     e('div',{className:'structure-editor-shell',key:'shell'},[
@@ -4514,7 +4582,7 @@ function integratedProfile(versionId){
      e('p',{className:'small mono',style:{marginTop:'6px',color:'#64748b',wordBreak:'break-all'}},preview.identity?.canonical_smiles||compoundForm.smiles)
     ])
    ]),
-   e('div',{className:'row modal-actions',key:'actions'},[e('button',{type:'button',disabled:savingCompound||admetBusy||!compoundForm.smiles.trim(),onClick:()=>saveCompound(false)},savingCompound?'Saving…':'Save'),e('button',{type:'button',className:'secondary',disabled:savingCompound||admetBusy||!compoundForm.smiles.trim()||!smallMolecule,onClick:()=>saveCompound(true)},admetBusy?'Saving & predicting…':'Save & Predict'),e('span',{className:'small'},'Save closes this window and refreshes Compound Status. If no name is entered, a compound label is generated automatically. Activity is intentionally excluded from automatic predictions.')])
+   e('div',{className:'row modal-actions',key:'actions'},[e('button',{type:'button',disabled:savingCompound||admetBusy||!canSave,onClick:()=>saveCompound(false)},savingCompound?'Saving…':'Save'),e('button',{type:'button',className:'secondary',disabled:savingCompound||admetBusy||!canSave||!smallMolecule,onClick:()=>saveCompound(true)},admetBusy?'Saving & predicting…':'Save & Predict'),e('span',{className:'small'},'Save closes this window and refreshes Compound Status. If no name is entered, a compound label is generated automatically. Activity is intentionally excluded from automatic predictions.')])
   ]));
  }
 
@@ -5060,7 +5128,7 @@ function integratedProfile(versionId){
    const summary=selectedProjectSummary;
    const statusByCompound=new Map((summary?.compounds||[]).map(row=>[row.row_id,row]));
    return e(React.Fragment,{},[
-    e('div',{className:'card project-header',key:'header'},project?e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'PROJECT DASHBOARD'),e('h1',{},project.name),e('div',{},[e('strong',{},project.target||'Target not set'),' · ',project.molecule_type])]),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true);setCompoundForm({compound_id:'',name:'',smiles:'',cas_number:'',notes:''})}},'Add Compound')]):e('div',{},[e('h2',{},'Select or create a project'),e('p',{},'Start with a project, then add compounds and work from Compound Detail.') ])),
+    e('div',{className:'card project-header',key:'header'},project?e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'PROJECT DASHBOARD'),e('h1',{},[project.name,(project.indication&&project.indication.includes('GLOBAL_MODEL_DEVELOPMENT'))&&e('span',{className:'badge-pill',key:'drugbank-badge',style:{fontSize:'12px',fontWeight:'600',background:'#e0f2fe',color:'#0369a1',padding:'3px 8px',borderRadius:'4px',marginLeft:'10px',verticalAlign:'middle'}},'GLOBAL_MODEL_DEVELOPMENT · REFERENCE LIBRARY')]),e('div',{},[e('strong',{},project.target||'Target not set'),' · ',project.molecule_type,(project.indication&&!project.indication.includes('GLOBAL_MODEL_DEVELOPMENT'))?' · '+project.indication:''])]),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true);setCompoundForm({compound_id:'',name:'',smiles:'',cas_number:'',notes:''})}},'Add Compound')]):e('div',{},[e('h2',{},'Select or create a project'),e('p',{},'Start with a project, then add compounds and work from Compound Detail.') ])),
     project&&e('nav',{className:'project-nav',key:'nav'},detail
      ?e('button',{className:'secondary',onClick:()=>{setDetail(null);setDetailTab('overview')}},'← Compound List')
      :[['compounds','Compounds'],['evidence','Evidence'],['assays','Assays'],['compare','Compare'],['settings','Settings']].map(([tab,label])=>e('button',{key:tab,className:projectTab===tab?'':'secondary',onClick:()=>{setProjectTab(tab);if(tab!=='compounds')setDetail(null)}},label))),
