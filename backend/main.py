@@ -1095,6 +1095,8 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
             saved["prediction_run_id"] = existing_workflow.id
             saved["request_fingerprint"] = request_fingerprint
             saved["reused_existing_run"] = True
+            saved["engine_id"] = (existing_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_POLICY_ID)
+            saved["endpoint_routing"] = (existing_workflow.provenance_json or {}).get("endpoint_routing", {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()})
             return saved
     steps = {
         "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
@@ -1298,6 +1300,8 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "prediction_run_id": workflow_run_id,
         "request_fingerprint": request_fingerprint,
         "reused_existing_run": False,
+        "engine_id": ENGINE_V3_POLICY_ID,
+        "endpoint_routing": workflow_output["endpoint_routing"],
         "engine_version": ENGINE_V3_POLICY_VERSION,
         "engine_name": ENGINE_V3_NAME,
         "engine_status": ENGINE_V3_STATUS,

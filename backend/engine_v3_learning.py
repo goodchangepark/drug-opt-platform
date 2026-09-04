@@ -104,10 +104,10 @@ GLOBAL_PRODUCTION_MODEL_REGISTRY: Dict[str, Dict[str, Any]] = {
         "training_compound_ids": ["DB00317", "DB00619", "DB00571", "DB01076", "DB00227", "DB00959", "DB00472", "DB01026", "DB00870", "DB00277", "DB00682", "DB01118", "DB00382", "DB00621", "DB00338", "DB00438", "DB00175", "DB01167", "DB00196", "DB00404", "DB00215"],
         "validation_compound_ids": ["DB00465", "DB00722", "DB00586", "DB00328", "DB00688", "DB00711", "DB00829", "DB00755", "DB00839", "DB01059", "DB01064", "DB01183", "DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
         "created_at": "2026-09-04T08:00:00Z",
-        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "promotion_status": "RETAIN_BASE",
         "fitted_parameters": {"mean_bias_offset": 0.256},
         "calibration_residual_distribution": {"val_mae": 0.428, "residual_std": 0.540, "q25": -0.28, "q50": 0.01, "q75": 0.31},
-        "description": "Aqueous solubility thermodynamic offset calibration",
+        "description": "Aqueous solubility thermodynamic offset calibration (Regressed on locked holdout Cohort 5; Retained Base Model in Production)",
     },
     "HERG_LIABILITY": {
         "endpoint_id": "HERG_LIABILITY",
@@ -483,7 +483,7 @@ def compute_base_prediction(endpoint_id: str, smiles: str) -> Optional[float]:
     return None
 
 
-def get_base_prediction_and_truth(endpoint_id: str, smiles: str, exp_val: Optional[float]) -> Tuple[Optional[float], Optional[float]]:
+def get_base_prediction_and_truth(endpoint_id: str, smiles: str, exp_val: Optional[float], unit: Optional[str] = None) -> Tuple[Optional[float], Optional[float]]:
     """Evaluates base model prediction and normalized experimental truth for a compound."""
     pred = compute_base_prediction(endpoint_id, smiles)
     if exp_val is None:
@@ -499,6 +499,27 @@ def get_base_prediction_and_truth(endpoint_id: str, smiles: str, exp_val: Option
         if exp_val > 5.0:
             return pred, round(math.log10(exp_val), 2)
         return pred, exp_val
+    elif endpoint_id in ("SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC"):
+        if unit == "log10(mol/L)" or exp_val < 0:
+            return pred, exp_val
+        mol = Chem.MolFromSmiles(smiles)
+        mw = Descriptors.MolWt(mol) if mol else 400.0
+        if unit in ("ug/mL", "µg/mL"):
+            g_l = exp_val * 1e-3
+            return pred, round(math.log10(g_l / mw), 3)
+        elif unit == "mg/mL":
+            g_l = exp_val
+            return pred, round(math.log10(g_l / mw), 3)
+        elif unit in ("uM", "µM"):
+            molar = exp_val * 1e-6
+            return pred, round(math.log10(molar), 3)
+        elif exp_val > 0:
+            if exp_val > 10.0:
+                g_l = exp_val * 1e-3
+            else:
+                g_l = exp_val
+            return pred, round(math.log10(g_l / mw), 3)
+        return pred, exp_val
     return pred, exp_val
 
 
@@ -510,7 +531,7 @@ def fit_and_select_optimal_v3_candidate(endpoint_id: str, dev_samples: List[Dict
     dev_records = []
     dev_fps = []
     for s in dev_samples:
-        bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"])
+        bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"], s.get("normalized_unit") or s.get("raw_unit"))
         if bp is not None and ev is not None:
             fp = compute_morgan_fp(s["smiles"])
             dev_records.append({"name": s["compound_name"], "smiles": s["smiles"], "base_pred": bp, "exp_val": ev, "residual": bp - ev})
@@ -548,7 +569,7 @@ def fit_and_select_optimal_v3_candidate(endpoint_id: str, dev_samples: List[Dict
     errors_a, errors_b, errors_c, errors_d = [], [], [], []
 
     for s in val_samples:
-        bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"])
+        bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"], s.get("normalized_unit") or s.get("raw_unit"))
         if bp is None or ev is None:
             continue
         v_fp = compute_morgan_fp(s["smiles"])
@@ -767,7 +788,7 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
     borderline_ood_errors = []
 
     for s in final_test_samples:
-        bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"])
+        bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"], s.get("normalized_unit") or s.get("raw_unit"))
         if bp is None or ev is None:
             continue
         mol = Chem.MolFromSmiles(s["smiles"])

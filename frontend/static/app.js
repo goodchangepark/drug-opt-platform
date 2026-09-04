@@ -1324,12 +1324,25 @@ function integratedProfile(versionId){
   const inputStatus=prediction.input_status&&prediction.input_status!=='UNKNOWN'&&prediction.input_status!=='COMPLETE'?e('div',{className:'small'},'Input completeness: '+prediction.input_status):null;
   const assumptions=(prediction.assumptions||[]).slice(0,2).map((item,index)=>e('div',{className:'small',key:'assumption-'+index},'Assumption: '+item));
 
+  const epKey = {
+    'Solubility': 'SOLUBILITY_GENERIC',
+    'Permeability': 'CACO2_PERMEABILITY',
+    'Plasma protein binding': 'HUMAN_PPB',
+    'HLM intrinsic clearance': 'HLM_INTRINSIC_CLEARANCE',
+    'CYP3A4 inhibitor': 'CYP3A4_INHIBITION',
+    'CYP2D6 inhibitor': 'CYP2D6_INHIBITION',
+    'CYP1A2 inhibitor': 'CYP1A2_INHIBITION',
+    'CYP2C9 inhibitor': 'CYP2C9_INHIBITION',
+    'hERG liability': 'HERG_LIABILITY',
+  }[prediction?.endpoint] || prediction?.endpoint;
+
+  const routingTier = workspace?.prediction_engine?.endpoint_routing?.[epKey] || workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint];
   const epTier = prediction?.provenance?.endpoint_tier === 'GLOBAL_V3_PRIMARY' ? 'Global v3'
     : prediction?.provenance?.endpoint_tier === 'BASE_FALLBACK' ? 'Legacy Base'
     : prediction?.provenance?.endpoint_tier === 'MODEL_UNAVAILABLE' ? 'Model Unavailable'
-    : (workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint] === 'GLOBAL_V3_PRIMARY' ? 'Global v3'
-    : workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint] === 'BASE_FALLBACK' ? 'Legacy Base'
-    : workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint] === 'MODEL_UNAVAILABLE' ? 'Model Unavailable'
+    : (routingTier === 'GLOBAL_V3_PRIMARY' ? 'Global v3'
+    : routingTier === 'BASE_FALLBACK' ? 'Legacy Base'
+    : routingTier === 'MODEL_UNAVAILABLE' ? 'Model Unavailable'
     : (prediction?.model_version === '3.3.0' || prediction?.model?.model_version === '3.3.0' ? 'Global v3' : 'Legacy Base'));
 
   if(!hasAdjusted){
@@ -1455,17 +1468,44 @@ function integratedProfile(versionId){
    ])))] )
   ]);
  }
- function scientificPredictionCell(row){
-  const prediction=row.prediction||{};
-  if(!prediction.available)return e('div',{},[e('span',{className:'mono'},'Unavailable'),e('div',{className:'small'},prediction.unavailable_reason||'Current Prediction Engine does not support this endpoint/context')]);
-  const display=prediction.display||{value:prediction.display_value,unit:prediction.unit};
-  return e('div',{},[
-   e('div',{className:'mono'},scientificValue(display)),
-   e('div',{className:'small'},prediction.source_label||'Prediction'),
-   prediction.maturity&&renderPredictionMaturity(prediction.maturity.level||1,prediction.maturity.label||'Base Prediction',prediction.maturity),
-   display.conversion&&display.conversion!=='identity'&&e('details',{},[e('summary',{},'Model representation'),e('div',{className:'small'},scientificValue(display.raw)),display.definition&&e('div',{className:'small'},display.definition)])
-  ]);
- }
+  function scientificPredictionCell(row){
+   const prediction=row.prediction||{};
+   const epKey = {
+     'Solubility': 'SOLUBILITY_GENERIC',
+     'Aqueous Solubility': 'SOLUBILITY_GENERIC',
+     'Permeability': 'CACO2_PERMEABILITY',
+     'Caco-2 Permeability': 'CACO2_PERMEABILITY',
+     'Plasma protein binding': 'HUMAN_PPB',
+     'Plasma Protein Binding': 'HUMAN_PPB',
+     'HLM intrinsic clearance': 'HLM_INTRINSIC_CLEARANCE',
+     'CYP3A4 inhibitor': 'CYP3A4_INHIBITION',
+     'CYP2D6 inhibitor': 'CYP2D6_INHIBITION',
+     'CYP1A2 inhibitor': 'CYP1A2_INHIBITION',
+     'CYP2C9 inhibitor': 'CYP2C9_INHIBITION',
+     'hERG liability': 'HERG_LIABILITY',
+   }[row.display_name] || row.canonical_endpoint || row.endpoint_id || '';
+
+   const routingTier = workspace?.prediction_engine?.endpoint_routing?.[epKey] || workspace?.prediction_engine?.endpoint_routing?.[row.canonical_endpoint];
+   const epTier = routingTier === 'GLOBAL_V3_PRIMARY' ? 'Global v3'
+     : routingTier === 'BASE_FALLBACK' ? 'Legacy Base'
+     : routingTier === 'MODEL_UNAVAILABLE' ? 'Model Unavailable'
+     : (['SOLUBILITY_GENERIC', 'HUMAN_PPB', 'CACO2_PERMEABILITY'].includes(epKey) ? 'Legacy Base'
+     : (['CYP2C19_INHIBITION', 'PGP_INHIBITION', 'BCRP_INHIBITION'].includes(epKey) ? 'Model Unavailable' : 'Global v3'));
+
+   if(!prediction.available)return e('div',{},[
+     e('span',{className:'mono'},'Unavailable'),
+     e('div',{className:'small mono',style:{color:'#6b7280'}},'Endpoint Model: Model Unavailable'),
+     e('div',{className:'small'},prediction.unavailable_reason||'Current Prediction Engine does not support this endpoint/context')
+   ]);
+   const display=prediction.display||{value:prediction.display_value,unit:prediction.unit};
+   return e('div',{},[
+    e('div',{className:'mono'},scientificValue(display)),
+    e('div',{className:'small'},prediction.source_label||'Prediction'),
+    e('div',{className:'small mono',style:{color:epTier==='Global v3'?'#16a34a':epTier==='Legacy Base'?'#d97706':'#6b7280'}},'Endpoint Model: '+epTier),
+    prediction.maturity&&renderPredictionMaturity(prediction.maturity.level||1,prediction.maturity.label||'Base Prediction',prediction.maturity),
+    display.conversion&&display.conversion!=='identity'&&e('details',{},[e('summary',{},'Model representation'),e('div',{className:'small'},scientificValue(display.raw)),display.definition&&e('div',{className:'small'},display.definition)])
+   ]);
+  }
  function scientificDifferenceCell(row){
   const value=row.difference||{};
   if(value.absolute_error==null)return e('span',{className:'small'},value.reason||'—');
@@ -4298,16 +4338,16 @@ function integratedProfile(versionId){
       e('span',{},'Status: '),
       StatusBadge({type: workspaceLoading ? 'LOADING' : (detailPredictions.length?'COMPLETE':'NOT_RUN')}),
       e('span',{},'·'),
-      e('span',{className:'mono small',id:'predict-meta-engine'},'Prediction Engine: v'+(workspace?.prediction_engine?.engine_version||'3.3')+(workspace?.prediction_engine?.engine_status==='PRODUCTION_DEFAULT'?' (Production Default)':workspace?.prediction_engine?.engine_status==='LEGACY_PRODUCTION_BASELINE'?' (Legacy Baseline)':'')),
+      e('span',{className:'mono small',id:'predict-meta-engine'},'Prediction Engine v'+(workspace?.prediction_engine?.engine_version||'3.3')+' · Current Production'),
       e('span',{},'·'),
       e('span',{className:'mono small',id:'predict-meta-endpoint-model'},'Endpoint Model: Global v3 / Legacy Base / Model Unavailable')
      ]),
      e('div',{className:'prediction-engine-banner card',id:'prediction-engine-banner',style:{marginTop:'8px',padding:'8px 12px',background:'#f0f7ff',border:'1px solid #bae0ff',borderRadius:'6px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'8px'}},[
       e('div',{style:{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}},[
-       e('span',{className:'badge-favorable bold',style:{padding:'2px 8px',fontSize:'11px'}},'Prediction Engine: v'+(workspace?.prediction_engine?.engine_version||'3.3')+' ('+(workspace?.prediction_engine?.engine_status||'PRODUCTION_DEFAULT')+')'),
+       e('span',{className:'badge-favorable bold',style:{padding:'2px 8px',fontSize:'11px'}},'Prediction Engine v'+(workspace?.prediction_engine?.engine_version||'3.3')+' · Current Production'),
        e('span',{className:'small bold',style:{color:'#0050b3'}},'Endpoint Model Routing:'),
-       e('span',{className:'badge-favorable',style:{fontSize:'10.5px',padding:'1px 6px'}},'Global v3: CYP(3A4, 2D6, 1A2, 2C9) · Solubility · hERG · HLM'),
-       e('span',{className:'badge-intermediate',style:{fontSize:'10.5px',padding:'1px 6px'}},'Legacy Base: PPB · Caco-2'),
+       e('span',{className:'badge-favorable',style:{fontSize:'10.5px',padding:'1px 6px'}},'Global v3: CYP(3A4, 2D6, 1A2, 2C9) · hERG · HLM'),
+       e('span',{className:'badge-intermediate',style:{fontSize:'10.5px',padding:'1px 6px'}},'Legacy Base: Solubility · PPB · Caco-2'),
        e('span',{className:'badge-caution',style:{fontSize:'10.5px',padding:'1px 6px'}},'Model Unavailable: CYP2C19 · P-gp · BCRP')
       ]),
       e('div',{className:'mono small',style:{color:'#595959'}},'Baseline: '+(workspace?.prediction_engine?.legacy_baseline||'drugopt-prediction-engine-v1@1.0.0')+' · Decision: '+(workspace?.prediction_engine?.decision||'READY_TO_REPLACE_V1'))
@@ -5011,18 +5051,52 @@ function integratedProfile(versionId){
        e('div',{className:'badge-info',style:{padding:'6px 12px',fontSize:'13px'}},'Decision: READY_TO_REPLACE_V1 (+36.6% Avg Primary Error Reduction)')
       ]),
       e('h3',{style:{marginTop:'16px'}},'v1.0 vs v3.3 Production Readiness Comparison'),
-      e('p',{className:'small'},'Empirical evaluation on DrugBank reference holdout cohorts and locked test sets.'),
+      e('p',{className:'small'},'Empirical evaluation on DrugBank reference holdout cohorts and locked test sets, strictly separated by governance tiers.'),
+      e('h4',{style:{marginTop:'12px',color:'#237804'}},'1. Global v3 Primary Endpoints (6 Promoted Models — +36.6% Avg Error Reduction)'),
       e('div',{className:'table-scroll'},e('table',{},[
-       e('thead',{},e('tr',{},['Endpoint','v1/Base Error','v3.3 Error','Improvement','Validation N','Locked Test N','AD/OOD','Production Decision'].map(label=>e('th',{key:label},label)))),
-       e('tbody',{},(helpRegistry.prediction_readiness_comparison||[]).map(row=>e('tr',{key:row.endpoint_id,style:row.production_decision==='REPLACE_V1_PRIMARY'?{background:'#f6ffed'}:row.production_decision==='RETAIN_BASE_FALLBACK'?{background:'#fffbe6'}:{}},[
-        e('td',{},[e('strong',{},row.endpoint_name),e('div',{className:'small mono'},row.unit)]),
+       e('thead',{},e('tr',{},['Endpoint','Unit','v1/Base Error','v3.3 Error','Improvement','Validation N','Locked Test N','AD/OOD','Production Decision'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},(helpRegistry.prediction_readiness_comparison||[]).filter(r=>r.model_tier==='GLOBAL_V3_PRIMARY'||r.production_decision==='REPLACE_V1_PRIMARY').map(row=>e('tr',{key:row.endpoint_id,style:{background:'#f6ffed'}},[
+        e('td',{},e('strong',{},row.endpoint_name)),
+        e('td',{className:'mono small'},row.unit),
         e('td',{className:'mono'},row.v1_base_error),
         e('td',{className:'mono bold'},row.v3_error),
-        e('td',{className:'bold',style:{color:String(row.improvement).startsWith('+')?'#389e0d':String(row.improvement).startsWith('-')?'#cf1322':'inherit'}},row.improvement),
+        e('td',{className:'bold',style:{color:'#389e0d'}},row.improvement),
         e('td',{className:'mono'},row.validation_n),
         e('td',{className:'mono'},row.locked_test_n),
-        e('td',{},e('span',{className:row.ad_ood==='IN_DOMAIN_WITH_GUARD'?'badge-favorable':'badge-intermediate'},row.ad_ood)),
-        e('td',{},e('span',{className:row.production_decision==='REPLACE_V1_PRIMARY'?'badge-favorable':row.production_decision==='RETAIN_BASE_FALLBACK'?'badge-intermediate':'badge-caution'},row.production_decision))
+        e('td',{},e('span',{className:'badge-favorable'},row.ad_ood)),
+        e('td',{},e('span',{className:'badge-favorable'},row.production_decision))
+       ])))
+      ])),
+      e('h4',{style:{marginTop:'16px',color:'#ad6800'}},'2. Legacy Base Fallback Endpoints (3 Models Retained — Fail-Closed Safety)'),
+      e('div',{className:'table-scroll'},e('table',{},[
+       e('thead',{},e('tr',{},['Endpoint','Unit','Base Error','v3.3 Error','Holdout Impact','Locked Test N','Fallback Decision & Rationale'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},(helpRegistry.prediction_readiness_comparison||[]).filter(r=>r.model_tier==='BASE_FALLBACK'||r.production_decision==='RETAIN_BASE_FALLBACK').map(row=>{
+        const rationale = row.endpoint_id==='SOLUBILITY_GENERIC' ? 'Fail-closed to BASE_FALLBACK (Scale audit: Base MAE 1.188 vs v3 MAE 1.342, holdout regression -12.9%)'
+          : row.endpoint_id==='HUMAN_PPB' ? 'Holdout regression (-11.5% on locked holdout Cohort 5)'
+          : row.endpoint_id==='CACO2_PERMEABILITY' ? 'Insufficient margin (+1.9% < 5.0% qualification threshold)'
+          : 'Retained base production model';
+        return e('tr',{key:row.endpoint_id,style:{background:'#fffbe6'}},[
+         e('td',{},e('strong',{},row.endpoint_name)),
+         e('td',{className:'mono small'},row.unit),
+         e('td',{className:'mono'},row.v1_base_error),
+         e('td',{className:'mono bold'},row.v3_error),
+         e('td',{className:'bold',style:{color:String(row.improvement).startsWith('-')?'#cf1322':'#fa8c16'}},row.improvement),
+         e('td',{className:'mono'},row.locked_test_n),
+         e('td',{},[
+          e('span',{className:'badge-intermediate'},row.production_decision),
+          e('div',{className:'small',style:{color:'#873800',marginTop:'3px'}},rationale)
+         ])
+        ]);
+       }))
+      ])),
+      e('h4',{style:{marginTop:'16px',color:'#595959'}},'3. Model Unavailable Endpoints (3 Quantitative Kinetics Endpoints — No Fabrication)'),
+      e('div',{className:'table-scroll'},e('table',{},[
+       e('thead',{},e('tr',{},['Endpoint','Target Type','Status','Governance Policy'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},(helpRegistry.prediction_readiness_comparison||[]).filter(r=>r.model_tier==='MODEL_UNAVAILABLE'||r.production_decision==='MODEL_UNAVAILABLE').map(row=>e('tr',{key:row.endpoint_id,style:{background:'#fafafa'}},[
+        e('td',{},e('strong',{},row.endpoint_name)),
+        e('td',{className:'mono small'},row.unit),
+        e('td',{},e('span',{className:'badge-caution'},row.production_decision)),
+        e('td',{className:'small',style:{color:'#595959'}},row.endpoint_id==='CYP2C19_INHIBITION'?'No validated continuous quantitative regression model installed; outputs not fabricated.' : 'Classification only; quantitative kinetics unavailable. Artificial predictions prohibited.')
        ])))
       ])),
       e('h3',{style:{marginTop:'24px'}},'Prediction Engine Version History (v1.0 — v3.3)'),

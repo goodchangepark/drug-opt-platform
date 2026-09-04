@@ -25,7 +25,7 @@ def test_v3_production_release_governance_and_promotion_statuses():
         statuses = {ep["endpoint_id"]: ep["promotion_status"] for ep in readiness["endpoints_evaluated"]}
         assert statuses["CYP3A4_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["CYP2D6_INHIBITION"] == "GLOBAL_V3_PRIMARY"
-        assert statuses["SOLUBILITY_GENERIC"] == "GLOBAL_V3_PRIMARY"
+        assert statuses["SOLUBILITY_GENERIC"] == "RETAIN_BASE"
         assert statuses["HERG_LIABILITY"] == "GLOBAL_V3_PRIMARY"
         assert statuses["HLM_INTRINSIC_CLEARANCE"] == "GLOBAL_V3_PRIMARY"
         assert statuses["CYP1A2_INHIBITION"] == "GLOBAL_V3_PRIMARY"
@@ -122,10 +122,10 @@ def test_v3_production_routing_on_new_project_compounds():
             assert res_cyp2d6["model_tier"] == "GLOBAL_V3_PRIMARY"
             assert res_cyp2d6["production_prediction"] == res_cyp2d6["v3_prediction"]
 
-            # 3. Solubility (GLOBAL_V3_PRIMARY) -> routes to Global v3
+            # 3. Solubility (RETAIN_BASE) -> routes safely to Base Production
             res_sol = predict_global_v3_endpoint(db, smi, "SOLUBILITY_GENERIC", project_id=proj.id)
-            assert res_sol["model_tier"] == "GLOBAL_V3_PRIMARY"
-            assert res_sol["production_prediction"] == res_sol["v3_prediction"]
+            assert res_sol["model_tier"] == "BASE_PRODUCTION"
+            assert res_sol["production_prediction"] == res_sol["base_prediction"]
 
             # 4. PPB (RETAIN_BASE) -> routes safely to Base Production
             res_ppb = predict_global_v3_endpoint(db, smi, "HUMAN_PPB", project_id=proj.id)
@@ -147,7 +147,19 @@ def test_v3_production_routing_on_new_project_compounds():
             assert res_cyp2c9["model_tier"] == "GLOBAL_V3_PRIMARY"
             assert res_cyp2c9["production_prediction"] == res_cyp2c9["v3_prediction"]
     finally:
-        db.close()
+        try:
+            p_del = db.scalar(select(Project).where(Project.name == test_proj_name))
+            if p_del:
+                for c in db.scalars(select(Compound).where(Compound.project_id == p_del.id)).all():
+                    for cv in db.scalars(select(CompoundVersion).where(CompoundVersion.compound_row_id == c.id)).all():
+                        db.delete(cv)
+                    db.delete(c)
+                db.delete(p_del)
+                db.commit()
+        except Exception:
+            db.rollback()
+        finally:
+            db.close()
 
 
 def test_project_adapter_independent_compound_governance():
@@ -322,7 +334,19 @@ def test_project_adapter_independent_compound_governance():
             for sample in ep_val.get("model_selection_validation_samples", []):
                 assert not sample["compound_name"].startswith("Adapter_C")
     finally:
-        db.close()
+        try:
+            p_del = db.scalar(select(Project).where(Project.name == gov_proj_name))
+            if p_del:
+                for c in db.scalars(select(Compound).where(Compound.project_id == p_del.id)).all():
+                    for cv in db.scalars(select(CompoundVersion).where(CompoundVersion.compound_row_id == c.id)).all():
+                        db.delete(cv)
+                    db.delete(c)
+                db.delete(p_del)
+                db.commit()
+        except Exception:
+            db.rollback()
+        finally:
+            db.close()
 
 
 def test_v3_3_applicability_domain_extrapolation_guard_and_uncertainty():

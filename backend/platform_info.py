@@ -552,10 +552,10 @@ PREDICTION_MODEL_HISTORY: list[dict[str, Any]] = [
         "release_date": "2026-09-04",
         "production_status": "PRODUCTION_DEFAULT",
         "decision": "READY_TO_REPLACE_V1",
-        "key_endpoints": "DrugBank expanded to 100 approved reference drugs (100% verified CAS); CYP1A2 (Affine) and CYP2C9 (Chemical-Space) promoted to GLOBAL_V3_PRIMARY; Formalized Multi-Registry Model Governance & Applicability Domain Guard.",
-        "validation_results": "Average primary error reduction +36.6% across 7 primary endpoints (CYP3A4 +42.5%, CYP2D6 +23.2%, CYP1A2 +39.9%, CYP2C9 +36.8%, hERG +34.7%, HLM +42.2%, Sol primary). Held-out Cohort 5 validated with zero leakage.",
+        "key_endpoints": "Global v3 Primary (6 endpoints: CYP3A4, CYP2D6, CYP1A2, CYP2C9, hERG, HLM); Legacy Base Fallback (3 endpoints: Solubility, PPB, Caco-2); Model Unavailable (3 endpoints: CYP2C19, P-gp, BCRP). DrugBank 100 approved reference drugs (100% verified CAS).",
+        "validation_results": "Average primary error reduction +36.6% across 6 promoted primary endpoints (CYP3A4 +42.5%, CYP2D6 +23.2%, CYP1A2 +39.9%, CYP2C9 +36.8%, hERG +34.7%, HLM +42.2%). Solubility fail-closed to BASE_FALLBACK following scale audit (Base MAE 1.188 vs v3 MAE 1.342, holdout regression -12.9%). PPB holdout regression (-11.5%) and Caco-2 insufficient margin (+1.9%) safely retained as Base Fallback.",
         "model_version_hash": "v3.3-production-replacement-hash-8f4b1",
-        "known_limitations": "Human PPB and Caco-2 safely routed to legacy base models; CYP2C19, P-gp, and BCRP quantitative kinetics explicitly maintained as MODEL_UNAVAILABLE (no continuous ML).",
+        "known_limitations": "Solubility, Human PPB, and Caco-2 safely routed to legacy base models; CYP2C19, P-gp, and BCRP quantitative kinetics explicitly maintained as MODEL_UNAVAILABLE (no continuous ML model installed; outputs not fabricated).",
     },
 ]
 

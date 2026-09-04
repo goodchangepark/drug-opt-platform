@@ -283,7 +283,7 @@ def test_engine_v3_release_readiness_and_runtime_routing():
         assert cyp2d6_eval["final_test_v3_error"] < cyp2d6_eval["final_test_base_error"]
 
         sol_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "SOLUBILITY_GENERIC")
-        assert sol_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
+        assert sol_eval["promotion_status"] == "RETAIN_BASE"
 
         herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
         assert herg_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
