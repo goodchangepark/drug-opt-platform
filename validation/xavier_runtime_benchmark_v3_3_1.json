@@ -1,0 +1,25 @@
+{
+  "hardware": "NVIDIA Jetson Xavier ARM64 (8-core Carmel CPU, 32GB Unified LPDDR4x)",
+  "engine_version": "drugopt-prediction-engine-v3.3.1-production",
+  "timestamp": "2026-09-04T23:08:21Z",
+  "cold_start_latency_ms": 495.85,
+  "warm_start_latency_ms": 242.44,
+  "sequential_latencies_ms": {
+    "Orforglipron": 209.92,
+    "Sunvozertinib": 151.74,
+    "Aspirin": 104.18,
+    "Imatinib": 190.94,
+    "Atorvastatin": 11.26
+  },
+  "mean_latency_ms": 133.61,
+  "p95_latency_ms": 206.12,
+  "throughput_compounds_per_sec": 7.48,
+  "memory_profile": {
+    "initial_rss_mb": 542.8,
+    "peak_rss_mb": 566.04,
+    "delta_rss_mb": 23.24,
+    "system_ram_total_gb": 30.26,
+    "system_ram_used_gb": 24.58
+  },
+  "verdict": "PRODUCTION_LATENCY_COMPLIANT"
+}

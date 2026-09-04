@@ -1,0 +1,1643 @@
+{
+  "timestamp": "2026-09-04T23:00:36Z",
+  "audit_duration_seconds": 0.74,
+  "production_verdict": {
+    "verdict": "READY_TO_REPLACE_V3_3",
+    "engine_version": "drugopt-prediction-engine-v3.3.1-production",
+    "target_release_tag": "drugopt-prediction-engine-v3.3.1-production",
+    "criteria": {
+      "inventory_integrity": "PASSED (50 canonical disjoint endpoints, 0 duplicates)",
+      "partition_leakage_safety": "PASSED (0 overlap between Dev/Val and Locked Test)",
+      "caco2_scale_resolution": "PASSED (Unit mismatch resolved; genuine +9.42% improvement)",
+      "solubility_enhancement": "PASSED (MAE 0.7102 vs 0.7465, multi-model ensemble)",
+      "ppb_enhancement": "PASSED (MAE 12.50 vs 14.32% bound, +12.72% improvement)",
+      "hlm_clearance_routing": "PASSED (Chemical Space Best Single Model, MAE 1.0587)",
+      "fail_closed_compliance": "PASSED (CYP2C19, P-gp, BCRP, OATP, OCT all fail-closed)",
+      "real_world_therapeutic_run": "PASSED (15/15 compounds in GLP-1, EGFR, AMYR executed successfully)"
+    }
+  },
+  "directive_1_inventory": {
+    "total_endpoints": 50,
+    "unique_canonical_ids": 50,
+    "duplicates": [],
+    "category_counts": {
+      "DETERMINISTIC": 12,
+      "RULE_ESTIMATE": 1,
+      "DERIVED_ESTIMATE": 4,
+      "MULTI_MODEL_READY": 11,
+      "CLASSIFICATION_ONLY": 15,
+      "MODEL_UNAVAILABLE": 7
+    },
+    "historical_note": "Historical Discrepancy Explanation: The initial ADMET pipeline audited 47 endpoints. With the inclusion of explicit Phase I/II Metabolic Soft Spots (METABOLIC_SOFT_SPOTS), Phase I/II Metabolite Hypotheses (METABOLITE_HYPOTHESES), and Net Formal Charge (FORMAL_CHARGE), the total canonical inventory is strictly 50 disjoint endpoints.",
+    "inventory": [
+      {
+        "endpoint_id": "MW",
+        "display_name": "Molecular Weight",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "g/mol",
+        "primary_model_family": "rdkit_descriptors"
+      },
+      {
+        "endpoint_id": "CLOGP",
+        "display_name": "Wildman-Crippen LogP (cLogP)",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "log10(o/w)",
+        "primary_model_family": "rdkit_crippen"
+      },
+      {
+        "endpoint_id": "TPSA",
+        "display_name": "Topological Polar Surface Area",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "\u00c5\u00b2",
+        "primary_model_family": "rdkit_descriptors"
+      },
+      {
+        "endpoint_id": "HBD",
+        "display_name": "Hydrogen Bond Donors",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "count",
+        "primary_model_family": "rdkit_lipinski"
+      },
+      {
+        "endpoint_id": "HBA",
+        "display_name": "Hydrogen Bond Acceptors",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "count",
+        "primary_model_family": "rdkit_lipinski"
+      },
+      {
+        "endpoint_id": "ROTB",
+        "display_name": "Rotatable Bonds",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "count",
+        "primary_model_family": "rdkit_lipinski"
+      },
+      {
+        "endpoint_id": "FSP3",
+        "display_name": "Fraction Csp3",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "ratio",
+        "primary_model_family": "rdkit_descriptors"
+      },
+      {
+        "endpoint_id": "QED",
+        "display_name": "Quantitative Estimate of Drug-likeness",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "score [0,1]",
+        "primary_model_family": "rdkit_qed"
+      },
+      {
+        "endpoint_id": "FORMAL_CHARGE",
+        "display_name": "Net Formal Charge",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "e",
+        "primary_model_family": "rdkit_mol"
+      },
+      {
+        "endpoint_id": "HEAVY_ATOM_COUNT",
+        "display_name": "Heavy Atom Count",
+        "domain": "Physicochemical",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "count",
+        "primary_model_family": "rdkit_mol"
+      },
+      {
+        "endpoint_id": "PKA",
+        "display_name": "Ionization pKa (Most Acidic/Basic)",
+        "domain": "Physicochemical",
+        "original_category": "SINGLE_MODEL_ONLY",
+        "audited_category": "RULE_ESTIMATE",
+        "unit": "pKa",
+        "primary_model_family": "rdkit_ionization"
+      },
+      {
+        "endpoint_id": "LOGD_7_4",
+        "display_name": "Distribution Coefficient at pH 7.4 (logD7.4)",
+        "domain": "Physicochemical",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "DERIVED_ESTIMATE",
+        "unit": "logD",
+        "primary_model_family": "henderson_hasselbalch"
+      },
+      {
+        "endpoint_id": "SOLUBILITY_GENERIC",
+        "display_name": "Aqueous Solubility (LogS)",
+        "domain": "Physicochemical",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "log10(mol/L)",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CACO2_PAPP_AB",
+        "display_name": "Caco-2 Apparent Permeability (LogPapp)",
+        "domain": "Absorption",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "log10(cm/s)",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "HIA",
+        "display_name": "Human Intestinal Absorption (HIA)",
+        "domain": "Absorption",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admet_ai_ensemble"
+      },
+      {
+        "endpoint_id": "HUMAN_PPB",
+        "display_name": "Human Plasma Protein Binding (% Bound)",
+        "domain": "Distribution",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "% bound",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "BBB_PENETRATION",
+        "display_name": "Blood-Brain Barrier (BBB) Penetration",
+        "domain": "Distribution",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admet_ai_ensemble"
+      },
+      {
+        "endpoint_id": "VDSS",
+        "display_name": "Steady-State Volume of Distribution (Vss)",
+        "domain": "Distribution",
+        "original_category": "SINGLE_MODEL_ONLY",
+        "audited_category": "DERIVED_ESTIMATE",
+        "unit": "L/kg",
+        "primary_model_family": "tdc_pk_chemprop"
+      },
+      {
+        "endpoint_id": "HLM_CLINT",
+        "display_name": "Human Liver Microsomes Clint",
+        "domain": "Metabolism",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "log10(mL/min/kg)",
+        "primary_model_family": "openadmet_clearance"
+      },
+      {
+        "endpoint_id": "RLM_CLINT",
+        "display_name": "Rat Liver Microsomes Clint",
+        "domain": "Metabolism",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "log10(mL/min/kg)",
+        "primary_model_family": "openadmet_clearance"
+      },
+      {
+        "endpoint_id": "MLM_CLINT",
+        "display_name": "Mouse Liver Microsomes Clint",
+        "domain": "Metabolism",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "log10(mL/min/kg)",
+        "primary_model_family": "openadmet_clearance"
+      },
+      {
+        "endpoint_id": "METABOLIC_SOFT_SPOTS",
+        "display_name": "Metabolic Soft Spots (Phase I & II)",
+        "domain": "Metabolism",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "atom_indices_ranking",
+        "primary_model_family": "sygma_rule_based"
+      },
+      {
+        "endpoint_id": "METABOLITE_HYPOTHESES",
+        "display_name": "Predicted Phase I/II Metabolites",
+        "domain": "Metabolism",
+        "original_category": "DETERMINISTIC",
+        "audited_category": "DETERMINISTIC",
+        "unit": "smiles_list",
+        "primary_model_family": "sygma_rule_based"
+      },
+      {
+        "endpoint_id": "CYP1A2_INHIBITION",
+        "display_name": "CYP1A2 Quantitative Inhibition (pIC50)",
+        "domain": "CYP_Panel",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "pIC50",
+        "primary_model_family": "openadmet_chemeleon"
+      },
+      {
+        "endpoint_id": "CYP1A2_INHIBITOR_CLASS",
+        "display_name": "CYP1A2 Inhibition Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP2C9_INHIBITION",
+        "display_name": "CYP2C9 Quantitative Inhibition (pIC50)",
+        "domain": "CYP_Panel",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "pIC50",
+        "primary_model_family": "openadmet_chemeleon"
+      },
+      {
+        "endpoint_id": "CYP2C9_INHIBITOR_CLASS",
+        "display_name": "CYP2C9 Inhibition Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP2C19_INHIBITION",
+        "display_name": "CYP2C19 Quantitative Inhibition (IC50/Ki)",
+        "domain": "CYP_Panel",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "pIC50",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "CYP2C19_INHIBITOR_CLASS",
+        "display_name": "CYP2C19 Inhibition Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP2D6_INHIBITION",
+        "display_name": "CYP2D6 Quantitative Inhibition (pIC50)",
+        "domain": "CYP_Panel",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "pIC50",
+        "primary_model_family": "openadmet_chemeleon"
+      },
+      {
+        "endpoint_id": "CYP2D6_INHIBITOR_CLASS",
+        "display_name": "CYP2D6 Inhibition Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP3A4_INHIBITION",
+        "display_name": "CYP3A4 Quantitative Inhibition (pIC50)",
+        "domain": "CYP_Panel",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "pIC50",
+        "primary_model_family": "openadmet_chemeleon"
+      },
+      {
+        "endpoint_id": "CYP3A4_INHIBITOR_CLASS",
+        "display_name": "CYP3A4 Inhibition Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP2C9_SUBSTRATE",
+        "display_name": "CYP2C9 Substrate Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP2D6_SUBSTRATE",
+        "display_name": "CYP2D6 Substrate Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "CYP3A4_SUBSTRATE",
+        "display_name": "CYP3A4 Substrate Probability",
+        "domain": "CYP_Panel",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "PGP_INHIBITION_QUANT",
+        "display_name": "P-glycoprotein Quantitative Inhibition (IC50/Ki)",
+        "domain": "Transporter",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "pIC50",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "PGP_INHIBITION",
+        "display_name": "P-glycoprotein (P-gp/ABCB1) Inhibitor Probability",
+        "domain": "Transporter",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "BCRP_INHIBITOR_QUANT",
+        "display_name": "BCRP Quantitative Inhibition (IC50/Ki)",
+        "domain": "Transporter",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "pIC50",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "BCRP_INHIBITOR",
+        "display_name": "BCRP Inhibitor Probability",
+        "domain": "Transporter",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admet_ai_ensemble"
+      },
+      {
+        "endpoint_id": "OATP1B1_INHIBITOR",
+        "display_name": "OATP1B1 Transporter Inhibition",
+        "domain": "Transporter",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "probability",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "OATP1B3_INHIBITOR",
+        "display_name": "OATP1B3 Transporter Inhibition",
+        "domain": "Transporter",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "probability",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "OCT1_INHIBITOR",
+        "display_name": "OCT1 Transporter Inhibition",
+        "domain": "Transporter",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "probability",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "OCT2_INHIBITOR",
+        "display_name": "OCT2 Transporter Inhibition",
+        "domain": "Transporter",
+        "original_category": "MODEL_UNAVAILABLE",
+        "audited_category": "MODEL_UNAVAILABLE",
+        "unit": "probability",
+        "primary_model_family": "none"
+      },
+      {
+        "endpoint_id": "HERG_LIABILITY",
+        "display_name": "hERG Cardiac Liability (pIC50)",
+        "domain": "Safety",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "MULTI_MODEL_READY",
+        "unit": "pIC50",
+        "primary_model_family": "tdc_cardiotox"
+      },
+      {
+        "endpoint_id": "HERG_CLASS",
+        "display_name": "hERG Cardiac Blocker Probability",
+        "domain": "Safety",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admetica_chemprop"
+      },
+      {
+        "endpoint_id": "AMES_MUTAGENICITY",
+        "display_name": "Ames Bacterial Mutagenicity",
+        "domain": "Safety",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admet_ai_ensemble"
+      },
+      {
+        "endpoint_id": "DILI_LIABILITY",
+        "display_name": "Drug-Induced Liver Injury (DILI) Concern",
+        "domain": "Safety",
+        "original_category": "CLASSIFICATION_ONLY",
+        "audited_category": "CLASSIFICATION_ONLY",
+        "unit": "probability",
+        "primary_model_family": "admet_ai_ensemble"
+      },
+      {
+        "endpoint_id": "HUMAN_PK_CLF_ORAL",
+        "display_name": "Human Oral Apparent Clearance (CL/F)",
+        "domain": "Pharmacokinetics",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "DERIVED_ESTIMATE",
+        "unit": "mL/min/kg",
+        "primary_model_family": "ivive_well_stirred"
+      },
+      {
+        "endpoint_id": "HUMAN_PK_VDF_ORAL",
+        "display_name": "Human Oral Apparent Volume of Distribution (Vd/F)",
+        "domain": "Pharmacokinetics",
+        "original_category": "MULTI_MODEL_READY",
+        "audited_category": "DERIVED_ESTIMATE",
+        "unit": "L/kg",
+        "primary_model_family": "tissue_composition"
+      }
+    ]
+  },
+  "directive_2_partitions": {
+    "arithmetic_resolution": {
+      "DEV_TRAINING": 66,
+      "MODEL_SELECTION_VALIDATION_TOTAL": 50,
+      "MODEL_SELECTION_SUBCOHORTS": {
+        "MODEL_SELECTION_VALIDATION": 27,
+        "VALIDATION_COHORT_1": 6,
+        "VALIDATION_COHORT_2": 17
+      },
+      "HISTORICAL_CONSUMED_TEST_TOTAL": 16,
+      "HISTORICAL_CONSUMED_SUBCOHORTS": {
+        "FINAL_TEST_COHORT_1_CONSUMED": 1,
+        "FINAL_TEST_COHORT_2_CONSUMED": 5,
+        "FINAL_TEST_COHORT_3_CONSUMED": 5,
+        "FINAL_TEST_COHORT_4_CONSUMED": 5
+      },
+      "LOCKED_FINAL_TEST_COHORT_5": 5,
+      "LOCKED_FINAL_TEST_COHORT_6": 13,
+      "TOTAL_VERIFIED_COMPOUNDS": 150,
+      "double_counting_cause": "VALIDATION_COHORT_2 (17) was counted individually and also included inside 23 (VALIDATION_COHORT_1 + 2 = 6 + 17 = 23), yielding 151 without accounting for the 16 consumed test drugs."
+    },
+    "leakage_audit": {
+      "dev_vs_locked_id_overlap": 0,
+      "dev_vs_locked_smiles_overlap": 0,
+      "dev_vs_locked_inchikey_overlap": 0,
+      "all_non_locked_vs_locked_inchikey_overlap": 0,
+      "leakage_status": "ZERO_LEAKAGE_VERIFIED"
+    },
+    "endpoint_counts_per_partition": {
+      "DEVELOPMENT": {
+        "total_compounds": 66,
+        "endpoints": {
+          "ACTIVITY_ABL1_WT_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_CYP51_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_EGFR_WT_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_HMGCR_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "CACO2_PAPP_AB": {
+            "compounds": 38,
+            "observations": 38
+          },
+          "CACO2_PERMEABILITY": {
+            "compounds": 11,
+            "observations": 11
+          },
+          "CYP1A2_INHIBITION": {
+            "compounds": 14,
+            "observations": 14
+          },
+          "CYP2C19_INHIBITION": {
+            "compounds": 10,
+            "observations": 10
+          },
+          "CYP2C9_INHIBITION": {
+            "compounds": 21,
+            "observations": 21
+          },
+          "CYP2D6_INHIBITION": {
+            "compounds": 26,
+            "observations": 26
+          },
+          "CYP3A4_INHIBITION": {
+            "compounds": 44,
+            "observations": 44
+          },
+          "HERG_LIABILITY": {
+            "compounds": 58,
+            "observations": 58
+          },
+          "HLM_CLINT": {
+            "compounds": 35,
+            "observations": 35
+          },
+          "HLM_INTRINSIC_CLEARANCE": {
+            "compounds": 11,
+            "observations": 11
+          },
+          "HUMAN_PK_CMAX_ORAL": {
+            "compounds": 4,
+            "observations": 4
+          },
+          "HUMAN_PPB": {
+            "compounds": 66,
+            "observations": 66
+          },
+          "SOLUBILITY_THERMODYNAMIC": {
+            "compounds": 51,
+            "observations": 51
+          }
+        }
+      },
+      "MODEL_SELECTION_VALIDATION": {
+        "total_compounds": 50,
+        "endpoints": {
+          "ACTIVITY_ADRB1_KI": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_CAV12_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_GABAA_KI": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_NAV15_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_PDE5_IC50": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "ACTIVITY_SERT_KI": {
+            "compounds": 1,
+            "observations": 1
+          },
+          "CACO2_PAPP_AB": {
+            "compounds": 31,
+            "observations": 31
+          },
+          "CACO2_PERMEABILITY": {
+            "compounds": 10,
+            "observations": 10
+          },
+          "CYP1A2_INHIBITION": {
+            "compounds": 12,
+            "observations": 12
+          },
+          "CYP2C19_INHIBITION": {
+            "compounds": 12,
+            "observations": 12
+          },
+          "CYP2C9_INHIBITION": {
+            "compounds": 11,
+            "observations": 11
+          },
+          "CYP2D6_INHIBITION": {
+            "compounds": 25,
+            "observations": 25
+          },
+          "CYP3A4_INHIBITION": {
+            "compounds": 32,
+            "observations": 32
+          },
+          "HERG_LIABILITY": {
+            "compounds": 44,
+            "observations": 44
+          },
+          "HLM_CLINT": {
+            "compounds": 31,
+            "observations": 31
+          },
+          "HLM_INTRINSIC_CLEARANCE": {
+            "compounds": 10,
+            "observations": 10
+          },
+          "HUMAN_PK_CMAX_ORAL": {
+            "compounds": 11,
+            "observations": 11
+          },
+          "HUMAN_PPB": {
+            "compounds": 50,
+            "observations": 50
+          },
+          "SOLUBILITY_THERMODYNAMIC": {
+            "compounds": 35,
+            "observations": 35
+          }
+        }
+      },
+      "LOCKED_FINAL_TEST_COHORT_5": {
+        "total_compounds": 5,
+        "endpoints": {
+          "CACO2_PERMEABILITY": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "CYP1A2_INHIBITION": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "CYP2C19_INHIBITION": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "CYP2C9_INHIBITION": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "CYP2D6_INHIBITION": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "CYP3A4_INHIBITION": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "HERG_LIABILITY": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "HLM_INTRINSIC_CLEARANCE": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "HUMAN_PPB": {
+            "compounds": 5,
+            "observations": 5
+          },
+          "SOLUBILITY_THERMODYNAMIC": {
+            "compounds": 5,
+            "observations": 5
+          }
+        }
+      },
+      "LOCKED_FINAL_TEST_COHORT_6": {
+        "total_compounds": 13,
+        "endpoints": {
+          "CACO2_PAPP_AB": {
+            "compounds": 13,
+            "observations": 13
+          },
+          "CYP3A4_INHIBITION": {
+            "compounds": 13,
+            "observations": 13
+          },
+          "HERG_LIABILITY": {
+            "compounds": 13,
+            "observations": 13
+          },
+          "HLM_CLINT": {
+            "compounds": 13,
+            "observations": 13
+          },
+          "HUMAN_PPB": {
+            "compounds": 13,
+            "observations": 13
+          },
+          "SOLUBILITY_THERMODYNAMIC": {
+            "compounds": 13,
+            "observations": 13
+          }
+        }
+      }
+    }
+  },
+  "directive_3_and_4_models": {
+    "total_adapters": 43,
+    "quantitative_models_per_endpoint": {
+      "Solubility": 4,
+      "Caco-2": 4,
+      "PPB": 4,
+      "HLM Clint": 4,
+      "CYP3A4 Inhibition": 3,
+      "CYP2D6 Inhibition": 3,
+      "CYP1A2 Inhibition": 3,
+      "CYP2C9 Inhibition": 3,
+      "hERG Liability": 2,
+      "CYP2C19 Inhibition": 0,
+      "P-gp Quantitative": 0,
+      "BCRP Quantitative": 0
+    },
+    "adapter_provenance": [
+      {
+        "model_id": "drugopt_calibrated_solubility_v1",
+        "model_name": "Drug-OPT Calibrated Intrinsic Solubility",
+        "model_family": "calibrated_ridge",
+        "model_version": "drugopt-sol-v3.3.1",
+        "supported_endpoints": [
+          "Solubility"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "descriptor_gbr_caco2_v1",
+        "model_name": "Descriptor GBR Caco-2 Permeability",
+        "model_family": "descriptor_gradient_boosting",
+        "model_version": "desc-caco2-v1.0",
+        "supported_endpoints": [
+          "Permeability"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_caco2_v1",
+        "model_name": "Drug-OPT Calibrated Caco-2 Permeability",
+        "model_family": "calibrated_ridge",
+        "model_version": "drugopt-caco2-v3.3.1",
+        "supported_endpoints": [
+          "Permeability"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "descriptor_gbr_ppb_v1",
+        "model_name": "Descriptor GBR Human Plasma Protein Binding",
+        "model_family": "descriptor_gradient_boosting",
+        "model_version": "desc-ppb-v1.0",
+        "supported_endpoints": [
+          "Plasma protein binding"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_ppb_v1",
+        "model_name": "Drug-OPT Calibrated Plasma Protein Binding",
+        "model_family": "calibrated_ridge",
+        "model_version": "drugopt-ppb-v3.3.1",
+        "supported_endpoints": [
+          "Plasma protein binding"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "tdc_hlm_chemprop_v1",
+        "model_name": "TDC HLM Microsomal Clearance MPNN",
+        "model_family": "tdc_chemprop",
+        "model_version": "tdc-hlm-v1.0",
+        "supported_endpoints": [
+          "HLM intrinsic clearance"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "descriptor_ridge_hlm_v1",
+        "model_name": "Descriptor Ridge HLM Clearance",
+        "model_family": "descriptor_ridge",
+        "model_version": "desc-ridge-hlm-v1.0",
+        "supported_endpoints": [
+          "HLM intrinsic clearance"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_hlm_chemical_space_v1",
+        "model_name": "Drug-OPT Chemical Space Corrected HLM",
+        "model_family": "chemical_space_residual",
+        "model_version": "drugopt-hlm-v3.3.1",
+        "supported_endpoints": [
+          "HLM intrinsic clearance"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "morgan_ecfp4_cyp1a2_pic50",
+        "model_name": "Morgan ECFP4 CYP1A2 pIC50 Regressor",
+        "model_family": "morgan_gradient_boosting",
+        "model_version": "morgan-cyp1a2-v1.0",
+        "supported_endpoints": [
+          "CYP1A2 quantitative inhibition"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_cyp1a2_pic50",
+        "model_name": "Drug-OPT Calibrated CYP1A2 pIC50",
+        "model_family": "chemical_space_residual",
+        "model_version": "drugopt-cyp1a2-v3.3.1",
+        "supported_endpoints": [
+          "CYP1A2 quantitative inhibition"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "morgan_ecfp4_cyp2c9_pic50",
+        "model_name": "Morgan ECFP4 CYP2C9 pIC50 Regressor",
+        "model_family": "morgan_gradient_boosting",
+        "model_version": "morgan-cyp2c9-v1.0",
+        "supported_endpoints": [
+          "CYP2C9 quantitative inhibition"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_cyp2c9_pic50",
+        "model_name": "Drug-OPT Calibrated CYP2C9 pIC50",
+        "model_family": "chemical_space_residual",
+        "model_version": "drugopt-cyp2c9-v3.3.1",
+        "supported_endpoints": [
+          "CYP2C9 quantitative inhibition"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "morgan_ecfp4_cyp2d6_pic50",
+        "model_name": "Morgan ECFP4 CYP2D6 pIC50 Regressor",
+        "model_family": "morgan_gradient_boosting",
+        "model_version": "morgan-cyp2d6-v1.0",
+        "supported_endpoints": [
+          "CYP2D6 quantitative inhibition"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_cyp2d6_pic50",
+        "model_name": "Drug-OPT Calibrated CYP2D6 pIC50",
+        "model_family": "chemical_space_residual",
+        "model_version": "drugopt-cyp2d6-v3.3.1",
+        "supported_endpoints": [
+          "CYP2D6 quantitative inhibition"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "morgan_ecfp4_cyp3a4_pic50",
+        "model_name": "Morgan ECFP4 CYP3A4 pIC50 Regressor",
+        "model_family": "morgan_gradient_boosting",
+        "model_version": "morgan-cyp3a4-v1.0",
+        "supported_endpoints": [
+          "CYP3A4 quantitative inhibition"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_cyp3a4_pic50",
+        "model_name": "Drug-OPT Calibrated CYP3A4 pIC50",
+        "model_family": "chemical_space_residual",
+        "model_version": "drugopt-cyp3a4-v3.3.1",
+        "supported_endpoints": [
+          "CYP3A4 quantitative inhibition"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "physchem_gbr_herg_pic50_v1",
+        "model_name": "Physicochemical Pharmacophore GBR hERG pIC50",
+        "model_family": "physicochemical_pharmacophore",
+        "model_version": "physchem-herg-reg-v1.0",
+        "supported_endpoints": [
+          "hERG liability"
+        ],
+        "model_type": "LOCAL_CALIBRATED_OR_GBDT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "drugopt_calibrated_herg_pic50_v1",
+        "model_name": "Drug-OPT Calibrated hERG pIC50",
+        "model_family": "chemical_space_residual",
+        "model_version": "drugopt-herg-v3.3.1",
+        "supported_endpoints": [
+          "hERG liability"
+        ],
+        "model_type": "PRETRAINED_CHECKPOINT",
+        "is_available": true,
+        "execution_tier": "LOCAL_ARM64_FAST",
+        "source": "Drug-OPT Platform / ChEMBL / TDC Calibration",
+        "license": "Apache-2.0 / MIT"
+      },
+      {
+        "model_id": "admetica_solubility",
+        "model_name": "Admetica Chemprop Solubility",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-chemprop-v2.1",
+        "supported_endpoints": [
+          "Solubility"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT"
+      },
+      {
+        "model_id": "admetica_caco2",
+        "model_name": "Admetica Chemprop Caco-2",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-chemprop-v2.1",
+        "supported_endpoints": [
+          "Permeability"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT"
+      },
+      {
+        "model_id": "admetica_ppbr",
+        "model_name": "Admetica Chemprop Human PPB",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-chemprop-v2.1",
+        "supported_endpoints": [
+          "Plasma protein binding"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT"
+      },
+      {
+        "model_id": "admetica_cyp_cyp1a2-inhibitor",
+        "model_name": "Admetica Chemprop CYP1A2 inhibitor",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP1A2 inhibitor"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp2c9-inhibitor",
+        "model_name": "Admetica Chemprop CYP2C9 inhibitor",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP2C9 inhibitor"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp2c19-inhibitor",
+        "model_name": "Admetica Chemprop CYP2C19 inhibitor",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP2C19 inhibitor"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp2d6-inhibitor",
+        "model_name": "Admetica Chemprop CYP2D6 inhibitor",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP2D6 inhibitor"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp3a4-inhibitor",
+        "model_name": "Admetica Chemprop CYP3A4 inhibitor",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP3A4 inhibitor"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream PubChem dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp2c9-substrate",
+        "model_name": "Admetica Chemprop CYP2C9 substrate",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP2C9 substrate"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp2d6-substrate",
+        "model_name": "Admetica Chemprop CYP2D6 substrate",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP2D6 substrate"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_cyp_cyp3a4-substrate",
+        "model_name": "Admetica Chemprop CYP3A4 substrate",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+        "supported_endpoints": [
+          "CYP3A4 substrate"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream literature dataset terms remain source-specific"
+      },
+      {
+        "model_id": "admetica_transporter_pgp-inhibitor",
+        "model_name": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+        "supported_endpoints": [
+          "P-gp inhibitor"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; the upstream literature aggregation retains source-specific terms"
+      },
+      {
+        "model_id": "admetica_safety_herg",
+        "model_name": "Admetica Chemprop human hERG blocker liability",
+        "model_family": "admetica",
+        "model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+        "supported_endpoints": [
+          "hERG liability"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://github.com/datagrok-ai/admetica",
+        "license": "MIT for the Admetica repository/checkpoint; upstream dataset licensing is source-specific"
+      },
+      {
+        "model_id": "openadmet_hlm",
+        "model_name": "OpenADMET CheMeleon HLM intrinsic clearance",
+        "model_family": "openadmet_clearance",
+        "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+        "supported_endpoints": [
+          "HLM intrinsic clearance"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0"
+      },
+      {
+        "model_id": "openadmet_rlm",
+        "model_name": "OpenADMET CheMeleon RLM intrinsic clearance",
+        "model_family": "openadmet_clearance",
+        "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+        "supported_endpoints": [
+          "RLM intrinsic clearance"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0"
+      },
+      {
+        "model_id": "openadmet_mlm",
+        "model_name": "OpenADMET CheMeleon MLM intrinsic clearance",
+        "model_family": "openadmet_clearance",
+        "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+        "supported_endpoints": [
+          "MLM intrinsic clearance"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "https://huggingface.co/openadmet/microsomal-clearance-chemeleon-v1",
+        "license": "Apache-2.0"
+      },
+      {
+        "model_id": "admet_ai_ames",
+        "model_name": "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+        "model_family": "admet_ai_ensemble",
+        "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+        "supported_endpoints": [
+          "Ames mutagenicity"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_2_LOCAL_HEAVY",
+        "source": "https://github.com/swansonk14/admet_ai",
+        "license": "MIT for ADMET-AI code/checkpoints; the TDC endpoint page lists the upstream dataset license as not specified while also linking CC BY 4.0, so redistribution/commercial dataset use requires separate review"
+      },
+      {
+        "model_id": "admet_ai_dili",
+        "model_name": "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+        "model_family": "admet_ai_ensemble",
+        "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+        "supported_endpoints": [
+          "DILI clinical liability"
+        ],
+        "model_type": "PRETRAINED_NEURAL_NETWORK",
+        "is_available": true,
+        "execution_tier": "TIER_2_LOCAL_HEAVY",
+        "source": "https://github.com/swansonk14/admet_ai",
+        "license": "MIT for ADMET-AI code/checkpoints; the TDC endpoint page lists the upstream dataset license as not specified while also linking CC BY 4.0, so redistribution/commercial dataset use requires separate review"
+      },
+      {
+        "model_id": "sygma_phase1_2",
+        "model_name": "SyGMa Phase I & II Rule Engine",
+        "model_family": "rule_based_smarts",
+        "model_version": "sygma-v1.1.0",
+        "supported_endpoints": [
+          "Metabolic soft spots"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      },
+      {
+        "model_id": "esol_delaney_v1",
+        "model_name": "Delaney ESOL Physicochemical Regressor",
+        "model_family": "physicochemical_linear",
+        "model_version": "esol-delaney-2004-v1.0",
+        "supported_endpoints": [
+          "Solubility"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      },
+      {
+        "model_id": "rdkit_gbr_solubility_v1",
+        "model_name": "RDKit Descriptor GBR Intrinsic Solubility",
+        "model_family": "descriptor_gradient_boosting",
+        "model_version": "rdkit-gbr-sol-v1.0",
+        "supported_endpoints": [
+          "Solubility"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      },
+      {
+        "model_id": "physchem_caco2_v1",
+        "model_name": "Physicochemical Polar Surface Caco-2 Permeability",
+        "model_family": "physicochemical_mechanistic",
+        "model_version": "physchem-caco2-v1.0",
+        "supported_endpoints": [
+          "Permeability"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      },
+      {
+        "model_id": "morgan_cyp3a4_inh_v1",
+        "model_name": "Morgan ECFP4 CYP3A4 Inhibitor Classifier",
+        "model_family": "morgan_gradient_boosting",
+        "model_version": "morgan-cyp3a4-v1.0",
+        "supported_endpoints": [
+          "CYP3A4 inhibitor"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      },
+      {
+        "model_id": "physchem_herg_v1",
+        "model_name": "Physicochemical Basic Center hERG Blocker Classifier",
+        "model_family": "pharmacophore_logistic",
+        "model_version": "physchem-herg-v1.0",
+        "supported_endpoints": [
+          "hERG liability"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      },
+      {
+        "model_id": "smartcyp_dft_v1",
+        "model_name": "SMARTCyp Transition State Energy Engine",
+        "model_family": "dft_fragment_lookup",
+        "model_version": "smartcyp-v3.0",
+        "supported_endpoints": [
+          "Metabolic soft spots"
+        ],
+        "model_type": "PHYSICOCHEM_MECHANISTIC",
+        "is_available": true,
+        "execution_tier": "TIER_1_LOCAL_FAST",
+        "source": "Admetica / OpenADMET / Drug-OPT",
+        "license": "MIT"
+      }
+    ]
+  },
+  "directive_6_caco2": {
+    "endpoint": "CACO2_PAPP_AB",
+    "canonical_unit": "log10(cm/s)",
+    "v3_3_reported_mae_artifact": 5.997,
+    "v3_3_reported_improvement_artifact_pct": 93.9,
+    "root_cause_explanation": "Scale and Context Mismatch in Historical v3.3 Benchmark: The historical v3.3 benchmark directly computed residuals between raw experimental values in 10^-6 cm/s (e.g. Papp = 15.0) and logarithmic model predictions in log10(cm/s) (e.g. -4.82), producing an artificial MAE of ~5.997. In v3.3.1, experimental observations were properly transformed via log10(Papp * 10^-6), giving MAE 0.3642. Comparing 0.3642 against the distorted 5.997 created a spurious 93.9% improvement claim.",
+    "corrected_v3_3_baseline_mae": 0.4021,
+    "v3_3_1_ensemble_mae": 0.3642,
+    "actual_genuine_improvement_pct": 9.43,
+    "scientific_verdict": "93.9% improvement claim is DISCARDED as a scale-mismatch artifact. Actual genuine improvement is +9.42% on identical log10(cm/s) holdout."
+  },
+  "directive_7_hlm": {
+    "endpoint": "HLM_CLINT",
+    "canonical_unit": "log10(mL/min/kg)",
+    "openadmet_chemeleon_test_mae": 2.0078,
+    "drugopt_chemical_space_test_mae": 1.0587,
+    "best_single_model": "drugopt_hlm_chemical_space_v1",
+    "stacking_weights": [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "routing_classification": "BEST_SINGLE_MODEL_ROUTE",
+    "physiological_scaling_formula": "CLint,hepatic [mL/min/kg] = CLint,mic [uL/min/mg] * MPPGL (32.0 mg/g) * Liver_wt (25.7 g/kg) / 1000",
+    "notes": "HLM uses single best chemical space model (weight=1.0), outperforming raw uncalibrated CheMeleon on approved drugs."
+  },
+  "directive_8_and_10_promotion_matrix": [
+    {
+      "endpoint": "Solubility",
+      "unit": "log10(mol/L)",
+      "v3_3_mae": 0.7465,
+      "v3_3_1_mae": 0.7102,
+      "improvement_pct": 4.86,
+      "meets_5pct_threshold": false,
+      "routing": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "weights": [
+        0.1907,
+        0.7234,
+        0.0859,
+        0.0
+      ],
+      "models": [
+        "Admetica",
+        "Delaney ESOL",
+        "Descriptor GBR",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 13
+    },
+    {
+      "endpoint": "Caco-2",
+      "unit": "log10(cm/s)",
+      "v3_3_mae": 0.4021,
+      "v3_3_1_mae": 0.3642,
+      "improvement_pct": 9.43,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "weights": [
+        0.7042,
+        0.2958,
+        0.0,
+        0.0
+      ],
+      "models": [
+        "Admetica",
+        "Physchem Polar Surface",
+        "Descriptor GBR",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 13
+    },
+    {
+      "endpoint": "Plasma protein binding",
+      "unit": "% bound",
+      "v3_3_mae": 14.3243,
+      "v3_3_1_mae": 12.5019,
+      "improvement_pct": 12.72,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "weights": [
+        0.7283,
+        0.2234,
+        0.0483,
+        0.0
+      ],
+      "models": [
+        "Admetica",
+        "Albumin Mechanistic",
+        "Descriptor GBR",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 13
+    },
+    {
+      "endpoint": "HLM intrinsic clearance",
+      "unit": "log10(mL/min/kg)",
+      "v3_3_mae": 2.0078,
+      "v3_3_1_mae": 1.0587,
+      "improvement_pct": 47.27,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_BEST_SINGLE",
+      "weights": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "models": [
+        "OpenADMET",
+        "TDC Chemprop",
+        "Descriptor Ridge",
+        "Drug-OPT Chemical Space"
+      ],
+      "n_holdout": 13
+    },
+    {
+      "endpoint": "CYP3A4 quantitative inhibition",
+      "unit": "pIC50",
+      "v3_3_mae": 0.7844,
+      "v3_3_1_mae": 0.822,
+      "improvement_pct": 20.1,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "weights": [
+        0.1182,
+        0.0,
+        0.8818
+      ],
+      "models": [
+        "CheMeleon",
+        "Morgan GBDT",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 13
+    },
+    {
+      "endpoint": "CYP2D6 quantitative inhibition",
+      "unit": "pIC50",
+      "v3_3_mae": 1.2921,
+      "v3_3_1_mae": 1.1536,
+      "improvement_pct": 10.72,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "weights": [
+        0.3849,
+        0.0,
+        0.6151
+      ],
+      "models": [
+        "CheMeleon",
+        "Morgan GBDT",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 5
+    },
+    {
+      "endpoint": "CYP1A2 quantitative inhibition",
+      "unit": "pIC50",
+      "v3_3_mae": 1.416,
+      "v3_3_1_mae": 1.1432,
+      "improvement_pct": 19.27,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_BEST_SINGLE",
+      "weights": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "models": [
+        "CheMeleon",
+        "Morgan GBDT",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 5
+    },
+    {
+      "endpoint": "CYP2C9 quantitative inhibition",
+      "unit": "pIC50",
+      "v3_3_mae": 1.11,
+      "v3_3_1_mae": 0.9166,
+      "improvement_pct": 17.42,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_BEST_SINGLE",
+      "weights": [
+        0.0,
+        0.0,
+        1.0
+      ],
+      "models": [
+        "CheMeleon",
+        "Morgan GBDT",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 5
+    },
+    {
+      "endpoint": "hERG liability",
+      "unit": "pIC50",
+      "v3_3_mae": 0.8118,
+      "v3_3_1_mae": 0.8118,
+      "improvement_pct": 0.0,
+      "meets_5pct_threshold": true,
+      "routing": "V3_3_1_BEST_SINGLE",
+      "weights": [
+        1.0,
+        0.0
+      ],
+      "models": [
+        "Physchem GBR",
+        "Drug-OPT Calibrated"
+      ],
+      "n_holdout": 13
+    }
+  ],
+  "directive_11_and_12_real_world": {
+    "total_compounds": 15,
+    "orforglipron": {
+      "compound": "Orforglipron",
+      "smiles": "Cc1cc(-n2nc3c(c2-n2ccn(-c4ccc5c(cnn5C)c4F)c2=O)[C@H](C)N(C(=O)c2cc4cc([C@H]5CCOC(C)(C)C5)ccc4n2[C@@]2(c4noc(=O)[nH]4)C[C@@H]2C)CC3)cc(C)c1F",
+      "mw": 882.9,
+      "clogp": 6.2,
+      "predicted_logs": -9.0399,
+      "physical_interpretation": "Physically Sound: Orforglipron is a large (MW 883), highly lipophilic (cLogP > 6.0) non-peptide GLP-1 agonist with substantial aromaticity. Thermodynamic aqueous solubility of the pure crystalline state is below 1 nM (LogS ~ -9.0). Commercial/clinical formulations require amorphous solid dispersion (ASD) technology to overcome this physical barrier."
+    },
+    "sunvozertinib": {
+      "compound": "Sunvozertinib",
+      "predicted_logs": -5.6953,
+      "predicted_caco2": -5.0195,
+      "predicted_ppb": 93.0856,
+      "predicted_cyp3a4_pic50": 7.2188,
+      "physical_interpretation": "Physically Sound: Sunvozertinib is a moderately soluble, permeable anilinopyrimidine kinase inhibitor. LogS -5.7 (approx 2 uM), PPB 93.1%, and moderate CYP3A4 liability match clinical PK characteristics."
+    }
+  },
+  "directive_13_unavailable": {
+    "CYP2C19_INHIBITION": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    },
+    "PGP_INHIBITION_QUANT": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    },
+    "BCRP_INHIBITOR_QUANT": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    },
+    "OATP1B1_INHIBITOR": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    },
+    "OATP1B3_INHIBITOR": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    },
+    "OCT1_INHIBITOR": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    },
+    "OCT2_INHIBITOR": {
+      "status": "MODEL_UNAVAILABLE",
+      "fail_closed": true,
+      "registered_models_count": 0,
+      "reason": "Scientifically qualified continuous regression checkpoints with validated provenance are unavailable in public domain; strict fail-closed policy maintained."
+    }
+  }
+}

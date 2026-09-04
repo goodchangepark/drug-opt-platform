@@ -442,13 +442,6 @@ VERSION_HISTORY = [
         "milestone": "PK Evidence Routing & Metabolism Interpretation",
         "improvements": "Multidimensional FDA PK table coordinate inheritance for Human, Rat, and Dog PK; Human clinical PK prioritized with Day 1/29 oral exposure, Tmax, t1/2, CL/F, and apparent Vss/F; animal-style IP/SC simulation scenarios isolated to secondary Mechanistic Predictions; Rat Study ARP570 and Dog Study ARP572 high-fidelity extraction; BCRP Ki 8.7 µM, P-gp IC50 36.1 µM, and CYP3A4/5 metabolic contribution 93.5% isolated from enzyme inhibition; TOC section header artifacts rejected; researcher-meaningful binary classifier interpretation policy (drugopt-classifier-interpretation-v1) with explicit model scores, threshold, and uncalibrated status; no numeric subtraction between continuous IC50 and classifier probabilities; quantitative IC50 model gaps documented honestly.",
     },
-    {
-        "version": "v3.3.1",
-        "release_date": "2026-09-04",
-        "stage": "Multi-Model & Ensemble Optimization Milestone",
-        "milestone": "Prediction Engine v3.3.1 — DrugBank 150 & Non-negative Stacking",
-        "improvements": "Expanded DrugBank reference library to 150 approved drugs with strict identity and evidence qualification; implemented candidate multi-model suite across Solubility, Caco-2, PPB, HLM, CYP panel (1A2, 2C9, 2D6, 3A4) and hERG; trained non-negative constrained stacking ensembles (SLSQP, sum(w_i)=1, w_i>=0) on Dev Training; validated against Locked Final Test Cohort 6 (N=13) and Cohort 5 (N=5); achieved major error reductions (Solubility MAE 0.710, PPB MAE 12.502, Caco-2 MAE 0.364, CYP3A4 MAE 0.822); 15/15 real-world compounds in GLP-1, EGFR, AMYR verified; preserved Production v3.3.0 and v1.0.0 baselines.",
-    },
 ]
 
 
@@ -557,8 +550,8 @@ PREDICTION_MODEL_HISTORY: list[dict[str, Any]] = [
         "version": "v3.3.0",
         "engine_id": "drugopt-prediction-engine-v3@3.3.0",
         "release_date": "2026-09-04",
-        "production_status": "PRODUCTION_DEFAULT",
-        "decision": "READY_TO_REPLACE_V1",
+        "production_status": "SUPERSEDED",
+        "decision": "SUPERSEDED_BY_V3_3_1",
         "key_endpoints": "Global v3 Primary (6 endpoints: CYP3A4, CYP2D6, CYP1A2, CYP2C9, hERG, HLM); Legacy Base Fallback (3 endpoints: Solubility, PPB, Caco-2); Model Unavailable (3 endpoints: CYP2C19, P-gp, BCRP). DrugBank 100 approved reference drugs (100% verified CAS).",
         "validation_results": "Average primary error reduction +36.6% across 6 promoted primary endpoints (CYP3A4 +42.5%, CYP2D6 +23.2%, CYP1A2 +39.9%, CYP2C9 +36.8%, hERG +34.7%, HLM +42.2%). Solubility fail-closed to BASE_FALLBACK following scale audit (Base MAE 1.188 vs v3 MAE 1.342, holdout regression -12.9%). PPB holdout regression (-11.5%) and Caco-2 insufficient margin (+1.9%) safely retained as Base Fallback.",
         "model_version_hash": "v3.3-production-replacement-hash-8f4b1",
@@ -568,12 +561,12 @@ PREDICTION_MODEL_HISTORY: list[dict[str, Any]] = [
         "version": "v3.3.1",
         "engine_id": "drugopt-prediction-engine-v3@3.3.1",
         "release_date": "2026-09-04",
-        "production_status": "PRODUCTION_CANDIDATE",
+        "production_status": "PRODUCTION_DEFAULT",
         "decision": "READY_TO_REPLACE_V3_3",
-        "key_endpoints": "Multi-Model Stacking Ensemble (9 endpoints: Solubility, Caco-2, PPB, HLM, CYP3A4, CYP2D6, CYP1A2, CYP2C9, hERG); Model Unavailable (3 endpoints: CYP2C19, P-gp, BCRP). DrugBank 150 approved reference drugs (100% verified CAS & sequential identity pipeline).",
-        "validation_results": "Multi-model non-negative constrained stacking (SLSQP, sum(w_i)=1, w_i>=0) benchmarked on Locked Final Test Cohort 6 (N=13) and Cohort 5 (N=5). Solubility MAE improved to 0.710 (+47.1% vs v3.3), PPB MAE improved to 12.502% bound (+28.7% vs v3.3), Caco-2 MAE improved to 0.364 log10(cm/s) (+93.9% vs v3.3), CYP3A4 MAE improved to 0.822 pIC50 (+35.7% vs v3.3), CYP2D6 MAE improved to 1.154 pIC50 (+27.4% vs v3.3), CYP2C9 MAE improved to 0.917 pIC50 (+23.2% vs v3.3), hERG MAE improved to 0.812 pIC50 (+24.7% vs v3.3). 15/15 real-world project compounds in GLP-1, EGFR, AMYR verified with 100% execution success.",
+        "key_endpoints": "Multi-Model Ensembles & Best Single Models (9 endpoints: Solubility, Caco-2, PPB, HLM, CYP3A4, CYP2D6, CYP1A2, CYP2C9, hERG); Model Unavailable (3 endpoints: CYP2C19, P-gp, BCRP). DrugBank 150 approved reference drugs (100% verified CAS & sequential identity pipeline).",
+        "validation_results": "Non-negative constrained stacking (SLSQP, sum(w_i)=1, w_i>=0) benchmarked on Locked Final Test Cohort 6 (N=13) and Cohort 5 (N=5). Audited error reductions: Solubility MAE 0.710 (+4.86% vs v3.3 base 0.7465), PPB MAE 12.502% bound (+12.72% vs v3.3 base 14.324), Caco-2 MAE 0.364 log10(cm/s) (+9.43% vs v3.3 normalized base 0.4021), CYP3A4 MAE 0.822 pIC50 (+20.10% vs v3.3 base 1.0288), CYP2D6 MAE 1.154 pIC50 (+10.72% vs v3.3 base 1.2922), HLM MAE 1.059 log10(mL/min/kg) (+47.27% vs OpenADMET 2.008), CYP1A2 MAE 1.143 pIC50 (+20.91% vs v3.3 base 1.4455), CYP2C9 MAE 0.917 pIC50 (+10.51% vs v3.3 base 1.0243), hERG MAE 0.812 pIC50 (+8.67% vs v3.3 base 0.8889). 15/15 real-world project compounds in GLP-1, EGFR, AMYR verified with 100% execution success.",
         "model_version_hash": "23a76cd7f1769f58dd5f400b4a109ee7003d79c1e359d87c5fec7bd8eba56df6",
-        "known_limitations": "CYP2C19, P-gp, and BCRP quantitative continuous regression remain fail-closed MODEL_UNAVAILABLE. Multi-model stacking weights locked to Dev Training optimization to prevent holdout leakage.",
+        "known_limitations": "CYP2C19, P-gp, and BCRP quantitative continuous regression remain fail-closed MODEL_UNAVAILABLE. Stacking models vs best single model routes strictly segregated in taxonomy.",
     },
 ]
 

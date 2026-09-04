@@ -5046,10 +5046,10 @@ function integratedProfile(versionId){
       e('h2',{},'Prediction Model History & Production Readiness Comparison'),
       e('p',{className:'small'},'Dedicated version history of Drug-OPT Prediction Engines from legacy v1.0 baseline, production baseline v3.3, to candidate v3.3.1 multi-model stacking ensemble.'),
       e('div',{style:{display:'flex',gap:'12px',margin:'12px 0',flexWrap:'wrap'}},[
-       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Candidate Engine: drugopt-prediction-engine-v3@3.3.1'),
-       e('div',{className:'badge-intermediate',style:{padding:'6px 12px',fontSize:'13px'}},'Frozen Production Baseline: drugopt-prediction-engine-v3@3.3.0'),
+       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Active Production Engine: drugopt-prediction-engine-v3@3.3.1'),
+       e('div',{className:'badge-intermediate',style:{padding:'6px 12px',fontSize:'13px'}},'Superseded Production Baseline: drugopt-prediction-engine-v3@3.3.0'),
        e('div',{className:'badge-info',style:{padding:'6px 12px',fontSize:'13px'}},'Legacy Baseline: drugopt-prediction-engine-v1@1.0.0'),
-       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Decision: READY_TO_REPLACE_V3_3 (DrugBank 150 + Stacking)')
+       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Decision: READY_TO_REPLACE_V3_3 (DrugBank 150 + Stacking Promoted)')
       ]),
       e('h3',{style:{marginTop:'16px'}},'v1.0 vs v3.3 vs v3.3.1 Production Readiness Comparison'),
       e('p',{className:'small'},'Empirical evaluation on DrugBank 150 reference holdout cohorts and locked test sets (Cohort 5 N=5, Cohort 6 N=13), strictly separated by governance tiers.'),
