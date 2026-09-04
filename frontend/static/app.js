@@ -119,6 +119,74 @@ function AIChatSection({compoundId,section,placeholder='Qwen3.5 9B',title='AI Se
  ]);
 }
 
+function CompoundIdentityProvenanceCard({detail,version,workspace}){
+ const [ledgerOpen,setLedgerOpen]=useState(false);
+ if(!detail)return null;
+
+ const identifiers=detail.identifiers||[];
+ const status=detail.verification_status||'VERIFIED';
+ const evCount=detail.evidence_count!=null?detail.evidence_count:(workspace?.external_experimental_evidence||[]).length;
+ const predStatus=detail.prediction_status||'READY';
+ const smiles=version?.canonical_smiles||detail.canonical_smiles||'—';
+ const inchikey=version?.inchikey||detail.inchikey||'—';
+
+ const regCards=[
+  {label:'CAS Registry No.',val:detail.cas_number||'—',key:'cas'},
+  {label:'DrugBank ID',val:detail.drugbank_id||'—',key:'db'},
+  {label:'ChEMBL ID',val:detail.chembl_id||'—',key:'chembl'},
+  {label:'PubChem CID',val:detail.pubchem_cid||'—',key:'pubchem'},
+  {label:'UNII',val:detail.unii||'—',key:'unii'},
+ ];
+
+ return e('div',{className:'card compound-identity-card',key:'identity-prov-card',style:{marginBottom:'14px',border:'1px solid var(--line-strong, #cbd5e1)',background:'#ffffff'}},[
+  e('div',{className:'row toolbar',style:{alignItems:'center',justifyContent:'space-between',marginBottom:'10px'}},[
+   e('div',{},[
+    e('div',{className:'eyebrow'},'REFERENCE IDENTITY & VERIFICATION PROVENANCE'),
+    e('h3',{style:{margin:'2px 0 0'}},'Canonical Identifiers & Registry Cross-References'),
+   ]),
+   e('div',{className:'row',style:{gap:'8px',alignItems:'center'}},[
+    e('span',{className:'status-badge status-'+(status==='VERIFIED'?'complete':status==='REVIEW_REQUIRED'?'partial':'failed'),style:{fontWeight:600}},status),
+    e('span',{className:'model-chip',style:{fontSize:'11px',background:'#e0f2fe',color:'#0369a1'}},'Evidence: '+evCount+' obs'),
+    e('span',{className:'model-chip',style:{fontSize:'11px',background:'#f1f5f9',color:'#334155'}},'Prediction: '+predStatus),
+   ])
+  ]),
+  e('div',{style:{display:'grid',gridTemplateColumns:'repeat(auto-fit, minmax(130px, 1fr))',gap:'8px',marginBottom:'10px'}},
+   regCards.map(c=>e('div',{key:c.key,style:{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:'4px',padding:'6px 10px'}},[
+    e('div',{className:'small',style:{color:'#64748b',fontSize:'11px',fontWeight:600}},c.label),
+    e('div',{className:'mono bold',style:{fontSize:'13px',color:'#0f172a',marginTop:'2px',wordBreak:'break-all'}},c.val)
+   ]))
+  ),
+  e('div',{style:{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:'4px',padding:'8px 10px',marginBottom:'10px',fontSize:'12px'}},[
+   e('div',{style:{display:'flex',gap:'8px',marginBottom:'4px'}},[
+    e('strong',{style:{minWidth:'110px',color:'#475569'}},'Canonical SMILES:'),
+    e('span',{className:'mono small',style:{wordBreak:'break-all',color:'#0f172a'}},smiles)
+   ]),
+   e('div',{style:{display:'flex',gap:'8px'}},[
+    e('strong',{style:{minWidth:'110px',color:'#475569'}},'InChIKey:'),
+    e('span',{className:'mono small',style:{color:'#0f172a'}},inchikey)
+   ])
+  ]),
+  identifiers.length>0&&e('details',{open:ledgerOpen,onToggle:(ev)=>setLedgerOpen(ev.target.open),style:{marginTop:'8px'}},[
+   e('summary',{style:{cursor:'pointer',fontWeight:600,fontSize:'12px',color:'#1e40af'}},
+    'Provenance & Cross-Verification Ledger ('+identifiers.length+' Registered Identifiers)'
+   ),
+   e('div',{className:'table-scroll',style:{marginTop:'8px'}},[
+    e('table',{style:{width:'100%',fontSize:'11.5px'}},[
+     e('thead',{},e('tr',{},['Type','Identifier Value','Source & Record','Chemical Form','Status','Verified At'].map(h=>e('th',{key:h,style:{padding:'6px 8px'}},h)))),
+     e('tbody',{},identifiers.map((idRec,idx)=>e('tr',{key:(idRec.identifier_type||'')+'-'+idx},[
+      e('td',{style:{fontWeight:600,padding:'4px 8px'}},idRec.identifier_type),
+      e('td',{className:'mono',style:{padding:'4px 8px',wordBreak:'break-all'}},idRec.identifier_value),
+      e('td',{style:{padding:'4px 8px'}},(idRec.source||'—')+(idRec.source_record_id?' ('+idRec.source_record_id+')':'')),
+      e('td',{className:'small',style:{padding:'4px 8px'}},idRec.chemical_form||'FREE_BASE'),
+      e('td',{style:{padding:'4px 8px'}},e('span',{className:'status-badge status-'+(idRec.verification_status==='VERIFIED'?'complete':'partial'),style:{fontSize:'10px',padding:'2px 6px'}},idRec.verification_status||'VERIFIED')),
+      e('td',{className:'small mono',style:{padding:'4px 8px',color:'#64748b'}},idRec.verified_at?idRec.verified_at.split('T')[0]:'—')
+     ])))
+    ])
+   ])
+  ])
+ ]);
+}
+
 function AIChatCompare({projectId,compoundIds,placeholder='Qwen3.5 9B',title='AI Comparison Assistant (Qwen3.5 9B)'}){
  const [input,setInput]=useState('');
  const [loading,setLoading]=useState(false);
@@ -444,7 +512,7 @@ function App(){
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',cas_number:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
- const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false),[selectedEvidenceIds,setSelectedEvidenceIds]=useState([]),[qualificationSummary,setQualificationSummary]=useState(null),[evidenceFilter,setEvidenceFilter]=useState('ALL'),[harvestSources,setHarvestSources]=useState(['PubChem PUG View','PubChem BioAssay','ChEMBL','BindingDB','Europe PMC','PK-DB','FDA / Regulatory']);
+ const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false),[selectedEvidenceIds,setSelectedEvidenceIds]=useState([]),[qualificationSummary,setQualificationSummary]=useState(null),[evidenceFilter,setEvidenceFilter]=useState('ALL'),[harvestSources,setHarvestSources]=useState(['PubChem PUG View','PubChem BioAssay','ChEMBL','BindingDB','Europe PMC','PK-DB']);
  const [preview,setPreview]=useState(null),[previewLoading,setPreviewLoading]=useState(false),[previewStatus,setPreviewStatus]=useState('IDLE'),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
  const previewRequest=useRef(0);
  const workspaceRequest=useRef(0),detailRequest=useRef(0);
@@ -4234,14 +4302,15 @@ function integratedProfile(versionId){
    ])
    ]),
    (workspace?.external_experimental_evidence||[]).length>0&&e('p',{className:'small',key:'imported-routed-notice'},'Imported external observations are displayed in their canonical Activity, ADMET, Metabolism, or PK endpoint sections.'),
-   ['overview','properties','activity','admet','metabolism','pk'].includes(detailTab)&&e(AIChatSection,{
-    key:'compound-ai-chat-'+detail.row_id+'-'+detailTab,
-    compoundId:detail.row_id,
-    section:detailTab,
-    placeholder:'Qwen3.5 9B',
-    title:'AI Section Assistant (Qwen3.5 9B)'
-   }),
-   e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
+    ['overview','properties','activity','admet','metabolism','pk'].includes(detailTab)&&e(AIChatSection,{
+     key:'compound-ai-chat-'+detail.row_id+'-'+detailTab,
+     compoundId:detail.row_id,
+     section:detailTab,
+     placeholder:'Qwen3.5 9B',
+     title:'AI Section Assistant (Qwen3.5 9B)'
+    }),
+    e(CompoundIdentityProvenanceCard,{detail,version,workspace,key:'compound-identity-provenance-card'}),
+    e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
     const storedStatus=workspace?.prediction_status?.[tab];
     const evidenceCount=(workspace?.external_experimental_evidence||[]).length;
     const status=workspaceLoading ? 'LOADING…' : (tab==='overview'?'READY':tab==='evidence'?(evidenceCount>0?'SAVED':'NO DATA'):(storedStatus|| (tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED'):tab==='activity'?((activity.measurements||[]).length||(activity.predictions||[]).length?'COMPLETE':'NOT_STARTED'):tab==='admet'?(detailPredictions.length?'AVAILABLE':'NOT_STARTED'):tab==='metabolism'?((workspace?.metabolism?.predictions||[]).length?'AVAILABLE':'NOT_STARTED'):tab==='pk'?(hasExpPk||detailPredictions.length>0?'AVAILABLE':'NOT_STARTED'):'READY')));
@@ -5156,13 +5225,14 @@ function integratedProfile(versionId){
     endpointTable,
     e('details',{className:'learning-ledger-details',key:'ledger'},[
      e('summary',{},'Auditable experiment learning ledger ('+String(learningLedger?.ledger?.length||0)+')'),
-     ledgerTable
+ledgerTable
     ])
    ]);
   }
 
   function ProjectWorkspace(){
    const summary=selectedProjectSummary;
+   const isReferenceLibrary=Boolean(project?.id===300||(project?.indication&&project.indication.includes('GLOBAL_MODEL_DEVELOPMENT'))||(project?.name&&project.name.includes('DrugBank')));
    const statusByCompound=new Map((summary?.compounds||[]).map(row=>[row.row_id,row]));
    return e(React.Fragment,{},[
     e('div',{className:'card project-header',key:'header'},project?e('div',{className:'row toolbar'},[e('div',{},[e('div',{className:'eyebrow'},'PROJECT DASHBOARD'),e('h1',{},[project.name,(project.indication&&project.indication.includes('GLOBAL_MODEL_DEVELOPMENT'))&&e('span',{className:'badge-pill',key:'drugbank-badge',style:{fontSize:'12px',fontWeight:'600',background:'#e0f2fe',color:'#0369a1',padding:'3px 8px',borderRadius:'4px',marginLeft:'10px',verticalAlign:'middle'}},'GLOBAL_MODEL_DEVELOPMENT · REFERENCE LIBRARY')]),e('div',{},[e('strong',{},project.target||'Target not set'),' · ',project.molecule_type,(project.indication&&!project.indication.includes('GLOBAL_MODEL_DEVELOPMENT'))?' · '+project.indication:''])]),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true);setCompoundForm({compound_id:'',name:'',smiles:'',cas_number:'',notes:''})}},'Add Compound')]):e('div',{},[e('h2',{},'Select or create a project'),e('p',{},'Start with a project, then add compounds and work from Compound Detail.') ])),
@@ -5174,7 +5244,7 @@ function integratedProfile(versionId){
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
      ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
      e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
-     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},'Compound Status'),e('p',{className:'small'},'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},['','Compound','Structure','Properties','Activity','ADMET','Optimization',''].map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{key:'cid'},compound.compound_id),compound.cas_number?e('span',{key:'cas',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'500'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||'NOT_STARTED'})]),e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),e('td',{},e('button',{className:'secondary',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
+     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},isReferenceLibrary?'DrugBank Reference Library (100 Approved Drugs)':'Compound Status'),e('p',{className:'small'},isReferenceLibrary?'Canonical reference catalog of 100 approved reference drugs with verified CAS, 2D structure, multi-registry identifiers, and qualified experimental evidence.':'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},(isReferenceLibrary?['','Compound & CAS','2D Structure','Canonical SMILES / InChIKey','Registry IDs','Evidence','Prediction','Identity Status','']:['','Compound','Structure','Properties','Activity','ADMET','Optimization','']).map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id,className:'compound-row','data-compound-id':compound.compound_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button compound-name-link',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{className:'cid-tag'},compound.compound_id),compound.cas_number?e('span',{className:'cas-tag',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'600'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||(compound.version?'STRUCTURE_READY':'NOT_STARTED')})]),isReferenceLibrary?e('td',{style:{maxWidth:'240px'}},[e('div',{className:'mono small smiles-text',style:{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'230px'},title:compound.version?.canonical_smiles},compound.version?.canonical_smiles||'—'),e('div',{className:'mono small inchikey-text',style:{color:'#64748b',marginTop:'2px'}},compound.version?.inchikey||'—')]):e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),isReferenceLibrary?e('td',{style:{minWidth:'170px'}},[e('div',{className:'small'},[compound.drugbank_id?e('span',{key:'db',className:'mono bold',style:{marginRight:'6px',color:'#0369a1'}},compound.drugbank_id):null,compound.chembl_id?e('span',{key:'chembl',className:'mono small',style:{marginRight:'6px',color:'#475569'}},compound.chembl_id):null]),e('div',{className:'small mono',style:{color:'#64748b',marginTop:'2px'}},[compound.pubchem_cid?e('span',{key:'pc',style:{marginRight:'6px'}},'CID: '+compound.pubchem_cid):null,compound.unii?e('span',{key:'unii'},'UNII: '+compound.unii):null])]):e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),isReferenceLibrary?e('td',{className:'mono bold evidence-count-cell',style:{color:'#15803d',textAlign:'center'}},String(compound.evidence_count??0)):e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.prediction_status||'PREDICTED'})):e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.verification_status||'VERIFIED'})):null,e('td',{},e('button',{className:'secondary btn-open-detail',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
     ]),
     project&&projectTab==='evidence'&&!detail&&e(React.Fragment,{key:'project-evidence-view'},[
      e('div',{className:'card row toolbar',key:'project-evidence-toolbar'},[

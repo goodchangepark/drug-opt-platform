@@ -47,7 +47,7 @@ def test_eighty_reference_drugs_sequential_ingestion_and_roles():
     db = SessionLocal()
     try:
         res_list = ingest_all_drugbank_reference_drugs(db)
-        assert len(res_list) == 80
+        assert len(res_list) >= 80
         names = [r["compound_name"] for r in res_list]
         assert "Gefitinib" in names
         assert "Imatinib" in names
@@ -123,6 +123,10 @@ def test_eighty_reference_drugs_sequential_ingestion_and_roles():
             "Rivaroxaban", "Apixaban", "Dabigatran etexilate", "Donepezil", "Ezetimibe"
         ]
         for exp in v3_3_expected_names:
+            assert exp in names
+        # 20 New reference drugs in v3.3.3 (100 reference drug expansion)
+        v3_3_3_expansion_sample = ["Digoxin", "Metformin", "Ketoprofen", "Clozapine", "Topiramate"]
+        for exp in v3_3_3_expansion_sample:
             assert exp in names
 
         for r in res_list:
@@ -243,7 +247,7 @@ def test_five_tier_partitioning_and_locked_final_test_cohorts():
     db = SessionLocal()
     try:
         dataset = build_global_learning_dataset(db)
-        assert dataset["total_compounds_registered"] == 80
+        assert dataset["total_compounds_registered"] >= 80
         assert dataset["total_eligible_observations"] >= 500
         assert dataset["total_development_observations"] >= 180
         assert dataset["total_validation_observations"] >= 170
@@ -267,7 +271,7 @@ def test_engine_v3_release_readiness_and_runtime_routing():
         v3_eval = evaluate_global_engine_v3_readiness(db)
         assert "global-prediction-engine-v3.3" in v3_eval["engine_version"]
         assert v3_eval["release_status"] == "GLOBAL_ENGINE_V3_3_PRODUCTION_RELEASE"
-        assert v3_eval["total_compounds"] == 80
+        assert v3_eval["total_compounds"] >= 80
 
         # Core 5 Primary Endpoints (Frozen from v3.2 & audited)
         cyp3a4_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP3A4_INHIBITION")

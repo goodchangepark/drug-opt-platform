@@ -44,7 +44,34 @@ class Compound(Base):
     versions: Mapped[list["CompoundVersion"]] = relationship(
         back_populates="compound", cascade="all, delete-orphan", order_by="CompoundVersion.version_number"
     )
+    identifiers: Mapped[list["CompoundIdentifier"]] = relationship(
+        back_populates="compound", cascade="all, delete-orphan", order_by="CompoundIdentifier.id"
+    )
     __table_args__ = (UniqueConstraint("project_id", "compound_id", name="uq_compound_project_label"),)
+
+
+class CompoundIdentifier(Base):
+    """Identifier-level provenance and identity verification metadata."""
+    __tablename__ = "compound_identifiers"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    compound_id: Mapped[int] = mapped_column(ForeignKey("compounds.id", ondelete="CASCADE"), index=True)
+    compound_version_id: Mapped[int | None] = mapped_column(ForeignKey("compound_versions.id", ondelete="SET NULL"), nullable=True, index=True)
+    identifier_type: Mapped[str] = mapped_column(String(40), index=True)
+    identifier_value: Mapped[str] = mapped_column(String(500), index=True)
+    source: Mapped[str] = mapped_column(String(100), default="INTERNAL_EVIDENCE_AND_DRUGBANK_CATALOG")
+    source_record_id: Mapped[str] = mapped_column(String(100), default="")
+    chemical_form: Mapped[str] = mapped_column(String(60), default="FREE_BASE")
+    verified_against_inchikey: Mapped[str] = mapped_column(String(60), default="")
+    verification_status: Mapped[str] = mapped_column(String(40), default="VERIFIED", index=True)
+    verified_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+
+    compound: Mapped[Compound] = relationship(back_populates="identifiers")
+    __table_args__ = (
+        UniqueConstraint("compound_id", "identifier_type", "identifier_value", name="uq_compound_identifier_type_val"),
+    )
+
 
 
 class ExternalExperimentalEvidence(Base):
@@ -356,6 +383,32 @@ def ensure_ui_schema(engine):
                     connection.execute(text(f"ALTER TABLE experimental_search_runs ADD COLUMN {name} {definition}"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))
+        if "compound_identifiers" not in tables:
+            connection.execute(text("""
+                CREATE TABLE IF NOT EXISTS compound_identifiers (
+                    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                    compound_id INTEGER NOT NULL,
+                    compound_version_id INTEGER,
+                    identifier_type VARCHAR(40) NOT NULL,
+                    identifier_value VARCHAR(500) NOT NULL,
+                    source VARCHAR(100) NOT NULL DEFAULT 'INTERNAL_EVIDENCE_AND_DRUGBANK_CATALOG',
+                    source_record_id VARCHAR(100) NOT NULL DEFAULT '',
+                    chemical_form VARCHAR(60) NOT NULL DEFAULT 'FREE_BASE',
+                    verified_against_inchikey VARCHAR(60) NOT NULL DEFAULT '',
+                    verification_status VARCHAR(40) NOT NULL DEFAULT 'VERIFIED',
+                    verified_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT uq_compound_identifier_type_val UNIQUE (compound_id, identifier_type, identifier_value),
+                    FOREIGN KEY(compound_id) REFERENCES compounds (id) ON DELETE CASCADE,
+                    FOREIGN KEY(compound_version_id) REFERENCES compound_versions (id) ON DELETE SET NULL
+                )
+            """))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS ix_compound_identifiers_compound_id ON compound_identifiers (compound_id)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS ix_compound_identifiers_identifier_type ON compound_identifiers (identifier_type)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS ix_compound_identifiers_identifier_value ON compound_identifiers (identifier_value)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS ix_compound_identifiers_verification_status ON compound_identifiers (verification_status)"))
+
 
 
 # Register dependent metadata without circular import

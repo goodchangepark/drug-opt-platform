@@ -299,7 +299,7 @@ def resolve_cas_to_structure(cas_number: str, db: Session | None = None) -> dict
                 pass
 
     # 2. Local reference catalog lookup
-    for catalog_name in ("reference_drugs_80.json", "reference_drugs_65.json"):
+    for catalog_name in ("reference_drugs_100.json", "reference_drugs_80.json", "reference_drugs_65.json"):
         ref_file = Path(__file__).parent / catalog_name
         if ref_file.exists():
             try:
@@ -616,6 +616,15 @@ def get_project(project_id: int, db: Session = Depends(get_db)):
                 prediction = db.scalar(select(ADMETPrediction).where(ADMETPrediction.version_id == version.id).order_by(ADMETPrediction.created_at.desc()))
                 if prediction and prediction.predicted_value is not None:
                     output["key_admet"] = f"{prediction.model.endpoint_name}: {prediction.predicted_value:g} {prediction.unit} · PRED"
+            ev_count = db.scalar(select(func.count(ExternalExperimentalEvidence.id)).where(ExternalExperimentalEvidence.compound_version_id == version.id)) or 0
+            pred_count = db.scalar(select(func.count(PredictionRun.id)).where(PredictionRun.version_id == version.id)) or 0
+            output["evidence_count"] = ev_count
+            output["prediction_count"] = pred_count
+            output["prediction_status"] = "PREDICTED" if (pred_count > 0 or output.get("key_admet") or compound.status in ("CALCULATED", "APPROVED_REFERENCE")) else "PENDING"
+        else:
+            output["evidence_count"] = 0
+            output["prediction_count"] = 0
+            output["prediction_status"] = "PENDING"
         rows.append(output)
     data["compounds"] = rows
     return data
@@ -754,6 +763,8 @@ def _delete_project_tree_rows(db: Session, project_ids: list[int]):
         db.execute(delete(PredictionRun).where(PredictionRun.version_id.in_(version_ids)))
         db.execute(delete(CompoundVersion).where(CompoundVersion.id.in_(version_ids)))
     if compound_ids:
+        from .models import CompoundIdentifier
+        db.execute(delete(CompoundIdentifier).where(CompoundIdentifier.compound_id.in_(compound_ids)))
         db.execute(delete(Compound).where(Compound.id.in_(compound_ids)))
     db.execute(delete(PhysiologicalParameterOverride).where(
         PhysiologicalParameterOverride.project_id.in_(project_ids)
@@ -803,11 +814,52 @@ def bulk_delete_projects(payload: dict, db: Session = Depends(get_db)):
 
 def compound_out(compound: Compound):
     current = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1] if compound.versions else None)
+    
+    idents_list = []
+    ident_map = {}
+    overall_status = "VERIFIED"
+    for ident in (compound.identifiers if hasattr(compound, "identifiers") and compound.identifiers else []):
+        idents_list.append({
+            "id": ident.id,
+            "type": ident.identifier_type,
+            "value": ident.identifier_value,
+            "source": ident.source,
+            "source_record_id": ident.source_record_id,
+            "chemical_form": ident.chemical_form,
+            "verified_against_inchikey": ident.verified_against_inchikey,
+            "verification_status": ident.verification_status,
+            "verified_at": ident.verified_at.isoformat() if ident.verified_at else None,
+        })
+        ident_map[ident.identifier_type] = ident.identifier_value
+        if ident.verification_status != "VERIFIED":
+            overall_status = ident.verification_status
+
+    props = (current.properties_json or {}) if current else {}
+    if isinstance(props, str):
+        try:
+            props = json.loads(props)
+        except Exception:
+            props = {}
+
+    drugbank_id = ident_map.get("DRUGBANK_ID") or props.get("drugbank_id") or (compound.compound_id.replace("DRUGBANK-", "") if "DRUGBANK" in compound.compound_id else None)
+    chembl_id = ident_map.get("CHEMBL_ID") or props.get("chembl_id")
+    pubchem_cid = ident_map.get("PUBCHEM_CID") or (str(props.get("pubchem_cid")) if props.get("pubchem_cid") else None)
+    unii = ident_map.get("UNII") or props.get("unii")
+
+    if not idents_list:
+        overall_status = "VERIFIED" if (current and current.inchikey) else "REVIEW_REQUIRED"
+
     return {
         "row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id, "cas_number": compound.cas_number or None,
         "name": compound.name, "notes": compound.notes, "current_version": compound.current_version,
         "status": compound.status,
         "created_at": compound.created_at.isoformat(), "updated_at": compound.updated_at.isoformat(),
+        "drugbank_id": drugbank_id,
+        "chembl_id": chembl_id,
+        "pubchem_cid": pubchem_cid,
+        "unii": unii,
+        "verification_status": overall_status,
+        "identifiers": idents_list,
         "version": serialize_version(current) if current else None,
         "versions": [{"version_number": v.version_number, "canonical_smiles": v.canonical_smiles, "change_note": v.change_note, "calculated": bool(v.properties_json)} for v in compound.versions],
     }
@@ -1193,8 +1245,20 @@ def run_compound_predict_all(row_id: int, db: Session = Depends(get_db)):
 
 def get_compound(row_id: int, include_versions: bool = Query(False), db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
-    if not compound: raise HTTPException(status_code=404, detail="Compound not found")
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
     result = compound_out(compound)
+    current = next((v for v in compound.versions if v.version_number == compound.current_version), compound.versions[-1] if compound.versions else None)
+    if current:
+        ev_count = db.scalar(select(func.count(ExternalExperimentalEvidence.id)).where(ExternalExperimentalEvidence.compound_version_id == current.id)) or 0
+        pred_count = db.scalar(select(func.count(PredictionRun.id)).where(PredictionRun.version_id == current.id)) or 0
+        result["evidence_count"] = ev_count
+        result["prediction_count"] = pred_count
+        result["prediction_status"] = "PREDICTED" if (pred_count > 0 or compound.status in ("CALCULATED", "APPROVED_REFERENCE")) else "PENDING"
+    else:
+        result["evidence_count"] = 0
+        result["prediction_count"] = 0
+        result["prediction_status"] = "PENDING"
     if include_versions:
         versions = db.scalars(select(CompoundVersion).where(CompoundVersion.compound_row_id == row_id).order_by(CompoundVersion.version_number)).all()
         result["history"] = [serialize_version(v) for v in versions]

@@ -39,13 +39,13 @@ def main():
 
         # Verify DrugBank specifically
         drugbank_compounds = db.scalars(select(Compound).where(Compound.project_id == 300)).all()
-        assert len(drugbank_compounds) == 80, f"DrugBank compound count: {len(drugbank_compounds)} != 80"
+        assert len(drugbank_compounds) == 100, f"DrugBank compound count: {len(drugbank_compounds)} != 100"
         
         db_cv_ids = db.scalars(select(CompoundVersion.id).join(Compound).where(Compound.project_id == 300)).all()
-        assert len(db_cv_ids) == 80, f"DrugBank version count: {len(db_cv_ids)} != 80"
+        assert len(db_cv_ids) == 100, f"DrugBank version count: {len(db_cv_ids)} != 100"
         
         evidence_cnt = db.scalar(select(text("count(*)")).select_from(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id.in_(db_cv_ids)))
-        print(f"DrugBank verified: 80 compounds, 80 versions, {evidence_cnt} external evidence records.")
+        print(f"DrugBank verified: 100 compounds, 100 versions, {evidence_cnt} external evidence records.")
 
     finally:
         db.close()
@@ -66,6 +66,7 @@ def main():
 
     orphan_queries = [
         ("compounds without project", "SELECT count(*) FROM compounds WHERE project_id NOT IN (SELECT id FROM projects)"),
+        ("compound_identifiers without compound", "SELECT count(*) FROM compound_identifiers WHERE compound_id NOT IN (SELECT id FROM compounds)"),
         ("compound_versions without compound", "SELECT count(*) FROM compound_versions WHERE compound_row_id NOT IN (SELECT id FROM compounds)"),
         ("external_evidence without version", "SELECT count(*) FROM external_experimental_evidence WHERE compound_version_id NOT IN (SELECT id FROM compound_versions)"),
         ("predictions without version", "SELECT count(*) FROM admet_predictions WHERE version_id NOT IN (SELECT id FROM compound_versions)"),
