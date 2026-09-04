@@ -271,8 +271,9 @@ def validate_structure(payload: dict):
 
 
 def resolve_cas_to_structure(cas_number: str, db: Session | None = None) -> dict:
+    import re
     cas_clean = str(cas_number or "").strip()
-    if not cas_clean or not valid_cas(cas_clean):
+    if not cas_clean or not re.match(r"^\d{2,7}-\d{2}-\d$", cas_clean):
         return {"found": False, "error": "Invalid CAS number format"}
 
     # 1. Local database lookup
@@ -298,26 +299,27 @@ def resolve_cas_to_structure(cas_number: str, db: Session | None = None) -> dict
                 pass
 
     # 2. Local reference catalog lookup
-    ref_file = Path(__file__).parent / "reference_drugs_65.json"
-    if ref_file.exists():
-        try:
-            with open(ref_file, "r", encoding="utf-8") as f:
-                ref_drugs = json.load(f)
-                for drug in ref_drugs:
-                    if drug.get("cas_number") == cas_clean:
-                        sm = drug.get("smiles") or drug.get("canonical_smiles")
-                        if sm:
-                            analysis = analyze_smiles(sm)
-                            return {
-                                "found": True,
-                                "cas_number": cas_clean,
-                                "smiles": sm,
-                                "name": drug.get("name", ""),
-                                "source": "reference_catalog",
-                                **analysis,
-                            }
-        except Exception:
-            pass
+    for catalog_name in ("reference_drugs_80.json", "reference_drugs_65.json"):
+        ref_file = Path(__file__).parent / catalog_name
+        if ref_file.exists():
+            try:
+                with open(ref_file, "r", encoding="utf-8") as f:
+                    ref_drugs = json.load(f)
+                    for drug in ref_drugs:
+                        if drug.get("cas_number") == cas_clean:
+                            sm = drug.get("smiles") or drug.get("canonical_smiles")
+                            if sm:
+                                analysis = analyze_smiles(sm)
+                                return {
+                                    "found": True,
+                                    "cas_number": cas_clean,
+                                    "smiles": sm,
+                                    "name": drug.get("name", ""),
+                                    "source": "reference_catalog",
+                                    **analysis,
+                                }
+            except Exception:
+                pass
 
     # 3. PubChem PUG REST
     try:
@@ -819,13 +821,24 @@ def serialize_version(version: CompoundVersion):
             ionization_data = analyze_ionization(version.canonical_smiles)
         except Exception:
             ionization_data = {}
+    svg = version.svg
+    if (not svg or len(svg.strip()) < 10) and version.canonical_smiles:
+        try:
+            from rdkit import Chem
+            from rdkit.Chem import Draw
+            mol = Chem.MolFromSmiles(version.canonical_smiles)
+            if mol:
+                Draw.rdDepictor.Compute2DCoords(mol)
+                svg = str(Draw.MolsToGridImage([mol], molsPerRow=1, subImgSize=(420, 320), useSVG=True))
+        except Exception:
+            pass
     return {
         "id": version.id, "version_number": version.version_number, "original_smiles": version.original_smiles,
         "canonical_smiles": version.canonical_smiles, "isomeric_smiles": version.isomeric_smiles,
         "inchi": version.inchi, "inchikey": version.inchikey, "change_note": version.change_note,
         "properties": version.properties_json or {}, "rules": (version.calculation_json or {}).get("rules", {}),
         "ionization": ionization_data or {},
-        "assessment": version.assessment_json or {}, "svg": version.svg,
+        "assessment": version.assessment_json or {}, "svg": svg,
         "highlighted_svg": version.highlighted_svg, "provenance": (version.calculation_json or {}).get("provenance", {}),
         "alerts": version.alerts_json or [],
         "calculated": bool(version.properties_json),

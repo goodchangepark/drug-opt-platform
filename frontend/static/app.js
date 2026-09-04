@@ -14,11 +14,19 @@ const api={
  del:(path,data)=>api.req(path,{method:'DELETE',body:data===undefined?undefined:JSON.stringify(data)})
 };
 
-function Field({label,value,onChange,type='text',placeholder=''}){
+function Field({label,value,onChange,type='text',placeholder='',testId,id,className,onInput}){
  const tag=type==='textarea'?'textarea':'input';
- const props={value:value??'',onChange:event=>onChange(event.target.value),placeholder};
+ const props={
+  value:value??'',
+  onChange:event=>onChange(event.target.value),
+  onInput:event=>{if(onInput)onInput(event.target.value);if(onChange)onChange(event.target.value);},
+  placeholder
+ };
  if(tag==='input')props.type=type;
- return e('div',{},e('label',{},label),e(tag,props));
+ if(testId)props['data-testid']=testId;
+ if(id)props.id=id;
+ if(className)props.className=className;
+ return e('div',{className:className?className+'-field':undefined},e('label',{},label),e(tag,props));
 }
 function Svg({src}){
  if(!src)return e('div',{className:'structure-placeholder'},'No structure saved');
@@ -437,7 +445,7 @@ function App(){
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
  const [compoundForm,setCompoundForm]=useState({compound_id:'',name:'',smiles:'',cas_number:'',notes:''}),[addCompoundOpen,setAddCompoundOpen]=useState(false),[savingCompound,setSavingCompound]=useState(false);
  const [externalEvidence,setExternalEvidence]=useState(null),[externalEvidenceBusy,setExternalEvidenceBusy]=useState(false),[selectedEvidenceIds,setSelectedEvidenceIds]=useState([]),[qualificationSummary,setQualificationSummary]=useState(null),[evidenceFilter,setEvidenceFilter]=useState('ALL'),[harvestSources,setHarvestSources]=useState(['PubChem PUG View','PubChem BioAssay','ChEMBL','BindingDB','Europe PMC','PK-DB','FDA / Regulatory']);
- const [preview,setPreview]=useState(null),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
+ const [preview,setPreview]=useState(null),[previewLoading,setPreviewLoading]=useState(false),[previewStatus,setPreviewStatus]=useState('IDLE'),[selected,setSelected]=useState([]),[comparison,setComparison]=useState(null),[detail,setDetail]=useState(null),[message,setMessage]=useState(''),[editingCompound,setEditingCompound]=useState(false);
  const previewRequest=useRef(0);
  const workspaceRequest=useRef(0),detailRequest=useRef(0);
  const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false),navigationRestorePending=useRef(false);
@@ -470,7 +478,7 @@ function App(){
  const [iviveData,setIviveData]=useState(null),[iviveSpecies,setIviveSpecies]=useState('Rat'),[iviveBusy,setIviveBusy]=useState(false);
  const [iviveInputForm,setIviveInputForm]=useState({input_endpoint:'CLINT',input_value:'',unit:'µL/min/mg protein',input_type:'RAW_MICROSOMAL',source_type:'EXPERIMENTAL',model_source:'User experimental',confidence:'HIGH',notes:''});
  const [iviveOverrideForm,setIviveOverrideForm]=useState({parameter:'HEPATIC_BLOOD_FLOW',value:'',unit:'mL/min/kg',source:'Study-specific measurement',confidence:'MEDIUM',notes:''});
- const editorSmiles=useRef('');
+ const editorSmiles=useRef(''),editorUpdating=useRef(false);
  const detailRef=useRef(null);detailRef.current=detail;
 
  const currentVersions=project?.compounds||[];
@@ -731,45 +739,68 @@ function App(){
  useEffect(()=>{
   if(!editorReady||!addCompoundOpen)return;
   const timer=setInterval(async()=>{
+   if(editorUpdating.current)return;
    try{
     const editor=document.getElementById('ketcher-editor')?.contentWindow?.ketcher;
     if(!editor)return;
     const smiles=(await editor.getSmiles()).trim();
-    if(smiles&&smiles!==compoundForm.smiles){editorSmiles.current=smiles;setCompoundForm(current=>({...current,smiles}))}
+    if(editorUpdating.current)return;
+    if(smiles&&smiles!==editorSmiles.current&&smiles!==compoundForm.smiles){
+     editorSmiles.current=smiles;
+     setCompoundForm(current=>({...current,smiles}));
+    }
    }catch(_){/* editor is still initializing */}
-  },700);
+  },300);
   return()=>clearInterval(timer);
  },[addCompoundOpen,editorReady,compoundForm.smiles]);
  useEffect(()=>{
   if(!addCompoundOpen||project?.molecule_type!=='Small Molecule'||!compoundForm.smiles.trim()||compoundForm.smiles.trim()===editorSmiles.current)return;
+  editorUpdating.current=true;
+  editorSmiles.current=compoundForm.smiles.trim();
   const timer=setTimeout(async()=>{
    try{
     const editor=document.getElementById('ketcher-editor')?.contentWindow?.ketcher;
     if(!editor)return;
-    await editor.setMolecule(compoundForm.smiles.trim());editorSmiles.current=compoundForm.smiles.trim();
+    await editor.setMolecule(compoundForm.smiles.trim());
    }catch(_){/* partial SMILES remains editable until valid */}
-  },500);
-  return()=>clearTimeout(timer);
+   finally{editorUpdating.current=false;}
+  },250);
+  return()=>{clearTimeout(timer);editorUpdating.current=false;};
  },[addCompoundOpen,project?.molecule_type,compoundForm.smiles]);
 
  useEffect(()=>{
   if(!addCompoundOpen||project?.molecule_type!=='Small Molecule')return;
   const sm=(compoundForm.smiles||'').trim();
   const requestId=++previewRequest.current;
-  if(!sm){setPreview(null);return}
-  // Debounce the RDKit call until the user has finished typing. This avoids
-  // queueing one expensive validation request per keystroke for long SMILES.
-  setPreview(null);
+  if(!sm){
+   setPreview(null);
+   setPreviewLoading(false);
+   setPreviewStatus('IDLE');
+   return;
+  }
+  setPreviewLoading(true);
+  setPreviewStatus('LOADING');
   const timer=setTimeout(async()=>{
    try{
     const result=await api.post('/structure/validate',{smiles:sm});
-    if(requestId===previewRequest.current&&result&&result.valid&&result.svg){
-     setPreview(result);
+    if(requestId===previewRequest.current){
+     setPreviewLoading(false);
+     if(result&&result.valid&&result.svg){
+      setPreview(result);
+      setPreviewStatus('VALID');
+     }else{
+      setPreview(null);
+      setPreviewStatus('INVALID');
+     }
     }
    }catch(_){
-    if(requestId===previewRequest.current)setPreview(null);
+    if(requestId===previewRequest.current){
+     setPreviewLoading(false);
+     setPreview(null);
+     setPreviewStatus('INVALID');
+    }
    }
-  },400);
+  },250);
   return ()=>{clearTimeout(timer);};
  },[addCompoundOpen,project?.molecule_type,compoundForm.smiles]);
 
@@ -4179,7 +4210,7 @@ function integratedProfile(versionId){
       ]),
       version&&e('button',{className:'secondary',onClick:openCompoundEdit,style:{fontSize:'11.5px',padding:'6px 12px'}},'Edit Compound'),
       version&&e('button',{className:'secondary',onClick:updateStructure,style:{fontSize:'11.5px',padding:'6px 12px'}},'Modify Structure / New Version'),
-      e('button',{className:'secondary',onClick:()=>setDetail(null),style:{fontSize:'11.5px',padding:'6px 12px'}},'Back to Compounds')
+      e('button',{id:'btn-back-to-compounds','data-testid':'btn-back-to-compounds',className:'secondary',onClick:()=>setDetail(null),style:{fontSize:'11.5px',padding:'6px 12px'}},'Back to Compounds')
      ]),
      e('div',{className:'predict-meta-bar'},[
       e('span',{},'Prediction: '+(workspaceLoading ? 'Loading saved prediction…' : (detailPredictions.length ? '✓ Saved' : 'Not started'))),
@@ -4515,75 +4546,81 @@ function integratedProfile(versionId){
  function AddCompoundPanel(){
   if(!addCompoundOpen)return null;
   const smallMolecule=project.molecule_type==='Small Molecule';
-  const resolveCas=async()=>{
-   const cas=(compoundForm.cas_number||'').trim();
-   if(!cas){setMessage('Please enter a CAS number to resolve.');return;}
-   setSavingCompound(true);
-   try{
-    const res=await api.post('/structure/resolve-cas',{cas_number:cas});
-    if(res&&res.found&&res.smiles){
-     setCompoundForm(current=>({
-      ...current,
-      smiles:res.smiles,
-      name:current.name||res.name||current.name,
-     }));
-     setPreview(res);
-     setMessage('CAS resolved: '+cas+' → '+res.smiles);
-     try{
-      const editor=document.getElementById('ketcher-editor')?.contentWindow?.ketcher;
-      if(editor){await editor.setMolecule(res.smiles);editorSmiles.current=res.smiles;}
-     }catch(_){}
-    }else{
-     setMessage('Could not resolve CAS: '+(res?.error||'Not found'));
+   const resolveCas=async()=>{
+    const cas=(compoundForm.cas_number||'').trim();
+    if(!cas){setMessage('Please enter a CAS number to resolve.');return;}
+    setSavingCompound(true);
+    try{
+     const res=await api.post('/structure/resolve-cas',{cas_number:cas});
+     if(res&&res.found&&res.smiles){
+      editorUpdating.current=true;
+      editorSmiles.current=res.smiles;
+      setCompoundForm(current=>({ ...current, smiles:res.smiles, name:current.name||res.name||current.name }));
+      setPreview(res);
+      setPreviewStatus('VALID');
+      setPreviewLoading(false);
+      setMessage('CAS resolved: '+cas+' → '+res.smiles);
+      try{
+       const editor=document.getElementById('ketcher-editor')?.contentWindow?.ketcher;
+       if(editor){await editor.setMolecule(res.smiles);}
+      }catch(_){}
+      finally{editorUpdating.current=false;}
+     }else{
+      setMessage('Could not resolve CAS: '+(res?.error||'Not found'));
+     }
+    }catch(err){
+     setMessage('CAS resolution error: '+String(err));
+    }finally{
+     setSavingCompound(false);
     }
-   }catch(err){
-    setMessage('CAS resolution error: '+String(err));
-   }finally{
-    setSavingCompound(false);
-   }
-  };
-  const canSave = Boolean(compoundForm.smiles.trim() || compoundForm.cas_number.trim());
-  return e('div',{className:'modal-backdrop'},e('div',{className:'card compound-modal'},[
-   e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('div',{className:'eyebrow'},editingCompound?'EDIT COMPOUND':'NEW COMPOUND'),e('h2',{},editingCompound?'Edit Compound':'Add Compound')]),e('button',{type:'button',className:'secondary',onClick:()=>{setAddCompoundOpen(false);setEditingCompound(false)}},'Close')]),
-   e('div',{className:'grid',key:'identity'},[e('div',{className:'col-6'},Field({label:'Compound Name *',value:compoundForm.name,onChange:value=>setCompoundForm(current=>({...current,name:value})),placeholder:'HIT-001'})),e('div',{className:'col-6'},Field({label:'Compound ID (optional)',value:compoundForm.compound_id,onChange:value=>setCompoundForm(current=>({...current,compound_id:value})),placeholder:'Generated from name if empty'}))]),
-   e('div',{className:'grid',key:'cas'},[
-    e('div',{className:'col-6'},[
-     Field({label:'CAS No. (optional)',value:compoundForm.cas_number||'',onChange:value=>setCompoundForm(current=>({...current,cas_number:value})),placeholder:'e.g. 50-00-0 or 15687-27-1'}),
-     e('div',{style:{marginTop:'6px',display:'flex',gap:'8px'}},[
-      e('button',{type:'button',className:'secondary',disabled:savingCompound||!compoundForm.cas_number?.trim(),onClick:resolveCas,style:{fontSize:'12px',padding:'4px 10px'}},savingCompound?'Resolving…':'🔍 Resolve Structure from CAS')
+   };
+   const canSave = Boolean(compoundForm.smiles.trim() || compoundForm.cas_number.trim());
+   return e('div',{className:'modal-backdrop'},e('div',{className:'card compound-modal',id:'compound-modal-container'},[
+    e('div',{className:'row toolbar',key:'header'},[e('div',{},[e('div',{className:'eyebrow'},editingCompound?'EDIT COMPOUND':'NEW COMPOUND'),e('h2',{},editingCompound?'Edit Compound':'Add Compound')]),e('button',{type:'button',id:'btn-close-compound-modal',className:'secondary',onClick:()=>{setAddCompoundOpen(false);setEditingCompound(false)}},'Close')]),
+    e('div',{className:'grid',key:'identity'},[e('div',{className:'col-6'},Field({label:'Compound Name *',value:compoundForm.name,id:'compound-name-input',testId:'compound-name-input',onChange:value=>setCompoundForm(current=>({...current,name:value})),placeholder:'HIT-001'})),e('div',{className:'col-6'},Field({label:'Compound ID (optional)',value:compoundForm.compound_id,id:'compound-id-input',testId:'compound-id-input',onChange:value=>setCompoundForm(current=>({...current,compound_id:value})),placeholder:'Generated from name if empty'}))]),
+    e('div',{className:'grid',key:'cas'},[
+     e('div',{className:'col-6'},[
+      Field({label:'CAS No. (optional)',value:compoundForm.cas_number||'',id:'compound-cas-input',testId:'compound-cas-input',onChange:value=>setCompoundForm(current=>({...current,cas_number:value})),placeholder:'e.g. 50-00-0 or 15687-27-1'}),
+      e('div',{style:{marginTop:'6px',display:'flex',gap:'8px'}},[
+       e('button',{type:'button',id:'btn-resolve-cas','data-testid':'btn-resolve-cas',className:'secondary',disabled:savingCompound||!compoundForm.cas_number?.trim(),onClick:resolveCas,style:{fontSize:'12px',padding:'4px 10px'}},savingCompound?'Resolving…':'🔍 Resolve Structure from CAS')
+      ])
+     ]),
+     e('p',{className:'col-6 small',style:{alignSelf:'end'}},'Enter CAS to automatically resolve 2D structure, formula, and SMILES. Structure drawing and direct SMILES entry are also supported.')
+    ]),
+    smallMolecule?e(React.Fragment,{key:'editor'},[
+     e('h3',{key:'title',style:{marginTop:'22px'}},'Draw Chemical Structure'),e('p',{key:'help',className:'small'},'Draw or edit the compound structure below. The SMILES field updates automatically while you draw.'),
+     e('div',{className:'structure-editor-shell',key:'shell'},[
+      e('iframe',{key:'frame',id:'ketcher-editor',className:'ketcher-frame'+(editorReady?'':' loading'),title:'Ketcher Chemical Structure Editor',src:'/static/ketcher/standalone/index.html'}),
+      !editorReady&&e('div',{className:'structure-editor-loading',key:'loading'},[e('strong',{},'Structure Editor is loading…'),e('span',{},'Drawing tools and the linked SMILES field will appear here.')])
+     ]),
+     e('h3',{key:'smiles-title',style:{marginTop:'20px'}},'Or Enter SMILES'),e('div',{className:'row',key:'smiles'},[e('div',{style:{flex:1}},Field({label:'SMILES',value:compoundForm.smiles,id:'compound-smiles-input',testId:'compound-smiles-input',onChange:value=>{setMessage('');setCompoundForm(current=>({...current,smiles:value}))},placeholder:'Paste SMILES or draw above'})),e('button',{className:'secondary',id:'btn-load-smiles-editor',disabled:!compoundForm.smiles,onClick:loadSmilesIntoEditor},'Load in Editor'),e('button',{className:'secondary',id:'btn-validate-structure',disabled:!compoundForm.smiles,onClick:validate},'Validate Structure')])
+    ]):e('div',{className:'empty-state',key:'peptide'},[StatusBadge({type:'Not applicable'}),e('h3',{},'Peptide project'),e('p',{},'This model currently supports small molecules only. Save the compound as a draft; peptide-specific calculations are not run.')]),
+    e('div',{style:{marginTop:'16px'},key:'notes'},Field({label:'Description / Notes',value:compoundForm.notes,id:'compound-notes-input',testId:'compound-notes-input',onChange:value=>setCompoundForm(current=>({...current,notes:value})),type:'textarea'})),
+    previewLoading&&!preview?.svg&&e('div',{className:'card structure-live-preview-loading',key:'live-preview-loading',id:'live-preview-loading',style:{marginTop:'16px',background:'#f8fafc',border:'1px dashed #94a3b8',borderRadius:'8px',padding:'14px',display:'flex',alignItems:'center',gap:'12px',color:'#475569'}},[
+     e('span',{className:'spinner',style:{display:'inline-block',width:'18px',height:'18px',border:'2px solid #cbd5e1',borderTopColor:'#2563eb',borderRadius:'50%'}}),
+     e('span',{className:'small'},'Validating chemical structure & rendering 2D depiction…')
+    ]),
+    previewStatus==='INVALID'&&compoundForm.smiles.trim()&&!previewLoading&&e('div',{className:'small',key:'live-preview-invalid',id:'live-preview-invalid',style:{marginTop:'8px',color:'#94a3b8',fontStyle:'italic'}},'Structure is incomplete or invalid; continue typing valid SMILES…'),
+    preview&&preview.svg&&e('div',{className:'card structure-live-preview',key:'live-preview',id:'live-preview-card','data-testid':'live-preview-card',style:{marginTop:'16px',background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'14px',display:'flex',gap:'16px',alignItems:'center'}},[
+     e('div',{className:'live-preview-svg',style:{width:'140px',height:'140px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:'6px',padding:'4px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}},
+      Svg({src:preview.svg})
+     ),
+     e('div',{style:{flex:1}},[
+      e('div',{className:'row',style:{justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}},[
+       e('strong',{style:{fontSize:'14px',color:'#0f172a'}},(compoundForm.name||'Compound Structure')+' · 2D Chemical Structure'),
+       StatusBadge({type:'STRUCTURE_READY'})
+      ]),
+      preview.properties&&e('div',{className:'row small',style:{gap:'12px',color:'#334155',flexWrap:'wrap',marginTop:'4px'}},[
+       e('span',{},'MW: '+Number(preview.properties.molecular_weight||0).toFixed(1)+' g/mol'),
+       e('span',{},'Formula: '+(preview.properties.formula||preview.properties.molecular_formula||'—')),
+       e('span',{},'cLogP: '+Number(preview.properties.clogp||0).toFixed(2)),
+       e('span',{},'TPSA: '+Number(preview.properties.tpsa||0).toFixed(1)+' Å²')
+      ]),
+      e('p',{className:'small mono live-preview-smiles',style:{marginTop:'6px',color:'#64748b',wordBreak:'break-all'}},preview.identity?.canonical_smiles||compoundForm.smiles)
      ])
     ]),
-    e('p',{className:'col-6 small',style:{alignSelf:'end'}},'Enter CAS to automatically resolve 2D structure, formula, and SMILES. Structure drawing and direct SMILES entry are also supported.')
-   ]),
-   smallMolecule?e(React.Fragment,{key:'editor'},[
-    e('h3',{key:'title',style:{marginTop:'22px'}},'Draw Chemical Structure'),e('p',{key:'help',className:'small'},'Draw or edit the compound structure below. The SMILES field updates automatically while you draw.'),
-    e('div',{className:'structure-editor-shell',key:'shell'},[
-     e('iframe',{key:'frame',id:'ketcher-editor',className:'ketcher-frame'+(editorReady?'':' loading'),title:'Ketcher Chemical Structure Editor',src:'/static/ketcher/standalone/index.html'}),
-     !editorReady&&e('div',{className:'structure-editor-loading',key:'loading'},[e('strong',{},'Structure Editor is loading…'),e('span',{},'Drawing tools and the linked SMILES field will appear here.')])
-    ]),
-    e('h3',{key:'smiles-title',style:{marginTop:'20px'}},'Or Enter SMILES'),e('div',{className:'row',key:'smiles'},[e('div',{style:{flex:1}},Field({label:'SMILES',value:compoundForm.smiles,onChange:value=>{setMessage('');setCompoundForm(current=>({...current,smiles:value}))},placeholder:'Paste SMILES or draw above'})),e('button',{className:'secondary',disabled:!compoundForm.smiles,onClick:loadSmilesIntoEditor},'Load in Editor'),e('button',{className:'secondary',disabled:!compoundForm.smiles,onClick:validate},'Validate Structure')])
-   ]):e('div',{className:'empty-state',key:'peptide'},[StatusBadge({type:'Not applicable'}),e('h3',{},'Peptide project'),e('p',{},'This model currently supports small molecules only. Save the compound as a draft; peptide-specific calculations are not run.')]),
-   e('div',{style:{marginTop:'16px'},key:'notes'},Field({label:'Description / Notes',value:compoundForm.notes,onChange:value=>setCompoundForm(current=>({...current,notes:value})),type:'textarea'})),
-   preview&&preview.svg&&e('div',{className:'card structure-live-preview',key:'live-preview',style:{marginTop:'16px',background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:'8px',padding:'14px',display:'flex',gap:'16px',alignItems:'center'}},[
-    e('div',{style:{width:'140px',height:'140px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:'6px',padding:'4px',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,overflow:'hidden'}},
-     Svg({src:preview.svg})
-    ),
-    e('div',{style:{flex:1}},[
-     e('div',{className:'row',style:{justifyContent:'space-between',alignItems:'center',marginBottom:'6px'}},[
-      e('strong',{style:{fontSize:'14px',color:'#0f172a'}},(compoundForm.name||'Compound Structure')+' · 2D Chemical Structure'),
-      StatusBadge({type:'STRUCTURE_READY'})
-     ]),
-     preview.properties&&e('div',{className:'row small',style:{gap:'12px',color:'#334155',flexWrap:'wrap',marginTop:'4px'}},[
-      e('span',{},'MW: '+Number(preview.properties.molecular_weight||0).toFixed(1)+' g/mol'),
-      e('span',{},'Formula: '+(preview.properties.formula||preview.properties.molecular_formula||'—')),
-      e('span',{},'cLogP: '+Number(preview.properties.clogp||0).toFixed(2)),
-      e('span',{},'TPSA: '+Number(preview.properties.tpsa||0).toFixed(1)+' Å²')
-     ]),
-     e('p',{className:'small mono',style:{marginTop:'6px',color:'#64748b',wordBreak:'break-all'}},preview.identity?.canonical_smiles||compoundForm.smiles)
-    ])
-   ]),
-   e('div',{className:'row modal-actions',key:'actions'},[e('button',{type:'button',disabled:savingCompound||admetBusy||!canSave,onClick:()=>saveCompound(false)},savingCompound?'Saving…':'Save'),e('button',{type:'button',className:'secondary',disabled:savingCompound||admetBusy||!canSave||!smallMolecule,onClick:()=>saveCompound(true)},admetBusy?'Saving & predicting…':'Save & Predict'),e('span',{className:'small'},'Save closes this window and refreshes Compound Status. If no name is entered, a compound label is generated automatically. Activity is intentionally excluded from automatic predictions.')])
-  ]));
+    e('div',{className:'row modal-actions',key:'actions'},[e('button',{type:'button',id:'btn-save-compound','data-testid':'btn-save-compound',disabled:savingCompound||admetBusy||!canSave,onClick:()=>saveCompound(false)},savingCompound?'Saving…':'Save'),e('button',{type:'button',className:'secondary',disabled:savingCompound||admetBusy||!canSave||!smallMolecule,onClick:()=>saveCompound(true)},admetBusy?'Saving & predicting…':'Save & Predict'),e('span',{className:'small'},'Save closes this window and refreshes Compound Status. If no name is entered, a compound label is generated automatically. Activity is intentionally excluded from automatic predictions.')])
+   ]));
  }
 
  function comparisonVisualizations(comparison, assayId){
@@ -5137,7 +5174,7 @@ function integratedProfile(versionId){
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
      ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
      e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
-     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},'Compound Status'),e('p',{className:'small'},'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},['','Compound','Structure','Properties','Activity','ADMET','Optimization',''].map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},compound.compound_id)]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||'NOT_STARTED'})]),e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),e('td',{},e('button',{className:'secondary',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
+     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},'Compound Status'),e('p',{className:'small'},'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},['','Compound','Structure','Properties','Activity','ADMET','Optimization',''].map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{key:'cid'},compound.compound_id),compound.cas_number?e('span',{key:'cas',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'500'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||'NOT_STARTED'})]),e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),e('td',{},e('button',{className:'secondary',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
     ]),
     project&&projectTab==='evidence'&&!detail&&e(React.Fragment,{key:'project-evidence-view'},[
      e('div',{className:'card row toolbar',key:'project-evidence-toolbar'},[
