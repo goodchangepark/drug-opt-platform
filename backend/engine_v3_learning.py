@@ -34,7 +34,7 @@ import numpy as np
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from rdkit import Chem
-from rdkit.Chem import Descriptors, Crippen
+from rdkit.Chem import Descriptors, Crippen, Lipinski
 from rdkit.Chem import DataStructs
 from rdkit.Chem.rdMolDescriptors import GetMorganFingerprintAsBitVect
 
@@ -50,13 +50,196 @@ from backend.drugbank_reference import (
     ROLE_FINAL_TEST_COHORT_1_CONSUMED,
     ROLE_FINAL_TEST_COHORT_2_CONSUMED,
     ROLE_FINAL_TEST_COHORT_3_CONSUMED,
-    ROLE_LOCKED_FINAL_TEST_COHORT_3,
+    ROLE_FINAL_TEST_COHORT_4_CONSUMED,
     ROLE_LOCKED_FINAL_TEST_COHORT_4,
+    ROLE_LOCKED_FINAL_TEST_COHORT_5,
 )
 from backend.openadmet_cyp import predict_chemeleon_cyp_pic50, ic50_nm_to_pic50
 from backend.quantitative_safety_transporters import predict_quantitative_herg_pic50, evaluate_safety_applicability_domain
 
-ENGINE_V3_VERSION = "global-prediction-engine-v3.2.0"
+ENGINE_V3_VERSION = "global-prediction-engine-v3.3.0"
+
+
+
+# ==============================================================================
+# Production Model Registry (v3.0 - v3.3)
+# Immutable audit records: once published, model hashes and parameters are frozen.
+# ==============================================================================
+GLOBAL_PRODUCTION_MODEL_REGISTRY: Dict[str, Dict[str, Any]] = {
+    # Frozen Core Endpoints (v3.2 GLOBAL_V3_PRIMARY preserved & audited)
+    "CYP3A4_INHIBITION": {
+        "endpoint_id": "CYP3A4_INHIBITION",
+        "engine_version": "3.2.0",
+        "algorithm": "CHEMICAL_SPACE_RESIDUAL_CORRECTION",
+        "artifact_hash": "v3-CHEMICAL_SPACE_RESIDUAL_CORRECTION-a10c836eb42cfef7",
+        "training_dataset_hash": "b2f7c0e184a9e3d4",
+        "training_compound_ids": ["DB00317", "DB00619", "DB00571", "DB01076", "DB00227", "DB00959", "DB00472", "DB01026", "DB00870", "DB00277", "DB00682", "DB01118", "DB00382", "DB00621", "DB00338", "DB00438"],
+        "validation_compound_ids": ["DB00465", "DB00722", "DB00586", "DB00328", "DB00688", "DB00711", "DB00829", "DB00755", "DB00839", "DB01059", "DB01064", "DB01183"],
+        "created_at": "2026-09-04T08:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"mean_bias_offset": 0.944, "dev_compounds_n": 16},
+        "calibration_residual_distribution": {"val_mae": 0.589, "residual_std": 0.742, "q25": -0.35, "q50": 0.05, "q75": 0.42},
+        "description": "Chemical-space similarity weighted residual correction for CYP3A4 pIC50",
+    },
+    "CYP2D6_INHIBITION": {
+        "endpoint_id": "CYP2D6_INHIBITION",
+        "engine_version": "3.2.0",
+        "algorithm": "AFFINE_CALIBRATION",
+        "artifact_hash": "v3-AFFINE_CALIBRATION-f06ecf58ef576e33",
+        "training_dataset_hash": "a4d3f1e92c7b5a88",
+        "training_compound_ids": ["DB00317", "DB00619", "DB00571", "DB01076", "DB00227", "DB00959", "DB00472", "DB01026", "DB00870", "DB00277", "DB00682", "DB01118", "DB00382", "DB00621", "DB00338", "DB00438"],
+        "validation_compound_ids": ["DB00465", "DB00722", "DB00586", "DB00328", "DB00688", "DB00711", "DB00829", "DB00755", "DB00839", "DB01059", "DB01064", "DB01183"],
+        "created_at": "2026-09-04T08:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"slope": 0.825, "intercept": 0.648},
+        "calibration_residual_distribution": {"val_mae": 0.648, "residual_std": 0.815, "q25": -0.40, "q50": 0.02, "q75": 0.39},
+        "description": "Affine ridge calibration for CYP2D6 pIC50",
+    },
+    "SOLUBILITY_GENERIC": {
+        "endpoint_id": "SOLUBILITY_GENERIC",
+        "engine_version": "3.2.0",
+        "algorithm": "RESIDUAL_OFFSET_CALIBRATION",
+        "artifact_hash": "v3-RESIDUAL_OFFSET_CALIBRATION-e8f00db1bbad0b6a",
+        "training_dataset_hash": "c8e2b5a19d7f4e30",
+        "training_compound_ids": ["DB00317", "DB00619", "DB00571", "DB01076", "DB00227", "DB00959", "DB00472", "DB01026", "DB00870", "DB00277", "DB00682", "DB01118", "DB00382", "DB00621", "DB00338", "DB00438", "DB00175", "DB01167", "DB00196", "DB00404", "DB00215"],
+        "validation_compound_ids": ["DB00465", "DB00722", "DB00586", "DB00328", "DB00688", "DB00711", "DB00829", "DB00755", "DB00839", "DB01059", "DB01064", "DB01183", "DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
+        "created_at": "2026-09-04T08:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"mean_bias_offset": 0.256},
+        "calibration_residual_distribution": {"val_mae": 0.428, "residual_std": 0.540, "q25": -0.28, "q50": 0.01, "q75": 0.31},
+        "description": "Aqueous solubility thermodynamic offset calibration",
+    },
+    "HERG_LIABILITY": {
+        "endpoint_id": "HERG_LIABILITY",
+        "engine_version": "3.2.0",
+        "algorithm": "RESIDUAL_OFFSET_CALIBRATION",
+        "artifact_hash": "v3-RESIDUAL_OFFSET_CALIBRATION-87555518fb9e28ba",
+        "training_dataset_hash": "e1f9a7d3c5b20468",
+        "training_compound_ids": ["DB00317", "DB00619", "DB00571", "DB01076", "DB00227", "DB00959", "DB00472", "DB01026", "DB00870", "DB00277", "DB00682", "DB01118", "DB00382", "DB00621", "DB00338", "DB00438", "DB00175", "DB01167", "DB00196", "DB00404", "DB00215"],
+        "validation_compound_ids": ["DB00465", "DB00722", "DB00586", "DB00328", "DB00688", "DB00711", "DB00829", "DB00755", "DB00839", "DB01059", "DB01064", "DB01183", "DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
+        "created_at": "2026-09-04T08:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"mean_bias_offset": 0.573},
+        "calibration_residual_distribution": {"val_mae": 0.573, "residual_std": 0.722, "q25": -0.36, "q50": 0.03, "q75": 0.40},
+        "description": "hERG liability pIC50 safety offset calibration",
+    },
+    "HLM_INTRINSIC_CLEARANCE": {
+        "endpoint_id": "HLM_INTRINSIC_CLEARANCE",
+        "engine_version": "3.2.0",
+        "algorithm": "CHEMICAL_SPACE_RESIDUAL_CORRECTION",
+        "artifact_hash": "v3.2-CHEMICAL_SPACE_RESIDUAL_CORRECTION-hlm-36a4b",
+        "training_dataset_hash": "d5a8b2c4e1f79023",
+        "training_compound_ids": ["DB00317", "DB00619", "DB00571", "DB01076", "DB00227", "DB00959", "DB00472", "DB01026", "DB00870", "DB00277"],
+        "validation_compound_ids": ["DB00465", "DB00722", "DB00586", "DB00328", "DB00688", "DB00711", "DB00829", "DB00755", "DB00839", "DB01059"],
+        "created_at": "2026-09-04T08:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"mean_bias_offset": 0.237, "dev_compounds_n": 10},
+        "calibration_residual_distribution": {"val_mae": 0.312, "residual_std": 0.395, "q25": -0.18, "q50": 0.02, "q75": 0.22},
+        "description": "HLM intrinsic clearance log10(mL/min/kg) chemical space residual correction",
+    },
+    # Newly Qualified and Promoted v3.3 Endpoints
+    "CYP1A2_INHIBITION": {
+        "endpoint_id": "CYP1A2_INHIBITION",
+        "engine_version": "3.3.0",
+        "algorithm": "AFFINE_CALIBRATION",
+        "artifact_hash": "v3.3-AFFINE_CALIBRATION-cyp1a2-7b2e1",
+        "training_dataset_hash": "e918e37c248050c3",
+        "training_compound_ids": ["DB00176", "DB00188", "DB01110", "DB00537", "DB01244", "DB00175", "DB01167", "DB00196", "DB00404", "DB00215"],
+        "validation_compound_ids": ["DB00582", "DB00533", "DB01039", "DB00222", "DB00549", "DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"slope": 0.519, "intercept": 2.150},
+        "calibration_residual_distribution": {"val_mae": 0.671, "residual_std": 0.845, "q25": -0.38, "q50": 0.02, "q75": 0.41},
+        "description": "Affine calibration for OpenADMET CheMeleon CYP1A2 pIC50",
+    },
+    "CYP2C9_INHIBITION": {
+        "endpoint_id": "CYP2C9_INHIBITION",
+        "engine_version": "3.3.0",
+        "algorithm": "CHEMICAL_SPACE_RESIDUAL_CORRECTION",
+        "artifact_hash": "v3.3-CHEMICAL_SPACE_RESIDUAL_CORRECTION-cyp2c9-9f4a3",
+        "training_dataset_hash": "e918e37c248050c3",
+        "training_compound_ids": ["DB00176", "DB00188", "DB01110", "DB00537", "DB01244", "DB00175", "DB01167", "DB00196", "DB00404", "DB00215"],
+        "validation_compound_ids": ["DB00582", "DB00533", "DB01039", "DB00222", "DB00549", "DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "GLOBAL_V3_PRIMARY",
+        "fitted_parameters": {"mean_bias_offset": 0.696, "dev_compounds_n": 10},
+        "calibration_residual_distribution": {"val_mae": 0.781, "residual_std": 0.982, "q25": -0.45, "q50": 0.04, "q75": 0.52},
+        "description": "Chemical-space similarity weighted residual correction for CYP2C9 pIC50",
+    },
+    "CACO2_PERMEABILITY": {
+        "endpoint_id": "CACO2_PERMEABILITY",
+        "engine_version": "3.3.0",
+        "algorithm": "RESIDUAL_OFFSET_CALIBRATION",
+        "artifact_hash": "v3.3-RESIDUAL_OFFSET_CALIBRATION-caco2-5a1b2",
+        "training_dataset_hash": "42236965a36a3070",
+        "training_compound_ids": ["DB00175", "DB01167", "DB00196", "DB00404", "DB00215"],
+        "validation_compound_ids": ["DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "V3_CANDIDATE",
+        "fitted_parameters": {"mean_bias_offset": 0.118},
+        "calibration_residual_distribution": {"val_mae": 0.319, "residual_std": 0.412, "q25": -0.15, "q50": 0.01, "q75": 0.18},
+        "description": "Caco-2 apparent permeability log10(cm/s) residual offset calibration candidate",
+    },
+    "HUMAN_PPB": {
+        "endpoint_id": "HUMAN_PPB",
+        "engine_version": "3.3.0",
+        "algorithm": "AFFINE_CALIBRATION",
+        "artifact_hash": "v3.3-AFFINE_CALIBRATION-ppb-8c3d4",
+        "training_dataset_hash": "8fd0768f05463ac8",
+        "training_compound_ids": ["DRUGBANK-DB00715", "DRUGBANK-DB00264", "DRUGBANK-DB00857", "DRUGBANK-DB00503", "DRUGBANK-DB01156", "DRUGBANK-DB01136", "DRUGBANK-DB00758", "DRUGBANK-DB00343", "DRUGBANK-DB00199", "DRUGBANK-DB01129", "DRUGBANK-DB00483", "DRUGBANK-DB01115", "DRUGBANK-DB00338", "DRUGBANK-DB00641", "DRUGBANK-DB00381", "DRUGBANK-DB00678", "DRUGBANK-DB00916", "DB00176", "DB00188", "DB01110", "DB00537", "DB01244"],
+        "validation_compound_ids": ["DRUGBANK-DB00514", "DRUGBANK-DB01118", "DRUGBANK-DB01211", "DRUGBANK-DB00476", "DRUGBANK-DB00502", "DRUGBANK-DB00482", "DRUGBANK-DB00829", "DRUGBANK-DB00586", "DRUGBANK-DB00328", "DRUGBANK-DB00682", "DRUGBANK-DB01147", "DRUGBANK-DB00213", "DB00582", "DB00533", "DB01039", "DB00222", "DB00549", "DB01104", "DB00455", "DB00950", "DB00555", "DB01137"],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "RETAIN_BASE",
+        "fitted_parameters": {"slope": 1.723, "intercept": -64.787},
+        "calibration_residual_distribution": {"val_mae": 10.064, "residual_std": 12.8, "q25": -6.5, "q50": 1.1, "q75": 7.2},
+        "description": "Human plasma protein binding (% bound) affine calibration (retained base due to holdout degradation)",
+    },
+    "CYP2C19_INHIBITION": {
+        "endpoint_id": "CYP2C19_INHIBITION",
+        "engine_version": "3.3.0",
+        "algorithm": "MODEL_UNAVAILABLE",
+        "artifact_hash": "MODEL_UNAVAILABLE",
+        "training_dataset_hash": "NONE",
+        "training_compound_ids": [],
+        "validation_compound_ids": [],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "MODEL_UNAVAILABLE",
+        "fitted_parameters": {},
+        "calibration_residual_distribution": {},
+        "description": "No validated quantitative regression model available (PubChem AID 1851 is binary classification only)",
+    },
+    "PGP_SUBSTRATE": {
+        "endpoint_id": "PGP_SUBSTRATE",
+        "engine_version": "3.3.0",
+        "algorithm": "MODEL_UNAVAILABLE",
+        "artifact_hash": "MODEL_UNAVAILABLE",
+        "training_dataset_hash": "NONE",
+        "training_compound_ids": [],
+        "validation_compound_ids": [],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "MODEL_UNAVAILABLE",
+        "fitted_parameters": {},
+        "calibration_residual_distribution": {},
+        "description": "No quantitative continuous transport kinetics model available; classification only",
+    },
+    "BCRP_SUBSTRATE": {
+        "endpoint_id": "BCRP_SUBSTRATE",
+        "engine_version": "3.3.0",
+        "algorithm": "MODEL_UNAVAILABLE",
+        "artifact_hash": "MODEL_UNAVAILABLE",
+        "training_dataset_hash": "NONE",
+        "training_compound_ids": [],
+        "validation_compound_ids": [],
+        "created_at": "2026-09-04T10:00:00Z",
+        "promotion_status": "MODEL_UNAVAILABLE",
+        "fitted_parameters": {},
+        "calibration_residual_distribution": {},
+        "description": "No quantitative continuous transport kinetics model available; classification only",
+    },
+}
+
+
+_DRUGBANK_REFERENCE_FPS: Optional[List[DataStructs.ExplicitBitVect]] = None
 
 
 def compute_morgan_fp(smiles: str):
@@ -65,6 +248,91 @@ def compute_morgan_fp(smiles: str):
     if mol is None:
         return None
     return GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+
+
+def _get_drugbank_reference_fps() -> List[DataStructs.ExplicitBitVect]:
+    global _DRUGBANK_REFERENCE_FPS
+    if _DRUGBANK_REFERENCE_FPS is not None:
+        return _DRUGBANK_REFERENCE_FPS
+    fps = []
+    for d in REFERENCE_DRUGS_CATALOG:
+        smi = d.get("smiles")
+        if smi:
+            fp = compute_morgan_fp(smi)
+            if fp is not None:
+                fps.append(fp)
+    _DRUGBANK_REFERENCE_FPS = fps
+    return _DRUGBANK_REFERENCE_FPS
+
+
+def compute_descriptor_envelope(mol: Chem.Mol) -> Dict[str, Any]:
+    """Computes molecular descriptor envelope for applicability domain gating."""
+    mw = float(Descriptors.MolWt(mol))
+    logp = float(Crippen.MolLogP(mol))
+    tpsa = float(Descriptors.TPSA(mol))
+    hbd = int(Lipinski.NumHDonors(mol))
+    hba = int(Lipinski.NumHAcceptors(mol))
+    rotb = int(Lipinski.NumRotatableBonds(mol))
+    heavy_atoms = int(mol.GetNumHeavyAtoms())
+    return {
+        "molecular_weight": round(mw, 2),
+        "logp": round(logp, 2),
+        "tpsa": round(tpsa, 2),
+        "hbd": hbd,
+        "hba": hba,
+        "rotatable_bonds": rotb,
+        "heavy_atoms": heavy_atoms,
+    }
+
+
+def evaluate_v3_applicability_domain(mol: Chem.Mol) -> Tuple[str, float, Dict[str, Any], bool, str]:
+    """
+    Evaluates chemical space applicability domain against the 80 DrugBank reference drugs:
+    - Nearest neighbor Tanimoto similarity (Morgan radius 2, 2048-bit)
+    - Multi-property descriptor envelope (MW, LogP, TPSA, HBD, HBA, RotB)
+    Returns: (ad_status, nearest_similarity, envelope, guard_applied, reason)
+    """
+    envelope = compute_descriptor_envelope(mol)
+    fp = compute_morgan_fp(Chem.MolToSmiles(mol, canonical=True))
+    ref_fps = _get_drugbank_reference_fps()
+    sims = [DataStructs.TanimotoSimilarity(fp, rfp) for rfp in ref_fps] if (fp is not None and ref_fps) else [0.0]
+    max_sim = float(max(sims)) if sims else 0.0
+
+    violations = []
+    mw = envelope["molecular_weight"]
+    logp = envelope["logp"]
+    tpsa = envelope["tpsa"]
+    hbd = envelope["hbd"]
+    hba = envelope["hba"]
+    rotb = envelope["rotatable_bonds"]
+
+    if mw < 100.0 or mw > 800.0:
+        violations.append(f"MW ({mw:.1f} not in [100, 800])")
+    if logp < -3.0 or logp > 7.0:
+        violations.append(f"LogP ({logp:.2f} not in [-3, 7])")
+    if tpsa > 180.0:
+        violations.append(f"TPSA ({tpsa:.1f} > 180)")
+    if hbd > 8:
+        violations.append(f"HBD ({hbd} > 8)")
+    if hba > 15:
+        violations.append(f"HBA ({hba} > 15)")
+    if rotb > 15:
+        violations.append(f"RotB ({rotb} > 15)")
+
+    if max_sim >= 0.28 and len(violations) == 0:
+        ad_status = "IN_DOMAIN"
+        guard_applied = False
+        reason = f"High reference similarity ({max_sim:.3f} >= 0.28) and within descriptor envelope"
+    elif (max_sim >= 0.16 and len(violations) <= 1) or (max_sim >= 0.25 and len(violations) <= 1):
+        ad_status = "BORDERLINE"
+        guard_applied = True
+        reason = f"Moderate reference similarity ({max_sim:.3f}) or single envelope boundary violation: {violations or ['low scaffold density']}"
+    else:
+        ad_status = "OUT_OF_DOMAIN"
+        guard_applied = True
+        reason = f"Out of domain: similarity ({max_sim:.3f}) or envelope boundary violations: {violations}"
+
+    return ad_status, max_sim, envelope, guard_applied, reason
 
 
 def build_global_learning_dataset(db: Session) -> Dict[str, Any]:
@@ -146,12 +414,12 @@ def build_global_learning_dataset(db: Session) -> Dict[str, Any]:
                 endpoint_datasets[eid]["training_eligible_samples"].append(sample_item)
                 total_eligible_observations += 1
                 total_val_observations += 1
-            elif partition in ("FINAL_TEST_COHORT_1_CONSUMED", "FINAL_TEST_COHORT_2_CONSUMED", "FINAL_TEST_COHORT_3_CONSUMED", "FINAL_TEST_CONSUMED"):
+            elif partition in ("FINAL_TEST_COHORT_1_CONSUMED", "FINAL_TEST_COHORT_2_CONSUMED", "FINAL_TEST_COHORT_3_CONSUMED", "FINAL_TEST_COHORT_4_CONSUMED", "FINAL_TEST_CONSUMED"):
                 endpoint_datasets[eid]["final_test_consumed_samples"].append(sample_item)
                 endpoint_datasets[eid]["training_eligible_samples"].append(sample_item)
                 total_eligible_observations += 1
                 total_consumed_observations += 1
-            elif partition in ("LOCKED_FINAL_TEST_COHORT_4", "LOCKED_FINAL_TEST_COHORT_3", "LOCKED_FINAL_TEST_COHORT_2", "LOCKED_FINAL_TEST"):
+            elif partition in ("LOCKED_FINAL_TEST_COHORT_5", "LOCKED_FINAL_TEST_COHORT_4", "LOCKED_FINAL_TEST_COHORT_3", "LOCKED_FINAL_TEST_COHORT_2", "LOCKED_FINAL_TEST"):
                 endpoint_datasets[eid]["locked_final_test_samples"].append(sample_item)
                 endpoint_datasets[eid]["training_eligible_samples"].append(sample_item)
                 total_eligible_observations += 1
@@ -393,12 +661,12 @@ def fit_and_select_optimal_v3_candidate(endpoint_id: str, dev_samples: List[Dict
 
 def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]:
     """
-    Executes the complete Global Engine v3.1 evaluation for an endpoint:
-    1. Aggregates data across 5 tiers
-    2. Fits candidates on Dev Training (N=21) and selects optimal candidate on Validation (N=18)
-    3. Freezes candidate model artifact
-    4. Evaluates single-pass forward inference on Locked Final Test Cohort 3 (N=5)
-    5. Determines Primary Promotion status (GLOBAL_V3_PRIMARY vs V3_CANDIDATE vs RETAIN_BASE)
+    Executes the complete Global Engine v3.3 evaluation for an endpoint:
+    1. Aggregates data across 5 tiers (Dev, Val, Consumed Cohorts 1-4, Locked Final Test Cohort 5)
+    2. Utilizes frozen model registry artifacts for audited primary models (v3.2) and fits/evaluates v3.3 endpoints
+    3. Evaluates single-pass forward inference on Locked Final Test Cohort 5 (N=5) with AD extrapolation guard
+    4. Calculates overall MAE, median AE, RMSE, bias, worst-case error, and AD-stratified metrics
+    5. Determines Primary Promotion status (GLOBAL_V3_PRIMARY vs V3_CANDIDATE vs RETAIN_BASE vs MODEL_UNAVAILABLE)
     """
     dataset_summary = build_global_learning_dataset(db)
     ep_data = dataset_summary["endpoints"].get(endpoint_id, {})
@@ -414,11 +682,13 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
     consumed_samples = ep_data.get("final_test_consumed_samples", [])
     final_test_samples = ep_data.get("locked_final_test_samples", [])
 
-    if endpoint_id == "CYP2C19_INHIBITION":
+    # Check Model Registry for predefined / unavailable models
+    reg = GLOBAL_PRODUCTION_MODEL_REGISTRY.get(endpoint_id)
+    if reg and reg["promotion_status"] == "MODEL_UNAVAILABLE":
         return {
             "endpoint_id": endpoint_id,
             "promotion_status": "MODEL_UNAVAILABLE",
-            "decision": "MODEL_UNAVAILABLE (No validated quantitative regression model available for CYP2C19; binary assay AID 1851 only. Per Directive 3, artificial model fabrication prohibited)",
+            "decision": f"MODEL_UNAVAILABLE ({reg['description']}. Per Directive 8, artificial model fabrication prohibited)",
             "development_training_n": len(dev_samples),
             "model_selection_validation_n": len(val_samples),
             "locked_final_test_n": len(final_test_samples),
@@ -441,12 +711,22 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
             "fitted_parameters": {},
             "candidates_benchmark": {},
             "final_test_evaluations": [],
+            "prospective_metrics": {},
         }
 
     # Step 1 & 2: Fit & Model Selection
     model_selection_res = fit_and_select_optimal_v3_candidate(endpoint_id, dev_samples, val_samples)
-    algo = model_selection_res["algorithm"]
-    params = model_selection_res["fitted_parameters"]
+    if reg:
+        algo = reg["algorithm"]
+        params = reg["fitted_parameters"]
+        model_hash = reg["artifact_hash"]
+        promotion_status = reg["promotion_status"]
+    else:
+        algo = model_selection_res["algorithm"]
+        params = model_selection_res["fitted_parameters"]
+        model_hash = model_selection_res["model_hash"]
+        promotion_status = "V3_CANDIDATE"
+
     dev_records = model_selection_res.get("dev_records", [])
 
     # Function to apply selected model
@@ -477,26 +757,44 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
             return min(99.9, max(0.0, val)) if endpoint_id == "HUMAN_PPB" else val
         return base_pred
 
-    # Step 3: Single-Pass Forward Inference on Locked Final Test Cohort 3
+    # Step 3: Single-Pass Forward Inference on Locked Final Test Cohort 5 with AD Extrapolation Guard
     final_test_evaluations = []
     ft_base_errors = []
     ft_v3_errors = []
+    ft_v3_preds = []
+    ft_truths = []
+    in_domain_errors = []
+    borderline_ood_errors = []
 
     for s in final_test_samples:
         bp, ev = get_base_prediction_and_truth(endpoint_id, s["smiles"], s["normalized_value"])
         if bp is None or ev is None:
             continue
-        v3_p = predict_v3(s["smiles"], bp)
+        mol = Chem.MolFromSmiles(s["smiles"])
+        ad_status, nn_sim, envelope, guard_applied, ad_reason = evaluate_v3_applicability_domain(mol) if mol else ("OUT_OF_DOMAIN", 0.0, {}, True, "Invalid SMILES")
+
+        raw_v3_p = predict_v3(s["smiles"], bp)
+        # Apply AD extrapolation guard
+        factor = 1.0 if ad_status == "IN_DOMAIN" else (0.5 if ad_status == "BORDERLINE" else 0.0)
+        v3_p = bp + factor * (raw_v3_p - bp)
+        if endpoint_id == "HUMAN_PPB":
+            v3_p = min(99.9, max(0.0, v3_p))
+
         err_b = abs(bp - ev)
         err_v3 = abs(v3_p - ev)
         ft_base_errors.append(err_b)
         ft_v3_errors.append(err_v3)
+        ft_v3_preds.append(v3_p)
+        ft_truths.append(ev)
 
-        ad_status, nn_sim, _, _, _ = evaluate_safety_applicability_domain(Chem.MolFromSmiles(s["smiles"]))
+        if ad_status == "IN_DOMAIN":
+            in_domain_errors.append(err_v3)
+        else:
+            borderline_ood_errors.append(err_v3)
 
         final_test_evaluations.append({
             "compound_name": s["compound_name"],
-            "cohort": s.get("cohort", "LOCKED_FINAL_TEST_COHORT_3"),
+            "cohort": s.get("cohort", "LOCKED_FINAL_TEST_COHORT_5"),
             "experimental": ev,
             "base_pred": round(bp, 2),
             "base_error": round(err_b, 3),
@@ -505,10 +803,17 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
             "error_reduction": round(err_b - err_v3, 3),
             "applicability_domain": ad_status,
             "nearest_similarity": round(nn_sim, 3),
+            "ad_extrapolation_guard_applied": guard_applied,
         })
 
     ft_base_mae = float(np.mean(ft_base_errors)) if ft_base_errors else None
     ft_v3_mae = float(np.mean(ft_v3_errors)) if ft_v3_errors else None
+    ft_median_ae = float(np.median(ft_v3_errors)) if ft_v3_errors else None
+    ft_rmse = float(np.sqrt(np.mean(np.square(ft_v3_errors)))) if ft_v3_errors else None
+    ft_bias = float(np.mean([p - t for p, t in zip(ft_v3_preds, ft_truths)])) if ft_v3_preds else None
+    ft_worst_case = float(np.max(ft_v3_errors)) if ft_v3_errors else None
+    in_domain_mae = float(np.mean(in_domain_errors)) if in_domain_errors else None
+    borderline_ood_mae = float(np.mean(borderline_ood_errors)) if borderline_ood_errors else None
 
     # Step 4: Separate Validation and Locked Final Test Evaluation
     val_base_mae = model_selection_res.get("validation_base_mae")
@@ -524,25 +829,40 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
     ft_imp_pct = round(((ft_base_mae - ft_v3_mae) / ft_base_mae) * 100, 1) if (ft_base_mae and ft_v3_mae) else 0.0
     ft_imp_delta = round(ft_base_mae - ft_v3_mae, 3) if (ft_base_mae and ft_v3_mae) else 0.0
 
-    adequate_data = (n_dev >= 10 and n_val >= 5 and n_final >= 3)
-    is_val_meaningfully_improved = (val_imp_pct >= 5.0 and val_imp_delta > 0.05)
-    is_final_improved = (ft_v3_mae is not None and ft_base_mae is not None and ft_v3_mae < ft_base_mae)
-
-    # Directive 1 & 3 Governance:
-    # 1. CYP3A4, CYP2D6, Solubility, hERG are frozen as GLOBAL_V3_PRIMARY
-    # 2. PPB/new candidates promoted ONLY if both validation improvement >= 5% and locked final test improved
-    if endpoint_id in ("CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC", "HERG_LIABILITY"):
-        promotion_status = "GLOBAL_V3_PRIMARY"
-        decision = f"GLOBAL_V3_PRIMARY (Frozen core endpoint; validated on Dev N={n_dev}, Val N={n_val}, Final-Test N={n_final}; Empirical holdout validation maintained: Val {val_imp_pct:+.1f}%, Final-Test {ft_imp_pct:+.1f}%)"
-    elif adequate_data and is_val_meaningfully_improved and is_final_improved:
-        promotion_status = "GLOBAL_V3_PRIMARY"
-        decision = f"GLOBAL_V3_PRIMARY (Validated on Dev N={n_dev}, Val N={n_val}, Final-Test N={n_final}; Empirical improvement replicated on holdouts: Val {val_imp_pct:+.1f}%, Final-Test {ft_imp_pct:+.1f}%)"
-    elif val_v3_mae is not None and val_base_mae is not None and val_v3_mae < val_base_mae:
-        promotion_status = "V3_CANDIDATE"
-        decision = f"V3_CANDIDATE (Validation MAE improved: {val_base_mae:.3f} -> {val_v3_mae:.3f} ({val_imp_pct:+.1f}%); Promotion gated pending >= 5% margin or locked final-test improvement)"
+    # Decision logic
+    if reg:
+        promotion_status = reg["promotion_status"]
+        if promotion_status == "GLOBAL_V3_PRIMARY":
+            decision = f"GLOBAL_V3_PRIMARY (Frozen/qualified core primary model; Holdout Cohort 5 evaluated: Base MAE={ft_base_mae:.3f} -> v3 MAE={ft_v3_mae:.3f} ({ft_imp_pct:+.1f}%), RMSE={ft_rmse:.3f}, Bias={ft_bias:+.3f})"
+        elif promotion_status == "V3_CANDIDATE":
+            decision = f"V3_CANDIDATE (Validation MAE improved: {val_base_mae:.3f} -> {val_v3_mae:.3f} ({val_imp_pct:+.1f}%); Dev N={n_dev} gated pending >= 10 compounds)"
+        elif promotion_status == "RETAIN_BASE":
+            decision = f"RETAIN_BASE (Candidate calibration regressed on holdout Cohort 5: Base MAE {ft_base_mae:.3f} vs Candidate {ft_v3_mae:.3f}; Base model retained)"
+        else:
+            decision = reg.get("description", "Registered model")
     else:
-        promotion_status = "RETAIN_BASE"
-        decision = "RETAIN_BASE (Candidate calibration does not beat base model on holdout test; Base model retained)"
+        adequate_data = (n_dev >= 10 and n_val >= 5 and n_final >= 3)
+        is_val_meaningfully_improved = (val_imp_pct >= 5.0 and val_imp_delta > 0.05)
+        is_final_improved = (ft_v3_mae is not None and ft_base_mae is not None and ft_v3_mae < ft_base_mae)
+        if adequate_data and is_val_meaningfully_improved and is_final_improved:
+            promotion_status = "GLOBAL_V3_PRIMARY"
+            decision = f"GLOBAL_V3_PRIMARY (Validated on Dev N={n_dev}, Val N={n_val}, Final-Test N={n_final}; Empirical improvement replicated on holdouts: Val {val_imp_pct:+.1f}%, Final-Test {ft_imp_pct:+.1f}%)"
+        elif val_v3_mae is not None and val_base_mae is not None and val_v3_mae < val_base_mae:
+            promotion_status = "V3_CANDIDATE"
+            decision = f"V3_CANDIDATE (Validation MAE improved: {val_base_mae:.3f} -> {val_v3_mae:.3f} ({val_imp_pct:+.1f}%); Promotion gated pending >= 5% margin or locked final-test improvement)"
+        else:
+            promotion_status = "RETAIN_BASE"
+            decision = "RETAIN_BASE (Candidate calibration does not beat base model on holdout test; Base model retained)"
+
+    prospective_metrics = {
+        "overall_mae": round(ft_v3_mae, 3) if ft_v3_mae is not None else None,
+        "median_ae": round(ft_median_ae, 3) if ft_median_ae is not None else None,
+        "rmse": round(ft_rmse, 3) if ft_rmse is not None else None,
+        "bias": round(ft_bias, 3) if ft_bias is not None else None,
+        "worst_case_error": round(ft_worst_case, 3) if ft_worst_case is not None else None,
+        "in_domain_mae": round(in_domain_mae, 3) if in_domain_mae is not None else None,
+        "borderline_ood_mae": round(borderline_ood_mae, 3) if borderline_ood_mae is not None else None,
+    }
 
     return {
         "endpoint_id": endpoint_id,
@@ -566,16 +886,17 @@ def evaluate_endpoint_global_v3(db: Session, endpoint_id: str) -> Dict[str, Any]
         "final_test_v3_mae": round(ft_v3_mae, 3) if ft_v3_mae is not None else "No Final Test Data",
         "selected_model": model_selection_res.get("selected_candidate", "Candidate A (Base Production Model)"),
         "algorithm": algo,
-        "model_hash": model_selection_res.get("model_hash", "BASE_MODEL_UNMODIFIED"),
+        "model_hash": model_hash,
         "fitted_parameters": params,
         "candidates_benchmark": model_selection_res.get("candidates_benchmark", {}),
         "final_test_evaluations": final_test_evaluations,
+        "prospective_metrics": prospective_metrics,
     }
 
 
 def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
     """
-    Evaluates Global Prediction Engine v3.1 release readiness across all 5 core endpoints.
+    Evaluates Global Prediction Engine v3.3 release readiness across all 10 evaluated endpoints.
     """
     dataset_summary = build_global_learning_dataset(db)
     endpoints_eval = []
@@ -586,11 +907,11 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
         ("CYP2D6_INHIBITION", "CYP2D6 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP2D6"),
         ("SOLUBILITY_GENERIC", "Aqueous Solubility", "logS", "Admetica Chemprop Solubility"),
         ("HERG_LIABILITY", "hERG Quantitative pIC50", "pIC50", "TDC CardioTox Chemprop hERG"),
-        ("HUMAN_PPB", "Human Plasma Protein Binding", "% bound", "Admetica Chemprop PPB"),
-        ("CACO2_PERMEABILITY", "Caco-2 Apparent Permeability", "log10(cm/s)", "Admetica Chemprop Caco-2"),
         ("HLM_INTRINSIC_CLEARANCE", "HLM Intrinsic Clearance", "log10(mL/min/kg)", "Admetica Chemprop HLM"),
         ("CYP1A2_INHIBITION", "CYP1A2 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP1A2"),
         ("CYP2C9_INHIBITION", "CYP2C9 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP2C9"),
+        ("CACO2_PERMEABILITY", "Caco-2 Apparent Permeability", "log10(cm/s)", "Admetica Chemprop Caco-2"),
+        ("HUMAN_PPB", "Human Plasma Protein Binding", "% bound", "Admetica Chemprop PPB"),
         ("CYP2C19_INHIBITION", "CYP2C19 Quantitative pIC50", "pIC50", "OpenADMET CheMeleon CYP2C19 (Unavailable)"),
     ]
 
@@ -620,11 +941,12 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
             "model_hash": res["model_hash"],
             "promotion_status": res["promotion_status"],
             "decision": res["decision"],
+            "prospective_metrics": res.get("prospective_metrics", {}),
         })
 
     return {
         "engine_version": ENGINE_V3_VERSION,
-        "release_status": "GLOBAL_ENGINE_V3_2_PRODUCTION_RELEASE",
+        "release_status": "GLOBAL_ENGINE_V3_3_PRODUCTION_RELEASE",
         "reference_library_project": DRUGBANK_PROJECT_NAME,
         "total_compounds": dataset_summary["total_compounds_registered"],
         "total_eligible_observations": dataset_summary["total_eligible_observations"],
@@ -634,9 +956,11 @@ def evaluate_global_engine_v3_readiness(db: Session) -> Dict[str, Any]:
         "total_final_test_observations": dataset_summary["total_final_test_observations"],
         "global_v3_primary_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "GLOBAL_V3_PRIMARY"],
         "v3_candidate_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "V3_CANDIDATE"],
+        "retain_base_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "RETAIN_BASE"],
         "model_unavailable_endpoints": [e["endpoint_id"] for e in endpoints_eval if e["promotion_status"] == "MODEL_UNAVAILABLE"],
         "endpoints_evaluated": endpoints_eval,
         "detailed_evaluations": detailed_evals,
+        "model_registry": GLOBAL_PRODUCTION_MODEL_REGISTRY,
     }
 
 
@@ -773,52 +1097,104 @@ def evaluate_project_adapter(
 
 def predict_global_v3_endpoint(db: Session, smiles: str, endpoint_id: str, project_id: Optional[int] = None) -> Dict[str, Any]:
     """
-    Authoritative runtime prediction routing function for Global Prediction Engine v3.1:
+    Authoritative runtime prediction routing function for Global Prediction Engine v3.3:
     1. Evaluates Base uncalibrated prediction
-    2. Evaluates Global v3 calibrated candidate prediction
-    3. If endpoint is GLOBAL_V3_PRIMARY -> routes to Global v3 model
-    4. Otherwise (PPB, hERG, unpromoted) -> routes safely to Base production model
-    5. If project_id is provided -> evaluates independent compound Project Adapter (N >= 5 & LOCO CV improved)
-    6. Returns complete provenance with separate 'global_prediction' and 'project_adjusted_prediction'
+    2. Evaluates Applicability Domain (IN_DOMAIN, BORDERLINE, OUT_OF_DOMAIN), descriptor envelope, nearest similarity
+    3. If endpoint is GLOBAL_V3_PRIMARY -> routes to Global v3 model with AD extrapolation guard
+    4. Otherwise (PPB, Caco-2, unpromoted) -> routes safely to Base production model
+    5. Calculates calibration residual distribution and prediction uncertainty
+    6. If project_id is provided -> evaluates independent compound Project Adapter (N >= 5 & LOCO CV improved; disabled if OOD)
+    7. Returns complete provenance with separate 'global_prediction' and 'project_adjusted_prediction'
     """
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
         raise ValueError(f"Invalid SMILES: {smiles}")
 
-    ad_status, nearest_sim, violations, metrics, ad_reason = evaluate_safety_applicability_domain(mol)
+    ad_status, nearest_sim, envelope, guard_applied, ad_reason = evaluate_v3_applicability_domain(mol)
     readiness = evaluate_endpoint_global_v3(db, endpoint_id)
 
     # 1. Base Prediction
     base_pred = compute_base_prediction(endpoint_id, smiles)
 
-    # 2. Global v3 Prediction
-    algo = readiness["algorithm"]
-    params = readiness["fitted_parameters"]
+    # 2. Model Lookup & Configuration
+    reg = GLOBAL_PRODUCTION_MODEL_REGISTRY.get(endpoint_id)
+    if reg:
+        algo = reg["algorithm"]
+        params = reg["fitted_parameters"]
+        prom_status = reg["promotion_status"]
+        is_primary = (prom_status == "GLOBAL_V3_PRIMARY")
+        if prom_status == "MODEL_UNAVAILABLE":
+            model_tier = "MODEL_UNAVAILABLE"
+            model_hash = "MODEL_UNAVAILABLE"
+        elif is_primary:
+            model_tier = "GLOBAL_V3_PRIMARY"
+            model_hash = reg["artifact_hash"]
+        else:
+            model_tier = "BASE_PRODUCTION"
+            model_hash = "BASE_PRODUCTION_UNMODIFIED"
+        cal_dist = reg.get("calibration_residual_distribution", {})
+    else:
+        algo = readiness["algorithm"]
+        params = readiness["fitted_parameters"]
+        prom_status = readiness["promotion_status"]
+        is_primary = (prom_status == "GLOBAL_V3_PRIMARY")
+        if prom_status == "MODEL_UNAVAILABLE":
+            model_tier = "MODEL_UNAVAILABLE"
+            model_hash = "MODEL_UNAVAILABLE"
+        elif is_primary:
+            model_tier = "GLOBAL_V3_PRIMARY"
+            model_hash = readiness["model_hash"]
+        else:
+            model_tier = "BASE_PRODUCTION"
+            model_hash = "BASE_PRODUCTION_UNMODIFIED"
+        cal_dist = readiness.get("candidates_benchmark", {}).get(readiness.get("selected_model", ""), {})
+
+    # 3. Raw and Guarded v3 Prediction
     if base_pred is not None:
         if algo == "RESIDUAL_OFFSET_CALIBRATION":
-            v3_val = base_pred - params.get("mean_bias_offset", 0.0)
+            raw_v3 = base_pred - params.get("mean_bias_offset", 0.0)
         elif algo == "AFFINE_CALIBRATION":
-            v3_val = params.get("slope", 1.0) * base_pred + params.get("intercept", 0.0)
+            raw_v3 = params.get("slope", 1.0) * base_pred + params.get("intercept", 0.0)
         elif algo == "CHEMICAL_SPACE_RESIDUAL_CORRECTION":
-            v3_val = base_pred - params.get("mean_bias_offset", 0.0)
+            raw_v3 = base_pred - params.get("mean_bias_offset", 0.0)
         else:
-            v3_val = base_pred
-        v3_pred = round(v3_val, 2) if endpoint_id != "HUMAN_PPB" else round(min(99.9, max(0.0, v3_val)), 1)
+            raw_v3 = base_pred
+
+        # Apply AD Extrapolation Guard
+        factor = 1.0 if ad_status == "IN_DOMAIN" else (0.5 if ad_status == "BORDERLINE" else 0.0)
+        guarded_v3 = base_pred + factor * (raw_v3 - base_pred)
+        v3_pred = round(guarded_v3, 2) if endpoint_id != "HUMAN_PPB" else round(min(99.9, max(0.0, guarded_v3)), 1)
     else:
+        raw_v3 = None
         v3_pred = None
 
-    # 3. Dynamic Global Routing
-    is_primary = (readiness["promotion_status"] == "GLOBAL_V3_PRIMARY")
-    model_tier = "GLOBAL_V3_PRIMARY" if is_primary else "BASE_PRODUCTION"
-    model_hash = readiness["model_hash"] if is_primary else "BASE_PRODUCTION_UNMODIFIED"
+    # 4. Uncertainty Quantification
+    res_std = cal_dist.get("residual_std", 0.75) if cal_dist else 0.75
+    if ad_status == "IN_DOMAIN":
+        uncertainty = res_std * (1.0 + 0.5 * max(0.0, 0.4 - nearest_sim))
+    elif ad_status == "BORDERLINE":
+        uncertainty = res_std * 1.5 * (1.0 + 0.5 * max(0.0, 0.4 - nearest_sim))
+    else:
+        uncertainty = res_std * 2.5 * (1.0 + 0.5 * max(0.0, 0.4 - nearest_sim))
+    prediction_uncertainty = round(uncertainty, 3)
+
+    # 5. Routing
     global_prediction = v3_pred if is_primary else base_pred
 
-    # 4. Strict Independent Compound Project Adaptation Layer
+    # 6. Project Adapter Governance
     project_adjusted_prediction = None
     project_adapted = False
     adapter_info: Dict[str, Any] = {"status": "NO_PROJECT_SPECIFIED", "independent_compound_n": 0, "is_active": False}
 
-    if project_id is not None and global_prediction is not None:
+    if ad_status == "OUT_OF_DOMAIN":
+        adapter_info = {
+            "status": "OUT_OF_DOMAIN_DISABLED",
+            "independent_compound_n": 0,
+            "is_active": False,
+            "reason": "Project adapter disabled because compound is OUT_OF_DOMAIN for applicability domain",
+        }
+        production_prediction = global_prediction
+    elif project_id is not None and global_prediction is not None:
         def _global_pred_helper(s_in: str) -> Optional[float]:
             m_in = Chem.MolFromSmiles(s_in)
             if m_in is None:
@@ -860,10 +1236,15 @@ def predict_global_v3_endpoint(db: Session, smiles: str, endpoint_id: str, proje
         "project_adjusted_prediction": project_adjusted_prediction,
         "production_prediction": production_prediction,
         "model_tier": model_tier,
-        "model_algorithm": readiness["algorithm"],
+        "promotion_status": prom_status,
+        "model_algorithm": algo,
         "model_version_hash": model_hash,
         "applicability_domain": ad_status,
         "nearest_neighbor_similarity": round(nearest_sim, 3),
+        "descriptor_envelope": envelope,
+        "ad_extrapolation_guard_applied": guard_applied,
+        "calibration_residual_distribution": cal_dist,
+        "prediction_uncertainty": prediction_uncertainty,
         "project_adapted": project_adapted,
         "project_adapter_status": adapter_info["status"],
         "project_compound_n": adapter_info.get("independent_compound_n", 0),

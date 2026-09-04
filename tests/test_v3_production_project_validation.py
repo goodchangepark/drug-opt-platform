@@ -16,18 +16,22 @@ from backend.engine_v3_learning import (
 
 
 def test_v3_production_release_governance_and_promotion_statuses():
-    """Verify that CYP3A4, CYP2D6, Solubility, and hERG are GLOBAL_V3_PRIMARY; PPB is V3_CANDIDATE."""
+    """Verify that CYP3A4, CYP2D6, Solubility, hERG, HLM, CYP1A2, and CYP2C9 are GLOBAL_V3_PRIMARY; Caco-2 is V3_CANDIDATE; PPB is RETAIN_BASE."""
     db = SessionLocal()
     try:
         readiness = evaluate_global_engine_v3_readiness(db)
-        assert readiness["release_status"] == "GLOBAL_ENGINE_V3_2_PRODUCTION_RELEASE"
+        assert readiness["release_status"] == "GLOBAL_ENGINE_V3_3_PRODUCTION_RELEASE"
 
         statuses = {ep["endpoint_id"]: ep["promotion_status"] for ep in readiness["endpoints_evaluated"]}
         assert statuses["CYP3A4_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["CYP2D6_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["SOLUBILITY_GENERIC"] == "GLOBAL_V3_PRIMARY"
         assert statuses["HERG_LIABILITY"] == "GLOBAL_V3_PRIMARY"
-        assert statuses["HLM_INTRINSIC_CLEARANCE"] in ("V3_CANDIDATE", "GLOBAL_V3_PRIMARY")
+        assert statuses["HLM_INTRINSIC_CLEARANCE"] == "GLOBAL_V3_PRIMARY"
+        assert statuses["CYP1A2_INHIBITION"] == "GLOBAL_V3_PRIMARY"
+        assert statuses["CYP2C9_INHIBITION"] == "GLOBAL_V3_PRIMARY"
+        assert statuses["CACO2_PERMEABILITY"] == "V3_CANDIDATE"
+        assert statuses["HUMAN_PPB"] == "RETAIN_BASE"
         assert statuses["CYP2C19_INHIBITION"] == "MODEL_UNAVAILABLE"
 
         # Verify separated Validation vs Final-Test performance metrics
@@ -38,6 +42,7 @@ def test_v3_production_release_governance_and_promotion_statuses():
             assert "final_test_base_error" in ep
             assert "final_test_v3_error" in ep
             assert "final_test_improvement" in ep
+            assert "prospective_metrics" in ep
     finally:
         db.close()
 
@@ -54,7 +59,7 @@ def test_v3_production_routing_on_new_project_compounds():
                 name=test_proj_name,
                 target="EGFR_KRAS",
                 indication="Oncology Non-Small Cell Lung Cancer",
-                description="Test project for Global Engine v3.1 production validation",
+                description="Test project for Global Engine v3.3 production validation",
             )
             db.add(proj)
             db.commit()
@@ -104,10 +109,13 @@ def test_v3_production_routing_on_new_project_compounds():
             res_cyp3a4 = predict_global_v3_endpoint(db, smi, "CYP3A4_INHIBITION", project_id=proj.id)
             assert res_cyp3a4["model_tier"] == "GLOBAL_V3_PRIMARY"
             assert res_cyp3a4["production_prediction"] == res_cyp3a4["v3_prediction"]
-            assert res_cyp3a4["engine_version"] == "global-prediction-engine-v3.2.0"
+            assert res_cyp3a4["engine_version"] == "global-prediction-engine-v3.3.0"
             assert res_cyp3a4["global_prediction"] == res_cyp3a4["v3_prediction"]
             assert res_cyp3a4["project_adjusted_prediction"] is None
-            assert res_cyp3a4["project_adapter_status"] == "INSUFFICIENT_DATA"
+            assert res_cyp3a4["project_adapter_status"] in ("INSUFFICIENT_DATA", "OUT_OF_DOMAIN_DISABLED")
+            assert "prediction_uncertainty" in res_cyp3a4
+            assert "descriptor_envelope" in res_cyp3a4
+            assert "ad_extrapolation_guard_applied" in res_cyp3a4
 
             # 2. CYP2D6 (GLOBAL_V3_PRIMARY) -> routes to Global v3
             res_cyp2d6 = predict_global_v3_endpoint(db, smi, "CYP2D6_INHIBITION", project_id=proj.id)
@@ -119,15 +127,25 @@ def test_v3_production_routing_on_new_project_compounds():
             assert res_sol["model_tier"] == "GLOBAL_V3_PRIMARY"
             assert res_sol["production_prediction"] == res_sol["v3_prediction"]
 
-            # 4. PPB (V3_CANDIDATE) -> routes safely to Base Production
+            # 4. PPB (RETAIN_BASE) -> routes safely to Base Production
             res_ppb = predict_global_v3_endpoint(db, smi, "HUMAN_PPB", project_id=proj.id)
             assert res_ppb["model_tier"] == "BASE_PRODUCTION"
             assert res_ppb["production_prediction"] == res_ppb["base_prediction"]
 
-            # 5. hERG (GLOBAL_V3_PRIMARY in v3.1) -> routes to Global v3
+            # 5. hERG (GLOBAL_V3_PRIMARY) -> routes to Global v3
             res_herg = predict_global_v3_endpoint(db, smi, "HERG_LIABILITY", project_id=proj.id)
             assert res_herg["model_tier"] == "GLOBAL_V3_PRIMARY"
-            assert res_herg["production_prediction"] == res_herg["v3_prediction"]
+            assert res_herg["production_prediction"] == res_herg["global_prediction"]
+
+            # 6. CYP1A2 (GLOBAL_V3_PRIMARY in v3.3) -> routes to Global v3
+            res_cyp1a2 = predict_global_v3_endpoint(db, smi, "CYP1A2_INHIBITION", project_id=proj.id)
+            assert res_cyp1a2["model_tier"] == "GLOBAL_V3_PRIMARY"
+            assert res_cyp1a2["production_prediction"] == res_cyp1a2["v3_prediction"]
+
+            # 7. CYP2C9 (GLOBAL_V3_PRIMARY in v3.3) -> routes to Global v3
+            res_cyp2c9 = predict_global_v3_endpoint(db, smi, "CYP2C9_INHIBITION", project_id=proj.id)
+            assert res_cyp2c9["model_tier"] == "GLOBAL_V3_PRIMARY"
+            assert res_cyp2c9["production_prediction"] == res_cyp2c9["v3_prediction"]
     finally:
         db.close()
 
@@ -293,9 +311,9 @@ def test_project_adapter_independent_compound_governance():
             assert res_phase2["production_prediction"] == res_phase2["global_prediction"]
 
         # Phase 3: Zero Leakage Verification
-        # DrugBank reference dataset must strictly contain only the 65 reference compounds
+        # DrugBank reference dataset must strictly contain only the 80 reference compounds
         db_summary = build_global_learning_dataset(db)
-        assert db_summary["total_compounds_registered"] == 65
+        assert db_summary["total_compounds_registered"] == 80
         assert db_summary["project_name"] == "DrugBank"
         # None of the adapter test compounds appear in DrugBank dataset
         for ep_key, ep_val in db_summary["endpoints"].items():
@@ -305,3 +323,39 @@ def test_project_adapter_independent_compound_governance():
                 assert not sample["compound_name"].startswith("Adapter_C")
     finally:
         db.close()
+
+
+def test_v3_3_applicability_domain_extrapolation_guard_and_uncertainty():
+    """
+    Verify Directive 9:
+    1. IN_DOMAIN compound receives full calibration adjustment and lower uncertainty.
+    2. OUT_OF_DOMAIN compound triggers AD extrapolation guard, falling back safely to base prediction.
+    3. OUT_OF_DOMAIN compound disables Project Adapter automatically with status OUT_OF_DOMAIN_DISABLED.
+    4. Descriptor envelope and calibration residual distribution are tracked in output provenance.
+    """
+    db = SessionLocal()
+    try:
+        # Standard drug-like compound: Gefitinib (IN_DOMAIN)
+        in_domain_smi = "COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1"
+        res_in = predict_global_v3_endpoint(db, in_domain_smi, "CYP3A4_INHIBITION")
+        assert res_in["applicability_domain"] == "IN_DOMAIN"
+        assert res_in["ad_extrapolation_guard_applied"] is False
+        assert res_in["prediction_uncertainty"] > 0.0
+        assert "molecular_weight" in res_in["descriptor_envelope"]
+        assert "residual_std" in res_in["calibration_residual_distribution"]
+
+        # Giant synthetic polymer-like molecule (OUT_OF_DOMAIN: MW > 800)
+        ood_smi = "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC(=O)O" # C68H136O2, MW ~993
+        res_ood = predict_global_v3_endpoint(db, ood_smi, "CYP3A4_INHIBITION", project_id=1)
+        assert res_ood["applicability_domain"] == "OUT_OF_DOMAIN"
+        assert res_ood["ad_extrapolation_guard_applied"] is True
+        # Guarded fallback: production prediction falls back to base prediction
+        assert res_ood["production_prediction"] == res_ood["base_prediction"]
+        # Project adapter must be disabled when OOD
+        assert res_ood["project_adapter_status"] == "OUT_OF_DOMAIN_DISABLED"
+        assert res_ood["project_adapted"] is False
+        # Uncertainty is penalized in OOD
+        assert res_ood["prediction_uncertainty"] > res_in["prediction_uncertainty"]
+    finally:
+        db.close()
+

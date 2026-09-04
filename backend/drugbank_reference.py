@@ -56,10 +56,14 @@ ROLE_FINAL_TEST_COHORT_2_CONSUMED = "FINAL_TEST_COHORT_2_CONSUMED"
 ROLE_LOCKED_FINAL_TEST_COHORT_2 = "FINAL_TEST_COHORT_2_CONSUMED"  # Backward compatibility alias
 ROLE_FINAL_TEST_COHORT_3_CONSUMED = "FINAL_TEST_COHORT_3_CONSUMED"
 ROLE_LOCKED_FINAL_TEST_COHORT_3 = "FINAL_TEST_COHORT_3_CONSUMED"  # Backward compatibility alias
-ROLE_LOCKED_FINAL_TEST_COHORT_4 = "LOCKED_FINAL_TEST_COHORT_4"
+ROLE_FINAL_TEST_COHORT_4_CONSUMED = "FINAL_TEST_COHORT_4_CONSUMED"
+ROLE_LOCKED_FINAL_TEST_COHORT_4 = "FINAL_TEST_COHORT_4_CONSUMED"  # Backward compatibility alias
+ROLE_LOCKED_FINAL_TEST_COHORT_5 = "LOCKED_FINAL_TEST_COHORT_5"
 
-# Load full 65 reference drugs catalog
-CATALOG_PATH = Path(__file__).parent / "reference_drugs_65.json"
+# Load full 80 reference drugs catalog
+CATALOG_PATH = Path(__file__).parent / "reference_drugs_80.json"
+if not CATALOG_PATH.exists():
+    CATALOG_PATH = Path(__file__).parent / "reference_drugs_65.json"
 if not CATALOG_PATH.exists():
     CATALOG_PATH = Path(__file__).parent / "reference_drugs_50.json"
 if not CATALOG_PATH.exists():
@@ -160,22 +164,27 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
         eid = obs["canonical_endpoint_id"]
         overlap_status = upstream_overlap.get(eid, "VALIDATION_HOLDOUT" if obs["training_eligible"] else "NOT_ELIGIBLE")
 
-        # Partitioning
+        # Partitioning: prioritize endpoint-level role if specified in observation
+        obs_role = obs.get("endpoint_role", model_role)
         if not obs["training_eligible"]:
             partition = "NOT_ELIGIBLE"
         elif overlap_status == "EXACT_STRUCTURE_OVERLAP":
             partition = "TRAINING_ELIGIBLE"
-        elif model_role == ROLE_DEVELOPMENT_TRAINING:
+        elif obs_role == ROLE_DEVELOPMENT_TRAINING:
             partition = "DEVELOPMENT_TRAINING"
-        elif model_role == ROLE_FINAL_TEST_COHORT_1_CONSUMED:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_1_CONSUMED:
             partition = "FINAL_TEST_COHORT_1_CONSUMED"
-        elif model_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
             partition = "FINAL_TEST_COHORT_2_CONSUMED"
-        elif model_role == ROLE_FINAL_TEST_COHORT_3_CONSUMED:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_3_CONSUMED:
             partition = "FINAL_TEST_COHORT_3_CONSUMED"
-        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_4:
-            partition = "LOCKED_FINAL_TEST_COHORT_4"
-        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_3:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_4_CONSUMED:
+            partition = "FINAL_TEST_COHORT_4_CONSUMED"
+        elif obs_role == ROLE_LOCKED_FINAL_TEST_COHORT_5:
+            partition = "LOCKED_FINAL_TEST_COHORT_5"
+        elif obs_role == "LOCKED_FINAL_TEST_COHORT_4":
+            partition = "FINAL_TEST_COHORT_4_CONSUMED"
+        elif obs_role == "LOCKED_FINAL_TEST_COHORT_3":
             partition = "FINAL_TEST_COHORT_3_CONSUMED"
         else:
             partition = "MODEL_SELECTION_VALIDATION"
@@ -355,22 +364,27 @@ def ingest_reference_drug_stepwise_lifecycle(db: Session, drug_spec: Dict[str, A
         eid = obs["canonical_endpoint_id"]
         overlap_status = upstream_overlap.get(eid, "VALIDATION_HOLDOUT" if obs["training_eligible"] else "NOT_ELIGIBLE")
 
-        # Partitioning
+        # Partitioning: prioritize endpoint-level role if specified in observation
+        obs_role = obs.get("endpoint_role", model_role)
         if not obs["training_eligible"]:
             partition = "NOT_ELIGIBLE"
         elif overlap_status == "EXACT_STRUCTURE_OVERLAP":
             partition = "TRAINING_ELIGIBLE"
-        elif model_role == ROLE_DEVELOPMENT_TRAINING:
+        elif obs_role == ROLE_DEVELOPMENT_TRAINING:
             partition = "DEVELOPMENT_TRAINING"
-        elif model_role == ROLE_FINAL_TEST_COHORT_1_CONSUMED:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_1_CONSUMED:
             partition = "FINAL_TEST_COHORT_1_CONSUMED"
-        elif model_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
             partition = "FINAL_TEST_COHORT_2_CONSUMED"
-        elif model_role == ROLE_FINAL_TEST_COHORT_3_CONSUMED:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_3_CONSUMED:
             partition = "FINAL_TEST_COHORT_3_CONSUMED"
-        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_4:
-            partition = "LOCKED_FINAL_TEST_COHORT_4"
-        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_3:
+        elif obs_role == ROLE_FINAL_TEST_COHORT_4_CONSUMED:
+            partition = "FINAL_TEST_COHORT_4_CONSUMED"
+        elif obs_role == ROLE_LOCKED_FINAL_TEST_COHORT_5:
+            partition = "LOCKED_FINAL_TEST_COHORT_5"
+        elif obs_role == "LOCKED_FINAL_TEST_COHORT_4":
+            partition = "FINAL_TEST_COHORT_4_CONSUMED"
+        elif obs_role == "LOCKED_FINAL_TEST_COHORT_3":
             partition = "FINAL_TEST_COHORT_3_CONSUMED"
         else:
             partition = "MODEL_SELECTION_VALIDATION"
@@ -542,4 +556,30 @@ def ingest_v3_2_expansion_drugs_sequential(db: Session) -> List[Dict[str, Any]]:
         completed_lifecycle_results.append(res)
 
     return completed_lifecycle_results
+
+
+def ingest_v3_3_expansion_drugs_sequential(db: Session) -> List[Dict[str, Any]]:
+    """
+    Sequentially ingests the 15 new approved reference drugs (Drugs 66 to 80)
+    for Global Engine v3.3, enforcing Identity -> Evidence -> Qualification -> Prediction -> Error
+    stepwise completion for each compound before advancing to the next.
+    """
+    if len(REFERENCE_DRUGS_CATALOG) < 80:
+        raise RuntimeError("Catalog must contain at least 80 drugs for v3.3 expansion")
+
+    expansion_specs = REFERENCE_DRUGS_CATALOG[65:80]
+    completed_lifecycle_results = []
+
+    for idx, spec in enumerate(expansion_specs, start=66):
+        res = ingest_reference_drug_stepwise_lifecycle(db, spec)
+        assert res["identity"]["status"] == "IDENTITY_VERIFIED"
+        assert len(res["evidence"]) >= 3
+        assert len(res["qualification"]) >= 3
+        assert len(res["prediction"]) >= 3
+        assert len(res["error"]) >= 3
+        completed_lifecycle_results.append(res)
+
+    return completed_lifecycle_results
+
+
 

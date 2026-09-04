@@ -352,3 +352,7 @@ def ensure_ui_schema(engine):
                     connection.execute(text(f"ALTER TABLE experimental_search_runs ADD COLUMN {name} {definition}"))
         connection.execute(text("UPDATE projects SET molecule_type='Small Molecule' WHERE molecule_type IS NULL OR trim(molecule_type)=''"))
         connection.execute(text("UPDATE compounds SET status='CALCULATED' WHERE status IS NULL OR trim(status)=''"))
+
+
+# Register dependent metadata without circular import
+import backend.activity_models  # noqa: E402, F401
