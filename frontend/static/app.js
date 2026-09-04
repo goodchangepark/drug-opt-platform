@@ -1191,14 +1191,32 @@ function integratedProfile(versionId){
  function unifiedPredictionCell(prediction){
   if(!prediction)return e('span',{className:'small'},'—');
   const adapted=prediction.project_adapted_prediction;
+  const hasAdjusted=adapted!=null || prediction.project_adjusted_prediction!=null;
   const sourceLabel=prediction.prediction_source_label||prediction.source_label||({MODEL:'Model Prediction',MECHANISTIC_ESTIMATE:'Mechanistic Estimate',RULE_ESTIMATE:'Rule Estimate',DERIVED_ESTIMATE:'Derived Estimate',MODEL_UNAVAILABLE:'Model Unavailable'}[prediction.prediction_source_type||prediction.source_type]||'Prediction');
   const inputStatus=prediction.input_status&&prediction.input_status!=='UNKNOWN'&&prediction.input_status!=='COMPLETE'?e('div',{className:'small'},'Input completeness: '+prediction.input_status):null;
   const assumptions=(prediction.assumptions||[]).slice(0,2).map((item,index)=>e('div',{className:'small',key:'assumption-'+index},'Assumption: '+item));
-  if(!adapted)return e('div',{},[e('div',{className:'mono'},unifiedPredictionValue(prediction)),e('div',{className:'small'},sourceLabel),inputStatus,...assumptions]);
+
+  if(!hasAdjusted){
+   const gVal = prediction.global_prediction ?? prediction.base_prediction?.value;
+   const gText = gVal != null ? 'Global prediction: ' + Number(gVal).toFixed(3) + ' ' + (prediction.unit || '') : unifiedPredictionValue(prediction);
+   return e('div',{},[
+    e('div',{className:'mono'},gText),
+    e('div',{className:'small'},sourceLabel),
+    inputStatus,...assumptions
+   ]);
+  }
+
+  const projVal = adapted ? Number(adapted.value) : Number(prediction.project_adjusted_prediction);
+  const globVal = prediction.global_prediction ?? (adapted ? prediction.base_prediction?.value : null);
+  const unitStr = adapted ? (adapted.unit || prediction.unit || '') : (prediction.unit || '');
+  const adapterVer = adapted?.adapter_version || prediction.model_version_hash || 'Project Adapter';
+
   return e('div',{},[
-   e('div',{className:'mono bold'},'Project: '+Number(adapted.value).toFixed(3)+' '+(adapted.unit||prediction.unit||'')),
-   e('div',{className:'small'},'Base: '+unifiedPredictionValue(prediction)),
-   e('div',{className:'small'},'Adapter '+adapted.adapter_version),e('div',{className:'small'},sourceLabel),inputStatus,...assumptions
+   e('div',{className:'mono bold',style:{color:'#1a73e8'}},'Project-adjusted prediction: '+projVal.toFixed(3)+' '+unitStr),
+   e('div',{className:'small',style:{color:'#4b5563'}},'Global prediction: '+(globVal!=null ? Number(globVal).toFixed(3)+' '+unitStr : unifiedPredictionValue(prediction))),
+   e('div',{className:'small'},'Adapter: '+adapterVer),
+   e('div',{className:'small'},sourceLabel),
+   inputStatus,...assumptions
   ]);
  }
  function unifiedEndpointPrediction(endpoint,section='ADMET'){

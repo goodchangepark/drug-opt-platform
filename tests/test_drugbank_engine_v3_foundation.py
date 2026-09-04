@@ -1,5 +1,5 @@
 """
-Tests for Global Prediction Engine v3.0 Release Candidate & 40 DrugBank Reference Library (Stage 6 / v3.0.0 Global Completion).
+Tests for Global Prediction Engine v3.1 Release & 50 DrugBank Reference Library (Stage 6 / v3.1 Expansion & Project Adapter Governance).
 """
 import pytest
 from sqlalchemy import select
@@ -9,12 +9,14 @@ from backend.drugbank_reference import (
     ensure_drugbank_project,
     ingest_gefitinib_reference_drug,
     ingest_all_drugbank_reference_drugs,
+    ingest_v3_1_expansion_drugs_sequential,
     DRUGBANK_PROJECT_NAME,
     REFERENCE_DRUGS_CATALOG,
     ROLE_DEVELOPMENT_TRAINING,
     ROLE_MODEL_SELECTION_VALIDATION,
     ROLE_FINAL_TEST_COHORT_1_CONSUMED,
-    ROLE_LOCKED_FINAL_TEST_COHORT_2,
+    ROLE_FINAL_TEST_COHORT_2_CONSUMED,
+    ROLE_LOCKED_FINAL_TEST_COHORT_3,
 )
 from backend.engine_v3_learning import (
     build_global_learning_dataset,
@@ -35,12 +37,12 @@ def test_drugbank_project_creation_and_provenance():
         db.close()
 
 
-def test_forty_reference_drugs_sequential_ingestion_and_roles():
-    """Verify all 40 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
+def test_fifty_reference_drugs_sequential_ingestion_and_roles():
+    """Verify all 50 reference drugs are ingested with exact identifiers, qualified records, and fixed roles."""
     db = SessionLocal()
     try:
         res_list = ingest_all_drugbank_reference_drugs(db)
-        assert len(res_list) == 40
+        assert len(res_list) == 50
         names = [r["compound_name"] for r in res_list]
         assert "Gefitinib" in names
         assert "Imatinib" in names
@@ -82,6 +84,17 @@ def test_forty_reference_drugs_sequential_ingestion_and_roles():
         assert "Ibuprofen" in names
         assert "Lorcaserin" in names
         assert "Rosuvastatin" in names
+        # 10 New approved reference drugs in v3.1
+        assert "Amlodipine" in names
+        assert "Losartan" in names
+        assert "Metronidazole" in names
+        assert "Montelukast" in names
+        assert "Pantoprazole" in names
+        assert "Raloxifene" in names
+        assert "Tamoxifen" in names
+        assert "Theophylline" in names
+        assert "Tolbutamide" in names
+        assert "Trazodone" in names
 
         for r in res_list:
             assert r["records_ingested_n"] >= 5
@@ -90,35 +103,73 @@ def test_forty_reference_drugs_sequential_ingestion_and_roles():
         db.close()
 
 
-def test_four_tier_partitioning_and_locked_final_test_cohort():
-    """Verify observations are partitioned into Dev (N=18), Validation (N=16), Consumed (N=1), and Locked Final Test (N=5)."""
+def test_v3_1_ten_drugs_sequential_lifecycle_execution():
+    """
+    Verify Directive 2:
+    10 approved reference drugs (Drugs 41-50) are ingested one-by-one with:
+    1. Identity (distinct scaffold from original 40)
+    2. Evidence (prioritized: PPB -> hERG -> Caco-2 -> HLM -> CYPs)
+    3. Qualification (EXACT_MATCH, QUALIFIED_FOR_GLOBAL_TRAINING)
+    4. Prediction (computed for each qualified endpoint)
+    5. Error (calculated before advancing to next drug)
+    """
+    db = SessionLocal()
+    try:
+        results = ingest_v3_1_expansion_drugs_sequential(db)
+        assert len(results) == 10
+        expected_names = [
+            "Amlodipine", "Losartan", "Metronidazole", "Montelukast", "Pantoprazole",
+            "Raloxifene", "Tamoxifen", "Theophylline", "Tolbutamide", "Trazodone"
+        ]
+        for r, exp_name in zip(results, expected_names):
+            assert r["compound_name"] == exp_name
+            assert r["identity"]["status"] == "IDENTITY_VERIFIED"
+            assert r["identity"]["scaffold_family"] != ""
+            assert len(r["evidence"]) >= 5
+            assert len(r["qualification"]) >= 5
+            assert len(r["prediction"]) >= 5
+            assert len(r["error"]) >= 5
+            # Verify endpoint priority ordering: PPB appears before hERG, etc.
+            endpoint_order = [e["endpoint_id"] for e in r["evidence"]]
+            if "HUMAN_PPB" in endpoint_order and "HERG_LIABILITY" in endpoint_order:
+                assert endpoint_order.index("HUMAN_PPB") < endpoint_order.index("HERG_LIABILITY")
+            # Verify all error calculations are numeric
+            for err in r["error"]:
+                assert err["absolute_error"] is not None
+                assert err["absolute_error"] >= 0.0
+    finally:
+        db.close()
+
+
+def test_five_tier_partitioning_and_locked_final_test_cohorts():
+    """Verify observations are partitioned into Dev (N=21), Validation (N=18), Consumed Cohort 1 & 2 (N=6), and Locked Final Test Cohort 3 (N=5)."""
     db = SessionLocal()
     try:
         dataset = build_global_learning_dataset(db)
-        assert dataset["total_compounds_registered"] == 40
-        assert dataset["total_eligible_observations"] >= 200
-        assert dataset["total_development_observations"] >= 80
-        assert dataset["total_validation_observations"] >= 80
-        assert dataset["total_consumed_observations"] >= 5
+        assert dataset["total_compounds_registered"] == 50
+        assert dataset["total_eligible_observations"] >= 250
+        assert dataset["total_development_observations"] >= 100
+        assert dataset["total_validation_observations"] >= 90
+        assert dataset["total_consumed_observations"] >= 25
         assert dataset["total_final_test_observations"] >= 20
 
-        # Check CYP3A4 4-tier split
+        # Check CYP3A4 5-tier split
         cyp3a4_data = dataset["endpoints"]["CYP3A4_INHIBITION"]
         assert len(cyp3a4_data["development_training_samples"]) >= 15
         assert len(cyp3a4_data["model_selection_validation_samples"]) >= 10
-        assert len(cyp3a4_data["final_test_consumed_samples"]) == 1
+        assert len(cyp3a4_data["final_test_consumed_samples"]) >= 5
         assert len(cyp3a4_data["locked_final_test_samples"]) == 5
     finally:
         db.close()
 
 
 def test_engine_v3_release_readiness_and_runtime_routing():
-    """Verify Engine v3 readiness evaluates candidates, promotes qualified endpoints, and executes runtime routing."""
+    """Verify Engine v3.1 readiness evaluates candidates, promotes qualified endpoints, and executes runtime routing."""
     db = SessionLocal()
     try:
         v3_eval = evaluate_global_engine_v3_readiness(db)
-        assert "global-prediction-engine-v3" in v3_eval["engine_version"]
-        assert v3_eval["total_compounds"] == 40
+        assert "global-prediction-engine-v3.1" in v3_eval["engine_version"]
+        assert v3_eval["total_compounds"] == 50
 
         # CYP3A4 Promotion
         cyp3a4_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "CYP3A4_INHIBITION")
@@ -131,9 +182,9 @@ def test_engine_v3_release_readiness_and_runtime_routing():
         assert cyp2d6_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
         assert cyp2d6_eval["v3_error"] < cyp2d6_eval["base_error"]
 
-        # hERG Retain Base Production
+        # hERG Promoted in v3.1 based on empirical holdout replication
         herg_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HERG_LIABILITY")
-        assert herg_eval["promotion_status"] == "RETAIN_BASE"
+        assert herg_eval["promotion_status"] == "GLOBAL_V3_PRIMARY"
 
         # PPB Candidate Status
         ppb_eval = next(e for e in v3_eval["endpoints_evaluated"] if e["endpoint_id"] == "HUMAN_PPB")
@@ -145,10 +196,19 @@ def test_engine_v3_release_readiness_and_runtime_routing():
         assert route_cyp3a4["model_tier"] == "GLOBAL_V3_PRIMARY"
         assert route_cyp3a4["production_prediction"] != route_cyp3a4["base_prediction"]
         assert "v3-" in route_cyp3a4["model_version_hash"]
+        assert route_cyp3a4["global_prediction"] is not None
+        assert route_cyp3a4["project_adjusted_prediction"] is None
 
-        # Test Runtime Prediction Routing for hERG (BASE_PRODUCTION)
+        # Test Runtime Prediction Routing for hERG (GLOBAL_V3_PRIMARY)
         route_herg = predict_global_v3_endpoint(db, test_smi, "HERG_LIABILITY")
-        assert route_herg["model_tier"] == "BASE_PRODUCTION"
-        assert route_herg["production_prediction"] == route_herg["base_prediction"]
+        assert route_herg["model_tier"] == "GLOBAL_V3_PRIMARY"
+        assert route_herg["production_prediction"] == route_herg["global_prediction"]
+        assert route_herg["project_adjusted_prediction"] is None
+
+        # Test Runtime Prediction Routing for PPB (BASE_PRODUCTION)
+        route_ppb = predict_global_v3_endpoint(db, test_smi, "HUMAN_PPB")
+        assert route_ppb["model_tier"] == "BASE_PRODUCTION"
+        assert route_ppb["production_prediction"] == route_ppb["base_prediction"]
+        assert route_ppb["project_adjusted_prediction"] is None
     finally:
         db.close()

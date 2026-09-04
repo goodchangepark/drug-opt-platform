@@ -5111,6 +5111,16 @@ def register_hardening_routes(app):
         from backend.engine_v3_learning import build_global_learning_dataset
         return build_global_learning_dataset(db)
 
+    @app.post("/api/engine-v3/predict")
+    def engine_v3_predict_endpoint(payload: dict, db: Session = Depends(get_db)):
+        from backend.engine_v3_learning import predict_global_v3_endpoint
+        smiles = payload.get("smiles")
+        endpoint_id = payload.get("endpoint_id")
+        project_id = payload.get("project_id")
+        if not smiles or not endpoint_id:
+            raise HTTPException(status_code=400, detail="smiles and endpoint_id are required")
+        return predict_global_v3_endpoint(db, smiles=smiles, endpoint_id=endpoint_id, project_id=project_id)
+
 
 register_pk_routes(app)
 register_ivive_routes(app)

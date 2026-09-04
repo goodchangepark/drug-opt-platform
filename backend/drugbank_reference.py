@@ -52,10 +52,15 @@ DRUGBANK_PROJECT_DESC = "Canonical reference drug library curated for Drug-OPT G
 ROLE_DEVELOPMENT_TRAINING = "DEVELOPMENT_TRAINING"
 ROLE_MODEL_SELECTION_VALIDATION = "MODEL_SELECTION_VALIDATION"
 ROLE_FINAL_TEST_COHORT_1_CONSUMED = "FINAL_TEST_COHORT_1_CONSUMED"
-ROLE_LOCKED_FINAL_TEST_COHORT_2 = "LOCKED_FINAL_TEST_COHORT_2"
+ROLE_FINAL_TEST_COHORT_2_CONSUMED = "FINAL_TEST_COHORT_2_CONSUMED"
+ROLE_LOCKED_FINAL_TEST_COHORT_2 = "FINAL_TEST_COHORT_2_CONSUMED"  # Backward compatibility alias
+ROLE_LOCKED_FINAL_TEST_COHORT_3 = "LOCKED_FINAL_TEST_COHORT_3"
 
-# Load full 40 reference drugs catalog
-CATALOG_PATH = Path(__file__).parent / "reference_drugs_40.json"
+# Load full 50 reference drugs catalog
+CATALOG_PATH = Path(__file__).parent / "reference_drugs_50.json"
+if not CATALOG_PATH.exists():
+    CATALOG_PATH = Path(__file__).parent / "reference_drugs_40.json"
+
 if CATALOG_PATH.exists():
     with open(CATALOG_PATH, "r") as f:
         REFERENCE_DRUGS_CATALOG = json.load(f)
@@ -160,8 +165,10 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
             partition = "DEVELOPMENT_TRAINING"
         elif model_role == ROLE_FINAL_TEST_COHORT_1_CONSUMED:
             partition = "FINAL_TEST_COHORT_1_CONSUMED"
-        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_2:
-            partition = "LOCKED_FINAL_TEST_COHORT_2"
+        elif model_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
+            partition = "FINAL_TEST_COHORT_2_CONSUMED"
+        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_3:
+            partition = "LOCKED_FINAL_TEST_COHORT_3"
         else:
             partition = "MODEL_SELECTION_VALIDATION"
 
@@ -225,6 +232,242 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
     }
 
 
+def get_endpoint_priority_rank(endpoint_id: str) -> int:
+    """
+    Priority order per Directive 2:
+    PPB (0) -> hERG (1) -> Caco-2 (2) -> HLM (3) -> CYP1A2/2C9/2C19 (4) -> Others (5+)
+    """
+    if endpoint_id == "HUMAN_PPB":
+        return 0
+    elif endpoint_id == "HERG_LIABILITY":
+        return 1
+    elif endpoint_id in ("CACO2_PERMEABILITY", "CACO2_PAPP_AB"):
+        return 2
+    elif endpoint_id in ("HLM_INTRINSIC_CLEARANCE", "HLM_CLINT"):
+        return 3
+    elif endpoint_id in ("CYP1A2_INHIBITION", "CYP2C9_INHIBITION", "CYP2C19_INHIBITION"):
+        return 4
+    elif endpoint_id in ("CYP3A4_INHIBITION", "CYP2D6_INHIBITION"):
+        return 5
+    elif endpoint_id in ("SOLUBILITY_GENERIC", "SOLUBILITY_THERMODYNAMIC"):
+        return 6
+    return 7
+
+
+def ingest_reference_drug_stepwise_lifecycle(db: Session, drug_spec: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Executes the complete 5-stage qualification lifecycle for a reference drug:
+    Stage 1: Identity (chemical structure, distinct scaffold, compound/version registration)
+    Stage 2: Evidence (harvests external experimental observations ordered by priority: PPB -> hERG -> Caco-2 -> HLM -> CYPs)
+    Stage 3: Qualification (identity match, endpoint match, source quality class A, qualification status)
+    Stage 4: Prediction (computes model predictions for qualified endpoints)
+    Stage 5: Error (calculates prediction error |pred - truth| and evaluates residual)
+    Only after completing Stage 5 does the caller advance to the next drug.
+    """
+    from backend.engine_v3_learning import compute_base_prediction
+
+    # 1. Identity Stage
+    smiles = drug_spec["smiles"]
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES for {drug_spec['name']}")
+    canon_smiles = Chem.MolToSmiles(mol, canonical=True)
+    inchi_str = Chem.MolToInchi(mol)
+    inchikey_str = Chem.MolToInchiKey(mol)
+
+    proj = ensure_drugbank_project(db)
+    comp = db.scalar(select(Compound).where(Compound.project_id == proj.id, Compound.name == drug_spec["name"]))
+    if not comp:
+        comp = Compound(
+            project_id=proj.id,
+            compound_id=drug_spec["drugbank_id"],
+            name=drug_spec["name"],
+            status="ACTIVE",
+            current_version=1,
+        )
+        db.add(comp)
+        db.commit()
+        db.refresh(comp)
+
+        mw = float(Descriptors.MolWt(mol))
+        clogp = float(Crippen.MolLogP(mol))
+        tpsa = float(Descriptors.TPSA(mol))
+        hbd = int(Lipinski.NumHDonors(mol))
+        hba = int(Lipinski.NumHAcceptors(mol))
+        rotb = int(Lipinski.NumRotatableBonds(mol))
+
+        cv = CompoundVersion(
+            compound_row_id=comp.id,
+            version_number=1,
+            original_smiles=smiles,
+            canonical_smiles=canon_smiles,
+            isomeric_smiles=canon_smiles,
+            inchi=inchi_str,
+            inchikey=inchikey_str,
+            change_note="Canonical reference drug registration",
+            properties_json=json.dumps({
+                "MW": mw, "cLogP": clogp, "TPSA": tpsa, "HBD": hbd, "HBA": hba, "RotB": rotb,
+                "drugbank_id": drug_spec["drugbank_id"], "chembl_id": drug_spec["chembl_id"],
+                "pubchem_cid": drug_spec["pubchem_cid"], "unii": drug_spec["unii"],
+                "scaffold": drug_spec.get("scaffold_family", ""),
+                "model_role": drug_spec.get("model_role", ROLE_MODEL_SELECTION_VALIDATION),
+                "cohort": drug_spec.get("cohort", "VALIDATION_COHORT_1"),
+            }),
+        )
+        db.add(cv)
+        db.commit()
+        db.refresh(cv)
+    else:
+        cv = db.scalar(select(CompoundVersion).where(CompoundVersion.compound_row_id == comp.id, CompoundVersion.version_number == 1))
+
+    identity_summary = {
+        "status": "IDENTITY_VERIFIED",
+        "compound_id": comp.compound_id,
+        "compound_name": comp.name,
+        "scaffold_family": drug_spec.get("scaffold_family", ""),
+        "inchikey": cv.inchikey,
+        "model_role": drug_spec.get("model_role", ROLE_MODEL_SELECTION_VALIDATION),
+        "cohort": drug_spec.get("cohort", "VALIDATION_COHORT_1"),
+    }
+
+    # 2. Evidence Stage: Sort observations by priority PPB -> hERG -> Caco-2 -> HLM -> CYP1A2/2C9/2C19 -> others
+    raw_obs = drug_spec.get("observations", [])
+    sorted_obs = sorted(raw_obs, key=lambda x: get_endpoint_priority_rank(x["canonical_endpoint_id"]))
+
+    evidence_records = []
+    qualification_records = []
+    prediction_records = []
+    error_records = []
+
+    upstream_overlap = drug_spec.get("upstream_overlap", {})
+    model_role = drug_spec.get("model_role", ROLE_MODEL_SELECTION_VALIDATION)
+    cohort = drug_spec.get("cohort", "VALIDATION_COHORT_1")
+
+    for obs in sorted_obs:
+        eid = obs["canonical_endpoint_id"]
+        overlap_status = upstream_overlap.get(eid, "VALIDATION_HOLDOUT" if obs["training_eligible"] else "NOT_ELIGIBLE")
+
+        # Partitioning
+        if not obs["training_eligible"]:
+            partition = "NOT_ELIGIBLE"
+        elif overlap_status == "EXACT_STRUCTURE_OVERLAP":
+            partition = "TRAINING_ELIGIBLE"
+        elif model_role == ROLE_DEVELOPMENT_TRAINING:
+            partition = "DEVELOPMENT_TRAINING"
+        elif model_role == ROLE_FINAL_TEST_COHORT_1_CONSUMED:
+            partition = "FINAL_TEST_COHORT_1_CONSUMED"
+        elif model_role == ROLE_FINAL_TEST_COHORT_2_CONSUMED:
+            partition = "FINAL_TEST_COHORT_2_CONSUMED"
+        elif model_role == ROLE_LOCKED_FINAL_TEST_COHORT_3:
+            partition = "LOCKED_FINAL_TEST_COHORT_3"
+        else:
+            partition = "MODEL_SELECTION_VALIDATION"
+
+        p_key = hashlib.sha256(f"{cv.inchikey}_{eid}_{obs['raw_value']}_{obs['raw_unit']}_{obs['species']}_{obs['matrix']}".encode()).hexdigest()
+        existing_ev = db.scalar(select(ExternalExperimentalEvidence).where(
+            ExternalExperimentalEvidence.compound_version_id == cv.id,
+            ExternalExperimentalEvidence.provenance_key == p_key
+        ))
+
+        cond_dict = {
+            "matrix": obs["matrix"],
+            "section": obs["section"],
+            "upstream_overlap": overlap_status,
+            "drugbank_partition": partition,
+            "model_role": model_role,
+            "cohort": cohort,
+        }
+
+        if not existing_ev:
+            ev = ExternalExperimentalEvidence(
+                compound_version_id=cv.id,
+                provenance_key=p_key,
+                cas_number=drug_spec["cas_number"],
+                canonical_endpoint_id=eid,
+                raw_endpoint_name=obs["raw_endpoint_name"],
+                species=obs["species"],
+                assay_type=obs["assay_type"],
+                assay_conditions_json=cond_dict,
+                raw_value=obs["raw_value"],
+                raw_unit=obs["raw_unit"],
+                raw_relation=obs["raw_relation"],
+                normalized_value=obs["normalized_value"],
+                normalized_unit=obs["normalized_unit"],
+                source_database="DrugBank_FDA_ChEMBL",
+                source_record_id=drug_spec["drugbank_id"],
+                source_url=f"https://go.drugbank.com/drugs/{drug_spec['drugbank_id']}",
+                identity_match_status="EXACT_MATCH",
+                endpoint_match_status="EXACT_MATCH",
+                mapping_status="EXTERNAL_EVIDENCE_ONLY",
+                evidence_origin="EXPERIMENTAL_EXTERNAL",
+                source_quality_class="A",
+                comparability_status="DIRECTLY_COMPARABLE",
+                qualification_status="QUALIFIED_FOR_GLOBAL_TRAINING" if obs["training_eligible"] else "CLINICAL_PK_COMPOSITE",
+                reference_text=obs["reference_text"],
+                evidence_state="AUTO_QUALIFIED_EXTERNAL",
+            )
+            db.add(ev)
+            db.commit()
+            db.refresh(ev)
+        else:
+            existing_ev.assay_conditions_json = cond_dict
+            db.commit()
+            ev = existing_ev
+
+        evidence_records.append({
+            "endpoint_id": eid,
+            "provenance_key": p_key,
+            "raw_value": obs["raw_value"],
+            "raw_unit": obs["raw_unit"],
+            "normalized_value": obs["normalized_value"],
+            "normalized_unit": obs["normalized_unit"],
+        })
+
+        # 3. Qualification Stage
+        qualification_records.append({
+            "endpoint_id": eid,
+            "identity_match_status": ev.identity_match_status,
+            "endpoint_match_status": ev.endpoint_match_status,
+            "source_quality_class": ev.source_quality_class,
+            "qualification_status": ev.qualification_status,
+            "comparability_status": ev.comparability_status,
+            "partition": partition,
+        })
+
+        # 4. Prediction Stage
+        pred_val = compute_base_prediction(eid, canon_smiles)
+        prediction_records.append({
+            "endpoint_id": eid,
+            "predicted_value": pred_val,
+        })
+
+        # 5. Error Stage
+        exp_val = float(obs["normalized_value"])
+        if eid in ("HERG_LIABILITY", "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION", "CYP2C9_INHIBITION"):
+            exp_p = ic50_nm_to_pic50(exp_val) if exp_val > 0 else exp_val
+        else:
+            exp_p = exp_val
+
+        abs_err = round(abs(pred_val - exp_p), 3) if pred_val is not None else None
+        error_records.append({
+            "endpoint_id": eid,
+            "predicted_value": pred_val,
+            "experimental_value": round(exp_p, 3),
+            "absolute_error": abs_err,
+        })
+
+    return {
+        "status": "SUCCESS",
+        "compound_name": drug_spec["name"],
+        "drugbank_id": drug_spec["drugbank_id"],
+        "identity": identity_summary,
+        "evidence": evidence_records,
+        "qualification": qualification_records,
+        "prediction": prediction_records,
+        "error": error_records,
+    }
+
+
 def ingest_gefitinib_reference_drug(db: Session) -> Dict[str, Any]:
     """Ingests Gefitinib (Drug 1)."""
     return ingest_reference_drug_by_spec(db, REFERENCE_DRUGS_CATALOG[0])
@@ -232,10 +475,35 @@ def ingest_gefitinib_reference_drug(db: Session) -> Dict[str, Any]:
 
 def ingest_all_drugbank_reference_drugs(db: Session) -> List[Dict[str, Any]]:
     """
-    Ingests all 40 reference drugs sequentially.
+    Ingests all 50 reference drugs sequentially.
     """
     results = []
     for spec in REFERENCE_DRUGS_CATALOG:
         res = ingest_reference_drug_by_spec(db, spec)
         results.append(res)
     return results
+
+
+def ingest_v3_1_expansion_drugs_sequential(db: Session) -> List[Dict[str, Any]]:
+    """
+    Sequentially ingests the 10 new approved reference drugs (Drugs 41 to 50)
+    for Global Engine v3.1, enforcing Identity -> Evidence -> Qualification -> Prediction -> Error
+    stepwise completion for each compound before advancing to the next.
+    """
+    if len(REFERENCE_DRUGS_CATALOG) < 50:
+        raise RuntimeError("Catalog must contain at least 50 drugs for v3.1 expansion")
+
+    expansion_specs = REFERENCE_DRUGS_CATALOG[40:50]
+    completed_lifecycle_results = []
+
+    for idx, spec in enumerate(expansion_specs, start=41):
+        res = ingest_reference_drug_stepwise_lifecycle(db, spec)
+        assert res["identity"]["status"] == "IDENTITY_VERIFIED"
+        assert len(res["evidence"]) >= 5
+        assert len(res["qualification"]) >= 5
+        assert len(res["prediction"]) >= 5
+        assert len(res["error"]) >= 5
+        completed_lifecycle_results.append(res)
+
+    return completed_lifecycle_results
+

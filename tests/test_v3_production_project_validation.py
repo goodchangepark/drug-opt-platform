@@ -1,29 +1,33 @@
 """
-End-to-End Validation for Global Prediction Engine v3.0 Production Release on a New Test Project.
+End-to-End Validation for Global Prediction Engine v3.1 Production Release and Project Adapter Governance.
 """
 import pytest
 from rdkit import Chem
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from backend.database import SessionLocal
 from backend.models import Project, Compound, CompoundVersion, ExternalExperimentalEvidence
 from backend.admet import ADMETPredictionRun
-from backend.engine_v3_learning import evaluate_global_engine_v3_readiness, predict_global_v3_endpoint
+from backend.engine_v3_learning import (
+    evaluate_global_engine_v3_readiness,
+    predict_global_v3_endpoint,
+    build_global_learning_dataset,
+)
 
 
 def test_v3_production_release_governance_and_promotion_statuses():
-    """Verify that CYP3A4, CYP2D6, Solubility are GLOBAL_V3_PRIMARY; PPB is V3_CANDIDATE; hERG is RETAIN_BASE."""
+    """Verify that CYP3A4, CYP2D6, Solubility, and hERG are GLOBAL_V3_PRIMARY; PPB is V3_CANDIDATE."""
     db = SessionLocal()
     try:
         readiness = evaluate_global_engine_v3_readiness(db)
-        assert readiness["release_status"] == "GLOBAL_ENGINE_V3_PRODUCTION_RELEASE"
+        assert readiness["release_status"] == "GLOBAL_ENGINE_V3_1_PRODUCTION_RELEASE"
 
         statuses = {ep["endpoint_id"]: ep["promotion_status"] for ep in readiness["endpoints_evaluated"]}
         assert statuses["CYP3A4_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["CYP2D6_INHIBITION"] == "GLOBAL_V3_PRIMARY"
         assert statuses["SOLUBILITY_GENERIC"] == "GLOBAL_V3_PRIMARY"
+        assert statuses["HERG_LIABILITY"] == "GLOBAL_V3_PRIMARY"
         assert statuses["HUMAN_PPB"] == "V3_CANDIDATE"
-        assert statuses["HERG_LIABILITY"] == "RETAIN_BASE"
 
         # Verify separated Validation vs Final-Test performance metrics
         for ep in readiness["endpoints_evaluated"]:
@@ -49,7 +53,7 @@ def test_v3_production_routing_on_new_project_compounds():
                 name=test_proj_name,
                 target="EGFR_KRAS",
                 indication="Oncology Non-Small Cell Lung Cancer",
-                description="Test project for Global Engine v3.0 production validation",
+                description="Test project for Global Engine v3.1 production validation",
             )
             db.add(proj)
             db.commit()
@@ -99,7 +103,10 @@ def test_v3_production_routing_on_new_project_compounds():
             res_cyp3a4 = predict_global_v3_endpoint(db, smi, "CYP3A4_INHIBITION", project_id=proj.id)
             assert res_cyp3a4["model_tier"] == "GLOBAL_V3_PRIMARY"
             assert res_cyp3a4["production_prediction"] == res_cyp3a4["v3_prediction"]
-            assert res_cyp3a4["engine_version"] == "global-prediction-engine-v3.0.0"
+            assert res_cyp3a4["engine_version"] == "global-prediction-engine-v3.1.0"
+            assert res_cyp3a4["global_prediction"] == res_cyp3a4["v3_prediction"]
+            assert res_cyp3a4["project_adjusted_prediction"] is None
+            assert res_cyp3a4["project_adapter_status"] == "INSUFFICIENT_DATA"
 
             # 2. CYP2D6 (GLOBAL_V3_PRIMARY) -> routes to Global v3
             res_cyp2d6 = predict_global_v3_endpoint(db, smi, "CYP2D6_INHIBITION", project_id=proj.id)
@@ -116,9 +123,184 @@ def test_v3_production_routing_on_new_project_compounds():
             assert res_ppb["model_tier"] == "BASE_PRODUCTION"
             assert res_ppb["production_prediction"] == res_ppb["base_prediction"]
 
-            # 5. hERG (RETAIN_BASE) -> routes safely to Base Production
+            # 5. hERG (GLOBAL_V3_PRIMARY in v3.1) -> routes to Global v3
             res_herg = predict_global_v3_endpoint(db, smi, "HERG_LIABILITY", project_id=proj.id)
-            assert res_herg["model_tier"] == "BASE_PRODUCTION"
-            assert res_herg["production_prediction"] == res_herg["base_prediction"]
+            assert res_herg["model_tier"] == "GLOBAL_V3_PRIMARY"
+            assert res_herg["production_prediction"] == res_herg["v3_prediction"]
+    finally:
+        db.close()
+
+
+def test_project_adapter_independent_compound_governance():
+    """
+    Verify strict Project Adapter governance:
+    1. Independent compound count N < 5 -> INSUFFICIENT_DATA, adapter inactive, Global/Base preserved.
+    2. Independent compound count N >= 5 -> LOCO CV evaluated. If CV MAE improves, status = ACTIVE_ADAPTED.
+    3. Global and Project-adjusted predictions are returned separately (None when unadapted).
+    4. Zero leakage: Project data does NOT pollute the global DrugBank library.
+    """
+    db = SessionLocal()
+    try:
+        # Ensure clean state for test project
+        gov_proj_name = "Project_Adapter_Governance_Test"
+        existing_proj = db.scalar(select(Project).where(Project.name == gov_proj_name))
+        if existing_proj:
+            for c in db.scalars(select(Compound).where(Compound.project_id == existing_proj.id)).all():
+                for cv in db.scalars(select(CompoundVersion).where(CompoundVersion.compound_row_id == c.id)).all():
+                    db.execute(delete(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.compound_version_id == cv.id))
+                    db.delete(cv)
+                db.delete(c)
+            db.delete(existing_proj)
+            db.commit()
+
+        proj = Project(
+            name=gov_proj_name,
+            target="TEST_TARGET",
+            indication="Benchmarking Governance",
+            description="Test project for Project Adapter K>=5 threshold and LOCO CV verification",
+        )
+        db.add(proj)
+        db.commit()
+        db.refresh(proj)
+
+        # 5 distinct compounds with known structures
+        adapter_test_specs = [
+            ("Adapter_C1", "CC(C)Cc1ccc(cc1)C(C)C(=O)O", 5.2),
+            ("Adapter_C2", "CC1=C(C(=O)C2=C(C1=O)N3CC4=C(C=CC=C4)C3=C2)C", 5.8),
+            ("Adapter_C3", "Clc1ccc(cc1)C(c2ccccc2)N3CCNCC3", 6.1),
+            ("Adapter_C4", "CN1C(=O)CN=C(c2ccccc2)c3cc(Cl)ccc13", 5.5),
+            ("Adapter_C5", "CCN(CC)CCNC(=O)c1c(C)[nH]c(C=C2C(=O)Nc3ccc(F)cc23)c1C", 6.4),
+        ]
+
+        # Phase 1: Ingest only 3 compounds (N=3 < 5)
+        for name, smi, exp_val in adapter_test_specs[:3]:
+            comp = db.scalar(select(Compound).where(Compound.project_id == proj.id, Compound.name == name))
+            if not comp:
+                comp = Compound(project_id=proj.id, compound_id=f"GOV-{name}", name=name, status="ACTIVE", current_version=1)
+                db.add(comp)
+                db.commit()
+                db.refresh(comp)
+
+                mol = Chem.MolFromSmiles(smi)
+                canon_smi = Chem.MolToSmiles(mol, canonical=True)
+                cv = CompoundVersion(
+                    compound_row_id=comp.id,
+                    version_number=1,
+                    original_smiles=smi,
+                    canonical_smiles=canon_smi,
+                    isomeric_smiles=canon_smi,
+                    inchi=Chem.MolToInchi(mol),
+                    inchikey=Chem.MolToInchiKey(mol),
+                    change_note="Governance test compound",
+                )
+                db.add(cv)
+                db.commit()
+                db.refresh(cv)
+
+                p_key = f"proj_gov_{cv.id}_cyp3a4_{exp_val}"
+                ev = db.scalar(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.provenance_key == p_key))
+                if not ev:
+                    ev = ExternalExperimentalEvidence(
+                        compound_version_id=cv.id,
+                        provenance_key=p_key,
+                        source_database="PROJECT_INHOUSE_ASSAY",
+                        source_record_id=f"ASSAY-{name}",
+                        canonical_endpoint_id="CYP3A4_INHIBITION",
+                        raw_endpoint_name="CYP3A4 pIC50",
+                        raw_value=str(exp_val),
+                        raw_unit="pIC50",
+                        normalized_value=str(exp_val),
+                        normalized_unit="pIC50",
+                        identity_match_status="EXACT_MATCH",
+                        endpoint_match_status="EXACT_MATCH",
+                        qualification_status="QUALIFIED_FOR_GLOBAL_TRAINING",
+                        reference_text="In-house Project Assay 2026",
+                        assay_conditions_json={"assay": "in_house_luminescent_cyp3a4"},
+                    )
+                    db.add(ev)
+                    db.commit()
+
+        # Check Phase 1: N=3 < 5 -> Must be INSUFFICIENT_DATA
+        res_phase1 = predict_global_v3_endpoint(db, adapter_test_specs[0][1], "CYP3A4_INHIBITION", project_id=proj.id)
+        assert res_phase1["project_adapter_status"] == "INSUFFICIENT_DATA"
+        assert res_phase1["project_adapted"] is False
+        assert res_phase1["project_adjusted_prediction"] is None
+        assert res_phase1["production_prediction"] == res_phase1["global_prediction"]
+        assert res_phase1["project_compound_n"] == 3
+
+        # Phase 2: Add compounds 4 and 5 (N=5 >= 5)
+        for name, smi, exp_val in adapter_test_specs[3:]:
+            comp = db.scalar(select(Compound).where(Compound.project_id == proj.id, Compound.name == name))
+            if not comp:
+                comp = Compound(project_id=proj.id, compound_id=f"GOV-{name}", name=name, status="ACTIVE", current_version=1)
+                db.add(comp)
+                db.commit()
+                db.refresh(comp)
+
+                mol = Chem.MolFromSmiles(smi)
+                canon_smi = Chem.MolToSmiles(mol, canonical=True)
+                cv = CompoundVersion(
+                    compound_row_id=comp.id,
+                    version_number=1,
+                    original_smiles=smi,
+                    canonical_smiles=canon_smi,
+                    isomeric_smiles=canon_smi,
+                    inchi=Chem.MolToInchi(mol),
+                    inchikey=Chem.MolToInchiKey(mol),
+                    change_note="Governance test compound",
+                )
+                db.add(cv)
+                db.commit()
+                db.refresh(cv)
+
+                p_key = f"proj_gov_{cv.id}_cyp3a4_{exp_val}"
+                ev = db.scalar(select(ExternalExperimentalEvidence).where(ExternalExperimentalEvidence.provenance_key == p_key))
+                if not ev:
+                    ev = ExternalExperimentalEvidence(
+                        compound_version_id=cv.id,
+                        provenance_key=p_key,
+                        source_database="PROJECT_INHOUSE_ASSAY",
+                        source_record_id=f"ASSAY-{name}",
+                        canonical_endpoint_id="CYP3A4_INHIBITION",
+                        raw_endpoint_name="CYP3A4 pIC50",
+                        raw_value=str(exp_val),
+                        raw_unit="pIC50",
+                        normalized_value=str(exp_val),
+                        normalized_unit="pIC50",
+                        identity_match_status="EXACT_MATCH",
+                        endpoint_match_status="EXACT_MATCH",
+                        qualification_status="QUALIFIED_FOR_GLOBAL_TRAINING",
+                        reference_text="In-house Project Assay 2026",
+                        assay_conditions_json={"assay": "in_house_luminescent_cyp3a4"},
+                    )
+                    db.add(ev)
+                    db.commit()
+
+        # Check Phase 2: N=5 >= 5 -> LOCO CV evaluated
+        res_phase2 = predict_global_v3_endpoint(db, adapter_test_specs[0][1], "CYP3A4_INHIBITION", project_id=proj.id)
+        assert res_phase2["project_compound_n"] == 5
+        assert res_phase2["project_adapter_status"] in ("ACTIVE_ADAPTED", "EVALUATED_NOT_IMPROVED")
+        assert "global_prediction" in res_phase2
+
+        if res_phase2["project_adapter_status"] == "ACTIVE_ADAPTED":
+            assert res_phase2["project_adapted"] is True
+            assert res_phase2["project_adjusted_prediction"] is not None
+            assert res_phase2["production_prediction"] == res_phase2["project_adjusted_prediction"]
+        else:
+            assert res_phase2["project_adapted"] is False
+            assert res_phase2["project_adjusted_prediction"] is None
+            assert res_phase2["production_prediction"] == res_phase2["global_prediction"]
+
+        # Phase 3: Zero Leakage Verification
+        # DrugBank reference dataset must strictly contain only the 50 reference compounds
+        db_summary = build_global_learning_dataset(db)
+        assert db_summary["total_compounds_registered"] == 50
+        assert db_summary["project_name"] == "DrugBank"
+        # None of the adapter test compounds appear in DrugBank dataset
+        for ep_key, ep_val in db_summary["endpoints"].items():
+            for sample in ep_val.get("development_training_samples", []):
+                assert not sample["compound_name"].startswith("Adapter_C")
+            for sample in ep_val.get("model_selection_validation_samples", []):
+                assert not sample["compound_name"].startswith("Adapter_C")
     finally:
         db.close()
