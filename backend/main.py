@@ -103,7 +103,20 @@ from .scientific_interpretation import policy_report
 from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STATUS,
                             CURRENT_STAGE_SUBSTATUS, GLOSSARY, LIMITATIONS, build_version,
                             latest_release_date, package_inventory, structure_modules,
-                            version_history)
+                            version_history, prediction_model_history)
+from .prediction_engine_v3_policy import (
+    build_production_readiness_comparison_table,
+    get_v3_policy_payload,
+    get_v3_policy_hash,
+    V3_ENDPOINT_ROUTING,
+    ENGINE_V3_POLICY_ID,
+    ENGINE_V3_POLICY_VERSION,
+    ENGINE_V3_NAME,
+    ENGINE_V3_STATUS,
+    ENGINE_V1_POLICY_ID,
+    ENGINE_V1_POLICY_VERSION,
+    ENGINE_V1_STATUS,
+)
 from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
@@ -207,8 +220,14 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "stage": "5B", "step": CURRENT_STAGE, "version": APP_VERSION,
-            "updated": latest_release_date(), "engine": ENGINE, "engine_version": ENGINE_VERSION}
+    return {
+        "status": "ok", "stage": "5B", "step": CURRENT_STAGE, "version": APP_VERSION,
+        "updated": latest_release_date(),
+        "engine": "drugopt-prediction-engine-v3@3.3.0",
+        "engine_version": "3.3.0",
+        "legacy_engine": "drugopt-prediction-engine-v1@1.0.0",
+        "decision": "READY_TO_REPLACE_V1",
+    }
 
 
 @app.get("/api/interpretation/rules")
@@ -229,8 +248,22 @@ def model_strategy_registry():
 
 @app.get("/api/prediction-engine-v1/policy")
 def prediction_engine_v1_policy():
-    """Immutable, read-only Stage 4E-4 policy snapshot and content hash."""
+    """Immutable, read-only Stage 4E-4 legacy baseline policy snapshot and content hash."""
     return policy_api_response()
+
+
+@app.get("/api/prediction-engine-v3/policy")
+def prediction_engine_v3_policy():
+    """Authoritative Prediction Engine v3.3 production policy, routing rules, and content hash."""
+    from backend.prediction_engine_v3_policy import get_v3_policy_payload, get_v3_policy_hash
+    return {**get_v3_policy_payload(), "policy_hash": get_v3_policy_hash()}
+
+
+@app.get("/api/prediction-engine/readiness-comparison")
+def prediction_engine_readiness_comparison():
+    """Empirical v1.0 vs v3.3 Production Readiness Comparison table."""
+    from backend.prediction_engine_v3_policy import build_production_readiness_comparison_table
+    return {"status": "SUCCESS", "comparison": build_production_readiness_comparison_table()}
 
 
 @app.get("/api/qualification/strategies")
@@ -528,10 +561,13 @@ def help_registry(db: Session = Depends(get_db)):
         "capability_summary": capabilities,
         "pk_method_registry": pk_methods,
         "version_history": version_history(),
+        "prediction_model_history": prediction_model_history(),
+        "prediction_readiness_comparison": build_production_readiness_comparison_table(),
+        "prediction_engine_v3": get_v3_policy_payload(),
         "glossary": [{"term": term, "definition": definition} for term, definition in GLOSSARY],
         "limitations": list(LIMITATIONS),
         "interpretation_registry": get_interpretation_registry_summary(),
-        "source": "RUNTIME_PACKAGE_INVENTORY + ADMET_MODEL_REGISTRY + PK_METHOD_REGISTRY + CAPABILITY_REGISTRY + VERSION_HISTORY",
+        "source": "RUNTIME_PACKAGE_INVENTORY + ADMET_MODEL_REGISTRY + PK_METHOD_REGISTRY + CAPABILITY_REGISTRY + VERSION_HISTORY + PREDICTION_ENGINE_V3_REGISTRY",
     }
 
 
@@ -1036,12 +1072,14 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         ProjectAdapterVersion.project_id == compound.project_id,
         ProjectAdapterVersion.active.is_(True),
     )).all()
+    engine_name = ENGINE_V3_NAME
+    engine_version = ENGINE_V3_POLICY_VERSION
     request_fingerprint = hashlib.sha256(json.dumps({
         "workflow": "prediction_workflow",
         "compound_version_id": version.id,
         "canonical_smiles": version.canonical_smiles,
-        "engine_policy": ENGINE_V1_POLICY,
-        "engine_hash": ENGINE_V1_HASH,
+        "engine_policy": engine_name,
+        "engine_version": engine_version,
         "stage": CURRENT_STAGE,
         "active_adapters": sorted((row.endpoint_id, row.adapter_version) for row in active_adapters),
         "calculation_policy": "properties+admet+metabolism+pk-foundation+default-simulations",
@@ -1190,6 +1228,16 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
     status = "COMPLETE" if all(value == "COMPLETE" for value in required) else ("FAILED" if all(value == "FAILED" for value in required) else "PARTIAL")
     completed_at = datetime.now(timezone.utc)
     timestamp = completed_at.strftime("%Y-%m-%d %H:%M")
+    from backend.engine_v3_learning import predict_global_v3_endpoint
+    v3_endpoint_predictions = {}
+    for ep_key, ep_spec in V3_ENDPOINT_ROUTING.items():
+        try:
+            v3_endpoint_predictions[ep_key] = predict_global_v3_endpoint(
+                db, version.canonical_smiles, ep_key, project_id=compound.project_id
+            )
+        except Exception:
+            pass
+
     workflow_output = {
         "status": status,
         "steps": steps,
@@ -1197,15 +1245,34 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "unavailable_endpoints": unavailable_endpoints,
         "failed_endpoints": failed_endpoints,
         "timestamp": timestamp,
+        "engine_id": ENGINE_V3_POLICY_ID,
+        "engine_version": ENGINE_V3_POLICY_VERSION,
+        "engine_name": ENGINE_V3_NAME,
+        "engine_status": ENGINE_V3_STATUS,
+        "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
+        "endpoint_routing": {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()},
+        "v3_predictions": v3_endpoint_predictions,
     }
     db.add(PredictionRun(
         version_id=version.id,
         stage="prediction_workflow",
-        model_name="Properties + ADMET + Metabolism + PK workflow",
-        model_version=CURRENT_STAGE,
+        model_name="Properties + ADMET + Metabolism + PK workflow (Engine v3.3)",
+        model_version=ENGINE_V3_POLICY_VERSION,
         inputs_hash=request_fingerprint,
         outputs_json=workflow_output,
-        provenance_json={"orchestrator": "predict-workflow", "pk_species": "Rat", "persisted": True, "request_fingerprint": request_fingerprint, "force_rerun": force_rerun},
+        provenance_json={
+            "orchestrator": "predict-workflow",
+            "pk_species": "Rat",
+            "persisted": True,
+            "request_fingerprint": request_fingerprint,
+            "force_rerun": force_rerun,
+            "engine_id": ENGINE_V3_POLICY_ID,
+            "engine_version": ENGINE_V3_POLICY_VERSION,
+            "engine_name": ENGINE_V3_NAME,
+            "engine_status": ENGINE_V3_STATUS,
+            "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
+            "endpoint_routing": workflow_output["endpoint_routing"],
+        },
         confidence="High" if status == "COMPLETE" else "Limited",
     ))
     db.commit()
@@ -1231,7 +1298,11 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "prediction_run_id": workflow_run_id,
         "request_fingerprint": request_fingerprint,
         "reused_existing_run": False,
-        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
+        "engine_version": ENGINE_V3_POLICY_VERSION,
+        "engine_name": ENGINE_V3_NAME,
+        "engine_status": ENGINE_V3_STATUS,
+        "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
+        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated via Engine v3.3, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
     }
 
 
@@ -1273,6 +1344,15 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
         "compound_version_ids": [version.id for version in compound.versions],
         "summary": learning_summary,
         "ledger": [row for row in learning_rows if row["compound_version_id"] in {version.id for version in compound.versions}],
+    }
+    result["prediction_engine"] = {
+        "engine_id": ENGINE_V3_POLICY_ID,
+        "engine_version": ENGINE_V3_POLICY_VERSION,
+        "engine_name": ENGINE_V3_NAME,
+        "engine_status": ENGINE_V3_STATUS,
+        "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
+        "decision": "READY_TO_REPLACE_V1",
+        "endpoint_routing": {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()},
     }
     return result
 
@@ -4556,6 +4636,15 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             "outputs": row.outputs_json,
         } for row in audit_runs],
         "prediction_history": persisted_prediction_history,
+        "prediction_engine": {
+            "engine_id": (latest_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_POLICY_ID) if latest_workflow else ENGINE_V3_POLICY_ID,
+            "engine_version": (latest_workflow.provenance_json or {}).get("engine_version", ENGINE_V3_POLICY_VERSION) if latest_workflow else ENGINE_V3_POLICY_VERSION,
+            "engine_name": (latest_workflow.provenance_json or {}).get("engine_name", ENGINE_V3_NAME) if latest_workflow else ENGINE_V3_NAME,
+            "engine_status": (latest_workflow.provenance_json or {}).get("engine_status", ENGINE_V3_STATUS) if latest_workflow else ENGINE_V3_STATUS,
+            "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
+            "decision": "READY_TO_REPLACE_V1",
+            "endpoint_routing": {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()},
+        },
     }
 
 

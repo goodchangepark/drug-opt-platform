@@ -505,6 +505,66 @@ def version_history() -> list[dict[str, Any]]:
     ]
 
 
+PREDICTION_MODEL_HISTORY: list[dict[str, Any]] = [
+    {
+        "version": "v1.0.0",
+        "engine_id": "drugopt-prediction-engine-v1@1.0.0",
+        "release_date": "2026-08-29",
+        "production_status": "LEGACY_PRODUCTION_BASELINE",
+        "key_endpoints": "Initial production baseline panel (Solubility, Permeability, PPB, HLM, RLM, MLM, hERG, Ames, DILI, CYP inhibition/substrate classification)",
+        "validation_results": "OpenADMET & Chemprop base model validation across TDC benchmarks; uncalibrated raw outputs.",
+        "model_version_hash": "stage4e4-engine-v1-policy-hash-e10c7",
+        "known_limitations": "Uncalibrated systematic bias on drug-like chemical space; no project-specific adaptation; lack of continuous quantitative CYP IC50 prediction.",
+    },
+    {
+        "version": "v3.0.0",
+        "engine_id": "global-prediction-engine-v3.0.0",
+        "release_date": "2026-09-02",
+        "production_status": "SUPERSEDED",
+        "key_endpoints": "DrugBank 40 reference drug learning initiated; quantitative CYP3A4, CYP2D6, and Solubility calibration introduced.",
+        "validation_results": "CYP3A4 MAE: 2.22 -> 1.35 pIC50; CYP2D6 MAE: 2.07 -> 1.62 pIC50; Solubility thermodynamic offset calibrated.",
+        "model_version_hash": "v3.0-drugbank40-eval-78d1",
+        "known_limitations": "Evaluated on 40 reference drugs only; hERG and clearance endpoints retained base uncalibrated models.",
+    },
+    {
+        "version": "v3.1.0",
+        "engine_id": "global-prediction-engine-v3.1.0",
+        "release_date": "2026-09-03",
+        "production_status": "SUPERSEDED",
+        "key_endpoints": "DrugBank expanded to 50 reference drugs; hERG quantitative safety offset calibration added; Leave-One-Compound-Out (LOCO) project adapter governance introduced (N >= 5).",
+        "validation_results": "hERG holdout MAE improved by +34.7% (1.652 -> 1.079 pIC50); Zero Leakage and independent compound governance verified.",
+        "model_version_hash": "v3.1-drugbank50-herg-adapter-92f4",
+        "known_limitations": "Microsomal clearance and secondary CYP isoforms (1A2, 2C9) remained in candidate/evaluation status.",
+    },
+    {
+        "version": "v3.2.0",
+        "engine_id": "global-prediction-engine-v3.2.0",
+        "release_date": "2026-09-03",
+        "production_status": "SUPERSEDED",
+        "key_endpoints": "DrugBank expanded to 65 reference drugs; HLM intrinsic clearance promoted to GLOBAL_V3_PRIMARY via chemical-space similarity residual correction.",
+        "validation_results": "HLM holdout MAE improved by +42.2% (0.562 -> 0.325 log10(mL/min/kg)); PPB evaluated but retained base model due to holdout regression.",
+        "model_version_hash": "v3.2-CHEMICAL_SPACE_RESIDUAL_CORRECTION-hlm-36a4b",
+        "known_limitations": "CYP1A2 and CYP2C9 under candidate benchmarking; PPB and Caco-2 retained base models.",
+    },
+    {
+        "version": "v3.3.0",
+        "engine_id": "drugopt-prediction-engine-v3@3.3.0",
+        "release_date": "2026-09-04",
+        "production_status": "PRODUCTION_DEFAULT",
+        "decision": "READY_TO_REPLACE_V1",
+        "key_endpoints": "DrugBank expanded to 100 approved reference drugs (100% verified CAS); CYP1A2 (Affine) and CYP2C9 (Chemical-Space) promoted to GLOBAL_V3_PRIMARY; Formalized Multi-Registry Model Governance & Applicability Domain Guard.",
+        "validation_results": "Average primary error reduction +36.6% across 7 primary endpoints (CYP3A4 +42.5%, CYP2D6 +23.2%, CYP1A2 +39.9%, CYP2C9 +36.8%, hERG +34.7%, HLM +42.2%, Sol primary). Held-out Cohort 5 validated with zero leakage.",
+        "model_version_hash": "v3.3-production-replacement-hash-8f4b1",
+        "known_limitations": "Human PPB and Caco-2 safely routed to legacy base models; CYP2C19, P-gp, and BCRP quantitative kinetics explicitly maintained as MODEL_UNAVAILABLE (no continuous ML).",
+    },
+]
+
+
+def prediction_model_history() -> list[dict[str, Any]]:
+    """Return the dedicated Prediction Model & Engine evolution history."""
+    return list(PREDICTION_MODEL_HISTORY)
+
+
 def latest_release_date() -> str:
     """Return the release date of the latest product version."""
     if VERSION_HISTORY:

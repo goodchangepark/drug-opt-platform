@@ -1324,12 +1324,21 @@ function integratedProfile(versionId){
   const inputStatus=prediction.input_status&&prediction.input_status!=='UNKNOWN'&&prediction.input_status!=='COMPLETE'?e('div',{className:'small'},'Input completeness: '+prediction.input_status):null;
   const assumptions=(prediction.assumptions||[]).slice(0,2).map((item,index)=>e('div',{className:'small',key:'assumption-'+index},'Assumption: '+item));
 
+  const epTier = prediction?.provenance?.endpoint_tier === 'GLOBAL_V3_PRIMARY' ? 'Global v3'
+    : prediction?.provenance?.endpoint_tier === 'BASE_FALLBACK' ? 'Legacy Base'
+    : prediction?.provenance?.endpoint_tier === 'MODEL_UNAVAILABLE' ? 'Model Unavailable'
+    : (workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint] === 'GLOBAL_V3_PRIMARY' ? 'Global v3'
+    : workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint] === 'BASE_FALLBACK' ? 'Legacy Base'
+    : workspace?.prediction_engine?.endpoint_routing?.[prediction?.endpoint] === 'MODEL_UNAVAILABLE' ? 'Model Unavailable'
+    : (prediction?.model_version === '3.3.0' || prediction?.model?.model_version === '3.3.0' ? 'Global v3' : 'Legacy Base'));
+
   if(!hasAdjusted){
    const gVal = prediction.global_prediction ?? prediction.base_prediction?.value;
    const gText = gVal != null ? 'Global prediction: ' + Number(gVal).toFixed(3) + ' ' + (prediction.unit || '') : unifiedPredictionValue(prediction);
    return e('div',{},[
     e('div',{className:'mono'},gText),
     e('div',{className:'small'},sourceLabel),
+    e('div',{className:'small mono',style:{color:'#096dd9'}},'Endpoint Model: '+epTier),
     inputStatus,...assumptions
    ]);
   }
@@ -1344,6 +1353,7 @@ function integratedProfile(versionId){
    e('div',{className:'small',style:{color:'#4b5563'}},'Global prediction: '+(globVal!=null ? Number(globVal).toFixed(3)+' '+unitStr : unifiedPredictionValue(prediction))),
    e('div',{className:'small'},'Adapter: '+adapterVer),
    e('div',{className:'small'},sourceLabel),
+   e('div',{className:'small mono',style:{color:'#096dd9'}},'Endpoint Model: '+epTier),
    inputStatus,...assumptions
   ]);
  }
@@ -4288,7 +4298,19 @@ function integratedProfile(versionId){
       e('span',{},'Status: '),
       StatusBadge({type: workspaceLoading ? 'LOADING' : (detailPredictions.length?'COMPLETE':'NOT_RUN')}),
       e('span',{},'·'),
-      e('span',{className:'mono small'},'Model set: OpenADMET & Chemprop')
+      e('span',{className:'mono small',id:'predict-meta-engine'},'Prediction Engine: v'+(workspace?.prediction_engine?.engine_version||'3.3')+(workspace?.prediction_engine?.engine_status==='PRODUCTION_DEFAULT'?' (Production Default)':workspace?.prediction_engine?.engine_status==='LEGACY_PRODUCTION_BASELINE'?' (Legacy Baseline)':'')),
+      e('span',{},'·'),
+      e('span',{className:'mono small',id:'predict-meta-endpoint-model'},'Endpoint Model: Global v3 / Legacy Base / Model Unavailable')
+     ]),
+     e('div',{className:'prediction-engine-banner card',id:'prediction-engine-banner',style:{marginTop:'8px',padding:'8px 12px',background:'#f0f7ff',border:'1px solid #bae0ff',borderRadius:'6px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'8px'}},[
+      e('div',{style:{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}},[
+       e('span',{className:'badge-favorable bold',style:{padding:'2px 8px',fontSize:'11px'}},'Prediction Engine: v'+(workspace?.prediction_engine?.engine_version||'3.3')+' ('+(workspace?.prediction_engine?.engine_status||'PRODUCTION_DEFAULT')+')'),
+       e('span',{className:'small bold',style:{color:'#0050b3'}},'Endpoint Model Routing:'),
+       e('span',{className:'badge-favorable',style:{fontSize:'10.5px',padding:'1px 6px'}},'Global v3: CYP(3A4, 2D6, 1A2, 2C9) · Solubility · hERG · HLM'),
+       e('span',{className:'badge-intermediate',style:{fontSize:'10.5px',padding:'1px 6px'}},'Legacy Base: PPB · Caco-2'),
+       e('span',{className:'badge-caution',style:{fontSize:'10.5px',padding:'1px 6px'}},'Model Unavailable: CYP2C19 · P-gp · BCRP')
+      ]),
+      e('div',{className:'mono small',style:{color:'#595959'}},'Baseline: '+(workspace?.prediction_engine?.legacy_baseline||'drugopt-prediction-engine-v1@1.0.0')+' · Decision: '+(workspace?.prediction_engine?.decision||'READY_TO_REPLACE_V1'))
      ]),
      e('div',{className:'prediction-stage-status'},['properties','activity','admet','metabolism','pk'].map(stage=>{
       const stageStatus = workspaceLoading ? 'LOADING' : (predictionWorkflow?.steps?.[stage]?.status||workspace?.prediction_status?.[stage]||(detailPredictions.length ? 'COMPLETE' : 'NOT_RUN'));
@@ -4965,20 +4987,61 @@ function integratedProfile(versionId){
    e('section',{className:'card help-section',id:'help-version',key:'version'},[e('h2',{},'Current Platform Version'),e('dl',{className:'help-version-grid'},[
     ['Application version',appInfo.version],['Current Stage',appInfo.current_stage_label||'Internal Validation'],['Git/build version',appInfo.build_version],['Standardizer',appInfo.standardizer+' '+appInfo.standardizer_version],['RDKit',appInfo.rdkit_version]
     ].map(([label,value])=>e('div',{key:label},[e('dt',{},label),e('dd',{className:'mono'},value||'Unavailable')])))]),
-    e('section',{className:'card help-section',id:'help-version-history',key:'version-history'},[
-     e('div',{className:'eyebrow'},'RELEASE HISTORY'),
-     e('h2',{},'Version History & Scientific Milestones'),
-     e('p',{className:'small'},'Milestone-driven history of platform releases and capabilities.'),
-     e('div',{className:'table-scroll'},e('table',{},[
-      e('thead',{},e('tr',{},['Version','Release Date','Stage','Key Scientific Capabilities'].map(label=>e('th',{key:label},label)))),
-      e('tbody',{},(helpRegistry.version_history||[]).map(vh=>e('tr',{key:vh.version,style:vh.version===appInfo.version?{background:'#f0f7ff',fontWeight:'bold'}:{}},[
-       e('td',{className:'mono'},vh.version),
-       e('td',{},vh.date||vh.release_date),
-       e('td',{},e('span',{className:'badge-favorable'},vh.stage)),
-       e('td',{className:'small'},vh.highlights||vh.improvements)
-      ])))
-     ]))
-    ]),
+     e('section',{className:'card help-section',id:'help-version-history',key:'version-history'},[
+      e('div',{className:'eyebrow'},'RELEASE HISTORY'),
+      e('h2',{},'Version History & Scientific Milestones'),
+      e('p',{className:'small'},'Milestone-driven history of platform releases and capabilities.'),
+      e('div',{className:'table-scroll'},e('table',{},[
+       e('thead',{},e('tr',{},['Version','Release Date','Stage','Key Scientific Capabilities'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},(helpRegistry.version_history||[]).map(vh=>e('tr',{key:vh.version,style:vh.version===appInfo.version?{background:'#f0f7ff',fontWeight:'bold'}:{}},[
+        e('td',{className:'mono'},vh.version),
+        e('td',{},vh.date||vh.release_date),
+        e('td',{},e('span',{className:'badge-favorable'},vh.stage)),
+        e('td',{className:'small'},vh.highlights||vh.improvements)
+       ])))
+      ]))
+     ]),
+     e('section',{className:'card help-section',id:'help-prediction-model-history',key:'prediction-model-history'},[
+      e('div',{className:'eyebrow'},'PREDICTION ENGINE EVOLUTION & PRODUCTION REPLACEMENT'),
+      e('h2',{},'Prediction Model History & Production Readiness Comparison'),
+      e('p',{className:'small'},'Dedicated version history of Drug-OPT Prediction Engines from legacy v1.0 baseline to production default v3.3, including empirical holdout benchmark comparisons.'),
+      e('div',{style:{display:'flex',gap:'12px',margin:'12px 0',flexWrap:'wrap'}},[
+       e('div',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},'Active Default Engine: drugopt-prediction-engine-v3@3.3.0'),
+       e('div',{className:'badge-intermediate',style:{padding:'6px 12px',fontSize:'13px'}},'Legacy Baseline: drugopt-prediction-engine-v1@1.0.0'),
+       e('div',{className:'badge-info',style:{padding:'6px 12px',fontSize:'13px'}},'Decision: READY_TO_REPLACE_V1 (+36.6% Avg Primary Error Reduction)')
+      ]),
+      e('h3',{style:{marginTop:'16px'}},'v1.0 vs v3.3 Production Readiness Comparison'),
+      e('p',{className:'small'},'Empirical evaluation on DrugBank reference holdout cohorts and locked test sets.'),
+      e('div',{className:'table-scroll'},e('table',{},[
+       e('thead',{},e('tr',{},['Endpoint','v1/Base Error','v3.3 Error','Improvement','Validation N','Locked Test N','AD/OOD','Production Decision'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},(helpRegistry.prediction_readiness_comparison||[]).map(row=>e('tr',{key:row.endpoint_id,style:row.production_decision==='REPLACE_V1_PRIMARY'?{background:'#f6ffed'}:row.production_decision==='RETAIN_BASE_FALLBACK'?{background:'#fffbe6'}:{}},[
+        e('td',{},[e('strong',{},row.endpoint_name),e('div',{className:'small mono'},row.unit)]),
+        e('td',{className:'mono'},row.v1_base_error),
+        e('td',{className:'mono bold'},row.v3_error),
+        e('td',{className:'bold',style:{color:String(row.improvement).startsWith('+')?'#389e0d':String(row.improvement).startsWith('-')?'#cf1322':'inherit'}},row.improvement),
+        e('td',{className:'mono'},row.validation_n),
+        e('td',{className:'mono'},row.locked_test_n),
+        e('td',{},e('span',{className:row.ad_ood==='IN_DOMAIN_WITH_GUARD'?'badge-favorable':'badge-intermediate'},row.ad_ood)),
+        e('td',{},e('span',{className:row.production_decision==='REPLACE_V1_PRIMARY'?'badge-favorable':row.production_decision==='RETAIN_BASE_FALLBACK'?'badge-intermediate':'badge-caution'},row.production_decision))
+       ])))
+      ])),
+      e('h3',{style:{marginTop:'24px'}},'Prediction Engine Version History (v1.0 — v3.3)'),
+      e('p',{className:'small'},'Architectural evolution, validation milestones, and governance constraints across engine releases.'),
+      e('div',{className:'table-scroll'},e('table',{},[
+       e('thead',{},e('tr',{},['Engine Version','Release Date','Status / Decision','Key Endpoints & Architecture','Validation Results & Holdout MAE','Known Limitations'].map(label=>e('th',{key:label},label)))),
+       e('tbody',{},(helpRegistry.prediction_model_history||[]).map(pm=>e('tr',{key:pm.version,style:pm.production_status==='PRODUCTION_DEFAULT'?{background:'#e6f7ff',fontWeight:'bold'}:{}},[
+        e('td',{className:'mono'},[pm.version,e('div',{className:'small mono',style:{fontWeight:'normal',color:'#666'}},pm.engine_id)]),
+        e('td',{},pm.release_date),
+        e('td',{},[
+         e('span',{className:pm.production_status==='PRODUCTION_DEFAULT'?'badge-favorable':pm.production_status==='LEGACY_PRODUCTION_BASELINE'?'badge-intermediate':'badge-info'},pm.production_status),
+         pm.decision&&e('div',{className:'small bold',style:{marginTop:'4px',color:'#096dd9'}},pm.decision)
+        ]),
+        e('td',{className:'small'},pm.key_endpoints),
+        e('td',{className:'small bold'},pm.validation_results),
+        e('td',{className:'small',style:{color:'#595959'}},pm.known_limitations)
+       ])))
+      ]))
+     ]),
    e('section',{className:'card help-section',id:'help-modules',key:'modules'},[e('h2',{},'Structure & Cheminformatics Modules'),e('p',{className:'small'},'Versions below are read from the active production Python environment.'),e('div',{className:'table-scroll'},e('table',{},[
     e('thead',{},e('tr',{},['Module','Version','Used For','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{},(helpRegistry.structure_modules||[]).map(row=>e('tr',{key:row.module},[e('td',{},row.module),e('td',{className:'mono'},row.version),e('td',{},row.used_for),e('td',{},StatusBadge({type:row.status}))])))
    ])),e('p',{className:'small'},'RDKit provides structure parsing, CHEM_STANDARDIZER_V1 processing, molecular properties, Crippen cLogP, TPSA, fingerprints and structural handling. SyGMa is a rule-based metabolism engine; installed prediction checkpoints use ML where identified.'),e('details',{},[e('summary',{},'Complete runtime package inventory'),e('div',{className:'table-scroll'},e('table',{},[e('thead',{},e('tr',{},['Package','Installed Version','Purpose','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{},(helpRegistry.package_inventory||[]).map(row=>e('tr',{key:row.package},[e('td',{},row.package),e('td',{className:'mono'},row.version),e('td',{},row.purpose),e('td',{},StatusBadge({type:row.status}))])))]))])]),
