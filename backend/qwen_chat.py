@@ -50,7 +50,11 @@ Medicinal chemistry 규칙:
 16. 근거가 제한적이면 사실처럼 단정하지 말고 가능성 또는 가설이라고 표현한다.
 
 비교 질문에서는 각 물질의 장점, liability 및 중요한 차이를 명확하게 설명한다.
-답변은 원칙적으로 3~6개의 짧은 문장 또는 3개의 간단한 항목 이내로 작성한다.
+답변에는 불필요한 서론이나 배경 설명을 넣지 않는다.
+질문에 바로 답한다.
+구조 최적화 질문은 최대 3개 항목만 작성한다.
+각 항목은 "제안 — 이유/주의점" 형식의 1~2문장으로 작성한다.
+전체 답변은 매우 간결하게 작성하며 약 80~120 token을 목표로 한다.
 """
 
 def _call_qwen(prompt: str, timeout: int = 75) -> str:
@@ -66,7 +70,7 @@ def _call_qwen(prompt: str, timeout: int = 75) -> str:
         "keep_alive": "30m",
         "options": {
             "num_ctx": 4096,
-            "num_predict": 300,
+            "num_predict": 120,
             "temperature": 0.2,
         },
     }

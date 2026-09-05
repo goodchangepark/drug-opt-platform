@@ -117,6 +117,15 @@ from .prediction_engine_v3_policy import (
     ENGINE_V1_POLICY_VERSION,
     ENGINE_V1_STATUS,
 )
+from .prediction_engine_v3_3_1_policy import (
+    ENGINE_V3_1_POLICY_ID,
+    ENGINE_V3_1_POLICY_VERSION,
+    ENGINE_V3_1_NAME,
+    ENGINE_V3_1_STATUS,
+    ENGINE_V3_1_DECISION,
+    V3_3_1_ENDPOINT_ROUTING,
+    build_v3_3_1_readiness_comparison_table,
+)
 from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
@@ -223,10 +232,11 @@ def health():
     return {
         "status": "ok", "stage": "5B", "step": CURRENT_STAGE, "version": APP_VERSION,
         "updated": latest_release_date(),
-        "engine": "drugopt-prediction-engine-v3@3.3.0",
-        "engine_version": "3.3.0",
-        "legacy_engine": "drugopt-prediction-engine-v1@1.0.0",
-        "decision": "READY_TO_REPLACE_V1",
+        "engine": ENGINE_V3_1_NAME,
+        "engine_version": ENGINE_V3_1_POLICY_VERSION,
+        "superseded_engine": f"{ENGINE_V3_POLICY_ID}@{ENGINE_V3_POLICY_VERSION}",
+        "legacy_engine": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
+        "decision": ENGINE_V3_1_DECISION,
     }
 
 
@@ -576,7 +586,7 @@ def help_registry(db: Session = Depends(get_db)):
         "pk_method_registry": pk_methods,
         "version_history": version_history(),
         "prediction_model_history": prediction_model_history(),
-        "prediction_readiness_comparison": build_production_readiness_comparison_table(),
+        "prediction_readiness_comparison": build_v3_3_1_readiness_comparison_table(),
         "prediction_engine_v3": get_v3_policy_payload(),
         "glossary": [{"term": term, "definition": definition} for term, definition in GLOSSARY],
         "limitations": list(LIMITATIONS),
@@ -4655,13 +4665,14 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         } for row in audit_runs],
         "prediction_history": persisted_prediction_history,
         "prediction_engine": {
-            "engine_id": (latest_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_POLICY_ID) if latest_workflow else ENGINE_V3_POLICY_ID,
-            "engine_version": (latest_workflow.provenance_json or {}).get("engine_version", ENGINE_V3_POLICY_VERSION) if latest_workflow else ENGINE_V3_POLICY_VERSION,
-            "engine_name": (latest_workflow.provenance_json or {}).get("engine_name", ENGINE_V3_NAME) if latest_workflow else ENGINE_V3_NAME,
-            "engine_status": (latest_workflow.provenance_json or {}).get("engine_status", ENGINE_V3_STATUS) if latest_workflow else ENGINE_V3_STATUS,
+            "engine_id": (latest_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_1_POLICY_ID) if latest_workflow else ENGINE_V3_1_POLICY_ID,
+            "engine_version": (latest_workflow.provenance_json or {}).get("engine_version", ENGINE_V3_1_POLICY_VERSION) if latest_workflow else ENGINE_V3_1_POLICY_VERSION,
+            "engine_name": (latest_workflow.provenance_json or {}).get("engine_name", ENGINE_V3_1_NAME) if latest_workflow else ENGINE_V3_1_NAME,
+            "engine_status": (latest_workflow.provenance_json or {}).get("engine_status", ENGINE_V3_1_STATUS) if latest_workflow else ENGINE_V3_1_STATUS,
             "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
-            "decision": "READY_TO_REPLACE_V1",
-            "endpoint_routing": {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()},
+            "superseded_baseline": f"{ENGINE_V3_POLICY_ID}@{ENGINE_V3_POLICY_VERSION}",
+            "decision": ENGINE_V3_1_DECISION,
+            "endpoint_routing": {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()},
         },
     }
 

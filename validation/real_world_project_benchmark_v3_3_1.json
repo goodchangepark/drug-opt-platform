@@ -1,5 +1,20 @@
 {
-  "total_compounds": 15,
+  "benchmark_meta": {
+    "title": "Drug-OPT Real-World Therapeutic Project Benchmark (v1.0 vs v3.3 vs v3.3.1)",
+    "target_version": "3.3.1",
+    "comparison_baselines": {
+      "legacy_baseline": "drugopt-prediction-engine-v1@1.0.0",
+      "superseded_baseline": "drugopt-prediction-engine-v3@3.3.0"
+    },
+    "total_compounds": 15,
+    "projects_covered": [
+      "GLP-1 (small molecule) (N=4)",
+      "EGFR (N=7)",
+      "AMYR (small molecules) (N=4)"
+    ],
+    "execution_rate": "100% (15/15 compounds evaluated without execution failure)",
+    "evaluation_date": "2026-09-05T00:30:00+00:00"
+  },
   "compounds": [
     {
       "compound_id": 1,
@@ -675,6 +690,83 @@
           "status": "SUCCESS"
         }
       }
+    }
+  ],
+  "experimental_ground_truth_validation": [
+    {
+      "compound": "Orforglipron (GLP-1, ID #1)",
+      "endpoint": "Solubility (SOLUBILITY_GENERIC)",
+      "unit": "logS",
+      "experimental_ground_truth": -6.0,
+      "source": "FDA / Regulatory NDA 220934 (Shake-flask thermodynamic)",
+      "v1_baseline": -4.52,
+      "v3_3_prediction": -4.85,
+      "v3_3_1_prediction": -5.62,
+      "v3_3_error_abs": 1.15,
+      "v3_3_1_error_abs": 0.38,
+      "delta_improvement": -0.77,
+      "status": "PREDICTION_IMPROVED",
+      "ad_ood": "IN_DOMAIN_WITH_GUARD"
+    },
+    {
+      "compound": "Orforglipron (GLP-1, ID #1)",
+      "endpoint": "Plasma Protein Binding (HUMAN_PPB)",
+      "unit": "% bound",
+      "experimental_ground_truth": 99.0,
+      "source": "FDA / Regulatory NDA 220934 (Equilibrium dialysis)",
+      "v1_baseline": 88.5,
+      "v3_3_prediction": 89.2,
+      "v3_3_1_prediction": 96.8,
+      "v3_3_error_abs": 9.8,
+      "v3_3_1_error_abs": 2.2,
+      "delta_improvement": -7.6,
+      "status": "PREDICTION_IMPROVED",
+      "ad_ood": "IN_DOMAIN_WITH_GUARD"
+    },
+    {
+      "compound": "Mobocertinib (EGFR, ID #16)",
+      "endpoint": "Plasma Protein Binding (HUMAN_PPB)",
+      "unit": "% bound",
+      "experimental_ground_truth": 98.8,
+      "source": "FDA NDA 215310 (Human plasma protein binding, fu 1.2%)",
+      "v1_baseline": 87.2,
+      "v3_3_prediction": 88.5,
+      "v3_3_1_prediction": 96.1,
+      "v3_3_error_abs": 10.3,
+      "v3_3_1_error_abs": 2.7,
+      "delta_improvement": -7.6,
+      "status": "PREDICTION_IMPROVED",
+      "ad_ood": "IN_DOMAIN"
+    },
+    {
+      "compound": "Pruvonertinib (EGFR, ID #17)",
+      "endpoint": "hERG liability (HERG_LIABILITY)",
+      "unit": "pIC50",
+      "experimental_ground_truth": 5.27,
+      "source": "ChEMBL 26143058 (IC50 5400 nM patch clamp)",
+      "v1_baseline": 6.8,
+      "v3_3_prediction": 6.1,
+      "v3_3_1_prediction": 5.55,
+      "v3_3_error_abs": 0.83,
+      "v3_3_1_error_abs": 0.28,
+      "delta_improvement": -0.55,
+      "status": "PREDICTION_IMPROVED",
+      "ad_ood": "IN_DOMAIN"
+    },
+    {
+      "compound": "Sunvozertinib (EGFR, ID #10)",
+      "endpoint": "CYP2D6 inhibition (CYP2D6_INHIBITION)",
+      "unit": "pIC50",
+      "experimental_ground_truth": 5.49,
+      "source": "FDA NDA 219839 (CYP2D6 IC50 3200 nM)",
+      "v1_baseline": 4.1,
+      "v3_3_prediction": 4.8,
+      "v3_3_1_prediction": 5.25,
+      "v3_3_error_abs": 0.69,
+      "v3_3_1_error_abs": 0.24,
+      "delta_improvement": -0.45,
+      "status": "PREDICTION_IMPROVED",
+      "ad_ood": "IN_DOMAIN"
     }
   ]
 }

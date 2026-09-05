@@ -1,0 +1,712 @@
+{
+  "expansion_pool_metadata": {
+    "pool_id": "drugbank-150-to-200-candidate-expansion-pool",
+    "target_version": "drugopt-prediction-engine-v3@3.3.2",
+    "candidate_count": 50,
+    "selection_criteria": "Targeting under-represented endpoints: CYP2C19 (N=6), Transporters P-gp/BCRP (N=9), Caco-2/BCS (N=5), Solubility/PPB (N=6), HLM Clearance (N=3), Safety Liabilities (N=11), CNS/BBB/Vdss (N=10)",
+    "fail_closed_governance": "CYP2C19 quantitative continuous regression, P-gp quantitative kinetics, and BCRP quantitative kinetics remain strictly MODEL_UNAVAILABLE until real continuous ML models are trained and validated. Artificial/interpolated predictions strictly prohibited.",
+    "curated_at_utc": "2026-09-05T00:30:00+00:00"
+  },
+  "candidates": [
+    {
+      "name": "Esomeprazole",
+      "cas_number": "119141-88-7",
+      "drugbank_id": "DB00736",
+      "smiles": "COc1ccc2[nH]c([S@@](=O)Cc3ncc(C)c(OC)c3C)nc2c1",
+      "indication": "GERD / Peptic Ulcer",
+      "mechanism_of_action": "Proton Pump Inhibitor",
+      "expansion_target_role": "CYP2C19_QUANT_BENCHMARK",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Rabeprazole",
+      "cas_number": "117976-89-3",
+      "drugbank_id": "DB01129",
+      "smiles": "COCCCOc1cc(CS(=O)c2nc3ccccc3[nH]2)ncc1C",
+      "indication": "GERD / Duodenal Ulcer",
+      "mechanism_of_action": "Proton Pump Inhibitor",
+      "expansion_target_role": "CYP2C19_QUANT_BENCHMARK",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Moclobemide",
+      "cas_number": "71320-77-9",
+      "drugbank_id": "DB01157",
+      "smiles": "O=C(c1ccc(Cl)cc1)NCCN1CCOCC1",
+      "indication": "Major Depressive Disorder",
+      "mechanism_of_action": "MAO-A Inhibitor",
+      "expansion_target_role": "CYP2C19_QUANT_BENCHMARK",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Brivaracetam",
+      "cas_number": "357336-20-0",
+      "drugbank_id": "DB05538",
+      "smiles": "CCCC[C@@H](CC(=O)N)[C@H]1CCCC1=O",
+      "indication": "Partial-Onset Seizures",
+      "mechanism_of_action": "SV2A Ligand",
+      "expansion_target_role": "CYP2C19_QUANT_BENCHMARK",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Clobazam",
+      "cas_number": "22316-47-8",
+      "drugbank_id": "DB00349",
+      "smiles": "CN1C(=O)CC(=O)N(c2ccccc2)c2ccccc21",
+      "indication": "Lennox-Gastaut Syndrome",
+      "mechanism_of_action": "GABAA Receptor Positive Modulator",
+      "expansion_target_role": "CYP2C19_QUANT_BENCHMARK",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Proguanil",
+      "cas_number": "500-92-5",
+      "drugbank_id": "DB01131",
+      "smiles": "CC(C)NC(=N)NC(=N)Nc1ccc(Cl)cc1",
+      "indication": "Malaria Prophylaxis",
+      "mechanism_of_action": "DHFR Inhibitor (via cycloguanil)",
+      "expansion_target_role": "CYP2C19_QUANT_BENCHMARK",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Vinblastine",
+      "cas_number": "865-21-4",
+      "drugbank_id": "DB00570",
+      "smiles": "CCC1(O)C[C@@H]2CN(CCc3c([nH]c4ccccc34)[C@@](C(=O)OC)(c3cc4c(c(OC)c3)N(C)[C@H]3[C@@]45CCN4CC=C[C@@](CC)([C@H](OC(C)=O)[C@]53O)C4)C2)C1",
+      "indication": "Hodgkin Lymphoma",
+      "mechanism_of_action": "Microtubule Inhibitor (P-gp Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Doxorubicin",
+      "cas_number": "23214-92-8",
+      "drugbank_id": "DB00997",
+      "smiles": "COc1cccc2C(=O)c3c(O)c4c(c(O)c3C(=O)c12)C[C@@](O)(C(=O)CO)C[C@@H]4O[C@H]1C[C@H](N)[C@H](O)[C@H](C)O1",
+      "indication": "Various Cancers",
+      "mechanism_of_action": "Topoisomerase II Inhibitor (P-gp Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Paclitaxel",
+      "cas_number": "33069-62-4",
+      "drugbank_id": "DB01229",
+      "smiles": "CC(=O)O[C@H]1C(=O)[C@@]2(C)[C@H](O)C[C@@H]3OC[C@@]3(OC(C)=O)[C@H]2[C@H](OC(=O)c2ccccc2)[C@]2(O)C[C@@H](OC(=O)[C@H](O)[C@@H](NC(=O)c3ccccc3)c3ccccc3)C(C)=C1C2(C)C",
+      "indication": "Ovarian / Breast Cancer",
+      "mechanism_of_action": "Microtubule Stabilizer (P-gp Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Methotrexate",
+      "cas_number": "59-05-2",
+      "drugbank_id": "DB00563",
+      "smiles": "CN(Cc1cnc2nc(N)nc(N)c2n1)c1ccc(C(=O)N[C@@H](CCC(=O)O)C(=O)O)cc1",
+      "indication": "Rheumatoid Arthritis / ALL",
+      "mechanism_of_action": "DHFR Inhibitor (BCRP Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Topotecan",
+      "cas_number": "123948-87-8",
+      "drugbank_id": "DB01030",
+      "smiles": "CCC1(O)C(=O)OCc2c1cc1n(c2=O)Cc2cc3c(c(CN(C)C)c2-1)OCO3",
+      "indication": "Ovarian / Cervical Cancer",
+      "mechanism_of_action": "Topoisomerase I Inhibitor (BCRP Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Irinotecan",
+      "cas_number": "97682-44-5",
+      "drugbank_id": "DB00762",
+      "smiles": "CCC1(O)C(=O)OCc2c1cc1n(c2=O)Cc2cc3c(c(OC(=O)N4CCC(N5CCCCC5)CC4)c2-1)cc3",
+      "indication": "Colorectal Cancer",
+      "mechanism_of_action": "Topoisomerase I Inhibitor (BCRP Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Mitoxantrone",
+      "cas_number": "65271-80-9",
+      "drugbank_id": "DB01204",
+      "smiles": "O=C1c2c(O)ccc(NCCNCCO)c2C(=O)c2c(O)ccc(NCCNCCO)c21",
+      "indication": "Multiple Sclerosis / AML",
+      "mechanism_of_action": "Type II Topoisomerase Inhibitor (BCRP Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Teriflunomide",
+      "cas_number": "163451-81-8",
+      "drugbank_id": "DB08880",
+      "smiles": "CC(=O)/C(=C/c1ccc(C(F)(F)F)cc1)C(=O)Nc1ccc(C(F)(F)F)cc1",
+      "indication": "Multiple Sclerosis",
+      "mechanism_of_action": "DHODH Inhibitor (BCRP Inhibitor)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Dabigatran",
+      "cas_number": "211915-06-9",
+      "drugbank_id": "DB01495",
+      "smiles": "CN(Cc1nc2ccccc2n1C)c1ccc(C(=O)NCCc2ccccn2)cc1",
+      "indication": "Thromboembolism Prophylaxis",
+      "mechanism_of_action": "Direct Thrombin Inhibitor (P-gp Substrate)",
+      "expansion_target_role": "TRANSPORTER_PGP_BCRP",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Nadolol",
+      "cas_number": "42200-33-9",
+      "drugbank_id": "DB01203",
+      "smiles": "CC(C)(C)NCC(O)COc1cccc2c1[C@H](O)[C@H](O)CC2",
+      "indication": "Hypertension / Angina",
+      "mechanism_of_action": "Beta-Adrenergic Blocker (Low Caco-2)",
+      "expansion_target_role": "PERMEABILITY_CACO2_BCS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Hydrochlorothiazide",
+      "cas_number": "58-93-5",
+      "drugbank_id": "DB00999",
+      "smiles": "NS(=O)(=O)c1cc2c(cc1Cl)NCNS2(=O)=O",
+      "indication": "Hypertension / Edema",
+      "mechanism_of_action": "Thiazide Diuretic (Low Caco-2)",
+      "expansion_target_role": "PERMEABILITY_CACO2_BCS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Furosemide",
+      "cas_number": "54-31-9",
+      "drugbank_id": "DB00695",
+      "smiles": "NS(=O)(=O)c1cc(C(=O)O)c(NCc2ccco2)cc1Cl",
+      "indication": "Edema / Congestive Heart Failure",
+      "mechanism_of_action": "Loop Diuretic (Low Caco-2)",
+      "expansion_target_role": "PERMEABILITY_CACO2_BCS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Griseofulvin",
+      "cas_number": "126-07-8",
+      "drugbank_id": "DB00400",
+      "smiles": "COc1cc2c(c(Cl)c1OC)C(=O)C[C@]1(C)C(=O)C(OC)=C[C@H]1[C@@H]2C",
+      "indication": "Dermatophytosis",
+      "mechanism_of_action": "Mitotic Spindle Disruptor (Low Sol/High Perm)",
+      "expansion_target_role": "PERMEABILITY_CACO2_BCS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Danazol",
+      "cas_number": "17230-88-5",
+      "drugbank_id": "DB00366",
+      "smiles": "C#C[C@]1(O)CC[C@H]2[C@@H]3CCC4=Cc5nonc5C[C@]4(C)[C@H]3CC[C@@]21C",
+      "indication": "Endometriosis",
+      "mechanism_of_action": "Androgen Receptor Partial Agonist (Low Sol)",
+      "expansion_target_role": "PERMEABILITY_CACO2_BCS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Sulfamethoxazole",
+      "cas_number": "723-46-6",
+      "drugbank_id": "DB01015",
+      "smiles": "Cc1cc(NS(=O)(=O)c2ccc(N)cc2)no1",
+      "indication": "Bacterial Infections",
+      "mechanism_of_action": "Dihydropteroate Synthase Inhibitor",
+      "expansion_target_role": "SOLUBILITY_PPB_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Trimethoprim",
+      "cas_number": "738-70-5",
+      "drugbank_id": "DB00440",
+      "smiles": "COc1cc(Cc2cnc(N)nc2N)cc(OC)c1OC",
+      "indication": "Urinary Tract Infections",
+      "mechanism_of_action": "Bacterial DHFR Inhibitor",
+      "expansion_target_role": "SOLUBILITY_PPB_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Clofibrate",
+      "cas_number": "637-07-0",
+      "drugbank_id": "DB00636",
+      "smiles": "CCOC(=O)C(C)(C)Oc1ccc(Cl)cc1",
+      "indication": "Dyslipidemia",
+      "mechanism_of_action": "PPAR-alpha Agonist (High PPB)",
+      "expansion_target_role": "SOLUBILITY_PPB_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Gemfibrozil",
+      "cas_number": "25812-30-0",
+      "drugbank_id": "DB01241",
+      "smiles": "Cc1ccc(OCCCC(C)(C)C(=O)O)c(C)c1",
+      "indication": "Hypertriglyceridemia",
+      "mechanism_of_action": "PPAR-alpha Agonist (High PPB)",
+      "expansion_target_role": "SOLUBILITY_PPB_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Flurbiprofen",
+      "cas_number": "5104-49-4",
+      "drugbank_id": "DB00712",
+      "smiles": "CC(C(=O)O)c1ccc(-c2ccccc2)c(F)c1",
+      "indication": "Rheumatoid Arthritis",
+      "mechanism_of_action": "COX-1/2 Inhibitor (High PPB)",
+      "expansion_target_role": "SOLUBILITY_PPB_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Diflunisal",
+      "cas_number": "22494-42-4",
+      "drugbank_id": "DB00861",
+      "smiles": "O=C(O)c1cc(-c2ccc(F)c(F)c2)ccc1O",
+      "indication": "Mild-to-Moderate Pain",
+      "mechanism_of_action": "COX Inhibitor (High PPB)",
+      "expansion_target_role": "SOLUBILITY_PPB_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Vardenafil",
+      "cas_number": "224785-90-4",
+      "drugbank_id": "DB00862",
+      "smiles": "CCCC1=NC(=C2N1N=C(NC2=O)c1cc(S(=O)(=O)N2CCN(CC)CC2)ccc1OCC)C",
+      "indication": "Erectile Dysfunction",
+      "mechanism_of_action": "PDE5 Inhibitor (HLM substrate)",
+      "expansion_target_role": "HLM_CLEARANCE_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Triazolam",
+      "cas_number": "28911-01-5",
+      "drugbank_id": "DB00897",
+      "smiles": "Cc1nnc2n1-c1ccc(Cl)cc1C(=NC2)c1ccccc1Cl",
+      "indication": "Insomnia",
+      "mechanism_of_action": "GABAA Receptor Positive Modulator (HLM probe)",
+      "expansion_target_role": "HLM_CLEARANCE_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Lorazepam",
+      "cas_number": "846-49-1",
+      "drugbank_id": "DB00186",
+      "smiles": "O=C1NC(=O)c2cc(Cl)ccc2-n2c1nnc2-c1ccccc1Cl",
+      "indication": "Anxiety / Status Epilepticus",
+      "mechanism_of_action": "GABAA Positive Modulator (UGT/HLM clearance)",
+      "expansion_target_role": "HLM_CLEARANCE_EXPANSION",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Busulfan",
+      "cas_number": "55-98-1",
+      "drugbank_id": "DB01008",
+      "smiles": "COS(=O)(=O)CCCCS(=O)(=O)OC",
+      "indication": "Chronic Myeloid Leukemia",
+      "mechanism_of_action": "Alkylating Agent (DNA Crosslinker)",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Cisapride",
+      "cas_number": "81098-60-4",
+      "drugbank_id": "DB00604",
+      "smiles": "COc1cc(Cl)c(N)cc1C(=O)N[C@@H]1CCN(CCCOc2ccc(F)cc2)[C@H](OC)C1",
+      "indication": "GERD (Withdrawn due to QT)",
+      "mechanism_of_action": "5-HT4 Agonist / Potent hERG Blocker",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Troglitazone",
+      "cas_number": "97322-87-7",
+      "drugbank_id": "DB00197",
+      "smiles": "Cc1c(C)c2c(c(C)c1O)CC[C@@](C)(COc1ccc(CC3SC(=O)NC3=O)cc1)O2",
+      "indication": "Type 2 Diabetes (Withdrawn DILI)",
+      "mechanism_of_action": "PPAR-gamma Agonist",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Bromfenac",
+      "cas_number": "91714-94-2",
+      "drugbank_id": "DB00963",
+      "smiles": "NC(=O)c1c(CC(=O)O)ccc(C(=O)c2ccc(Br)cc2)c1N",
+      "indication": "Ocular Inflammation (Oral Withdrawn DILI)",
+      "mechanism_of_action": "COX-2 Inhibitor",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Nefazodone",
+      "cas_number": "83366-66-9",
+      "drugbank_id": "DB01149",
+      "smiles": "CCc1nn(CCCN2CCN(c3cccc(Cl)c3)CC2)c(=O)n1CCOc1ccccc1",
+      "indication": "Depression (Black Box DILI)",
+      "mechanism_of_action": "5-HT2A Antagonist / SARI",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "2-Nitrofluorene",
+      "cas_number": "607-57-8",
+      "drugbank_id": "DB14503",
+      "smiles": "O=[N+]([O-])c1cc2c(cc1)Cc1ccccc1-2",
+      "indication": "Ames Positive Reference Standard",
+      "mechanism_of_action": "DNA Adduct Inducer",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Benoxaprofen",
+      "cas_number": "51234-28-7",
+      "drugbank_id": "DB08796",
+      "smiles": "CC(C(=O)O)c1ccc2nc(-c3ccc(Cl)cc3)oc2c1",
+      "indication": "Arthritis (Withdrawn DILI/Cholestasis)",
+      "mechanism_of_action": "COX/5-LOX Inhibitor",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Sitaxentan",
+      "cas_number": "184036-34-8",
+      "drugbank_id": "DB06283",
+      "smiles": "Cc1sc(NS(=O)(=O)c2c(Cl)ccc3c2OCO3)c(C(=O)c2ccc(OC)cc2)c1C",
+      "indication": "PAH (Withdrawn DILI)",
+      "mechanism_of_action": "Endothelin Receptor Antagonist",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Zileuton",
+      "cas_number": "111406-87-2",
+      "drugbank_id": "DB00744",
+      "smiles": "CC(c1cc2ccccc2s1)N(O)C(N)=O",
+      "indication": "Asthma (DILI Hepatotoxicity Monitor)",
+      "mechanism_of_action": "5-Lipoxygenase Inhibitor",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Felbamate",
+      "cas_number": "25451-15-4",
+      "drugbank_id": "DB00949",
+      "smiles": "NC(=O)OCC(COC(N)=O)c1ccccc1",
+      "indication": "Refractory Epilepsy (Aplastic Anemia/DILI)",
+      "mechanism_of_action": "NMDA Receptor Modulator",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Dapsone",
+      "cas_number": "80-08-0",
+      "drugbank_id": "DB00250",
+      "smiles": "Nc1ccc(S(=O)(=O)c2ccc(N)cc2)cc1",
+      "indication": "Leprosy / Dermatitis Herpetiformis",
+      "mechanism_of_action": "Dihydropteroate Synthase (Hemolysis/MetHb)",
+      "expansion_target_role": "SAFETY_HERG_DILI_AMES",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Zolpidem",
+      "cas_number": "82626-48-0",
+      "drugbank_id": "DB00425",
+      "smiles": "Cc1ccc(-c2nc3ccc(C)cc3n2CC(=O)N(C)C)cc1",
+      "indication": "Insomnia (High BBB / Low Vd)",
+      "mechanism_of_action": "GABAA Positive Modulator",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Zaleplon",
+      "cas_number": "151319-34-5",
+      "drugbank_id": "DB00962",
+      "smiles": "CCN(C(C)=O)c1cccc(-c2cnc3ccc(C#N)cn23)c1",
+      "indication": "Insomnia (Rapid Onset / BBB)",
+      "mechanism_of_action": "GABAA Receptor Positive Modulator",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Baclofen",
+      "cas_number": "1134-47-0",
+      "drugbank_id": "DB00181",
+      "smiles": "NCC(CC(=O)O)c1ccc(Cl)cc1",
+      "indication": "Spasticity (Hydrophilic CNS / Low BBB)",
+      "mechanism_of_action": "GABAB Receptor Agonist",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Memantine",
+      "cas_number": "19982-08-2",
+      "drugbank_id": "DB01043",
+      "smiles": "CC12CC3CC(C)(C1)CC(N)(C3)C2",
+      "indication": "Alzheimer Disease (High Vdss / High BBB)",
+      "mechanism_of_action": "NMDA Receptor Antagonist",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Amantadine",
+      "cas_number": "768-94-5",
+      "drugbank_id": "DB00915",
+      "smiles": "NC12CC3CC(C1)CC(C2)C3",
+      "indication": "Parkinson Disease (High Vdss)",
+      "mechanism_of_action": "NMDA Receptor Antagonist",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Gabapentin",
+      "cas_number": "60142-96-3",
+      "drugbank_id": "DB00996",
+      "smiles": "NCC1(CC(=O)O)CCCCC1",
+      "indication": "Neuropathic Pain (LAT1 Transporter CNS)",
+      "mechanism_of_action": "Alpha-2-Delta Ligand",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Pregabalin",
+      "cas_number": "148553-50-8",
+      "drugbank_id": "DB00230",
+      "smiles": "CC(C)CC(CN)CC(=O)O",
+      "indication": "Fibromyalgia / Neuropathic Pain",
+      "mechanism_of_action": "Alpha-2-Delta Ligand",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Levetiracetam",
+      "cas_number": "102767-28-2",
+      "drugbank_id": "DB01066",
+      "smiles": "CCC(C(=O)N)N1CCCC1=O",
+      "indication": "Epilepsy (High Oral Absorption / High Sol)",
+      "mechanism_of_action": "SV2A Ligand",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Modafinil_Acid",
+      "cas_number": "90002-84-3",
+      "drugbank_id": "DB14088",
+      "smiles": "O=C(O)CS(=O)C(c1ccccc1)c1ccccc1",
+      "indication": "Inactive Metabolite (Hydrophilic Polar)",
+      "mechanism_of_action": "Dopamine Transporter Inactive",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    },
+    {
+      "name": "Aripiprazole_Metabolite_OPC14857",
+      "cas_number": "129722-12-9",
+      "drugbank_id": "DB14589",
+      "smiles": "O=C1CCc2ccc(OCCCCN3CCN(c4cccc(Cl)c4Cl)CC3)cc2N1",
+      "indication": "Major Active Metabolite (Dehydroaripiprazole)",
+      "mechanism_of_action": "D2 Partial Agonist",
+      "expansion_target_role": "BBB_VDSS_PHARMACOKINETICS",
+      "fail_closed_model_status": {
+        "CYP2C19_INHIBITION": "MODEL_UNAVAILABLE",
+        "PGP_INHIBITION_QUANT": "MODEL_UNAVAILABLE",
+        "BCRP_INHIBITOR_QUANT": "MODEL_UNAVAILABLE"
+      }
+    }
+  ]
+}

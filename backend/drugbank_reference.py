@@ -115,9 +115,16 @@ def ingest_reference_drug_by_spec(db: Session, drug_spec: Dict[str, Any]) -> Dic
 
     comp = db.scalar(select(Compound).where(Compound.project_id == proj.id, Compound.name == drug_spec["name"]))
     if not comp:
+        target_cid = f"DRUGBANK-{drug_spec['drugbank_id']}"
+        conflict = db.scalar(select(Compound).where(Compound.project_id == proj.id, Compound.compound_id == target_cid))
+        if conflict and conflict.name != drug_spec["name"]:
+            if conflict.name == "Lorcaserin":
+                conflict.compound_id = "DRUGBANK-DB04871"
+                conflict.notes = conflict.notes.replace("DB08907", "DB04871")
+                db.commit()
         comp = Compound(
             project_id=proj.id,
-            compound_id=f"DRUGBANK-{drug_spec['drugbank_id']}",
+            compound_id=target_cid,
             cas_number=drug_spec["cas_number"],
             name=drug_spec["name"],
             notes=f"Approved Reference Drug | DrugBank: {drug_spec['drugbank_id']} | ChEMBL: {drug_spec['chembl_id']} | PubChem: {drug_spec['pubchem_cid']} | UNII: {drug_spec['unii']} | Scaffold: {drug_spec.get('scaffold_family', '')} | Role: {drug_spec.get('model_role', ROLE_MODEL_SELECTION_VALIDATION)} | Cohort: {drug_spec.get('cohort', 'VALIDATION_COHORT_1')}",
