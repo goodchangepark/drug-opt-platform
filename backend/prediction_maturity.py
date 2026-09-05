@@ -22,8 +22,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-ENGINE_VERSION = "3.3.1"
-LAST_PROMOTED_AT = "2026-09-04T18:00:00+00:00"
+ENGINE_VERSION = "3.3.2"
+LAST_PROMOTED_AT = "2026-09-05T18:00:00+00:00"
 
 LEVEL_LABELS = {
     1: "Base / Mechanistic Estimate",

@@ -1498,6 +1498,8 @@ function integratedProfile(versionId){
       'Plasma protein binding': 'HUMAN_PPB',
       'Plasma Protein Binding': 'HUMAN_PPB',
       'HLM intrinsic clearance': 'HLM_CLINT',
+      'RLM intrinsic clearance': 'RLM_CLINT',
+      'MLM intrinsic clearance': 'MLM_CLINT',
       'CYP3A4 inhibitor': 'CYP3A4_INHIBITION',
       'CYP2D6 inhibitor': 'CYP2D6_INHIBITION',
       'CYP1A2 inhibitor': 'CYP1A2_INHIBITION',
@@ -1507,8 +1509,8 @@ function integratedProfile(versionId){
 
     const routingDetails = workspace?.prediction_engine?.routing_details?.[epKey] || workspace?.prediction_engine?.routing_details?.[row.canonical_endpoint];
     const epRoute = routingDetails?.route || workspace?.prediction_engine?.endpoint_routing?.[epKey] || workspace?.prediction_engine?.endpoint_routing?.[row.canonical_endpoint] || 'V3_3_1_BEST_SINGLE';
-    const epTier = epRoute === 'V3_3_1_WEIGHTED_ENSEMBLE' ? 'v3.3.1 Ensemble'
-      : epRoute === 'V3_3_1_BEST_SINGLE' ? 'v3.3.1 Best Single'
+    const epTier = (epRoute === 'V3_3_1_WEIGHTED_ENSEMBLE' || epRoute === 'V3_3_2_WEIGHTED_ENSEMBLE') ? 'v3.3 Ensemble'
+      : (epRoute === 'V3_3_1_BEST_SINGLE' || epRoute === 'V3_3_2_BEST_SINGLE') ? 'v3.3 Best Single'
       : epRoute === 'RETAIN_V3_3' ? 'Retained v3.3'
       : epRoute === 'LEGACY_BASE_FALLBACK' ? 'Legacy Base'
       : epRoute === 'CLASSIFICATION_ONLY' ? 'Classification Only'
@@ -1516,7 +1518,7 @@ function integratedProfile(versionId){
 
     if(!prediction.available)return e('div',{},[
       e('span',{className:'mono'},'Unavailable'),
-      e('div',{className:'small mono',style:{color:'#6b7280'}},'Engine: Prediction Engine v3.3.1'),
+      e('div',{className:'small mono',style:{color:'#6b7280'}},'Engine: '+(workspace?.prediction_engine?.engine_name||'Prediction Engine v3.3.2')),
       e('div',{style:{marginTop:'2px'}},[
         e('span',{className:'badge-caution',style:{fontSize:'10px',padding:'1px 5px'}},'Model Unavailable')
       ]),
@@ -1531,11 +1533,13 @@ function integratedProfile(versionId){
   function scientificSourceCell(row){
    const prediction=row.prediction;
    if(!prediction)return e('span',{className:'small'},'—');
-   if(!prediction.available || prediction.status==='UNAVAILABLE')return e('span',{className:'small',style:{color:'#9ca3af'}},'Engine v3.3.1 (Unavailable)');
+   if(!prediction.available || prediction.status==='UNAVAILABLE')return e('span',{className:'small',style:{color:'#9ca3af'}},'Engine v3.3.2 (Unavailable)');
    const epKey = {
      'Solubility': 'SOLUBILITY',
      'Permeability': 'CACO2',
      'HLM intrinsic clearance': 'HLM_CLINT',
+     'RLM intrinsic clearance': 'RLM_CLINT',
+     'MLM intrinsic clearance': 'MLM_CLINT',
      'Plasma protein binding': 'PPB',
      'CYP3A4 inhibitor': 'CYP3A4_INHIBITION',
      'CYP2D6 inhibitor': 'CYP2D6_INHIBITION',
@@ -1545,16 +1549,17 @@ function integratedProfile(versionId){
    }[row.display_name] || row.canonical_endpoint || row.endpoint_id || '';
    const routingDetails = workspace?.prediction_engine?.routing_details?.[epKey] || workspace?.prediction_engine?.routing_details?.[row.canonical_endpoint];
    const epRoute = routingDetails?.route || workspace?.prediction_engine?.endpoint_routing?.[epKey] || workspace?.prediction_engine?.endpoint_routing?.[row.canonical_endpoint] || 'V3_3_1_BEST_SINGLE';
-   const epTier = epRoute === 'V3_3_1_WEIGHTED_ENSEMBLE' ? 'v3.3.1 Ensemble'
-     : epRoute === 'V3_3_1_BEST_SINGLE' ? 'v3.3.1 Best Single'
+   const epTier = (epRoute === 'V3_3_1_WEIGHTED_ENSEMBLE' || epRoute === 'V3_3_2_WEIGHTED_ENSEMBLE') ? 'v3.3 Ensemble'
+     : (epRoute === 'V3_3_1_BEST_SINGLE' || epRoute === 'V3_3_2_BEST_SINGLE') ? 'v3.3 Best Single'
      : epRoute === 'RETAIN_V3_3' ? 'Retained v3.3'
      : epRoute === 'LEGACY_BASE_FALLBACK' ? 'Legacy Base'
      : epRoute === 'CLASSIFICATION_ONLY' ? 'Classification Only'
      : 'Model Unavailable';
-   const tierColor = epTier==='v3.3.1 Ensemble' ? '#16a34a' : epTier==='v3.3.1 Best Single' ? '#096dd9' : epTier==='Retained v3.3' ? '#08979c' : epTier==='Legacy Base' ? '#d97706' : '#6b7280';
+   const tierColor = (epTier==='v3.3 Ensemble' || epTier==='v3.3.1 Ensemble') ? '#16a34a' : (epTier==='v3.3 Best Single' || epTier==='v3.3.1 Best Single') ? '#096dd9' : epTier==='Retained v3.3' ? '#08979c' : epTier==='Legacy Base' ? '#d97706' : '#6b7280';
+   const engineLabel = 'v' + (workspace?.prediction_engine?.engine_version || '3.3.2') + ' Active';
    return e('div',{},[
     e('div',{style:{display:'flex',gap:'4px',flexWrap:'wrap',marginBottom:'2px'}},[
-      e('span',{className:'badge-favorable',style:{fontSize:'10px',padding:'1px 5px'}},'v3.3.1 Active'),
+      e('span',{className:'badge-favorable',style:{fontSize:'10px',padding:'1px 5px'}},engineLabel),
       e('span',{className:'mono',style:{fontSize:'10px',color:tierColor,fontWeight:'bold'}},epTier)
     ]),
     prediction.source_label&&e('div',{className:'small',style:{color:'#666'}},prediction.source_label)
@@ -4454,9 +4459,10 @@ function integratedProfile(versionId){
       e('span',{},'⚡ NEW EXPERIMENTAL DATA AVAILABLE'),
       e('span',{className:'small'},'— Click Predict to refresh model comparisons and interpretations.')
      ]),
-     workspace ? e('details',{className:'scope-debug-details',style:{margin:'8px 0 0',fontSize:'11.5px',color:'#6b7280'}},[
-        e('summary',{style:{cursor:'pointer',userSelect:'none'}},'System Identifiers & Debug Scope (Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id+')'),
+      workspace ? e('details',{className:'scope-debug-details',style:{margin:'8px 0 0',fontSize:'11.5px',color:'#6b7280'}},[
+        e('summary',{style:{cursor:'pointer',userSelect:'none'}},'System Identifiers & Strict Scope (Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id+')'),
         e('div',{style:{padding:'6px 8px',background:'#f9fafb',borderRadius:'4px',marginTop:'4px',fontFamily:'monospace'}},[
+          e('div',{},'Strict scope: Project #'+workspace.scope.project_id+' · Compound #'+workspace.scope.compound_id+' · CompoundVersion #'+workspace.scope.version_id),
           e('div',{},'Internal DB Project ID: '+workspace.scope.project_id),
           e('div',{},'Internal DB Compound ID: '+workspace.scope.compound_id+' ('+detail.compound_id+')'),
           e('div',{},'Internal DB CompoundVersion ID: '+workspace.scope.version_id+' (Revision v'+(version?.version_number||1)+')'),
@@ -5218,37 +5224,39 @@ function integratedProfile(versionId){
        e('div',{className:'card',style:{background:'#f6ffed',border:'1px solid #b7eb8f',padding:'16px',margin:'14px 0'}},[
         e('div',{className:'row toolbar',style:{alignItems:'flex-start'}},[
          e('div',{},[
-          e('div',{className:'eyebrow',style:{color:'#389e0d'}},'ACTIVE PRODUCTION PREDICTION ENGINE'),
-          e('h3',{style:{margin:'4px 0',color:'#135200'}},curEngine.name||'Prediction Engine v3.3.1 · Production Default'),
-          e('div',{className:'mono',style:{fontSize:'13px',color:'#237804'}},'Engine ID: '+(curEngine.engine_id||'drugopt-prediction-engine-v3@3.3.1'))
+          e('div',{},[
+           e('div',{className:'eyebrow',style:{color:'#389e0d'}},'ACTIVE PRODUCTION PREDICTION ENGINE'),
+           e('h3',{style:{margin:'4px 0',color:'#135200'}},curEngine.name||'Prediction Engine v3.3.2 · Production Default'),
+           e('div',{className:'mono',style:{fontSize:'13px',color:'#237804'}},'Engine ID: '+(curEngine.engine_id||'drugopt-prediction-engine-v3@3.3.2'))
+          ]),
+          e('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap'}},[
+           e('span',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},curEngine.status||'PRODUCTION_DEFAULT'),
+           e('span',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},curEngine.decision||'REPLACE_V3_3_1_CONFIRMED')
+          ])
          ]),
-         e('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap'}},[
-          e('span',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},curEngine.status||'PRODUCTION_DEFAULT'),
-          e('span',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},curEngine.decision||'READY_TO_REPLACE_V3_3')
+         e('div',{className:'grid',style:{marginTop:'12px'}},[
+          e('div',{className:'col-4'},[
+           e('dt',{className:'small',style:{fontWeight:'bold',color:'#595959'}},'Release Date'),
+           e('dd',{className:'mono'},curEngine.release_date||'2026-09-05')
+          ]),
+          e('div',{className:'col-8'},[
+           e('dt',{className:'small',style:{fontWeight:'bold',color:'#595959'}},'Model Artifact Hash / Policy Hash (SHA-256)'),
+           e('dd',{className:'mono small',style:{wordBreak:'break-all'}},curEngine.policy_hash||'877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce')
+          ])
+         ]),
+         e('div',{style:{marginTop:'14px'}},[
+          e('div',{className:'small bold',style:{color:'#262626',marginBottom:'6px'}},'Active 50-Endpoint Architectural Routing Summary:'),
+          e('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap'}},[
+           e('span',{className:'badge-favorable',style:{padding:'4px 10px',fontSize:'12px'}},'5 Stacking Ensembles'),
+           e('span',{className:'badge-info',style:{padding:'4px 10px',fontSize:'12px'}},'6 Best Single Models'),
+           e('span',{className:'badge-intermediate',style:{padding:'4px 10px',fontSize:'12px'}},'1 Retained v3.3 Baseline'),
+           e('span',{className:'badge-intermediate',style:{padding:'4px 10px',fontSize:'12px'}},'16 Legacy Base Fallback'),
+           e('span',{className:'badge-info',style:{padding:'4px 10px',fontSize:'12px'}},'15 Classification Only'),
+           e('span',{className:'badge-caution',style:{padding:'4px 10px',fontSize:'12px'}},'7 Model Unavailable (Fail-Closed)'),
+           e('span',{className:'badge-favorable',style:{padding:'4px 10px',fontSize:'12px',fontWeight:'bold'}},'Total: 50 Canonical Endpoints')
+          ])
          ])
         ]),
-        e('div',{className:'grid',style:{marginTop:'12px'}},[
-         e('div',{className:'col-4'},[
-          e('dt',{className:'small',style:{fontWeight:'bold',color:'#595959'}},'Release Date'),
-          e('dd',{className:'mono'},curEngine.release_date||'2026-09-04')
-         ]),
-         e('div',{className:'col-8'},[
-          e('dt',{className:'small',style:{fontWeight:'bold',color:'#595959'}},'Model Artifact Hash / Policy Hash (SHA-256)'),
-          e('dd',{className:'mono small',style:{wordBreak:'break-all'}},curEngine.policy_hash||'4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9')
-         ])
-        ]),
-        e('div',{style:{marginTop:'14px'}},[
-         e('div',{className:'small bold',style:{color:'#262626',marginBottom:'6px'}},'Active 50-Endpoint Architectural Routing Summary:'),
-         e('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap'}},[
-          e('span',{className:'badge-favorable',style:{padding:'4px 10px',fontSize:'12px'}},'5 Stacking Ensembles'),
-          e('span',{className:'badge-info',style:{padding:'4px 10px',fontSize:'12px'}},'4 Best Single Models'),
-          e('span',{className:'badge-intermediate',style:{padding:'4px 10px',fontSize:'12px'}},'3 Retained v3.3 Baseline'),
-          e('span',{className:'badge-intermediate',style:{padding:'4px 10px',fontSize:'12px'}},'16 Legacy Base Fallback'),
-          e('span',{className:'badge-info',style:{padding:'4px 10px',fontSize:'12px'}},'15 Classification Only'),
-          e('span',{className:'badge-caution',style:{padding:'4px 10px',fontSize:'12px'}},'7 Model Unavailable (Fail-Closed)'),
-          e('span',{className:'badge-favorable',style:{padding:'4px 10px',fontSize:'12px',fontWeight:'bold'}},'Total: 50 Canonical Endpoints')
-         ])
-        ])
        ]),
        e('h3',{style:{marginTop:'24px'}},'Prediction Engine Evolution Lineage (v1.0.0 → v3.3.2 Candidate)'),
        e('p',{className:'small'},'Chronological progression and architectural milestones across prediction engine generations:'),
@@ -5377,6 +5385,44 @@ function integratedProfile(versionId){
          e('td',{className:'small'},(pm.promoted_endpoints&&pm.promoted_endpoints.length>0)?pm.promoted_endpoints.join(', '):(pm.key_endpoints||'None (Base Baseline)')),
          e('td',{className:'small'},pm.validation_summary||pm.validation_results),
          e('td',{className:'small',style:{color:'#595959'}},pm.known_limitations)
+        ])))
+       ]))
+      ]),
+      e('section',{className:'card help-section',id:'help-pk-readiness',key:'pk-readiness'},[
+       e('div',{className:'eyebrow'},'PREDICTION READINESS FOUNDATION'),
+       e('div',{className:'row toolbar',style:{alignItems:'flex-start'}},[
+        e('div',{},[
+         e('h2',{},'PK Prediction Readiness Foundation'),
+         e('p',{className:'small'},'PK prediction readiness depends directly on validated upstream ADME / metabolism predictions. Validated continuous models and physiological parameters enable robust IVIVE and translational PK simulations.')
+        ]),
+        e('span',{className:'badge-favorable',style:{fontSize:'13px',padding:'6px 14px',fontWeight:'bold'}},'PK_FOUNDATION_READY')
+       ]),
+       e('div',{className:'table-scroll',style:{marginTop:'12px'}},e('table',{},[
+        e('thead',{},e('tr',{},['PK Parameter / Input','Endpoint ID','Upstream ADME Role','Maturity Level','Stars','Validation Basis','PK Readiness Status'].map(l=>e('th',{key:l},l)))),
+        e('tbody',{},[
+         {name:'Aqueous Solubility',id:'SOLUBILITY_GENERIC',role:'Dissolution & Gastrointestinal Absorption',lvl:'Level 4',stars:'★★★★☆',basis:'Multi-Model Stacking Ensemble (ESOL + Admetica)',status:'READY'},
+         {name:'Caco-2 Permeability (A→B)',id:'CACO2_PAPP_AB',role:'Intestinal Mucosal Permeability (Papp)',lvl:'Level 4',stars:'★★★★☆',basis:'Multi-Model Stacking Ensemble (Admetica + Physchem)',status:'READY'},
+         {name:'Plasma Protein Binding (PPB)',id:'HUMAN_PPB',role:'Fraction Unbound (fu,plasma = 1 - PPB)',lvl:'Level 4',stars:'★★★★☆',basis:'Multi-Model Stacking Ensemble (Admetica + Albumin Mech)',status:'READY'},
+         {name:'HLM Intrinsic Clearance',id:'HLM_CLINT',role:'Hepatic Metabolic Clearance (IVIVE Clint)',lvl:'Level 4',stars:'★★★★☆',basis:'Best Single Model (Drug-OPT Chemical Space Residual)',status:'READY'},
+         {name:'RLM Intrinsic Clearance',id:'RLM_CLINT',role:'Preclinical Rodent (Rat) Clearance',lvl:'Level 4',stars:'★★★★☆',basis:'OpenADMET CheMeleon Neural Net (+9.6% Holdout Gain)',status:'READY'},
+         {name:'MLM Intrinsic Clearance',id:'MLM_CLINT',role:'Preclinical Rodent (Mouse) Clearance',lvl:'Level 4',stars:'★★★★☆',basis:'OpenADMET CheMeleon Neural Net (+6.2% Holdout Gain)',status:'READY'},
+         {name:'Steady-State Volume (Vdss)',id:'VDSS',role:'Physiological Tissue Distribution (L/kg)',lvl:'Level 3',stars:'★★★☆☆',basis:'Mechanistic Consensus (Oie-Tozer + PhysChem)',status:'READY'},
+         {name:'Distribution Coeff (logD 7.4)',id:'LOGD_7_4',role:'Lipophilicity at Physiological pH',lvl:'Level 1',stars:'★☆☆☆☆',basis:'Henderson-Hasselbalch Ionization Fraction',status:'READY'},
+         {name:'Ionization pKa',id:'PKA',role:'Acid/Base Ionization Species Distribution',lvl:'Level 1',stars:'★☆☆☆☆',basis:'Substructure Ionization Matching',status:'READY'},
+         {name:'CYP Panel (3A4, 2D6, 1A2, 2C9)',id:'CYP_PANEL',role:'Metabolic Clearance & DDI Liability',lvl:'Level 4',stars:'★★★★☆',basis:'Stacking / Best Single Quantitative Ensembles',status:'READY'},
+         {name:'CYP2C19 Liability',id:'CYP2C19_INHIBITOR_CLASS',role:'Secondary CYP DDI Screening',lvl:'Level 2',stars:'★★☆☆☆',basis:'TDC Binary Classification Screen',status:'READY'},
+         {name:'P-gp Efflux Liability',id:'PGP_INHIBITION',role:'Intestinal / BBB Efflux Liability',lvl:'Level 2',stars:'★★☆☆☆',basis:'Admetica Binary Transporter Classifier',status:'READY'},
+         {name:'BCRP Efflux Liability',id:'BCRP_INHIBITOR',role:'Biliary & Renal Efflux Transport',lvl:'Level 2',stars:'★★☆☆☆',basis:'TDC Binary Transporter Classifier',status:'READY'},
+         {name:'Human Intestinal Absorption (HIA)',id:'HIA',role:'Fraction Absorbed (Fa) Risk Screen',lvl:'Level 2',stars:'★★☆☆☆',basis:'TDC Gradient-Boosted Binary Classifier',status:'READY'},
+         {name:'Blood-Brain Barrier (BBB)',id:'BBB_PENETRATION',role:'Central Nervous System Penetration Screen',lvl:'Level 2',stars:'★★☆☆☆',basis:'TDC Machine Learning Binary Classifier',status:'READY'},
+        ].map(r=>e('tr',{key:r.id,style:{background:r.lvl==='Level 4'?'#f6ffed':r.lvl==='Level 3'?'#e6f7ff':'#fafafa'}},[
+         e('td',{},e('strong',{},r.name)),
+         e('td',{className:'mono small'},r.id),
+         e('td',{className:'small'},r.role),
+         e('td',{className:'mono bold'},r.lvl),
+         e('td',{className:'bold',style:{color:r.lvl==='Level 4'?'#389e0d':r.lvl==='Level 3'?'#096dd9':'#8c8c8c'}},r.stars),
+         e('td',{className:'small'},r.basis),
+         e('td',{},e('span',{className:r.status==='READY'?'badge-favorable':'badge-intermediate'},r.status))
         ])))
        ]))
       ]),
@@ -5653,7 +5699,7 @@ ledgerTable
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
      ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
      e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
-     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},isReferenceLibrary?'DrugBank Reference Library (150 Approved Drugs)':'Compound Status'),e('p',{className:'small'},isReferenceLibrary?'Canonical reference catalog of 150 approved reference drugs with verified CAS, 2D structure, multi-registry identifiers, and qualified experimental evidence.':'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},(isReferenceLibrary?['','Compound & CAS','2D Structure','Canonical SMILES / InChIKey','Registry IDs','Evidence','Prediction','Identity Status','']:['','Compound','Structure','Properties','Activity','ADMET','Optimization','']).map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id,className:'compound-row','data-compound-id':compound.compound_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button compound-name-link',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{className:'cid-tag'},compound.compound_id),compound.cas_number?e('span',{className:'cas-tag',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'600'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||(compound.version?'STRUCTURE_READY':'NOT_STARTED')})]),isReferenceLibrary?e('td',{style:{maxWidth:'240px'}},[e('div',{className:'mono small smiles-text',style:{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'230px'},title:compound.version?.canonical_smiles},compound.version?.canonical_smiles||'—'),e('div',{className:'mono small inchikey-text',style:{color:'#64748b',marginTop:'2px'}},compound.version?.inchikey||'—')]):e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),isReferenceLibrary?e('td',{style:{minWidth:'170px'}},[e('div',{className:'small'},[compound.drugbank_id?e('span',{key:'db',className:'mono bold',style:{marginRight:'6px',color:'#0369a1'}},compound.drugbank_id):null,compound.chembl_id?e('span',{key:'chembl',className:'mono small',style:{marginRight:'6px',color:'#475569'}},compound.chembl_id):null]),e('div',{className:'small mono',style:{color:'#64748b',marginTop:'2px'}},[compound.pubchem_cid?e('span',{key:'pc',style:{marginRight:'6px'}},'CID: '+compound.pubchem_cid):null,compound.unii?e('span',{key:'unii'},'UNII: '+compound.unii):null])]):e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),isReferenceLibrary?e('td',{className:'mono bold evidence-count-cell',style:{color:'#15803d',textAlign:'center'}},String(compound.evidence_count??0)):e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.prediction_status||'PREDICTED'})):e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.verification_status||'VERIFIED'})):null,e('td',{},e('button',{className:'secondary btn-open-detail',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
+      e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},isReferenceLibrary?'DrugBank Reference Library (200 Approved Drugs)':'Compound Status'),e('p',{className:'small'},isReferenceLibrary?'Canonical reference catalog of 200 approved reference drugs with verified CAS, 2D structure, multi-registry identifiers, and qualified experimental evidence.':'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},(isReferenceLibrary?['','Compound & CAS','2D Structure','Canonical SMILES / InChIKey','Registry IDs','Evidence','Prediction','Identity Status','']:['','Compound','Structure','Properties','Activity','ADMET','Optimization','']).map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id,className:'compound-row','data-compound-id':compound.compound_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button compound-name-link',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{className:'cid-tag'},compound.compound_id),compound.cas_number?e('span',{className:'cas-tag',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'600'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||(compound.version?'STRUCTURE_READY':'NOT_STARTED')})]),isReferenceLibrary?e('td',{style:{maxWidth:'240px'}},[e('div',{className:'mono small smiles-text',style:{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'230px'},title:compound.version?.canonical_smiles},compound.version?.canonical_smiles||'—'),e('div',{className:'mono small inchikey-text',style:{color:'#64748b',marginTop:'2px'}},compound.version?.inchikey||'—')]):e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),isReferenceLibrary?e('td',{style:{minWidth:'170px'}},[e('div',{className:'small'},[compound.drugbank_id?e('span',{key:'db',className:'mono bold',style:{marginRight:'6px',color:'#0369a1'}},compound.drugbank_id):null,compound.chembl_id?e('span',{key:'chembl',className:'mono small',style:{marginRight:'6px',color:'#475569'}},compound.chembl_id):null]),e('div',{className:'small mono',style:{color:'#64748b',marginTop:'2px'}},[compound.pubchem_cid?e('span',{key:'pc',style:{marginRight:'6px'}},'CID: '+compound.pubchem_cid):null,compound.unii?e('span',{key:'unii'},'UNII: '+compound.unii):null])]):e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),isReferenceLibrary?e('td',{className:'mono bold evidence-count-cell',style:{color:'#15803d',textAlign:'center'}},String(compound.evidence_count??0)):e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.prediction_status||'PREDICTED'})):e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.verification_status||'VERIFIED'})):null,e('td',{},e('button',{className:'secondary btn-open-detail',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
     ]),
     project&&projectTab==='evidence'&&!detail&&e(React.Fragment,{key:'project-evidence-view'},[
      e('div',{className:'card row toolbar',key:'project-evidence-toolbar'},[

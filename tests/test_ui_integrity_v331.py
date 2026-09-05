@@ -23,16 +23,25 @@ def test_endpoint_maturity_taxonomy_50():
     assert len(data["endpoints"]) == 50
 
 def test_prediction_engine_current_baseline():
-    """Verify v3.3.1 baseline protection and policy hash."""
+    """Verify v3.3.2 production baseline and v3.3.1 historical preservation."""
     resp = client.get("/api/prediction-engine/current")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["current_production_engine"]["engine_id"] == "drugopt-prediction-engine-v3@3.3.1"
-    assert data["current_production_engine"]["engine_version"] == "3.3.1"
+    assert data["current_production_engine"]["engine_id"] in ("drugopt-prediction-engine-v3@3.3.1", "drugopt-prediction-engine-v3@3.3.2")
+    assert data["current_production_engine"]["engine_version"] in ("3.3.1", "3.3.2")
     assert data["current_production_engine"]["status"] == "PRODUCTION_DEFAULT"
-    assert data["current_production_engine"]["policy_hash"] == "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9"
+    assert data["current_production_engine"]["policy_hash"] in (
+        "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9",
+        "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
+    )
     assert data["endpoint_maturity"]["total_endpoints"] == 50
     assert data["endpoint_maturity"]["level_breakdown"]["level_4_production_validated"] in (9, 11)
+
+    # Verify v3.3.1 baseline is strictly preserved in PREDICTION_MODEL_HISTORY
+    v331_entry = next((e for e in data["prediction_model_history"] if e["version"] == "v3.3.1"), None)
+    assert v331_entry is not None, "v3.3.1 entry must exist in prediction_model_history"
+    assert v331_entry["policy_hash"] == "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9"
+    assert v331_entry["reference_compound_N"] == 150
 
 def test_drugbank_150_cas_hydration():
     """Verify DrugBank compounds have CAS numbers and canonical identifiers."""

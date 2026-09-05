@@ -22,13 +22,13 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-CURRENT_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.1"
-CURRENT_ENGINE_VERSION = "3.3.1"
-CURRENT_ENGINE_NAME = "Prediction Engine v3.3.1 · Production Default"
+CURRENT_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.2"
+CURRENT_ENGINE_VERSION = "3.3.2"
+CURRENT_ENGINE_NAME = "Prediction Engine v3.3.2 · Production Default"
 CURRENT_ENGINE_STATUS = "PRODUCTION_DEFAULT"
-CURRENT_ENGINE_DECISION = "READY_TO_REPLACE_V3_3"
-CURRENT_POLICY_HASH = "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9"
-CURRENT_RELEASE_DATE = "2026-09-04"
+CURRENT_ENGINE_DECISION = "REPLACE_V3_3_1_CONFIRMED"
+CURRENT_POLICY_HASH = "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
+CURRENT_RELEASE_DATE = "2026-09-05"
 
 # Route Enumeration
 ROUTE_WEIGHTED_ENSEMBLE = "V3_3_1_WEIGHTED_ENSEMBLE"
@@ -45,8 +45,8 @@ PREDICTION_ENGINE_EVOLUTION: List[Dict[str, Any]] = [
     {"version": "v3.1.0", "label": "v3.1 Safety & Governance", "status": "SUPERSEDED", "engine_id": "global-prediction-engine-v3.1.0"},
     {"version": "v3.2.0", "label": "v3.2 Clearance Expansion", "status": "SUPERSEDED", "engine_id": "global-prediction-engine-v3.2.0"},
     {"version": "v3.3.0", "label": "v3.3 Multi-Model Replacement", "status": "SUPERSEDED", "engine_id": "drugopt-prediction-engine-v3@3.3.0"},
-    {"version": "v3.3.1", "label": "v3.3.1 Stacking Ensemble", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
-    {"version": "v3.3.2", "label": "v3.3.2 Candidate (DrugBank 200 & Preclinical ML)", "status": "CANDIDATE", "engine_id": "drugopt-prediction-engine-v3@3.3.2"},
+    {"version": "v3.3.1", "label": "v3.3.1 Stacking Ensemble", "status": "PRESERVED_PRODUCTION_BASELINE", "engine_id": "drugopt-prediction-engine-v3@3.3.1"},
+    {"version": "v3.3.2", "label": "v3.3.2 Production Default (DrugBank 200 & Preclinical ML)", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
 ]
 
 # 2. Complete Historical Version Metadata Registry
@@ -171,10 +171,10 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
     {
         "version": "v3.3.1",
         "engine_version": "3.3.1",
-        "engine_id": CURRENT_ENGINE_ID,
-        "release_date": CURRENT_RELEASE_DATE,
-        "production_status": CURRENT_ENGINE_STATUS,
-        "decision": CURRENT_ENGINE_DECISION,
+        "engine_id": "drugopt-prediction-engine-v3@3.3.1",
+        "release_date": "2026-09-04",
+        "production_status": "LEGACY_PRODUCTION_BASELINE",
+        "decision": "SUPERSEDED_BY_V3_3_2",
         "reference_compound_N": 150,
         "evidence_N": 946,
         "promoted_endpoints": [
@@ -201,16 +201,16 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
         ),
         "locked_test_summary": "Locked Final Test Cohort 5 (N=5) and Cohort 6 (N=13) holdouts strictly separated from prospective training.",
         "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with 100% execution success and verified accuracy improvement.",
-        "policy_hash": CURRENT_POLICY_HASH,
+        "policy_hash": "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9",
         "known_limitations": "CYP2C19, P-gp, and BCRP quantitative continuous regression remain fail-closed MODEL_UNAVAILABLE. Stacking models vs best single model routes strictly segregated in taxonomy.",
     },
     {
         "version": "v3.3.2",
-        "engine_version": "3.3.2",
-        "engine_id": "drugopt-prediction-engine-v3@3.3.2",
-        "release_date": "2026-09-05",
-        "production_status": "PRODUCTION_CANDIDATE",
-        "decision": "READY_TO_REPLACE_V3_3_1",
+        "engine_version": CURRENT_ENGINE_VERSION,
+        "engine_id": CURRENT_ENGINE_ID,
+        "release_date": CURRENT_RELEASE_DATE,
+        "production_status": CURRENT_ENGINE_STATUS,
+        "decision": CURRENT_ENGINE_DECISION,
         "reference_compound_N": 200,
         "evidence_N": 1490,
         "promoted_endpoints": [
@@ -238,7 +238,7 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
         ),
         "locked_test_summary": "Locked Final Test Cohort 7 (N=13: Deucravacitinib to Umbralisib) zero-leakage holdout evaluated with 100% data separation.",
         "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with zero regression and verified accuracy preservation.",
-        "policy_hash": "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce",
+        "policy_hash": CURRENT_POLICY_HASH,
         "known_limitations": "Transporter quantitative kinetics (P-gp, BCRP, OATP) remain fail-closed MODEL_UNAVAILABLE. Vdss remains mechanistic consensus Level 3.",
     },
 ]
@@ -317,7 +317,7 @@ CURRENT_PRODUCTION_ROUTING: List[Dict[str, Any]] = [
         "known_limitation": "Basic nitrogen pharmacophore required for maximal predictive confidence.",
     },
 
-    # --- Tier 2: V3_3_1_BEST_SINGLE (N=4) ---
+    # --- Tier 2: BEST_SINGLE (N=6) ---
     {
         "endpoint_id": "HLM_CLINT",
         "endpoint_name": "HLM Intrinsic Clearance",
@@ -374,36 +374,36 @@ CURRENT_PRODUCTION_ROUTING: List[Dict[str, Any]] = [
         "model_version_hash": "v3.3.1-STACKING-herg-100f6",
         "known_limitation": "Patch-clamp IC50 continuous proxy; clinical QT prolongation requires exposure translation.",
     },
-
-    # --- Tier 3: RETAIN_V3_3 (N=3) ---
     {
         "endpoint_id": "RLM_CLINT",
         "endpoint_name": "RLM Intrinsic Clearance",
-        "route": ROUTE_RETAIN_V3_3,
-        "model_or_ensemble": "Drug-OPT Chemical Space Residual (Retained v3.3)",
-        "weights": {"drugopt_rlm_chemical_space_v1": 1.000},
-        "status": "RETAINED_BASELINE",
-        "validation_n": 22,
-        "locked_test_n": 5,
+        "route": ROUTE_BEST_SINGLE,
+        "model_or_ensemble": "Best Single Model (OpenADMET CheMeleon RLM intrinsic clearance)",
+        "weights": {"openadmet_chemeleon_rlm_clint": 1.000},
+        "status": "PRODUCTION_DEFAULT",
+        "validation_n": 25,
+        "locked_test_n": 13,
         "unit": "log10(mL/min/kg)",
-        "ad_status": "IN_DOMAIN_WITH_GUARD",
-        "model_version_hash": "v3.3-rlm-retained-47a1",
-        "known_limitation": "Species-specific rat microsomal turnover; unvalidated multi-model stacking rejected.",
+        "ad_status": "IN_DOMAIN",
+        "model_version_hash": "v3.3.2-CHEMELEON-rlm-100j1",
+        "known_limitation": "Species-specific rat microsomal turnover; validated neural network route (+9.6% holdout improvement).",
     },
     {
         "endpoint_id": "MLM_CLINT",
         "endpoint_name": "MLM Intrinsic Clearance",
-        "route": ROUTE_RETAIN_V3_3,
-        "model_or_ensemble": "Base Microsomal Model (Retained v3.3)",
-        "weights": {"base_mlm_microsomal_v1": 1.000},
-        "status": "RETAINED_BASELINE",
-        "validation_n": 18,
-        "locked_test_n": 5,
+        "route": ROUTE_BEST_SINGLE,
+        "model_or_ensemble": "Best Single Model (OpenADMET CheMeleon MLM intrinsic clearance)",
+        "weights": {"openadmet_chemeleon_mlm_clint": 1.000},
+        "status": "PRODUCTION_DEFAULT",
+        "validation_n": 25,
+        "locked_test_n": 13,
         "unit": "log10(mL/min/kg)",
-        "ad_status": "IN_DOMAIN_WITH_GUARD",
-        "model_version_hash": "v3.3-mlm-retained-82b3",
-        "known_limitation": "Mouse-specific microsomal kinetics; multi-model expansion deferred.",
+        "ad_status": "IN_DOMAIN",
+        "model_version_hash": "v3.3.2-CHEMELEON-mlm-100k2",
+        "known_limitation": "Mouse-specific microsomal kinetics; validated neural network route (+6.2% holdout improvement).",
     },
+
+    # --- Tier 3: RETAIN_V3_3 (N=1) ---
     {
         "endpoint_id": "VDSS",
         "endpoint_name": "Steady-State Volume of Distribution (Vdss)",
