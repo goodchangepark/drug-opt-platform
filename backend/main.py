@@ -135,6 +135,7 @@ from .prediction_engine_registry import (
     CURRENT_POLICY_HASH,
     CURRENT_RELEASE_DATE,
     get_current_production_engine_info,
+    get_candidate_prediction_engine_info,
     get_prediction_engine_evolution,
     get_current_production_routing,
     get_prediction_model_history,
@@ -634,6 +635,7 @@ def get_current_prediction_engine_status():
     return {
         "status": "ok",
         "current_production_engine": get_current_production_engine_info(),
+        "candidate_prediction_engine": get_candidate_prediction_engine_info(),
         "prediction_engine_evolution": get_prediction_engine_evolution(),
         "current_production_routing": get_current_production_routing(),
         "prediction_model_history": get_prediction_model_history(),

@@ -306,7 +306,7 @@ def analyze_ionization(
     6. Formulates downstream ADME & PK contextual interpretation without fabricating precision.
     """
     std = standardize_molecule(smiles)
-    canonical = std.get("canonical_smiles", smiles)
+    canonical = std.get("canonical_smiles") or smiles
     mol = Chem.MolFromSmiles(canonical)
     if mol is None:
         return {
@@ -562,6 +562,8 @@ def analyze_ionization(
         "total_ionizable_centers": total_centers,
         "acidic_centers_count": num_acids,
         "basic_centers_count": num_bases,
+        "strongest_acidic_pka": min((c["estimated_rule_pka"] for c in acid_centers), default=None),
+        "strongest_basic_pka": max((c["estimated_rule_pka"] for c in base_centers), default=None),
         "ionizable_centers": all_centers,
         "primary_pka": rep_pka,
         "primary_pka_type": rep_type,

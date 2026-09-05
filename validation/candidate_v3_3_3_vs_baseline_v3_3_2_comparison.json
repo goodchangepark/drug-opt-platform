@@ -1,0 +1,121 @@
+{
+  "comparison_metadata": {
+    "comparison_title": "Drug-OPT Prediction Engine v3.3.3 Candidate vs v3.3.2 Production Baseline Comparison",
+    "timestamp": "2026-09-06T00:00:00Z",
+    "evaluation_mode": "AUTONOMOUS_CONTINUOUS_VALIDATION"
+  },
+  "production_baseline": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.2",
+    "engine_version": "3.3.2",
+    "status": "CURRENT_PRODUCTION_DEFAULT",
+    "policy_hash": "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce",
+    "release_date": "2026-09-05",
+    "reference_compound_N": 200,
+    "evidence_N": 3345,
+    "level_breakdown": {
+      "level_4": 11,
+      "level_3": 1,
+      "level_2": 15,
+      "level_1": 23
+    }
+  },
+  "candidate_engine": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+    "engine_version": "3.3.3",
+    "status": "PRODUCTION_CANDIDATE",
+    "decision": "CANDIDATE_READY_FOR_EVALUATION",
+    "policy_hash": "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2",
+    "release_date": "2026-09-06",
+    "reference_compound_N": 250,
+    "evidence_N": 3645,
+    "level_breakdown": {
+      "level_4": 11,
+      "level_3": 1,
+      "level_2": 15,
+      "level_1": 23
+    }
+  },
+  "pk_critical_parameter_evaluations": {
+    "pka": {
+      "level": 1,
+      "stars": "★☆☆☆☆",
+      "model_type": "Rule-Based Substructure Matching (Macro/Micro Acid & Base Split)",
+      "validation_summary": "19 reference drug pairs evaluated: All MAE = 1.083, Acidic MAE = 0.480, Basic MAE = 1.434",
+      "promotion_gate": "REJECT_MAINTAIN_LEVEL1",
+      "rationale": "External ML candidates showed reproducibility and PyG dependency failures on ARM64. Retained robust rule engine."
+    },
+    "logd_7_4": {
+      "level": 1,
+      "stars": "★☆☆☆☆",
+      "model_type": "Henderson-Hasselbalch Derived Estimate (Crippen cLogP + Ionization)",
+      "validation_summary": "20 reference drug pairs evaluated: MAE = 0.873, RMSE = 1.125, Bias = -0.351",
+      "promotion_gate": "REJECT_MAINTAIN_LEVEL1",
+      "rationale": "Direct statistical ML model unavailable; HH thermodynamic derivation mathematically rigorous but lacks independent ML holdout."
+    },
+    "vdss": {
+      "level": 3,
+      "stars": "★★★☆☆",
+      "model_type": "Mechanistic Consensus (Retained v3.3 Tissue Composition & Ionization)",
+      "validation_summary": "18 human clinical IV observations evaluated: Log10 MAE = 0.474, AAFE = 2.98-fold, 55.6% within 2-fold band",
+      "promotion_gate": "REJECT_MAINTAIN_LEVEL3",
+      "rationale": "Holdout error reduction vs base did not meet >=5% requirement for Level 4 promotion."
+    },
+    "fu_ppb": {
+      "level": 4,
+      "stars": "★★★★☆",
+      "canonical_rule": "fu = max(0.0001, min(1.0, (100.0 - PPB) / 100.0))",
+      "guardrail": "Physical lower bound of 0.0001 prevents division by zero and astronomical clearance artifacts."
+    },
+    "clearance_ivive": {
+      "level": 4,
+      "stars": "★★★★☆",
+      "model": "Well-Stirred Venous Equilibrium Model",
+      "physiological_constants": {
+        "qh_human_ml_min_kg": 20.714,
+        "liver_wt_g_kg": 25.5,
+        "mppgl_mg_g": 45.0,
+        "microsomal_scaling_factor_mg_kg": 1147.5
+      },
+      "guardrail": "Extraction ratio strictly in [0.0, 1.0) and blood clearance strictly bounded by Qh."
+    },
+    "simulation": {
+      "family": "1-Compartment Disposition (IV Bolus & First-Order Oral Absorption)",
+      "uncertainty": "Monte Carlo 1,000 draws generating 90% confidence intervals (5th, 50th, 95th percentiles)."
+    }
+  },
+  "gate_assessment": {
+    "gate_name": "PK_CRITICAL_GATE",
+    "final_verdict": "PASS_WITH_LIMITATIONS",
+    "clinical_benchmarks": {
+      "evaluated_drugs_count": 6,
+      "drugs": ["Acetaminophen", "Osimertinib", "Sunvozertinib", "Metformin", "Warfarin", "Midazolam"],
+      "total_parameter_pairs": 18,
+      "aafe": 2.20,
+      "pct_within_2fold": 61.1,
+      "pct_within_3fold": 77.8
+    },
+    "internal_pipeline": {
+      "evaluated_compounds_count": 15,
+      "projects": {
+        "project_1_glp1": 4,
+        "project_3_egfr": 7,
+        "project_5_amyr": 4
+      },
+      "simulation_success_rate_pct": 100.0
+    }
+  },
+  "drugbank_expansion_summary": {
+    "original_count": 200,
+    "expanded_count": 250,
+    "newly_added_count": 50,
+    "compounds_range": "201 to 250",
+    "collision_check": "100% collision-free across Name, DrugBank ID, CAS, UNII, PubChem CID, InChIKey",
+    "cas_hydration_rate_pct": 100.0,
+    "database_integrity": "0 FK violations, 0 orphans, all 250 compounds hydrated with valid 2D SVGs"
+  },
+  "governance_decision": {
+    "active_production_baseline": "drugopt-prediction-engine-v3@3.3.2 (PRESERVED)",
+    "candidate_engine": "drugopt-prediction-engine-v3@3.3.3 (REGISTERED_FOR_EVALUATION)",
+    "recommendation": "Maintain v3.3.2 as production default for live user predictions; activate v3.3.3 candidate evaluation in Help and Model History registries."
+  }
+}

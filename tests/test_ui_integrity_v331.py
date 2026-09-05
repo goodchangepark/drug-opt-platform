@@ -49,7 +49,7 @@ def test_drugbank_150_cas_hydration():
     c = conn.cursor()
     c.execute("SELECT id, name, cas_number FROM compounds WHERE project_id = 300")
     db_rows = c.fetchall()
-    assert len(db_rows) in (150, 200)
+    assert len(db_rows) in (150, 200, 250)
     missing_cas = [r for r in db_rows if not r[2] or r[2].strip() == ""]
     assert len(missing_cas) == 0, f"Found {len(missing_cas)} compounds missing CAS: {missing_cas[:5]}"
 
@@ -62,11 +62,11 @@ def test_drugbank_150_cas_hydration():
         GROUP BY ci.identifier_type
     """)
     id_counts = dict(c.fetchall())
-    assert id_counts.get("CAS") in (150, 200)
-    assert id_counts.get("DRUGBANK_ID") in (150, 200)
-    assert id_counts.get("CHEMBL_ID") in (150, 200)
-    assert id_counts.get("PUBCHEM_CID") in (150, 200)
-    assert id_counts.get("UNII") in (150, 200)
+    assert id_counts.get("CAS") in (150, 200, 250)
+    assert id_counts.get("DRUGBANK_ID") in (150, 200, 250)
+    assert id_counts.get("CHEMBL_ID") in (150, 200, 250)
+    assert id_counts.get("PUBCHEM_CID") in (150, 200, 250)
+    assert id_counts.get("UNII") in (150, 200, 250)
     conn.close()
 
 def test_historical_prediction_runs_protected():

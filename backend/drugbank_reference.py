@@ -61,9 +61,12 @@ ROLE_LOCKED_FINAL_TEST_COHORT_4 = "FINAL_TEST_COHORT_4_CONSUMED"  # Backward com
 ROLE_LOCKED_FINAL_TEST_COHORT_5 = "LOCKED_FINAL_TEST_COHORT_5"
 ROLE_LOCKED_FINAL_TEST_COHORT_6 = "LOCKED_FINAL_TEST_COHORT_6"
 ROLE_LOCKED_FINAL_TEST_COHORT_7 = "LOCKED_FINAL_TEST_COHORT_7"
+ROLE_LOCKED_FINAL_TEST_COHORT_8 = "LOCKED_FINAL_TEST_COHORT_8"
 
-# Load full 200 reference drugs catalog (with fallbacks)
-CATALOG_PATH = Path(__file__).parent / "reference_drugs_200.json"
+# Load full 250 reference drugs catalog (with fallbacks)
+CATALOG_PATH = Path(__file__).parent / "reference_drugs_250.json"
+if not CATALOG_PATH.exists():
+    CATALOG_PATH = Path(__file__).parent / "reference_drugs_200.json"
 if not CATALOG_PATH.exists():
     CATALOG_PATH = Path(__file__).parent / "reference_drugs_150.json"
 if not CATALOG_PATH.exists():

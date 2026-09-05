@@ -1,0 +1,536 @@
+{
+  "benchmark_metadata": {
+    "version": "1.0",
+    "eval_date": "2026-09-06T00:00:00Z",
+    "reference_drugs_count": 20,
+    "vdss_reference_drugs_count": 18
+  },
+  "pka": {
+    "endpoint_id": "PKA",
+    "pairs_evaluated": 19,
+    "mae": 1.083,
+    "rmse": 1.71,
+    "bias": 0.642,
+    "acid_mae": 0.48,
+    "base_mae": 1.434,
+    "level2_promotion_decision": "REJECT_MAINTAIN_LEVEL1",
+    "reason": "pKa estimation is substructure/rule-based. Independent candidate ML audit (PKASOLVER, PKALEARN) identified reproducibility and compatibility failures. Per strict policy, rule estimates cannot be elevated to Level 2 without an executable, independently validated ML checkpoint.",
+    "maturity_level": 1,
+    "stars": "\u2605\u2606\u2606\u2606\u2606",
+    "details": [
+      {
+        "name": "Acetaminophen",
+        "smiles": "CC(=O)NC1=CC=C(O)C=C1",
+        "ion_class": "ACID",
+        "exp_acid": 9.38,
+        "pred_acid": 9.8,
+        "exp_base": null,
+        "pred_base": null,
+        "acid_err": 0.42
+      },
+      {
+        "name": "Warfarin",
+        "smiles": "CC(=O)CC(c1ccccc1)c1c(O)c2ccccc2oc1=O",
+        "ion_class": "ACID",
+        "exp_acid": 5.05,
+        "pred_acid": 5.1,
+        "exp_base": null,
+        "pred_base": null,
+        "acid_err": 0.05
+      },
+      {
+        "name": "Ibuprofen",
+        "smiles": "CC(C)Cc1ccc(cc1)[C@@H](C)C(=O)O",
+        "ion_class": "ACID",
+        "exp_acid": 4.4,
+        "pred_acid": 4.2,
+        "exp_base": null,
+        "pred_base": null,
+        "acid_err": -0.2
+      },
+      {
+        "name": "Diclofenac",
+        "smiles": "O=C(O)Cc1ccccc1Nc1c(Cl)cccc1Cl",
+        "ion_class": "ZWITTERION_POSSIBLE",
+        "exp_acid": 4.0,
+        "pred_acid": 4.2,
+        "exp_base": null,
+        "pred_base": 4.5,
+        "acid_err": 0.2
+      },
+      {
+        "name": "Indomethacin",
+        "smiles": "COc1ccc2c(c1)c(CC(=O)O)c(C)n2C(=O)c1ccc(Cl)cc1",
+        "ion_class": "ACID",
+        "exp_acid": 4.5,
+        "pred_acid": 4.2,
+        "exp_base": null,
+        "pred_base": null,
+        "acid_err": -0.3
+      },
+      {
+        "name": "Furosemide",
+        "smiles": "O=S(=O)(N)c1cc(c(Cl)cc1C(=O)O)NCc1ccco1",
+        "ion_class": "ZWITTERION_POSSIBLE",
+        "exp_acid": 3.9,
+        "pred_acid": 4.2,
+        "exp_base": null,
+        "pred_base": 4.5,
+        "acid_err": 0.3
+      },
+      {
+        "name": "Propranolol",
+        "smiles": "CC(C)NCC(O)COc1cccc2ccccc12",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 9.45,
+        "pred_base": 10.4,
+        "base_err": 0.95
+      },
+      {
+        "name": "Atenolol",
+        "smiles": "CC(C)NCC(O)COc1ccc(CC(N)=O)cc1",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 9.6,
+        "pred_base": 10.4,
+        "base_err": 0.8
+      },
+      {
+        "name": "Metformin",
+        "smiles": "CN(C)C(=N)NC(N)=N",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 12.4,
+        "pred_base": 11.6,
+        "base_err": -0.8
+      },
+      {
+        "name": "Lidocaine",
+        "smiles": "CCN(CC)CC(=O)Nc1c(C)cccc1C",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 7.9,
+        "pred_base": 9.2,
+        "base_err": 1.3
+      },
+      {
+        "name": "Diazepam",
+        "smiles": "CN1C(=O)CN=C(c2ccccc2)c2cc(Cl)ccc21",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 3.4,
+        "pred_base": 3.4,
+        "base_err": 0.0
+      },
+      {
+        "name": "Midazolam",
+        "smiles": "Cc1ncc2c(n1)N=C(c1ccccc1F)CN2c1ccc(Cl)cc1",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 6.2,
+        "pred_base": 5.2,
+        "base_err": -1.0
+      },
+      {
+        "name": "Fluoxetine",
+        "smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 9.8,
+        "pred_base": 10.4,
+        "base_err": 0.6
+      },
+      {
+        "name": "Verapamil",
+        "smiles": "COc1ccc(CCN(C)CCCC(C#N)(C(C)C)c2ccc(OC)c(OC)c2)cc1OC",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 8.92,
+        "pred_base": 9.2,
+        "base_err": 0.28
+      },
+      {
+        "name": "Diltiazem",
+        "smiles": "COc1ccc(cc1)[C@@H]1Sc2ccccc2N(CCN(C)C)C(=O)[C@@H]1OC(C)=O",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 7.7,
+        "pred_base": 9.2,
+        "base_err": 1.5
+      },
+      {
+        "name": "Cimetidine",
+        "smiles": "Cc1ncc(CSCCNC(=NC#N)NC)[nH]1",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 6.8,
+        "pred_base": 12.8,
+        "base_err": 6.0
+      },
+      {
+        "name": "Ranitidine",
+        "smiles": "CNCCSc1ccc(CN(C)C)o1",
+        "ion_class": "BASE",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 8.2,
+        "pred_base": 10.4,
+        "base_err": 2.2
+      },
+      {
+        "name": "Ciprofloxacin",
+        "smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
+        "ion_class": "ZWITTERION_POSSIBLE",
+        "exp_acid": 6.09,
+        "pred_acid": 4.2,
+        "exp_base": 8.62,
+        "pred_base": 10.4,
+        "acid_err": -1.89,
+        "base_err": 1.78
+      },
+      {
+        "name": "Theophylline",
+        "smiles": "Cn1c(=O)[nH]c2c(ncn2C)c1=O",
+        "ion_class": "NEUTRAL",
+        "exp_acid": 8.8,
+        "pred_acid": null,
+        "exp_base": null,
+        "pred_base": null
+      },
+      {
+        "name": "Caffeine",
+        "smiles": "Cn1c(=O)c2c(ncn2C)n(C)c1=O",
+        "ion_class": "NEUTRAL",
+        "exp_acid": null,
+        "pred_acid": null,
+        "exp_base": 0.6,
+        "pred_base": null
+      }
+    ]
+  },
+  "logd_7_4": {
+    "endpoint_id": "LOGD_7_4",
+    "pairs_evaluated": 20,
+    "mae": 0.873,
+    "rmse": 1.125,
+    "bias": -0.351,
+    "level2_promotion_decision": "REJECT_MAINTAIN_LEVEL1",
+    "reason": "logD at pH 7.4 is derived mechanistically via Henderson-Hasselbalch equation from Crippen cLogP and rule-based pKa. No dedicated quantitative ML model checkpoint is qualified. Per strict policy, derived mechanistic estimates remain Level 1.",
+    "maturity_level": 1,
+    "stars": "\u2605\u2606\u2606\u2606\u2606",
+    "details": [
+      {
+        "name": "Acetaminophen",
+        "exp_logd74": 0.46,
+        "pred_logd74": 1.349,
+        "err": 0.89,
+        "clogp": 1.351,
+        "ion_class": "ACID"
+      },
+      {
+        "name": "Warfarin",
+        "exp_logd74": 0.61,
+        "pred_logd74": 1.308,
+        "err": 0.7,
+        "clogp": 3.61,
+        "ion_class": "ACID"
+      },
+      {
+        "name": "Ibuprofen",
+        "exp_logd74": 0.45,
+        "pred_logd74": -0.127,
+        "err": -0.58,
+        "clogp": 3.073,
+        "ion_class": "ACID"
+      },
+      {
+        "name": "Diclofenac",
+        "exp_logd74": 1.1,
+        "pred_logd74": 1.164,
+        "err": 0.06,
+        "clogp": 4.364,
+        "ion_class": "ZWITTERION_POSSIBLE"
+      },
+      {
+        "name": "Indomethacin",
+        "exp_logd74": 1.05,
+        "pred_logd74": 0.727,
+        "err": -0.32,
+        "clogp": 3.927,
+        "ion_class": "ACID"
+      },
+      {
+        "name": "Furosemide",
+        "exp_logd74": -1.5,
+        "pred_logd74": -1.309,
+        "err": 0.19,
+        "clogp": 1.891,
+        "ion_class": "ZWITTERION_POSSIBLE"
+      },
+      {
+        "name": "Propranolol",
+        "exp_logd74": 1.2,
+        "pred_logd74": -0.422,
+        "err": -1.62,
+        "clogp": 2.578,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Atenolol",
+        "exp_logd74": -1.7,
+        "pred_logd74": -2.548,
+        "err": -0.85,
+        "clogp": 0.452,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Metformin",
+        "exp_logd74": -5.2,
+        "pred_logd74": -4.744,
+        "err": 0.46,
+        "clogp": -1.244,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Lidocaine",
+        "exp_logd74": 1.6,
+        "pred_logd74": 0.777,
+        "err": -0.82,
+        "clogp": 2.584,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Diazepam",
+        "exp_logd74": 2.82,
+        "pred_logd74": 3.154,
+        "err": 0.33,
+        "clogp": 3.154,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Midazolam",
+        "exp_logd74": 3.1,
+        "pred_logd74": 4.847,
+        "err": 1.75,
+        "clogp": 4.85,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Fluoxetine",
+        "exp_logd74": 1.8,
+        "pred_logd74": 1.435,
+        "err": -0.36,
+        "clogp": 4.435,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Verapamil",
+        "exp_logd74": 2.45,
+        "pred_logd74": 3.286,
+        "err": 0.84,
+        "clogp": 5.093,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Diltiazem",
+        "exp_logd74": 2.7,
+        "pred_logd74": 1.562,
+        "err": -1.14,
+        "clogp": 3.369,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Cimetidine",
+        "exp_logd74": 0.4,
+        "pred_logd74": -2.903,
+        "err": -3.3,
+        "clogp": 0.597,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Ranitidine",
+        "exp_logd74": -0.3,
+        "pred_logd74": -1.347,
+        "err": -1.05,
+        "clogp": 1.653,
+        "ion_class": "BASE"
+      },
+      {
+        "name": "Ciprofloxacin",
+        "exp_logd74": -0.7,
+        "pred_logd74": -0.917,
+        "err": -0.22,
+        "clogp": 1.583,
+        "ion_class": "ZWITTERION_POSSIBLE"
+      },
+      {
+        "name": "Theophylline",
+        "exp_logd74": -0.02,
+        "pred_logd74": -1.04,
+        "err": -1.02,
+        "clogp": -1.04,
+        "ion_class": "NEUTRAL"
+      },
+      {
+        "name": "Caffeine",
+        "exp_logd74": -0.07,
+        "pred_logd74": -1.029,
+        "err": -0.96,
+        "clogp": -1.029,
+        "ion_class": "NEUTRAL"
+      }
+    ]
+  },
+  "vdss": {
+    "endpoint_id": "VDSS",
+    "pairs_evaluated": 18,
+    "log10_mae": 0.474,
+    "log10_rmse": 0.609,
+    "aafe": 2.98,
+    "within_2fold_pct": 55.6,
+    "within_3fold_pct": 55.6,
+    "level4_promotion_decision": "REJECT_MAINTAIN_LEVEL3",
+    "reason": "VDss currently operates at Level 3 (Calibrated Model / Mechanistic Consensus). Level 4 requires >= 5% holdout improvement over the v3.3 baseline on the locked holdout cohort. No candidate model meets this threshold with statistical significance; thus VDss is preserved at Level 3.",
+    "maturity_level": 3,
+    "stars": "\u2605\u2605\u2605\u2606\u2606",
+    "details": [
+      {
+        "name": "Acetaminophen",
+        "exp_vdss": 0.8,
+        "pred_vdss": 0.104,
+        "fold_error": 7.67,
+        "log_error": -0.885
+      },
+      {
+        "name": "Warfarin",
+        "exp_vdss": 0.14,
+        "pred_vdss": 0.104,
+        "fold_error": 1.34,
+        "log_error": -0.129
+      },
+      {
+        "name": "Ibuprofen",
+        "exp_vdss": 0.15,
+        "pred_vdss": 0.1,
+        "fold_error": 1.5,
+        "log_error": -0.177
+      },
+      {
+        "name": "Diclofenac",
+        "exp_vdss": 0.17,
+        "pred_vdss": 0.337,
+        "fold_error": 1.98,
+        "log_error": 0.297
+      },
+      {
+        "name": "Indomethacin",
+        "exp_vdss": 0.35,
+        "pred_vdss": 0.102,
+        "fold_error": 3.43,
+        "log_error": -0.536
+      },
+      {
+        "name": "Furosemide",
+        "exp_vdss": 0.18,
+        "pred_vdss": 0.325,
+        "fold_error": 1.81,
+        "log_error": 0.257
+      },
+      {
+        "name": "Propranolol",
+        "exp_vdss": 3.9,
+        "pred_vdss": 0.661,
+        "fold_error": 5.9,
+        "log_error": -0.771
+      },
+      {
+        "name": "Atenolol",
+        "exp_vdss": 0.95,
+        "pred_vdss": 0.649,
+        "fold_error": 1.46,
+        "log_error": -0.166
+      },
+      {
+        "name": "Metformin",
+        "exp_vdss": 4.1,
+        "pred_vdss": 0.649,
+        "fold_error": 6.32,
+        "log_error": -0.801
+      },
+      {
+        "name": "Lidocaine",
+        "exp_vdss": 1.3,
+        "pred_vdss": 0.696,
+        "fold_error": 1.87,
+        "log_error": -0.271
+      },
+      {
+        "name": "Diazepam",
+        "exp_vdss": 1.1,
+        "pred_vdss": 1.021,
+        "fold_error": 1.08,
+        "log_error": -0.032
+      },
+      {
+        "name": "Midazolam",
+        "exp_vdss": 1.15,
+        "pred_vdss": 1.768,
+        "fold_error": 1.54,
+        "log_error": 0.187
+      },
+      {
+        "name": "Fluoxetine",
+        "exp_vdss": 25.0,
+        "pred_vdss": 0.735,
+        "fold_error": 34.0,
+        "log_error": -1.531
+      },
+      {
+        "name": "Verapamil",
+        "exp_vdss": 4.2,
+        "pred_vdss": 1.064,
+        "fold_error": 3.95,
+        "log_error": -0.596
+      },
+      {
+        "name": "Diltiazem",
+        "exp_vdss": 3.8,
+        "pred_vdss": 0.746,
+        "fold_error": 5.1,
+        "log_error": -0.707
+      },
+      {
+        "name": "Cimetidine",
+        "exp_vdss": 1.0,
+        "pred_vdss": 0.649,
+        "fold_error": 1.54,
+        "log_error": -0.188
+      },
+      {
+        "name": "Ciprofloxacin",
+        "exp_vdss": 2.5,
+        "pred_vdss": 0.327,
+        "fold_error": 7.66,
+        "log_error": -0.884
+      },
+      {
+        "name": "Theophylline",
+        "exp_vdss": 0.5,
+        "pred_vdss": 0.647,
+        "fold_error": 1.29,
+        "log_error": 0.112
+      }
+    ]
+  }
+}

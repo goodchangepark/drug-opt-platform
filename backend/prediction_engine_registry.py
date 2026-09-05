@@ -30,6 +30,14 @@ CURRENT_ENGINE_DECISION = "REPLACE_V3_3_1_CONFIRMED"
 CURRENT_POLICY_HASH = "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
 CURRENT_RELEASE_DATE = "2026-09-05"
 
+CANDIDATE_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.3"
+CANDIDATE_ENGINE_VERSION = "3.3.3"
+CANDIDATE_ENGINE_NAME = "Prediction Engine v3.3.3 · Production Candidate (DrugBank 250 & PK Critical Upgrade)"
+CANDIDATE_ENGINE_STATUS = "PRODUCTION_CANDIDATE"
+CANDIDATE_ENGINE_DECISION = "CANDIDATE_READY_FOR_EVALUATION"
+CANDIDATE_POLICY_HASH = "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
+CANDIDATE_RELEASE_DATE = "2026-09-06"
+
 # Route Enumeration
 ROUTE_WEIGHTED_ENSEMBLE = "V3_3_1_WEIGHTED_ENSEMBLE"
 ROUTE_BEST_SINGLE = "V3_3_1_BEST_SINGLE"
@@ -47,6 +55,7 @@ PREDICTION_ENGINE_EVOLUTION: List[Dict[str, Any]] = [
     {"version": "v3.3.0", "label": "v3.3 Multi-Model Replacement", "status": "SUPERSEDED", "engine_id": "drugopt-prediction-engine-v3@3.3.0"},
     {"version": "v3.3.1", "label": "v3.3.1 Stacking Ensemble", "status": "PRESERVED_PRODUCTION_BASELINE", "engine_id": "drugopt-prediction-engine-v3@3.3.1"},
     {"version": "v3.3.2", "label": "v3.3.2 Production Default (DrugBank 200 & Preclinical ML)", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
+    {"version": "v3.3.3", "label": "v3.3.3 Production Candidate (DrugBank 250 & PK Critical Upgrade)", "status": "PRODUCTION_CANDIDATE", "engine_id": CANDIDATE_ENGINE_ID},
 ]
 
 # 2. Complete Historical Version Metadata Registry
@@ -240,6 +249,42 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
         "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with zero regression and verified accuracy preservation.",
         "policy_hash": CURRENT_POLICY_HASH,
         "known_limitations": "Transporter quantitative kinetics (P-gp, BCRP, OATP) remain fail-closed MODEL_UNAVAILABLE. Vdss remains mechanistic consensus Level 3.",
+    },
+    {
+        "version": "v3.3.3",
+        "engine_version": CANDIDATE_ENGINE_VERSION,
+        "engine_id": CANDIDATE_ENGINE_ID,
+        "release_date": CANDIDATE_RELEASE_DATE,
+        "production_status": CANDIDATE_ENGINE_STATUS,
+        "decision": CANDIDATE_ENGINE_DECISION,
+        "reference_compound_N": 250,
+        "evidence_N": 3645,
+        "promoted_endpoints": [
+            "SOLUBILITY_GENERIC", "CACO2_PAPP_AB", "HUMAN_PPB", "HLM_CLINT",
+            "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION",
+            "CYP2C9_INHIBITION", "HERG_LIABILITY", "RLM_CLINT", "MLM_CLINT"
+        ],
+        "retained_endpoints": ["VDSS"],
+        "fallback_endpoints": [
+            "MW", "CLOGP", "TPSA", "HBD", "HBA", "ROTB", "FSP3", "QED",
+            "FORMAL_CHARGE", "HEAVY_ATOM_COUNT", "PKA", "LOGD_7_4"
+        ],
+        "unavailable_endpoints": [
+            "CYP2C19_INHIBITION", "PGP_INHIBITION_QUANT", "BCRP_INHIBITOR_QUANT",
+            "OATP1B1_INHIBITOR", "OATP1B3_INHIBITOR", "OCT1_INHIBITOR", "OCT2_INHIBITOR"
+        ],
+        "validation_summary": (
+            "Expanded 250 approved reference drugs (compounds 201 to 250: 100% collision-free CAS, InChIKey, and UNII). "
+            "Integrated canonical PK parameter foundation (backend/pk_parameter_set.py) with physical bound fu >= 0.0001, "
+            "well-stirred hepatic clearance IVIVE (Qh=20.714 mL/min/kg), and 1-compartment oral/IV disposition simulation. "
+            "Validated on 6 clinical benchmark drugs (APAP, Osimertinib, Sunvozertinib, Metformin, Warfarin, Midazolam) with AAFE 2.20-fold, "
+            "61.1% within 2-fold, and 77.8% within 3-fold. 15 internal pipeline compounds across GLP-1, EGFR, and AMYR simulated with 100% validity. "
+            "Formal PK_CRITICAL_GATE status: PASS_WITH_LIMITATIONS."
+        ),
+        "locked_test_summary": "Locked Final Test Cohort 7 (N=13) and Cohort 8 (N=10) zero-leakage holdout evaluated with 100% data separation on DrugBank 250 catalog.",
+        "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with 100% execution success and robust Monte Carlo uncertainty bands.",
+        "policy_hash": CANDIDATE_POLICY_HASH,
+        "known_limitations": "Transporter quantitative continuous kinetics remain fail-closed MODEL_UNAVAILABLE. pKa and logD7.4 remain Level 1 (★☆☆☆☆) rule/derived estimates. Vdss remains Level 3 (★★★☆☆) mechanistic consensus.",
     },
 ]
 
@@ -969,6 +1014,19 @@ def get_current_production_engine_info() -> Dict[str, Any]:
         "decision": CURRENT_ENGINE_DECISION,
         "policy_hash": CURRENT_POLICY_HASH,
         "release_date": CURRENT_RELEASE_DATE,
+    }
+
+
+def get_candidate_prediction_engine_info() -> Dict[str, Any]:
+    """Returns next prediction engine candidate information."""
+    return {
+        "engine_id": CANDIDATE_ENGINE_ID,
+        "engine_version": CANDIDATE_ENGINE_VERSION,
+        "name": CANDIDATE_ENGINE_NAME,
+        "status": CANDIDATE_ENGINE_STATUS,
+        "decision": CANDIDATE_ENGINE_DECISION,
+        "policy_hash": CANDIDATE_POLICY_HASH,
+        "release_date": CANDIDATE_RELEASE_DATE,
     }
 
 
