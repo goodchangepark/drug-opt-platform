@@ -1,0 +1,311 @@
+{
+  "strategy_meta": {
+    "title": "DrugBank 150 -> 200 Expansion Role Strategy & Target Partition Planning",
+    "version": "drugopt-drugbank200-role-strategy-v1.0",
+    "current_catalog_n": 150,
+    "expansion_target_n": 200,
+    "candidate_pool_n": 50,
+    "milestone_scope": "PLANNING_AND_ROLE_ALLOCATION_ONLY",
+    "compound_addition_permitted": false,
+    "governance_constraint": "ZERO model training or checkpoint fabrication in this milestone. Strict fail-closed governance for uncheckpointed endpoints."
+  },
+  "endpoint_role_allocation_matrix": {
+    "CYP2C19_QUANTITATIVE": {
+      "target_endpoint": "CYP2C19_INHIBITION",
+      "current_drugbank_150": {
+        "development": 8,
+        "model_selection": 4,
+        "locked_final_test": 2,
+        "total": 14
+      },
+      "target_expansion_50": {
+        "development": 3,
+        "model_selection": 2,
+        "locked_final_test": 1,
+        "total": 6
+      },
+      "projected_drugbank_200": {
+        "development": 11,
+        "model_selection": 6,
+        "locked_final_test": 3,
+        "total": 20
+      },
+      "quantitative_checkpoint_installed": false,
+      "action_policy": "MAINTAIN_FAIL_CLOSED_MODEL_UNAVAILABLE",
+      "rationale": "Candidate reference drugs provide prospective ground truth, but without a validated continuous regression checkpoint, outputs must not be fabricated."
+    },
+    "PGP_TRANSPORTER": {
+      "target_endpoint": "PGP_INHIBITION_QUANT / PGP_INHIBITION",
+      "current_drugbank_150": {
+        "development": 0,
+        "model_selection": 0,
+        "locked_final_test": 0,
+        "total": 0
+      },
+      "target_expansion_50": {
+        "development": 5,
+        "model_selection": 2,
+        "locked_final_test": 2,
+        "total": 9
+      },
+      "projected_drugbank_200": {
+        "development": 5,
+        "model_selection": 2,
+        "locked_final_test": 2,
+        "total": 9
+      },
+      "quantitative_checkpoint_installed": false,
+      "action_policy": "CLASSIFICATION_ONLY_OR_MODEL_UNAVAILABLE",
+      "rationale": "P-gp substrate/inhibition categorical models operational. Quantitative kinetics (IC50/Ki) remains fail-closed MODEL_UNAVAILABLE."
+    },
+    "BCRP_TRANSPORTER": {
+      "target_endpoint": "BCRP_INHIBITOR_QUANT / BCRP_INHIBITOR",
+      "current_drugbank_150": {
+        "development": 0,
+        "model_selection": 0,
+        "locked_final_test": 0,
+        "total": 0
+      },
+      "target_expansion_50": {
+        "development": 5,
+        "model_selection": 2,
+        "locked_final_test": 2,
+        "total": 9
+      },
+      "projected_drugbank_200": {
+        "development": 5,
+        "model_selection": 2,
+        "locked_final_test": 2,
+        "total": 9
+      },
+      "quantitative_checkpoint_installed": false,
+      "action_policy": "CLASSIFICATION_ONLY_OR_MODEL_UNAVAILABLE",
+      "rationale": "BCRP substrate/inhibition categorical models operational. Quantitative kinetics remains fail-closed MODEL_UNAVAILABLE."
+    },
+    "CACO2_PERMEABILITY": {
+      "target_endpoint": "CACO2_PAPP_AB",
+      "current_drugbank_150": {
+        "development": 18,
+        "model_selection": 10,
+        "locked_final_test": 5,
+        "total": 33
+      },
+      "target_expansion_50": {
+        "development": 3,
+        "model_selection": 1,
+        "locked_final_test": 1,
+        "total": 5
+      },
+      "projected_drugbank_200": {
+        "development": 21,
+        "model_selection": 11,
+        "locked_final_test": 6,
+        "total": 38
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "MAINTAIN_V3_3_1_STACKING_ENSEMBLE",
+      "rationale": "Stacking ensemble (Admetica 0.704 + Physchem PSA 0.296) verified. Additional holdouts expand dynamic range for low-permeability compounds."
+    },
+    "HUMAN_PPB": {
+      "target_endpoint": "HUMAN_PPB",
+      "current_drugbank_150": {
+        "development": 30,
+        "model_selection": 15,
+        "locked_final_test": 7,
+        "total": 52
+      },
+      "target_expansion_50": {
+        "development": 4,
+        "model_selection": 1,
+        "locked_final_test": 1,
+        "total": 6
+      },
+      "projected_drugbank_200": {
+        "development": 34,
+        "model_selection": 16,
+        "locked_final_test": 8,
+        "total": 58
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "MAINTAIN_V3_3_1_STACKING_ENSEMBLE",
+      "rationale": "Stacking ensemble (Admetica 0.728 + Albumin Mech 0.223 + GBR 0.048) verified. Additional candidates target extreme high PPB (>99%)."
+    },
+    "AQUEOUS_SOLUBILITY": {
+      "target_endpoint": "SOLUBILITY_GENERIC",
+      "current_drugbank_150": {
+        "development": 24,
+        "model_selection": 12,
+        "locked_final_test": 6,
+        "total": 42
+      },
+      "target_expansion_50": {
+        "development": 4,
+        "model_selection": 1,
+        "locked_final_test": 1,
+        "total": 6
+      },
+      "projected_drugbank_200": {
+        "development": 28,
+        "model_selection": 13,
+        "locked_final_test": 7,
+        "total": 48
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "MAINTAIN_V3_3_1_STACKING_ENSEMBLE",
+      "rationale": "Stacking ensemble (Admetica 0.191 + Delaney 0.723 + GBR 0.086) verified."
+    },
+    "HLM_CLEARANCE": {
+      "target_endpoint": "HLM_CLINT",
+      "current_drugbank_150": {
+        "development": 18,
+        "model_selection": 9,
+        "locked_final_test": 5,
+        "total": 32
+      },
+      "target_expansion_50": {
+        "development": 2,
+        "model_selection": 1,
+        "locked_final_test": 0,
+        "total": 3
+      },
+      "projected_drugbank_200": {
+        "development": 20,
+        "model_selection": 10,
+        "locked_final_test": 5,
+        "total": 35
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "MAINTAIN_V3_3_1_BEST_SINGLE",
+      "rationale": "Drug-OPT Chemical Space Residual RF verified with +47.27% improvement over base."
+    },
+    "BBB_PENETRATION": {
+      "target_endpoint": "BBB_PENETRATION",
+      "current_drugbank_150": {
+        "development": 12,
+        "model_selection": 6,
+        "locked_final_test": 3,
+        "total": 21
+      },
+      "target_expansion_50": {
+        "development": 5,
+        "model_selection": 3,
+        "locked_final_test": 2,
+        "total": 10
+      },
+      "projected_drugbank_200": {
+        "development": 17,
+        "model_selection": 9,
+        "locked_final_test": 5,
+        "total": 31
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "CLASSIFICATION_ONLY",
+      "rationale": "Categorical CNS penetration screen."
+    },
+    "HIA_ABSORPTION": {
+      "target_endpoint": "HIA",
+      "current_drugbank_150": {
+        "development": 15,
+        "model_selection": 8,
+        "locked_final_test": 4,
+        "total": 27
+      },
+      "target_expansion_50": {
+        "development": 3,
+        "model_selection": 1,
+        "locked_final_test": 1,
+        "total": 5
+      },
+      "projected_drugbank_200": {
+        "development": 18,
+        "model_selection": 9,
+        "locked_final_test": 5,
+        "total": 32
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "CLASSIFICATION_ONLY",
+      "rationale": "Binary absorption screen."
+    },
+    "VDSS_DISTRIBUTION": {
+      "target_endpoint": "VDSS",
+      "current_drugbank_150": {
+        "development": 14,
+        "model_selection": 7,
+        "locked_final_test": 3,
+        "total": 24
+      },
+      "target_expansion_50": {
+        "development": 4,
+        "model_selection": 3,
+        "locked_final_test": 1,
+        "total": 8
+      },
+      "projected_drugbank_200": {
+        "development": 18,
+        "model_selection": 10,
+        "locked_final_test": 4,
+        "total": 32
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "RETAIN_V3_3",
+      "rationale": "Tissue composition mechanistic model retained."
+    },
+    "AMES_MUTAGENICITY": {
+      "target_endpoint": "AMES_MUTAGENICITY",
+      "current_drugbank_150": {
+        "development": 20,
+        "model_selection": 10,
+        "locked_final_test": 5,
+        "total": 35
+      },
+      "target_expansion_50": {
+        "development": 5,
+        "model_selection": 3,
+        "locked_final_test": 3,
+        "total": 11
+      },
+      "projected_drugbank_200": {
+        "development": 25,
+        "model_selection": 13,
+        "locked_final_test": 8,
+        "total": 46
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "CLASSIFICATION_ONLY",
+      "rationale": "Bacterial mutagenicity consensus classifier."
+    },
+    "DILI_HEPATOTOXICITY": {
+      "target_endpoint": "DILI_LIABILITY",
+      "current_drugbank_150": {
+        "development": 22,
+        "model_selection": 11,
+        "locked_final_test": 5,
+        "total": 38
+      },
+      "target_expansion_50": {
+        "development": 5,
+        "model_selection": 3,
+        "locked_final_test": 3,
+        "total": 11
+      },
+      "projected_drugbank_200": {
+        "development": 27,
+        "model_selection": 14,
+        "locked_final_test": 8,
+        "total": 49
+      },
+      "quantitative_checkpoint_installed": true,
+      "action_policy": "CLASSIFICATION_ONLY",
+      "rationale": "Clinical hepatotoxicity liability categorization."
+    }
+  },
+  "candidate_compound_allocation_summary": {
+    "total_new_candidates": 50,
+    "planned_partition_roles": {
+      "DEVELOPMENT_TRAINING": 28,
+      "MODEL_SELECTION_VALIDATION": 14,
+      "LOCKED_FINAL_TEST_COHORT_7": 8
+    },
+    "governance_rule": "Zero test leakage: LOCKED_FINAL_TEST_COHORT_7 will remain pristine and evaluated strictly once in the next milestone."
+  }
+}

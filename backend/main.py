@@ -126,6 +126,20 @@ from .prediction_engine_v3_3_1_policy import (
     V3_3_1_ENDPOINT_ROUTING,
     build_v3_3_1_readiness_comparison_table,
 )
+from .prediction_engine_registry import (
+    CURRENT_ENGINE_ID,
+    CURRENT_ENGINE_VERSION,
+    CURRENT_ENGINE_NAME,
+    CURRENT_ENGINE_STATUS,
+    CURRENT_ENGINE_DECISION,
+    CURRENT_POLICY_HASH,
+    CURRENT_RELEASE_DATE,
+    get_current_production_engine_info,
+    get_prediction_engine_evolution,
+    get_current_production_routing,
+    get_prediction_model_history,
+    get_real_world_benchmark_summary,
+)
 from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
@@ -585,13 +599,29 @@ def help_registry(db: Session = Depends(get_db)):
         "capability_summary": capabilities,
         "pk_method_registry": pk_methods,
         "version_history": version_history(),
-        "prediction_model_history": prediction_model_history(),
+        "prediction_model_history": get_prediction_model_history(),
+        "current_production_engine": get_current_production_engine_info(),
+        "prediction_engine_evolution": get_prediction_engine_evolution(),
+        "current_production_routing": get_current_production_routing(),
         "prediction_readiness_comparison": build_v3_3_1_readiness_comparison_table(),
+        "real_world_benchmark": get_real_world_benchmark_summary(),
         "prediction_engine_v3": get_v3_policy_payload(),
         "glossary": [{"term": term, "definition": definition} for term, definition in GLOSSARY],
         "limitations": list(LIMITATIONS),
         "interpretation_registry": get_interpretation_registry_summary(),
         "source": "RUNTIME_PACKAGE_INVENTORY + ADMET_MODEL_REGISTRY + PK_METHOD_REGISTRY + CAPABILITY_REGISTRY + VERSION_HISTORY + PREDICTION_ENGINE_V3_REGISTRY",
+    }
+
+
+@app.get("/api/prediction-engine/current")
+def get_current_prediction_engine_status():
+    """Authoritative API endpoint for current production engine, evolution, and routing."""
+    return {
+        "status": "ok",
+        "current_production_engine": get_current_production_engine_info(),
+        "prediction_engine_evolution": get_prediction_engine_evolution(),
+        "current_production_routing": get_current_production_routing(),
+        "prediction_model_history": get_prediction_model_history(),
     }
 
 
@@ -4665,14 +4695,19 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
         } for row in audit_runs],
         "prediction_history": persisted_prediction_history,
         "prediction_engine": {
-            "engine_id": (latest_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_1_POLICY_ID) if latest_workflow else ENGINE_V3_1_POLICY_ID,
-            "engine_version": (latest_workflow.provenance_json or {}).get("engine_version", ENGINE_V3_1_POLICY_VERSION) if latest_workflow else ENGINE_V3_1_POLICY_VERSION,
-            "engine_name": (latest_workflow.provenance_json or {}).get("engine_name", ENGINE_V3_1_NAME) if latest_workflow else ENGINE_V3_1_NAME,
-            "engine_status": (latest_workflow.provenance_json or {}).get("engine_status", ENGINE_V3_1_STATUS) if latest_workflow else ENGINE_V3_1_STATUS,
+            "engine_id": CURRENT_ENGINE_ID,
+            "engine_version": CURRENT_ENGINE_VERSION,
+            "engine_name": CURRENT_ENGINE_NAME,
+            "engine_status": CURRENT_ENGINE_STATUS,
+            "decision": CURRENT_ENGINE_DECISION,
+            "policy_hash": CURRENT_POLICY_HASH,
+            "release_date": CURRENT_RELEASE_DATE,
             "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
             "superseded_baseline": f"{ENGINE_V3_POLICY_ID}@{ENGINE_V3_POLICY_VERSION}",
-            "decision": ENGINE_V3_1_DECISION,
-            "endpoint_routing": {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()},
+            "endpoint_routing": {r["endpoint_id"]: r["route"] for r in get_current_production_routing()},
+            "routing_details": {r["endpoint_id"]: r for r in get_current_production_routing()},
+            "comparison_table": build_v3_3_1_readiness_comparison_table(),
+            "benchmark_summary": get_real_world_benchmark_summary(),
         },
     }
 
