@@ -32,6 +32,7 @@ from .pk_context import PK_CONTEXT_QUALIFICATION_VERSION, resolve_pk_study_conte
 from .representative_experimental import REPRESENTATIVE_EXPERIMENTAL_VERSION, select_representative
 from .scientific_interpretation import interpret_row, SCIENTIFIC_INTERPRETATION_VERSION, AGREEMENT_POLICY_VERSION
 from .endpoint_strategy_registry import get_endpoint_strategy
+from .prediction_maturity import get_endpoint_maturity
 
 
 CANONICAL_ENDPOINTS = {
@@ -141,7 +142,13 @@ def _prediction_object(snapshot, rows, endpoint_id, raw_endpoint, species="", ro
     source_type = snap.get("source_type") or prediction_source_type(
         source=first.model.model_name, prediction_type=snap.get("prediction_type"), endpoint=raw_endpoint
     )
-    return {"available": True, "prediction_snapshot_id": snapshot.id if snapshot else None, "prediction_run_id": snapshot.prediction_run_id if snapshot else first.run_id, "raw_endpoint": raw_endpoint, "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": f"{endpoint_id}|{species}|{route}", "base_value": base, "project_value": project, "display_value": display, "unit": unit, "prediction_type": snap.get("prediction_type", "MODEL"), "source_type": source_type, "source_label": prediction_source_label(source_type), "adapter": snap.get("adapter_version", ""), "maturity": snap.get("maturity") or {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "ood": first.applicability_domain, "timestamp": _iso(snapshot.created_at if snapshot else first.created_at), "model_count": len(rows), "model_predictions": {str(row.model_id): row.predicted_value for row in rows}, "species": species, "route": route, "provenance": snap.get("provenance", {}), "input_status": snap.get("input_status", "UNKNOWN"), "assumptions": snap.get("assumptions", [])}
+    auth_mat = get_endpoint_maturity(endpoint_id)
+    raw_snap_mat = snap.get("maturity")
+    if raw_snap_mat and raw_snap_mat.get("level", 1) > auth_mat["level"]:
+        mat_obj = raw_snap_mat
+    else:
+        mat_obj = auth_mat
+    return {"available": True, "prediction_snapshot_id": snapshot.id if snapshot else None, "prediction_run_id": snapshot.prediction_run_id if snapshot else first.run_id, "raw_endpoint": raw_endpoint, "canonical_endpoint_id": endpoint_id, "canonical_comparison_key": f"{endpoint_id}|{species}|{route}", "base_value": base, "project_value": project, "display_value": display, "unit": unit, "prediction_type": snap.get("prediction_type", "MODEL"), "source_type": source_type, "source_label": prediction_source_label(source_type), "adapter": snap.get("adapter_version", ""), "maturity": mat_obj, "ood": first.applicability_domain, "timestamp": _iso(snapshot.created_at if snapshot else first.created_at), "model_count": len(rows), "model_predictions": {str(row.model_id): row.predicted_value for row in rows}, "species": species, "route": route, "provenance": snap.get("provenance", {}), "input_status": snap.get("input_status", "UNKNOWN"), "assumptions": snap.get("assumptions", [])}
 
 
 def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", route="", dose=None, dose_unit=""):
@@ -152,6 +159,12 @@ def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", rou
     )
     base = snapshot.base_value
     project = snapshot.project_value
+    auth_mat = get_endpoint_maturity(endpoint_id)
+    raw_data_mat = data.get("maturity")
+    if raw_data_mat and raw_data_mat.get("level", 1) > auth_mat["level"]:
+        mat_obj = raw_data_mat
+    else:
+        mat_obj = auth_mat
     return {
         "available": base is not None or project is not None,
         "prediction_snapshot_id": snapshot.id,
@@ -166,7 +179,7 @@ def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", rou
         "source_type": source_type,
         "source_label": prediction_source_label(source_type),
         "adapter": snapshot.adapter_version or "",
-        "maturity": data.get("maturity") or {"level": snapshot.maturity_level or 1, "label": snapshot.maturity_label or "Base Prediction", "stars": "★☆☆☆☆"},
+        "maturity": mat_obj,
         "ood": data.get("ood_applicability", "UNKNOWN"),
         "timestamp": _iso(snapshot.created_at),
         "model_count": data.get("model_count", 0),
@@ -372,6 +385,7 @@ def ensure_admet_prediction_snapshot_index(db, version_id: int | None = None) ->
             continue
         base = sum(values.values()) / len(values)
         source_type = prediction_source_type(source=first.model.model_name, endpoint=raw_endpoint, default=PREDICTION_MODEL)
+        ep_maturity = get_endpoint_maturity(str(endpoint_id))
         snapshot = dict(first.outputs_json or {}).get("prediction_snapshot") or {
             "compound_version_id": first.version_id,
             "project_id": first.version.compound.project_id if first.version and first.version.compound else None,
@@ -380,15 +394,15 @@ def ensure_admet_prediction_snapshot_index(db, version_id: int | None = None) ->
             "model_predictions": values, "source_type": source_type,
             "prediction_type": source_type, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION,
             "comparison_unit_version": COMPARISON_UNIT_VERSION,
-            "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"},
+            "maturity": ep_maturity,
         }
         project_id = first.version.compound.project_id if first.version and first.version.compound else 0
         db.add(PredictionEndpointSnapshot(
             prediction_run_id=run_id, project_id=project_id, compound_version_id=first.version_id,
             endpoint_id=str(endpoint_id), endpoint_name=raw_endpoint, base_value=base,
             base_unit=first.unit or "", prediction_type=source_type,
-            maturity_level=(snapshot.get("maturity") or {}).get("level", 1),
-            maturity_label=(snapshot.get("maturity") or {}).get("label", "Base Prediction"),
+            maturity_level=ep_maturity.get("level", 1),
+            maturity_label=ep_maturity.get("label", "Base Prediction"),
             snapshot_json=snapshot, created_at=first.created_at,
         ))
         existing.add((run_id, str(endpoint_id))); created += 1
@@ -941,7 +955,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
         pred = next((p for p in activity_preds if p.assay_id == assay_id), None); measured = [m for m in activity_meas if m.assay_id == assay_id]
         if pred is None and not measured: continue
         eid = f"ACTIVITY_{str(assay.measurement_type).upper()}:{assay_id}"; row = endpoint_rows.setdefault(eid, _blank(eid, f"{assay.name} ({assay.measurement_type})")); row["section"] = "ACTIVITY"; row["display_name"] = f"{assay.name} ({assay.measurement_type})"; row["species"] = normalize_species(assay.species)
-        if pred is not None: row["prediction"] = {"available": True, "raw_endpoint": assay.measurement_type, "canonical_endpoint_id": eid, "base_value": pred.predicted_value_nm, "project_value": None, "display_value": pred.predicted_value_nm, "unit": assay.unit, "prediction_type": pred.prediction_type, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "ood": pred.applicability_domain, "timestamp": _iso(pred.created_at), "model_count": 1}
+        if pred is not None: row["prediction"] = {"available": True, "raw_endpoint": assay.measurement_type, "canonical_endpoint_id": eid, "base_value": pred.predicted_value_nm, "project_value": None, "display_value": pred.predicted_value_nm, "unit": assay.unit, "prediction_type": pred.prediction_type, "maturity": get_endpoint_maturity(eid), "ood": pred.applicability_domain, "timestamp": _iso(pred.created_at), "model_count": 1}
         for m in measured: row["experimental_internal"].append({"id": m.id, "origin": "INTERNAL_EXPERIMENTAL", "state": "INTERNAL_EXPERIMENTAL", "raw_endpoint": assay.measurement_type, "raw_value": m.raw_value, "normalized_value": m.normalized_value_nm, "raw_unit": m.original_unit, "normalized_unit": "nM", "relation": m.qualifier, "species": normalize_species(assay.species), "context": {"target": assay.target, "cell_line": assay.cell_line, "assay": assay.name}, "reference": {"source": m.source, "reference": m.notes}, "qualification": "QUALIFIED_DIRECT", "comparability": DIRECT, "importable": False, "adaptation_eligibility": True})
 
     for evidence in db.scalars(select(ExternalExperimentalEvidence).where(
@@ -991,7 +1005,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                 row["prediction"] = _snapshot_prediction(snapshot, eid, parameter, species=species, route="ORAL" if parameter == "F" else route, dose=pset.dose_value, dose_unit=pset.dose_unit)
             elif not row["prediction"].get("available"):
                 mapped_pk = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
-                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{'ORAL' if parameter == 'F' else route}|PARENT", "base_value": mapped_pk.get("normalized_value", value), "project_value": None, "display_value": mapped_pk.get("normalized_value", value), "unit": mapped_pk.get("normalized_unit", unit), "prediction_type": source_type, "source_type": source_type, "source_label": prediction_source_label(source_type), "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "timestamp": _iso(pset.created_at), "model_count": 1, "species": species, "route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit}
+                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{'ORAL' if parameter == 'F' else route}|PARENT", "base_value": mapped_pk.get("normalized_value", value), "project_value": None, "display_value": mapped_pk.get("normalized_value", value), "unit": mapped_pk.get("normalized_unit", unit), "prediction_type": source_type, "source_type": source_type, "source_label": prediction_source_label(source_type), "maturity": get_endpoint_maturity(eid), "timestamp": _iso(pset.created_at), "model_count": 1, "species": species, "route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit}
 
     # Concentration-time simulations provide the Stage-5 Cmax/Tmax/AUC/t1/2
     # predictions. They are joined by the same species/route key as external
@@ -1005,7 +1019,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
             if snapshot is not None:
                 row["prediction"] = _snapshot_prediction(snapshot, eid, parameter, species=species, route=route, dose=sim.dose, dose_unit=sim.dose_unit)
             elif not row["prediction"].get("available"):
-                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{route}|PARENT", "base_value": value, "project_value": None, "display_value": value, "unit": unit, "prediction_type": "MECHANISTIC_ESTIMATE", "source_type": PREDICTION_MECHANISTIC, "source_label": prediction_source_label(PREDICTION_MECHANISTIC), "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}, "timestamp": _iso(sim.created_at), "model_count": 1, "species": species, "route": route, "dose": sim.dose, "dose_unit": sim.dose_unit, "prediction_run_id": sim.id}
+                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{route}|PARENT", "base_value": value, "project_value": None, "display_value": value, "unit": unit, "prediction_type": "MECHANISTIC_ESTIMATE", "source_type": PREDICTION_MECHANISTIC, "source_label": prediction_source_label(PREDICTION_MECHANISTIC), "maturity": get_endpoint_maturity(eid), "timestamp": _iso(sim.created_at), "model_count": 1, "species": species, "route": route, "dose": sim.dose, "dose_unit": sim.dose_unit, "prediction_run_id": sim.id}
 
     # NCA studies/results are the persisted internal experimental PK stream.
     studies = {study.id: study for study in db.scalars(select(PKStudy).where(PKStudy.version_id.in_(evidence_version_ids))).all()}

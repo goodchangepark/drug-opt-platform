@@ -616,12 +616,26 @@ def help_registry(db: Session = Depends(get_db)):
 @app.get("/api/prediction-engine/current")
 def get_current_prediction_engine_status():
     """Authoritative API endpoint for current production engine, evolution, and routing."""
+    from .prediction_maturity import get_maturity_statistics
     return {
         "status": "ok",
         "current_production_engine": get_current_production_engine_info(),
         "prediction_engine_evolution": get_prediction_engine_evolution(),
         "current_production_routing": get_current_production_routing(),
         "prediction_model_history": get_prediction_model_history(),
+        "endpoint_maturity": get_maturity_statistics(),
+    }
+
+
+@app.get("/api/prediction-engine/endpoint-maturity")
+def get_endpoint_maturity_api():
+    """Authoritative API endpoint for dynamic 50-endpoint maturity and taxonomy."""
+    from .prediction_maturity import get_maturity_statistics, get_endpoint_maturity_registry
+    stats = get_maturity_statistics()
+    return {
+        "status": "ok",
+        **stats,
+        "endpoints": get_endpoint_maturity_registry(),
     }
 
 
@@ -1126,8 +1140,8 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         ProjectAdapterVersion.project_id == compound.project_id,
         ProjectAdapterVersion.active.is_(True),
     )).all()
-    engine_name = ENGINE_V3_NAME
-    engine_version = ENGINE_V3_POLICY_VERSION
+    engine_name = CURRENT_ENGINE_ID
+    engine_version = CURRENT_ENGINE_VERSION
     request_fingerprint = hashlib.sha256(json.dumps({
         "workflow": "prediction_workflow",
         "compound_version_id": version.id,
@@ -1150,7 +1164,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
             saved["request_fingerprint"] = request_fingerprint
             saved["reused_existing_run"] = True
             saved["engine_id"] = (existing_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_POLICY_ID)
-            saved["endpoint_routing"] = (existing_workflow.provenance_json or {}).get("endpoint_routing", {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()})
+            saved["endpoint_routing"] = (existing_workflow.provenance_json or {}).get("endpoint_routing", {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()})
             return saved
     steps = {
         "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
@@ -1286,7 +1300,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
     timestamp = completed_at.strftime("%Y-%m-%d %H:%M")
     from backend.engine_v3_learning import predict_global_v3_endpoint
     v3_endpoint_predictions = {}
-    for ep_key, ep_spec in V3_ENDPOINT_ROUTING.items():
+    for ep_key, ep_spec in V3_3_1_ENDPOINT_ROUTING.items():
         try:
             v3_endpoint_predictions[ep_key] = predict_global_v3_endpoint(
                 db, version.canonical_smiles, ep_key, project_id=compound.project_id
@@ -1301,19 +1315,19 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "unavailable_endpoints": unavailable_endpoints,
         "failed_endpoints": failed_endpoints,
         "timestamp": timestamp,
-        "engine_id": ENGINE_V3_POLICY_ID,
-        "engine_version": ENGINE_V3_POLICY_VERSION,
-        "engine_name": ENGINE_V3_NAME,
-        "engine_status": ENGINE_V3_STATUS,
+        "engine_id": ENGINE_V3_1_POLICY_ID,
+        "engine_version": CURRENT_ENGINE_VERSION,
+        "engine_name": CURRENT_ENGINE_NAME,
+        "engine_status": CURRENT_ENGINE_STATUS,
         "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
-        "endpoint_routing": {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()},
+        "endpoint_routing": {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()},
         "v3_predictions": v3_endpoint_predictions,
     }
     db.add(PredictionRun(
         version_id=version.id,
         stage="prediction_workflow",
-        model_name="Properties + ADMET + Metabolism + PK workflow (Engine v3.3)",
-        model_version=ENGINE_V3_POLICY_VERSION,
+        model_name="Properties + ADMET + Metabolism + PK workflow (Engine v3.3.1)",
+        model_version=CURRENT_ENGINE_VERSION,
         inputs_hash=request_fingerprint,
         outputs_json=workflow_output,
         provenance_json={
@@ -1322,10 +1336,10 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
             "persisted": True,
             "request_fingerprint": request_fingerprint,
             "force_rerun": force_rerun,
-            "engine_id": ENGINE_V3_POLICY_ID,
-            "engine_version": ENGINE_V3_POLICY_VERSION,
-            "engine_name": ENGINE_V3_NAME,
-            "engine_status": ENGINE_V3_STATUS,
+            "engine_id": ENGINE_V3_1_POLICY_ID,
+            "engine_version": CURRENT_ENGINE_VERSION,
+            "engine_name": CURRENT_ENGINE_NAME,
+            "engine_status": CURRENT_ENGINE_STATUS,
             "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
             "endpoint_routing": workflow_output["endpoint_routing"],
         },
@@ -1354,13 +1368,13 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "prediction_run_id": workflow_run_id,
         "request_fingerprint": request_fingerprint,
         "reused_existing_run": False,
-        "engine_id": ENGINE_V3_POLICY_ID,
+        "engine_id": ENGINE_V3_1_POLICY_ID,
         "endpoint_routing": workflow_output["endpoint_routing"],
-        "engine_version": ENGINE_V3_POLICY_VERSION,
-        "engine_name": ENGINE_V3_NAME,
-        "engine_status": ENGINE_V3_STATUS,
+        "engine_version": CURRENT_ENGINE_VERSION,
+        "engine_name": CURRENT_ENGINE_NAME,
+        "engine_status": CURRENT_ENGINE_STATUS,
         "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
-        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated via Engine v3.3, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
+        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated via Engine v3.3.1, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
     }
 
 
@@ -1404,13 +1418,13 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
         "ledger": [row for row in learning_rows if row["compound_version_id"] in {version.id for version in compound.versions}],
     }
     result["prediction_engine"] = {
-        "engine_id": ENGINE_V3_POLICY_ID,
-        "engine_version": ENGINE_V3_POLICY_VERSION,
-        "engine_name": ENGINE_V3_NAME,
-        "engine_status": ENGINE_V3_STATUS,
+        "engine_id": ENGINE_V3_1_POLICY_ID,
+        "engine_version": CURRENT_ENGINE_VERSION,
+        "engine_name": CURRENT_ENGINE_NAME,
+        "engine_status": CURRENT_ENGINE_STATUS,
         "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
-        "decision": "READY_TO_REPLACE_V1",
-        "endpoint_routing": {k: v["tier"] for k, v in V3_ENDPOINT_ROUTING.items()},
+        "decision": CURRENT_ENGINE_DECISION,
+        "endpoint_routing": {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()},
     }
     return result
 
