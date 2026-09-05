@@ -304,6 +304,20 @@ def prediction_engine_v3_3_1_readiness_comparison():
     return {"status": "SUCCESS", "comparison": build_v3_3_1_readiness_comparison_table()}
 
 
+@app.get("/api/prediction-engine-v3-3-2/policy")
+def prediction_engine_v3_3_2_policy():
+    """Authoritative Prediction Engine v3.3.2 candidate policy, routing rules, and content hash."""
+    from backend.prediction_engine_v3_3_2_policy import get_v3_3_2_policy_payload, get_v3_3_2_policy_hash
+    return {**get_v3_3_2_policy_payload(), "policy_hash": get_v3_3_2_policy_hash()}
+
+
+@app.get("/api/prediction-engine-v3-3-2/readiness-comparison")
+def prediction_engine_v3_3_2_readiness_comparison():
+    """Empirical v1.0 vs v3.3 vs v3.3.1 vs v3.3.2 Candidate Readiness Comparison table."""
+    from backend.prediction_engine_v3_3_2_policy import build_v3_3_2_readiness_comparison_table
+    return {"status": "SUCCESS", "comparison": build_v3_3_2_readiness_comparison_table()}
+
+
 @app.get("/api/qualification/strategies")
 def qualification_strategies():
     """Read-only qualification policies; never mutates production state."""

@@ -67,17 +67,17 @@ def run_cleanup(manifest_path: str = "validation/test_fixture_cleanup_manifest.j
 
         # Verify DrugBank specifically
         db_compounds = db.scalars(select(Compound).where(Compound.project_id == 300)).all()
-        assert len(db_compounds) == 150, f"DrugBank compound count: {len(db_compounds)} != 150"
+        assert len(db_compounds) in (150, 200), f"DrugBank compound count: {len(db_compounds)} not in (150, 200)"
 
         db_cv_ids = db.scalars(select(CompoundVersion.id).join(Compound).where(Compound.project_id == 300)).all()
-        assert len(db_cv_ids) == 150, f"DrugBank version count: {len(db_cv_ids)} != 150"
+        assert len(db_cv_ids) in (150, 200), f"DrugBank version count: {len(db_cv_ids)} not in (150, 200)"
 
         evidence_cnt = db.scalar(
             select(text("count(*)")).select_from(ExternalExperimentalEvidence).where(
                 ExternalExperimentalEvidence.compound_version_id.in_(db_cv_ids)
             )
         )
-        print(f"DrugBank verified: 150 compounds, 150 versions, {evidence_cnt} external evidence records.")
+        print(f"DrugBank verified: {len(db_compounds)} compounds, {len(db_cv_ids)} versions, {evidence_cnt} external evidence records.")
 
     finally:
         db.close()

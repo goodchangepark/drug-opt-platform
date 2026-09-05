@@ -1,0 +1,819 @@
+{
+  "engine_id": "drugopt-prediction-engine-v3@3.3.1",
+  "engine_version": "3.3.1",
+  "status": "PRODUCTION_DEFAULT",
+  "policy_hash": "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9",
+  "endpoint_routing": [
+    {
+      "endpoint_id": "SOLUBILITY_GENERIC",
+      "endpoint_name": "Aqueous Solubility",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "model_or_ensemble": "Multi-Model Stacking Ensemble",
+      "weights": {
+        "admetica_solubility": 0.191,
+        "esol_delaney_v1": 0.723,
+        "rdkit_gbr_solubility_v1": 0.086
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 35,
+      "locked_test_n": 13,
+      "unit": "logS",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "v3.3.1-STACKING-solubility-723c3",
+      "known_limitation": "Thermodynamic crystalline lattice effects not fully captured for high melting solids."
+    },
+    {
+      "endpoint_id": "CACO2_PAPP_AB",
+      "endpoint_name": "Caco-2 Permeability (A\u2192B)",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "model_or_ensemble": "Multi-Model Stacking Ensemble",
+      "weights": {
+        "admetica_caco2": 0.704,
+        "physchem_caco2_v1": 0.296
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 31,
+      "locked_test_n": 13,
+      "unit": "log10(cm/s)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "v3.3.1-STACKING-caco2-704d4",
+      "known_limitation": "Passive transcellular flux primary; active efflux/uptake carrier effects modeled separately."
+    },
+    {
+      "endpoint_id": "HUMAN_PPB",
+      "endpoint_name": "Plasma Protein Binding",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "model_or_ensemble": "Multi-Model Stacking Ensemble",
+      "weights": {
+        "admetica_ppbr": 0.728,
+        "physchem_human_ppb_v1": 0.223,
+        "descriptor_gbr_ppb_v1": 0.048
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 50,
+      "locked_test_n": 13,
+      "unit": "% bound",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "v3.3.1-STACKING-ppb-728e5",
+      "known_limitation": "Extreme binding (>99.5%) exhibits higher relative error on free fraction (fu)."
+    },
+    {
+      "endpoint_id": "CYP3A4_INHIBITION",
+      "endpoint_name": "CYP3A4 Inhibition",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "model_or_ensemble": "Multi-Model Stacking Ensemble",
+      "weights": {
+        "drugopt_calibrated_cyp3a4_pic50": 0.882,
+        "openadmet_chemeleon_cyp3a4_pic50": 0.118
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 32,
+      "locked_test_n": 13,
+      "unit": "pIC50",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3.1-STACKING-cyp3a4-882d1",
+      "known_limitation": "Substrate-dependent inhibition kinetics (midazolam vs testosterone sites) require isoform context."
+    },
+    {
+      "endpoint_id": "CYP2D6_INHIBITION",
+      "endpoint_name": "CYP2D6 Inhibition",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "model_or_ensemble": "Multi-Model Stacking Ensemble",
+      "weights": {
+        "drugopt_calibrated_cyp2d6_pic50": 0.615,
+        "openadmet_chemeleon_cyp2d6_pic50": 0.385
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 25,
+      "locked_test_n": 5,
+      "unit": "pIC50",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3.1-STACKING-cyp2d6-615f2",
+      "known_limitation": "Basic nitrogen pharmacophore required for maximal predictive confidence."
+    },
+    {
+      "endpoint_id": "HLM_CLINT",
+      "endpoint_name": "HLM Intrinsic Clearance",
+      "route": "V3_3_1_BEST_SINGLE",
+      "model_or_ensemble": "Drug-OPT Chemical Space Residual RF",
+      "weights": {
+        "drugopt_hlm_chemical_space_v1": 1.0
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 31,
+      "locked_test_n": 13,
+      "unit": "log10(mL/min/kg)",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3.1-STACKING-hlm-100g7",
+      "known_limitation": "Applies to NADPH-dependent microsomal Phase I turnover; cytosolic/Phase II clearances excluded."
+    },
+    {
+      "endpoint_id": "CYP1A2_INHIBITION",
+      "endpoint_name": "CYP1A2 Inhibition",
+      "route": "V3_3_1_BEST_SINGLE",
+      "model_or_ensemble": "Drug-OPT Calibrated Ridge Regressor",
+      "weights": {
+        "drugopt_calibrated_cyp1a2_pic50": 1.0
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 12,
+      "locked_test_n": 5,
+      "unit": "pIC50",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3.1-STACKING-cyp1a2-100a0",
+      "known_limitation": "Planar aromatic systems prioritized; non-planar scaffolds carry wider uncertainty."
+    },
+    {
+      "endpoint_id": "CYP2C9_INHIBITION",
+      "endpoint_name": "CYP2C9 Inhibition",
+      "route": "V3_3_1_BEST_SINGLE",
+      "model_or_ensemble": "Drug-OPT Calibrated Ridge Regressor",
+      "weights": {
+        "drugopt_calibrated_cyp2c9_pic50": 1.0
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 11,
+      "locked_test_n": 5,
+      "unit": "pIC50",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3.1-STACKING-cyp2c9-100b1",
+      "known_limitation": "Acidic lipophilic compounds favored by binding cavity."
+    },
+    {
+      "endpoint_id": "HERG_LIABILITY",
+      "endpoint_name": "hERG Cardiac Liability",
+      "route": "V3_3_1_BEST_SINGLE",
+      "model_or_ensemble": "Physchem GBR Regressor",
+      "weights": {
+        "physchem_gbr_herg_pic50_v1": 1.0
+      },
+      "status": "PRODUCTION_DEFAULT",
+      "validation_n": 44,
+      "locked_test_n": 13,
+      "unit": "pIC50",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3.1-STACKING-herg-100f6",
+      "known_limitation": "Patch-clamp IC50 continuous proxy; clinical QT prolongation requires exposure translation."
+    },
+    {
+      "endpoint_id": "RLM_CLINT",
+      "endpoint_name": "RLM Intrinsic Clearance",
+      "route": "RETAIN_V3_3",
+      "model_or_ensemble": "Drug-OPT Chemical Space Residual (Retained v3.3)",
+      "weights": {
+        "drugopt_rlm_chemical_space_v1": 1.0
+      },
+      "status": "RETAINED_BASELINE",
+      "validation_n": 22,
+      "locked_test_n": 5,
+      "unit": "log10(mL/min/kg)",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3-rlm-retained-47a1",
+      "known_limitation": "Species-specific rat microsomal turnover; unvalidated multi-model stacking rejected."
+    },
+    {
+      "endpoint_id": "MLM_CLINT",
+      "endpoint_name": "MLM Intrinsic Clearance",
+      "route": "RETAIN_V3_3",
+      "model_or_ensemble": "Base Microsomal Model (Retained v3.3)",
+      "weights": {
+        "base_mlm_microsomal_v1": 1.0
+      },
+      "status": "RETAINED_BASELINE",
+      "validation_n": 18,
+      "locked_test_n": 5,
+      "unit": "log10(mL/min/kg)",
+      "ad_status": "IN_DOMAIN_WITH_GUARD",
+      "model_version_hash": "v3.3-mlm-retained-82b3",
+      "known_limitation": "Mouse-specific microsomal kinetics; multi-model expansion deferred."
+    },
+    {
+      "endpoint_id": "VDSS",
+      "endpoint_name": "Steady-State Volume of Distribution (Vdss)",
+      "route": "RETAIN_V3_3",
+      "model_or_ensemble": "Tissue Partitioning Mechanistic Model (Retained v3.3)",
+      "weights": {
+        "tissue_composition_vdss_v1": 1.0
+      },
+      "status": "RETAINED_BASELINE",
+      "validation_n": 20,
+      "locked_test_n": 5,
+      "unit": "L/kg",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "v3.3-vdss-tissue-91c2",
+      "known_limitation": "Assumes non-saturable physiological tissue binding."
+    },
+    {
+      "endpoint_id": "MW",
+      "endpoint_name": "Molecular Weight",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Descriptors ExactMolWt",
+      "weights": {
+        "rdkit_exactmolwt": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "g/mol",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-exactmolwt-v1",
+      "known_limitation": "Deterministic 2D calculation; isotopic composition standard."
+    },
+    {
+      "endpoint_id": "CLOGP",
+      "endpoint_name": "Wildman-Crippen LogP (cLogP)",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Crippen MolLogP",
+      "weights": {
+        "rdkit_crippen_logp": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "log10(o/w)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-crippen-v1",
+      "known_limitation": "Neutral state octanol-water partition; ignores ionization."
+    },
+    {
+      "endpoint_id": "TPSA",
+      "endpoint_name": "Topological Polar Surface Area",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Descriptors TPSA",
+      "weights": {
+        "rdkit_tpsa": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "\u00c5\u00b2",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-tpsa-v1",
+      "known_limitation": "2D fragment sum; 3D conformation/intramolecular H-bonds omitted."
+    },
+    {
+      "endpoint_id": "HBD",
+      "endpoint_name": "Hydrogen Bond Donors",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Lipinski NumHDonors",
+      "weights": {
+        "rdkit_hbd": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "count",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-hbd-v1",
+      "known_limitation": "Counts NH and OH groups deterministically."
+    },
+    {
+      "endpoint_id": "HBA",
+      "endpoint_name": "Hydrogen Bond Acceptors",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Lipinski NumHAcceptors",
+      "weights": {
+        "rdkit_hba": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "count",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-hba-v1",
+      "known_limitation": "Counts N and O heteroatoms deterministically."
+    },
+    {
+      "endpoint_id": "ROTB",
+      "endpoint_name": "Rotatable Bonds",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Lipinski NumRotatableBonds",
+      "weights": {
+        "rdkit_rotb": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "count",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-rotb-v1",
+      "known_limitation": "Terminal single bonds excluded by standard Lipinski convention."
+    },
+    {
+      "endpoint_id": "FSP3",
+      "endpoint_name": "Fraction Csp3",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Descriptors FractionCsp3",
+      "weights": {
+        "rdkit_fsp3": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "ratio",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-fsp3-v1",
+      "known_limitation": "2D hybridization ratio; does not indicate 3D shape directly."
+    },
+    {
+      "endpoint_id": "QED",
+      "endpoint_name": "Quantitative Estimate of Drug-likeness",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Descriptors QED",
+      "weights": {
+        "rdkit_qed": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "score (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-qed-v1",
+      "known_limitation": "Desirability function based on oral drug distribution."
+    },
+    {
+      "endpoint_id": "FORMAL_CHARGE",
+      "endpoint_name": "Formal Charge",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Chem GetFormalCharge",
+      "weights": {
+        "rdkit_charge": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "integer",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-charge-v1",
+      "known_limitation": "Sum of formal charges on standardized 2D representation."
+    },
+    {
+      "endpoint_id": "HEAVY_ATOM_COUNT",
+      "endpoint_name": "Heavy Atom Count",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "RDKit Chem GetNumHeavyAtoms",
+      "weights": {
+        "rdkit_heavy_atoms": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "count",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rdkit-heavy-atoms-v1",
+      "known_limitation": "Counts non-hydrogen atoms."
+    },
+    {
+      "endpoint_id": "METABOLIC_SOFT_SPOTS",
+      "endpoint_name": "Metabolic Soft Spots",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "SyGMa Phase I/II Rule Engine",
+      "weights": {
+        "sygma_rules": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "atomic rank",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "sygma-rules-v1",
+      "known_limitation": "Heuristic reaction pattern matching; does not predict quantitative rate."
+    },
+    {
+      "endpoint_id": "METABOLITE_HYPOTHESES",
+      "endpoint_name": "Predicted Metabolites",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "SyGMa Reaction Transformer",
+      "weights": {
+        "sygma_transformer": 1.0
+      },
+      "status": "DETERMINISTIC_CALC",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "structures",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "sygma-transformer-v1",
+      "known_limitation": "In silico reaction generation; requires experimental identification."
+    },
+    {
+      "endpoint_id": "PKA",
+      "endpoint_name": "Ionization pKa",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "Rule-Based Ionization Estimator",
+      "weights": {
+        "rule_pka_v1": 1.0
+      },
+      "status": "RULE_ESTIMATE",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "pH",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "rule-pka-v1",
+      "known_limitation": "Rule estimate; quantitative ML pKa not installed."
+    },
+    {
+      "endpoint_id": "LOGD_7_4",
+      "endpoint_name": "Distribution Coefficient pH 7.4 (logD7.4)",
+      "route": "LEGACY_BASE_FALLBACK",
+      "model_or_ensemble": "Henderson-Hasselbalch Derived Calculation",
+      "weights": {
+        "hh_logd_v1": 1.0
+      },
+      "status": "DERIVED_ESTIMATE",
+      "validation_n": 150,
+      "locked_test_n": 18,
+      "unit": "log10",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "hh-derived-logd74-v1",
+      "known_limitation": "Derived from cLogP and rule-based pKa; not a direct experimental measurement."
+    },
+    {
+      "endpoint_id": "HIA",
+      "endpoint_name": "Human Intestinal Absorption",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET HIA Binary Classifier",
+      "weights": {
+        "openadmet_hia_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-hia-v1",
+      "known_limitation": "Binary classification (>30% absorbed); does not output numeric % absorbed."
+    },
+    {
+      "endpoint_id": "BBB_PENETRATION",
+      "endpoint_name": "Blood-Brain Barrier Penetration",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET BBB Binary Classifier",
+      "weights": {
+        "openadmet_bbb_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-bbb-v1",
+      "known_limitation": "Binary BBB penetrant call; does not compute Kp,uu or CSF concentration."
+    },
+    {
+      "endpoint_id": "CYP1A2_INHIBITOR_CLASS",
+      "endpoint_name": "CYP1A2 Inhibitor Class",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP1A2 Classifier",
+      "weights": {
+        "openadmet_cyp1a2_class_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp1a2-class-v1",
+      "known_limitation": "Binary cutoff at 10 \u00b5M; cannot be transformed to IC50."
+    },
+    {
+      "endpoint_id": "CYP2C9_INHIBITOR_CLASS",
+      "endpoint_name": "CYP2C9 Inhibitor Class",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP2C9 Classifier",
+      "weights": {
+        "openadmet_cyp2c9_class_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp2c9-class-v1",
+      "known_limitation": "Binary cutoff at 10 \u00b5M; distinct from quantitative pIC50 model."
+    },
+    {
+      "endpoint_id": "CYP2C19_INHIBITOR_CLASS",
+      "endpoint_name": "CYP2C19 Inhibitor Class",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP2C19 Classifier",
+      "weights": {
+        "openadmet_cyp2c19_class_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp2c19-class-v1",
+      "known_limitation": "Binary classification only; continuous IC50/pIC50 is MODEL_UNAVAILABLE."
+    },
+    {
+      "endpoint_id": "CYP2D6_INHIBITOR_CLASS",
+      "endpoint_name": "CYP2D6 Inhibitor Class",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP2D6 Classifier",
+      "weights": {
+        "openadmet_cyp2d6_class_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp2d6-class-v1",
+      "known_limitation": "Binary cutoff at 10 \u00b5M; continuous regression runs in separate ensemble."
+    },
+    {
+      "endpoint_id": "CYP3A4_INHIBITOR_CLASS",
+      "endpoint_name": "CYP3A4 Inhibitor Class",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP3A4 Classifier",
+      "weights": {
+        "openadmet_cyp3a4_class_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp3a4-class-v1",
+      "known_limitation": "Binary screening probability; distinct from quantitative stacking ensemble."
+    },
+    {
+      "endpoint_id": "CYP2C9_SUBSTRATE",
+      "endpoint_name": "CYP2C9 Substrate Probability",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP2C9 Substrate Model",
+      "weights": {
+        "openadmet_cyp2c9_sub_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp2c9-sub-v1",
+      "known_limitation": "Categorical substrate call; does not compute Km or Vmax turnover rates."
+    },
+    {
+      "endpoint_id": "CYP2D6_SUBSTRATE",
+      "endpoint_name": "CYP2D6 Substrate Probability",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP2D6 Substrate Model",
+      "weights": {
+        "openadmet_cyp2d6_sub_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp2d6-sub-v1",
+      "known_limitation": "Categorical substrate call; does not compute Km or Vmax turnover rates."
+    },
+    {
+      "endpoint_id": "CYP3A4_SUBSTRATE",
+      "endpoint_name": "CYP3A4 Substrate Probability",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET CYP3A4 Substrate Model",
+      "weights": {
+        "openadmet_cyp3a4_sub_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-cyp3a4-sub-v1",
+      "known_limitation": "Categorical substrate call; does not compute Km or Vmax turnover rates."
+    },
+    {
+      "endpoint_id": "PGP_INHIBITION",
+      "endpoint_name": "P-glycoprotein Inhibitor Probability",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET P-gp Inhibitor Classifier",
+      "weights": {
+        "openadmet_pgp_inh_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-pgp-inh-v1",
+      "known_limitation": "Binary classification only; continuous IC50/efflux ratio is MODEL_UNAVAILABLE."
+    },
+    {
+      "endpoint_id": "BCRP_INHIBITOR",
+      "endpoint_name": "BCRP Inhibitor Probability",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET BCRP Inhibitor Classifier",
+      "weights": {
+        "openadmet_bcrp_inh_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-bcrp-inh-v1",
+      "known_limitation": "Binary classification only; continuous IC50/efflux ratio is MODEL_UNAVAILABLE."
+    },
+    {
+      "endpoint_id": "HERG_CLASS",
+      "endpoint_name": "hERG Blocker Probability",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "OpenADMET hERG Binary Classifier",
+      "weights": {
+        "openadmet_herg_class_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "openadmet-herg-class-v1",
+      "known_limitation": "Binary cardiotoxicity screen; quantitative continuous pIC50 runs in separate route."
+    },
+    {
+      "endpoint_id": "AMES_MUTAGENICITY",
+      "endpoint_name": "Ames Bacterial Mutagenicity",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "Hansen Mutagenicity Consensus Classifier",
+      "weights": {
+        "hansen_ames_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "hansen-ames-v1",
+      "known_limitation": "Salmonella typhimurium in vitro screen; screening evidence only."
+    },
+    {
+      "endpoint_id": "DILI_LIABILITY",
+      "endpoint_name": "Drug-Induced Liver Injury (DILI)",
+      "route": "CLASSIFICATION_ONLY",
+      "model_or_ensemble": "FDA DILIst Binary Classifier",
+      "weights": {
+        "fda_dilist_v1": 1.0
+      },
+      "status": "CLASSIFICATION_ONLY",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "probability (0-1)",
+      "ad_status": "IN_DOMAIN",
+      "model_version_hash": "fda-dilist-v1",
+      "known_limitation": "Clinical hepatotoxicity risk concern; dose and exposure dependent."
+    },
+    {
+      "endpoint_id": "CYP2C19_INHIBITION",
+      "endpoint_name": "CYP2C19 Quantitative Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 12,
+      "locked_test_n": 5,
+      "unit": "pIC50",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "No validated continuous regression model installed; outputs strictly not fabricated."
+    },
+    {
+      "endpoint_id": "PGP_INHIBITION_QUANT",
+      "endpoint_name": "P-glycoprotein Quantitative Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "\u00b5M / pIC50",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Classification only; continuous transporter kinetics unavailable."
+    },
+    {
+      "endpoint_id": "BCRP_INHIBITOR_QUANT",
+      "endpoint_name": "BCRP Quantitative Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "\u00b5M / pIC50",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Classification only; continuous transporter kinetics unavailable."
+    },
+    {
+      "endpoint_id": "OATP1B1_INHIBITOR",
+      "endpoint_name": "OATP1B1 Transporter Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "\u00b5M",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Hepatic uptake transporter quantitative model unavailable."
+    },
+    {
+      "endpoint_id": "OATP1B3_INHIBITOR",
+      "endpoint_name": "OATP1B3 Transporter Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "\u00b5M",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Hepatic uptake transporter quantitative model unavailable."
+    },
+    {
+      "endpoint_id": "OCT1_INHIBITOR",
+      "endpoint_name": "OCT1 Transporter Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "\u00b5M",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Organic cation transporter model unavailable."
+    },
+    {
+      "endpoint_id": "OCT2_INHIBITOR",
+      "endpoint_name": "OCT2 Transporter Inhibition",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Fail-closed guardrail)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "\u00b5M",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Renal organic cation transporter model unavailable."
+    },
+    {
+      "endpoint_id": "HUMAN_PK_CLF_ORAL",
+      "endpoint_name": "Human Oral Apparent Clearance (CL/F)",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Preclinical simulation only)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "L/h",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Preclinical mathematical translation only; direct statistical predictor unavailable."
+    },
+    {
+      "endpoint_id": "HUMAN_PK_VDF_ORAL",
+      "endpoint_name": "Human Oral Apparent Volume (Vd/F)",
+      "route": "MODEL_UNAVAILABLE",
+      "model_or_ensemble": "None (Preclinical simulation only)",
+      "weights": {},
+      "status": "MODEL_UNAVAILABLE",
+      "validation_n": 0,
+      "locked_test_n": 0,
+      "unit": "L",
+      "ad_status": "NOT_APPLICABLE",
+      "model_version_hash": "MODEL_UNAVAILABLE",
+      "known_limitation": "Preclinical mathematical translation only; direct statistical predictor unavailable."
+    }
+  ],
+  "endpoint_maturity_statistics": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.1",
+    "engine_version": "3.3.1",
+    "total_endpoints": 50,
+    "level_breakdown": {
+      "level_1_base": 23,
+      "level_2_validated_base": 15,
+      "level_3_validated_multi_model": 3,
+      "level_4_production_validated": 9,
+      "level_5_mature": 0
+    },
+    "route_breakdown": {
+      "V3_3_1_WEIGHTED_ENSEMBLE": 5,
+      "V3_3_1_BEST_SINGLE": 4,
+      "RETAIN_V3_3": 3,
+      "CLASSIFICATION_ONLY": 15,
+      "LEGACY_BASE_FALLBACK": 14,
+      "MODEL_UNAVAILABLE": 9
+    },
+    "status": "PRODUCTION_DEFAULT"
+  },
+  "endpoint_registry_count": 50
+}

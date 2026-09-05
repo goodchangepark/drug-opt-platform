@@ -264,22 +264,22 @@ ENDPOINT_MATURITY_REGISTRY: Dict[str, Dict[str, Any]] = {
     },
 
     # -------------------------------------------------------------
-    # Level 3: VALIDATED MULTI-MODEL (3 retained v3.3 endpoints)
+    # Level 4: PRODUCTION VALIDATED (11 promoted endpoints)
     # -------------------------------------------------------------
     "RLM_CLINT": {
         "endpoint_id": "RLM_CLINT",
         "endpoint_name": "RLM Intrinsic Clearance",
-        "model_route": "RETAIN_V3_3",
-        "engine_version": ENGINE_VERSION,
-        "maturity_level": 3,
-        "maturity_label": "Validated Multi-Model",
-        "stars": "★★★☆☆",
-        "maturity_reason": "Validated Multi-Model: Multi-model consensus (GBR + PhysChem descriptor regression), validated across preclinical rat cohorts (N=22).",
-        "validation_n": 22,
-        "locked_test_n": 5,
+        "model_route": "V3_3_2_BEST_SINGLE",
+        "engine_version": "3.3.2",
+        "maturity_level": 4,
+        "maturity_label": "Production Validated",
+        "stars": "★★★★☆",
+        "maturity_reason": "Production Validated: Best single neural network model (OpenADMET CheMeleon RLM intrinsic clearance), 9.6% error reduction vs v3.3 base, locked holdout N=13.",
+        "validation_n": 25,
+        "locked_test_n": 13,
         "real_world_n": 15,
         "last_promoted_at": LAST_PROMOTED_AT,
-        "status": "RETAINED_PRODUCTION",
+        "status": "PRODUCTION_VALIDATED",
         "is_mechanistic": False,
         "is_unavailable": False,
         "ad_status": "IN_DOMAIN",
@@ -287,21 +287,24 @@ ENDPOINT_MATURITY_REGISTRY: Dict[str, Dict[str, Any]] = {
     "MLM_CLINT": {
         "endpoint_id": "MLM_CLINT",
         "endpoint_name": "MLM Intrinsic Clearance",
-        "model_route": "RETAIN_V3_3",
-        "engine_version": ENGINE_VERSION,
-        "maturity_level": 3,
-        "maturity_label": "Validated Multi-Model",
-        "stars": "★★★☆☆",
-        "maturity_reason": "Validated Multi-Model: Multi-model consensus (GBR + PhysChem descriptor regression), validated across preclinical mouse cohorts (N=18).",
-        "validation_n": 18,
-        "locked_test_n": 5,
+        "model_route": "V3_3_2_BEST_SINGLE",
+        "engine_version": "3.3.2",
+        "maturity_level": 4,
+        "maturity_label": "Production Validated",
+        "stars": "★★★★☆",
+        "maturity_reason": "Production Validated: Best single neural network model (OpenADMET CheMeleon MLM intrinsic clearance), 6.2% error reduction vs v3.3 base, locked holdout N=13.",
+        "validation_n": 25,
+        "locked_test_n": 13,
         "real_world_n": 15,
         "last_promoted_at": LAST_PROMOTED_AT,
-        "status": "RETAINED_PRODUCTION",
+        "status": "PRODUCTION_VALIDATED",
         "is_mechanistic": False,
         "is_unavailable": False,
         "ad_status": "IN_DOMAIN",
     },
+    # -------------------------------------------------------------
+    # Level 3: VALIDATED MULTI-MODEL / MECHANISTIC CONSENSUS (1 endpoint)
+    # -------------------------------------------------------------
     "VDSS": {
         "endpoint_id": "VDSS",
         "endpoint_name": "Steady-State Volume of Distribution (Vdss)",

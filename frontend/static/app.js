@@ -5250,21 +5250,21 @@ function integratedProfile(versionId){
          ])
         ])
        ]),
-       e('h3',{style:{marginTop:'24px'}},'Prediction Engine Evolution Lineage (v1.0.0 → v3.3.1)'),
+       e('h3',{style:{marginTop:'24px'}},'Prediction Engine Evolution Lineage (v1.0.0 → v3.3.2 Candidate)'),
        e('p',{className:'small'},'Chronological progression and architectural milestones across prediction engine generations:'),
        e('div',{style:{display:'flex',gap:'8px',overflowX:'auto',padding:'12px 0',alignItems:'center'}},
         evoList.map((evo,idx)=>e(React.Fragment,{key:evo.version},[
-         e('div',{style:{minWidth:'170px',padding:'10px 14px',borderRadius:'8px',border:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'2px solid #52c41a':'1px solid #d9d9d9',background:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'#f6ffed':'#ffffff',boxShadow:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'0 2px 8px rgba(82,196,26,0.2)':'none'}},[
-          e('div',{className:'mono bold',style:{fontSize:'14px',color:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'#237804':'#1890ff'}},evo.version),
+         e('div',{style:{minWidth:'170px',padding:'10px 14px',borderRadius:'8px',border:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'2px solid #52c41a':evo.status==='CANDIDATE'?'2px solid #1890ff':'1px solid #d9d9d9',background:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'#f6ffed':evo.status==='CANDIDATE'?'#e6f7ff':'#ffffff',boxShadow:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'0 2px 8px rgba(82,196,26,0.2)':'none'}},[
+          e('div',{className:'mono bold',style:{fontSize:'14px',color:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'#237804':evo.status==='CANDIDATE'?'#096dd9':'#1890ff'}},evo.version),
           e('div',{className:'small',style:{fontWeight:'bold',margin:'4px 0'}},evo.label),
           e('div',{className:'mono small',style:{fontSize:'11px',color:'#8c8c8c'}},evo.engine_id),
-          e('div',{style:{marginTop:'6px'}},e('span',{className:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'badge-favorable':evo.status==='LEGACY_BASELINE'?'badge-intermediate':'badge-info',style:{fontSize:'10px'}},evo.status))
+          e('div',{style:{marginTop:'6px'}},e('span',{className:evo.status==='CURRENT_PRODUCTION_DEFAULT'?'badge-favorable':evo.status==='CANDIDATE'?'badge-info':evo.status==='LEGACY_BASELINE'?'badge-intermediate':'badge-intermediate',style:{fontSize:'10px'}},evo.status))
          ]),
          idx<evoList.length-1&&e('div',{key:'arrow-'+idx,style:{fontSize:'20px',color:'#bfbfbf',fontWeight:'bold',userSelect:'none'}},'→')
         ]))
        ),
        e('h3',{style:{marginTop:'24px'}},'v1.0 vs v3.3 vs v3.3.1 Production Readiness & 50-Endpoint Taxonomy'),
-       e('p',{className:'small'},'Empirical evaluation on DrugBank 150 reference holdout cohorts and locked test sets (Cohort 5 N=5, Cohort 6 N=13), strictly separated into 6 authoritative architectural tiers across all 50 canonical platform endpoints:'),
+       e('p',{className:'small'},'Empirical evaluation on DrugBank 200 reference library (100% collision-free) and locked test sets (Cohort 5 N=5, Cohort 6 N=13, Cohort 7 N=13), strictly separated into 6 authoritative architectural tiers across all 50 canonical platform endpoints:'),
        e('h4',{style:{marginTop:'12px',color:'#237804'}},'1. v3.3.1 Multi-Model Stacking Ensembles (5 Endpoints — Audited Holdout Reductions)'),
        e('div',{className:'table-scroll'},e('table',{},[
         e('thead',{},e('tr',{},['Endpoint','Unit','v1 Base','v3.3 MAE','v3.3.1 MAE','Improvement vs v3.3','Ensemble Formulation & Weights','Holdout N','AD / OOD'].map(label=>e('th',{key:label},label)))),
@@ -5363,7 +5363,7 @@ function integratedProfile(versionId){
          e('td',{className:'small',style:{color:'#595959'}},row.pol)
         ])))
       ])),
-       e('h3',{style:{marginTop:'24px'}},'Prediction Engine Version History (v1.0.0 — v3.3.1)'),
+       e('h3',{style:{marginTop:'24px'}},'Prediction Engine Version History (v1.0.0 — v3.3.2 Candidate)'),
        e('p',{className:'small'},'Authoritative record of prediction engine versions, release dates, holdout error milestones, and scientific governance constraints:'),
        e('div',{className:'table-scroll'},e('table',{},[
         e('thead',{},e('tr',{},['Engine Version','Release Date','Status / Decision','Key / Promoted Endpoints','Validation Results & Holdout MAE','Known Limitations'].map(label=>e('th',{key:label},label)))),

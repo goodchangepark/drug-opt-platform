@@ -568,6 +568,17 @@ PREDICTION_MODEL_HISTORY: list[dict[str, Any]] = [
         "model_version_hash": "23a76cd7f1769f58dd5f400b4a109ee7003d79c1e359d87c5fec7bd8eba56df6",
         "known_limitations": "CYP2C19, P-gp, and BCRP quantitative continuous regression remain fail-closed MODEL_UNAVAILABLE. Stacking models vs best single model routes strictly segregated in taxonomy.",
     },
+    {
+        "version": "v3.3.2",
+        "engine_id": "drugopt-prediction-engine-v3@3.3.2",
+        "release_date": "2026-09-05",
+        "production_status": "PRODUCTION_CANDIDATE",
+        "decision": "READY_TO_REPLACE_V3_3_1",
+        "key_endpoints": "Preclinical Clearance & Stacking Expansion (11 endpoints: Solubility, Caco-2, PPB, HLM, RLM, MLM, CYP3A4, CYP2D6, CYP1A2, CYP2C9, hERG); Model Unavailable (3 endpoints: CYP2C19, P-gp, BCRP). DrugBank 200 approved reference drugs (100% collision-free CAS & InChIKey).",
+        "validation_results": "Expanded 200 reference drugs evaluated on untouched Locked Final Test Cohort 7 (N=13). RLM intrinsic clearance promoted via OpenADMET CheMeleon (+9.6% holdout error reduction, MAE 0.5281 log10(mL/min/kg)). MLM intrinsic clearance promoted via OpenADMET CheMeleon (+6.2% holdout error reduction, MAE 0.5743 log10(mL/min/kg)). Caco-2 stacking ensemble (+18.4% error reduction, MAE 0.328 log10(cm/s)). PPB stacking ensemble (+17.3% error reduction, MAE 11.851% bound). CYP3A4 Morgan GBDT stacking (+10.3% error reduction, MAE 1.147 pIC50). hERG liability (+21.5% error reduction, MAE 1.160 pIC50). 15/15 real-world project compounds in GLP-1, EGFR, AMYR verified with zero regression.",
+        "model_version_hash": "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce",
+        "known_limitations": "CYP2C19, P-gp, and BCRP quantitative continuous regression remain fail-closed MODEL_UNAVAILABLE. Vdss remains mechanistic consensus Level 3.",
+    },
 ]
 
 

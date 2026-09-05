@@ -1,0 +1,400 @@
+{
+  "SOLUBILITY": {
+    "endpoint_key": "SOLUBILITY",
+    "contract_name": "Solubility",
+    "unit": "log10(mol/L)",
+    "n_dev": 76,
+    "n_val": 47,
+    "n_locked": 13,
+    "standalone": {
+      "admetica_solubility": {
+        "name": "Admetica Chemprop",
+        "dev_mae": 1.3892,
+        "val_mae": 1.1617,
+        "test_mae": 1.8554,
+        "test_rmse": 2.366,
+        "test_r2": -4.5069
+      },
+      "esol_delaney_v1": {
+        "name": "Delaney ESOL",
+        "dev_mae": 0.8204,
+        "val_mae": 1.4474,
+        "test_mae": 2.4257,
+        "test_rmse": 2.7956,
+        "test_r2": -6.6882
+      },
+      "rdkit_gbr_solubility_v1": {
+        "name": "Descriptor GBR",
+        "dev_mae": 0.9402,
+        "val_mae": 1.6103,
+        "test_mae": 2.4909,
+        "test_rmse": 2.961,
+        "test_r2": -7.6246
+      },
+      "drugopt_calibrated_solubility_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.0403,
+        "val_mae": 1.2295,
+        "test_mae": 2.6325,
+        "test_rmse": 3.0334,
+        "test_r2": -8.0516
+      }
+    },
+    "best_single": {
+      "model_id": "admetica_solubility",
+      "val_mae": 1.1617,
+      "test_mae": 1.8554
+    },
+    "equal_weight": {
+      "val_mae": 1.1303,
+      "test_mae": 2.3435
+    },
+    "stacking": {
+      "weights": {
+        "admetica_solubility": 0.166,
+        "esol_delaney_v1": 0.834,
+        "rdkit_gbr_solubility_v1": 0.0,
+        "drugopt_calibrated_solubility_v1": 0.0
+      },
+      "val_mae": 1.2571,
+      "test_mae": 2.3229
+    },
+    "selected_strategy": "BEST_SINGLE"
+  },
+  "CACO2": {
+    "endpoint_key": "CACO2",
+    "contract_name": "Permeability",
+    "unit": "log10(cm/s)",
+    "n_dev": 63,
+    "n_val": 43,
+    "n_locked": 13,
+    "standalone": {
+      "admetica_caco2": {
+        "name": "Admetica Chemprop",
+        "dev_mae": 0.3897,
+        "val_mae": 0.3374,
+        "test_mae": 0.3374,
+        "test_rmse": 0.4079,
+        "test_r2": -1.7194
+      },
+      "physchem_caco2_v1": {
+        "name": "Physchem Polar Surface",
+        "dev_mae": 0.6088,
+        "val_mae": 0.7975,
+        "test_mae": 0.6167,
+        "test_rmse": 0.8094,
+        "test_r2": -9.7111
+      },
+      "descriptor_gbr_caco2_v1": {
+        "name": "Descriptor GBR",
+        "dev_mae": 0.6178,
+        "val_mae": 0.708,
+        "test_mae": 0.6328,
+        "test_rmse": 0.8176,
+        "test_r2": -9.9268
+      },
+      "drugopt_calibrated_caco2_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 0.601,
+        "val_mae": 0.6895,
+        "test_mae": 0.6048,
+        "test_rmse": 0.7955,
+        "test_r2": -9.3442
+      }
+    },
+    "best_single": {
+      "model_id": "admetica_caco2",
+      "val_mae": 0.3374,
+      "test_mae": 0.3374
+    },
+    "equal_weight": {
+      "val_mae": 0.5788,
+      "test_mae": 0.4996
+    },
+    "stacking": {
+      "weights": {
+        "admetica_caco2": 0.854,
+        "physchem_caco2_v1": 0.07,
+        "descriptor_gbr_caco2_v1": 0.012,
+        "drugopt_calibrated_caco2_v1": 0.064
+      },
+      "val_mae": 0.3429,
+      "test_mae": 0.328
+    },
+    "selected_strategy": "BEST_SINGLE"
+  },
+  "PPB": {
+    "endpoint_key": "PPB",
+    "contract_name": "Plasma protein binding",
+    "unit": "% bound",
+    "n_dev": 91,
+    "n_val": 62,
+    "n_locked": 13,
+    "standalone": {
+      "admetica_ppbr": {
+        "name": "Admetica Chemprop",
+        "dev_mae": 10.2891,
+        "val_mae": 12.8139,
+        "test_mae": 18.4465,
+        "test_rmse": 24.8102,
+        "test_r2": -1.9669
+      },
+      "physchem_human_ppb_v1": {
+        "name": "Albumin Mechanistic",
+        "dev_mae": 12.3705,
+        "val_mae": 14.8111,
+        "test_mae": 37.2677,
+        "test_rmse": 49.5598,
+        "test_r2": -10.8384
+      },
+      "descriptor_gbr_ppb_v1": {
+        "name": "Descriptor GBR",
+        "dev_mae": 15.426,
+        "val_mae": 15.9042,
+        "test_mae": 31.6831,
+        "test_rmse": 39.4973,
+        "test_r2": -6.5192
+      },
+      "drugopt_calibrated_ppb_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 16.2491,
+        "val_mae": 16.6006,
+        "test_mae": 32.1985,
+        "test_rmse": 39.6164,
+        "test_r2": -6.5646
+      }
+    },
+    "best_single": {
+      "model_id": "admetica_ppbr",
+      "val_mae": 12.8139,
+      "test_mae": 18.4465
+    },
+    "equal_weight": {
+      "val_mae": 13.7324,
+      "test_mae": 29.2184
+    },
+    "stacking": {
+      "weights": {
+        "admetica_ppbr": 0.769,
+        "physchem_human_ppb_v1": 0.231,
+        "descriptor_gbr_ppb_v1": 0.0,
+        "drugopt_calibrated_ppb_v1": 0.0
+      },
+      "val_mae": 11.8505,
+      "test_mae": 22.0234
+    },
+    "selected_strategy": "BEST_SINGLE"
+  },
+  "HLM": {
+    "endpoint_key": "HLM",
+    "contract_name": "HLM intrinsic clearance",
+    "unit": "log10(mL/min/kg)",
+    "n_dev": 60,
+    "n_val": 43,
+    "n_locked": 13,
+    "standalone": {
+      "openadmet_hlm": {
+        "name": "OpenADMET CheMeleon",
+        "dev_mae": 1.8825,
+        "val_mae": 1.853,
+        "test_mae": 2.0686,
+        "test_rmse": 2.1974,
+        "test_r2": -150.5948
+      },
+      "tdc_hlm_chemprop_v1": {
+        "name": "TDC HLM Chemprop",
+        "dev_mae": 1.6734,
+        "val_mae": 1.4942,
+        "test_mae": 1.4955,
+        "test_rmse": 1.6261,
+        "test_r2": -82.0211
+      },
+      "descriptor_ridge_hlm_v1": {
+        "name": "Descriptor Ridge",
+        "dev_mae": 1.6219,
+        "val_mae": 1.4428,
+        "test_mae": 1.4369,
+        "test_rmse": 1.5907,
+        "test_r2": -78.4444
+      },
+      "drugopt_hlm_chemical_space_v1": {
+        "name": "Drug-OPT Chemical Space",
+        "dev_mae": 1.4735,
+        "val_mae": 1.3296,
+        "test_mae": 1.3268,
+        "test_rmse": 1.4768,
+        "test_r2": -67.4688
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_hlm_chemical_space_v1",
+      "val_mae": 1.3296,
+      "test_mae": 1.3268
+    },
+    "equal_weight": {
+      "val_mae": 1.5234,
+      "test_mae": 1.582
+    },
+    "stacking": {
+      "weights": {
+        "openadmet_hlm": 0.0,
+        "tdc_hlm_chemprop_v1": 0.0,
+        "descriptor_ridge_hlm_v1": 0.0,
+        "drugopt_hlm_chemical_space_v1": 1.0
+      },
+      "val_mae": 1.3296,
+      "test_mae": 1.3268
+    },
+    "selected_strategy": "STACKING"
+  },
+  "CYP3A4_PIC50": {
+    "endpoint_key": "CYP3A4_PIC50",
+    "contract_name": "CYP3A4 inhibitor",
+    "unit": "pIC50",
+    "n_dev": 69,
+    "n_val": 44,
+    "n_locked": 13,
+    "standalone": {
+      "openadmet_chemeleon_cyp3a4_pic50": {
+        "name": "CheMeleon CYP3A4",
+        "dev_mae": 1.5987,
+        "val_mae": 1.4193,
+        "test_mae": 1.2251,
+        "test_rmse": 1.5457,
+        "test_r2": -20.6443
+      },
+      "morgan_ecfp4_cyp3a4_pic50": {
+        "name": "Morgan ECFP4 GBDT",
+        "dev_mae": 1.5196,
+        "val_mae": 1.3511,
+        "test_mae": 1.1461,
+        "test_rmse": 1.464,
+        "test_r2": -18.4162
+      },
+      "drugopt_calibrated_cyp3a4_pic50": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.5428,
+        "val_mae": 1.4034,
+        "test_mae": 1.1699,
+        "test_rmse": 1.5549,
+        "test_r2": -20.9018
+      }
+    },
+    "best_single": {
+      "model_id": "morgan_ecfp4_cyp3a4_pic50",
+      "val_mae": 1.3511,
+      "test_mae": 1.1461
+    },
+    "equal_weight": {
+      "val_mae": 1.3879,
+      "test_mae": 1.1763
+    },
+    "stacking": {
+      "weights": {
+        "openadmet_chemeleon_cyp3a4_pic50": 0.0,
+        "morgan_ecfp4_cyp3a4_pic50": 0.773,
+        "drugopt_calibrated_cyp3a4_pic50": 0.227
+      },
+      "val_mae": 1.3597,
+      "test_mae": 1.1474
+    },
+    "selected_strategy": "BEST_SINGLE"
+  },
+  "CYP2D6_PIC50": {
+    "endpoint_key": "CYP2D6_PIC50",
+    "contract_name": "CYP2D6 inhibitor",
+    "unit": "pIC50",
+    "n_dev": 26,
+    "n_val": 25,
+    "n_locked": 0,
+    "standalone": {
+      "openadmet_chemeleon_cyp2d6_pic50": {
+        "name": "CheMeleon CYP2D6",
+        "dev_mae": 2.154,
+        "val_mae": 1.6765,
+        "test_mae": NaN,
+        "test_rmse": NaN,
+        "test_r2": 0.0
+      },
+      "morgan_ecfp4_cyp2d6_pic50": {
+        "name": "Morgan ECFP4 GBDT",
+        "dev_mae": 2.1287,
+        "val_mae": 1.6409,
+        "test_mae": NaN,
+        "test_rmse": NaN,
+        "test_r2": 0.0
+      },
+      "drugopt_calibrated_cyp2d6_pic50": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 2.0175,
+        "val_mae": 1.6168,
+        "test_mae": NaN,
+        "test_rmse": NaN,
+        "test_r2": 0.0
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_calibrated_cyp2d6_pic50",
+      "val_mae": 1.6168,
+      "test_mae": NaN
+    },
+    "equal_weight": {
+      "val_mae": 1.6447,
+      "test_mae": NaN
+    },
+    "stacking": {
+      "weights": {
+        "openadmet_chemeleon_cyp2d6_pic50": 0.0,
+        "morgan_ecfp4_cyp2d6_pic50": 0.0,
+        "drugopt_calibrated_cyp2d6_pic50": 1.0
+      },
+      "val_mae": 1.6168,
+      "test_mae": NaN
+    },
+    "selected_strategy": "BEST_SINGLE"
+  },
+  "HERG_PIC50": {
+    "endpoint_key": "HERG_PIC50",
+    "contract_name": "hERG liability",
+    "unit": "pIC50",
+    "n_dev": 83,
+    "n_val": 56,
+    "n_locked": 13,
+    "standalone": {
+      "physchem_gbr_herg_pic50_v1": {
+        "name": "Physchem GBR",
+        "dev_mae": 1.546,
+        "val_mae": 1.5109,
+        "test_mae": 1.3039,
+        "test_rmse": 1.6613,
+        "test_r2": -15.8438
+      },
+      "drugopt_calibrated_herg_pic50_v1": {
+        "name": "Drug-OPT Calibrated",
+        "dev_mae": 1.4818,
+        "val_mae": 1.5099,
+        "test_mae": 1.1596,
+        "test_rmse": 1.4865,
+        "test_r2": -12.485
+      }
+    },
+    "best_single": {
+      "model_id": "drugopt_calibrated_herg_pic50_v1",
+      "val_mae": 1.5099,
+      "test_mae": 1.1596
+    },
+    "equal_weight": {
+      "val_mae": 1.5104,
+      "test_mae": 1.2317
+    },
+    "stacking": {
+      "weights": {
+        "physchem_gbr_herg_pic50_v1": 0.0,
+        "drugopt_calibrated_herg_pic50_v1": 1.0
+      },
+      "val_mae": 1.5099,
+      "test_mae": 1.1596
+    },
+    "selected_strategy": "STACKING"
+  }
+}

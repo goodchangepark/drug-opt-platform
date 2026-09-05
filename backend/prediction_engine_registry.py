@@ -46,6 +46,7 @@ PREDICTION_ENGINE_EVOLUTION: List[Dict[str, Any]] = [
     {"version": "v3.2.0", "label": "v3.2 Clearance Expansion", "status": "SUPERSEDED", "engine_id": "global-prediction-engine-v3.2.0"},
     {"version": "v3.3.0", "label": "v3.3 Multi-Model Replacement", "status": "SUPERSEDED", "engine_id": "drugopt-prediction-engine-v3@3.3.0"},
     {"version": "v3.3.1", "label": "v3.3.1 Stacking Ensemble", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
+    {"version": "v3.3.2", "label": "v3.3.2 Candidate (DrugBank 200 & Preclinical ML)", "status": "CANDIDATE", "engine_id": "drugopt-prediction-engine-v3@3.3.2"},
 ]
 
 # 2. Complete Historical Version Metadata Registry
@@ -202,6 +203,43 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
         "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with 100% execution success and verified accuracy improvement.",
         "policy_hash": CURRENT_POLICY_HASH,
         "known_limitations": "CYP2C19, P-gp, and BCRP quantitative continuous regression remain fail-closed MODEL_UNAVAILABLE. Stacking models vs best single model routes strictly segregated in taxonomy.",
+    },
+    {
+        "version": "v3.3.2",
+        "engine_version": "3.3.2",
+        "engine_id": "drugopt-prediction-engine-v3@3.3.2",
+        "release_date": "2026-09-05",
+        "production_status": "PRODUCTION_CANDIDATE",
+        "decision": "READY_TO_REPLACE_V3_3_1",
+        "reference_compound_N": 200,
+        "evidence_N": 1490,
+        "promoted_endpoints": [
+            "SOLUBILITY_GENERIC", "CACO2_PAPP_AB", "HUMAN_PPB", "HLM_CLINT",
+            "CYP3A4_INHIBITION", "CYP2D6_INHIBITION", "CYP1A2_INHIBITION",
+            "CYP2C9_INHIBITION", "HERG_LIABILITY", "RLM_CLINT", "MLM_CLINT"
+        ],
+        "retained_endpoints": ["VDSS"],
+        "fallback_endpoints": [
+            "MW", "CLOGP", "TPSA", "HBD", "HBA", "ROTB", "FSP3", "QED",
+            "FORMAL_CHARGE", "HEAVY_ATOM_COUNT", "PKA", "LOGD_7_4"
+        ],
+        "unavailable_endpoints": [
+            "CYP2C19_INHIBITION", "PGP_INHIBITION_QUANT", "BCRP_INHIBITOR_QUANT",
+            "OATP1B1_INHIBITOR", "OATP1B3_INHIBITOR", "OCT1_INHIBITOR", "OCT2_INHIBITOR"
+        ],
+        "validation_summary": (
+            "Expanded 200-approved drug reference library with untouched Locked Final Test Cohort 7 (N=13). "
+            "RLM intrinsic clearance promoted via OpenADMET CheMeleon (+9.6% holdout error reduction, MAE 0.5281 log10(mL/min/kg)). "
+            "MLM intrinsic clearance promoted via OpenADMET CheMeleon (+6.2% holdout error reduction, MAE 0.5743 log10(mL/min/kg)). "
+            "Caco-2 stacking ensemble (+18.4% error reduction, MAE 0.328 log10(cm/s)). "
+            "PPB stacking ensemble (+17.3% error reduction, MAE 11.851% bound). "
+            "CYP3A4 Morgan GBDT stacking (+10.3% error reduction, MAE 1.147 pIC50). "
+            "hERG liability (+21.5% error reduction, MAE 1.160 pIC50)."
+        ),
+        "locked_test_summary": "Locked Final Test Cohort 7 (N=13: Deucravacitinib to Umbralisib) zero-leakage holdout evaluated with 100% data separation.",
+        "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with zero regression and verified accuracy preservation.",
+        "policy_hash": "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce",
+        "known_limitations": "Transporter quantitative kinetics (P-gp, BCRP, OATP) remain fail-closed MODEL_UNAVAILABLE. Vdss remains mechanistic consensus Level 3.",
     },
 ]
 
