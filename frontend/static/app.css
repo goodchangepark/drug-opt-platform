@@ -1704,3 +1704,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   cursor: not-allowed;
 }
 
+.reference-library-project-row {
+  background: #f0fdf4 !important;
+  border-left: 4px solid #0284c7;
+}
+
+.reference-library-project-row:hover {
+  background: #e6f9ed !important;
+}
+
+
