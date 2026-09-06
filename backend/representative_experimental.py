@@ -1,6 +1,6 @@
 """Deterministic experimental representative selection for scientific rows.
 
-Policy Version: drugopt-representative-experimental-v5.2
+Policy Version: drugopt-representative-experimental-v5.3
 
 Context-Specific Representative Hierarchy:
 1. Approved/Clinical Human Context (e.g. therapeutic clinical dose/regimen, steady state, human plasma)
@@ -16,7 +16,7 @@ PREDICTION PROXIMITY IS NEVER CONSULTED.
 """
 from __future__ import annotations
 
-REPRESENTATIVE_EXPERIMENTAL_VERSION = "drugopt-representative-experimental-v5.2"
+REPRESENTATIVE_EXPERIMENTAL_VERSION = "drugopt-representative-experimental-v5.3"
 
 _ORIGIN_PRIORITY = {
     "INTERNAL_EXPERIMENTAL": 0,
@@ -110,6 +110,17 @@ def representative_rank(item: dict) -> tuple:
     else:
         meas_rank = 2
 
+    # For clinical Cmax, a measured total plasma concentration is preferable
+    # to an unbound/free Cmax quoted as a mechanistic exposure calculation.
+    # This is a context/measurement rule only; it never inspects prediction
+    # values or prediction error.
+    clinical_exposure_rank = 0
+    if "_PK_CMAX_" in endpoint:
+        raw_unit = str(item.get("raw_unit") or "").lower()
+        is_mass_concentration = any(token in raw_unit for token in ("ng/ml", "µg/ml", "ug/ml", "mg/l"))
+        is_unbound = "UNBOUND" in ctx_str or "FREE CMAX" in ctx_str
+        clinical_exposure_rank = 0 if is_mass_concentration and not is_unbound else 1 if not is_unbound else 2
+
     # 3. Context Completeness
     complete_context = bool(stages.get("CONTEXT_QUALIFIED")) or (
         species not in {"", "UNSPECIFIED"} and
@@ -133,6 +144,7 @@ def representative_rank(item: dict) -> tuple:
         meas_rank,
         _ORIGIN_PRIORITY.get(origin, 9),
         _SEMANTIC_PRIORITY.get(semantic, 5),
+        clinical_exposure_rank,
         0 if complete_context else 1,
         source_quality,
         0 if reference_present else 1,

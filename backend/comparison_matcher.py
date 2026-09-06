@@ -445,7 +445,8 @@ def compute_comparison_coverage(pairs: List[ScientificComparisonPair]) -> Dict[s
     context_set = {
         RELATED, CONDITIONAL, "RELATED", "CONDITIONAL",
         "RELATED_SAME_SCIENTIFIC_GROUP", "CONDITIONALLY_COMPARABLE",
-        "NEEDS_REVIEW", "CONTEXT_NOT_QUALIFIED"
+        "NEEDS_REVIEW", "CONTEXT_NOT_QUALIFIED", "NO_MATCHING_PREDICTION_MODEL",
+        "CONTEXT_ONLY", "EXPERIMENTAL_ONLY", "PREDICTION_ONLY"
     }
 
     direct_pairs = sum(1 for p in pairs if p.comparison_status in direct_set)

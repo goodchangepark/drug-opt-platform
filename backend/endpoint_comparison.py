@@ -473,6 +473,8 @@ def _comparison(prediction, experiments, mw: float | None = None):
         return None
     direct, related = [], []
     for experiment in experiments:
+        if not _pk_observation_matches_endpoint(experiment, str(prediction.get("canonical_endpoint_id", ""))):
+            continue
         exp_comp = experiment.get("comparability")
         if exp_comp in DIRECT_OR_CONVERTED and experiment.get("normalized_value") is not None:
             pred_eid = str(prediction.get("canonical_endpoint_id", "")).upper()
@@ -683,6 +685,23 @@ def _scientific_group(endpoint_id: str, section: str, route: str = "", is_scenar
 
 
 def _measurement_type(item: dict, endpoint_id: str) -> str:
+    # PK endpoint identity is authoritative.  Do not let incidental words in
+    # a regulatory narrative (for example an IC50 mentioned beside Cmax)
+    # reclassify the observation's parameter.
+    pk_parameter = _pk_parameter(endpoint_id)
+    if pk_parameter:
+        raw = str(item.get("raw_endpoint", "")).upper().replace("-", "_").replace("/", "_")
+        pk_aliases = {
+            "CMAX": ("CMAX", "C_MAX"), "TMAX": ("TMAX", "T_MAX"),
+            "AUC": ("AUC",), "AUC0_T": ("AUC0_T", "AUC_LAST", "AUCLAST"),
+            "AUC0_INF": ("AUC0_INF", "AUCINF", "AUC_INFINITE"),
+            "AUCTAU": ("AUCTAU", "AUC_TAU"), "T_HALF": ("T_HALF", "HALF_LIFE", "T1_2"),
+            "CL": ("CL", "CLEARANCE"), "CLF": ("CLF", "CL_F"),
+            "VD": ("VD", "VZ", "VOLUME"), "VSS": ("VSS",), "VSSF": ("VSSF", "VSS_F"), "VDF": ("VDF", "VD_F"),
+            "F": ("F", "BIOAVAILABILITY"),
+        }
+        if any(alias in raw for alias in pk_aliases.get(pk_parameter, (pk_parameter,))):
+            return pk_parameter
     if item.get("measurement_type") and item.get("measurement_type") not in {"measurement", "Unknown"}:
         return item["measurement_type"]
     text = " ".join(str(item.get(key, "")) for key in ("raw_endpoint", "assay_type", "raw_unit", "relation", "context", "reference")).lower()
@@ -694,6 +713,16 @@ def _measurement_type(item: dict, endpoint_id: str) -> str:
     if re.search(r"categor|positive|negative|inhibitor", text) and not re.search(r"\b(?:ic50|ki|ec50)\b", text): return "categorical interaction"
     if "CYP" in str(endpoint_id).upper() or "PGP" in str(endpoint_id).upper() or "BCRP" in str(endpoint_id).upper(): return "Inhibition Assay"
     return item.get("raw_endpoint") or "measurement"
+
+
+def _pk_observation_matches_endpoint(item: dict, endpoint_id: str) -> bool:
+    """Reject incidental narrative values from a PK parameter row."""
+    parameter = _pk_parameter(endpoint_id)
+    if not parameter:
+        return True
+    if not str(item.get("raw_endpoint", "")).strip():
+        return True
+    return _measurement_type(item, endpoint_id) == parameter
 
 
 def _display_quantity(endpoint_id: str, value, unit: str) -> dict:
@@ -725,7 +754,7 @@ def _row_experiments(row: dict) -> list[dict]:
 
 
 def _primary_experimental_display(row: dict, experiments: list[dict]) -> dict:
-    observed = [item for item in experiments if item.get("normalized_value") is not None and item.get("comparability") != UNSUPPORTED]
+    observed = [item for item in experiments if item.get("normalized_value") is not None and item.get("comparability") != UNSUPPORTED and _pk_observation_matches_endpoint(item, row["endpoint_id"])]
     # Search ingestion may preserve source representations of one observation.
     # Display grouping uses its stable scientific/display identity, never the
     # prediction error, so it cannot cherry-pick a closer observation.
@@ -769,6 +798,7 @@ def _pk_parameter(endpoint_id: str) -> str:
     text = str(endpoint_id or "").upper()
     if "_PK_" not in text: return ""
     parameter = text.split("_PK_", 1)[1]
+    parameter = re.sub(r"_DAY\d+$", "", parameter)
     # Older persisted Stage-5 IDs may include both an endpoint route and a
     # route-context suffix (for example ``VDF_ORAL_ORAL``).  They still mean
     # one parameter, so strip every trailing route token for display only.
@@ -781,12 +811,14 @@ def _pk_parameter(endpoint_id: str) -> str:
 
 def _pk_display_name(endpoint_id: str, fallback: str) -> str:
     """Use scientist-facing parameter labels; route remains explicit context."""
+    day_match = re.search(r"_DAY(\d+)", str(endpoint_id).upper())
     parameter = _pk_parameter(endpoint_id)
     labels = {
         "CL": "Systemic clearance",
         "CLF": "Oral CL/F",
         "VD": "Volume of distribution",
         "VSS": "Steady-state volume of distribution",
+        "VSSF": "Oral Vss/F",
         "VDF": "Oral Vd/F",
         "F": "Oral bioavailability F",
         "CMAX": "Cmax",
@@ -794,7 +826,8 @@ def _pk_display_name(endpoint_id: str, fallback: str) -> str:
         "AUC": "AUC",
         "T_HALF": "Terminal half-life",
     }
-    return labels.get(parameter, fallback)
+    label = labels.get(parameter, fallback)
+    return f"{label} (Day {day_match.group(1)})" if day_match else label
 
 
 def _presentation_prediction(prediction: dict, endpoint_id: str) -> dict:
@@ -814,7 +847,12 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "", mw: float | None =
         primary = _primary_experimental_display(source, experiments)
         prediction = _presentation_prediction(source.get("prediction") or {}, source["endpoint_id"])
         comparison = source.get("comparison")
-        semantic = (comparison or {}).get("status") or ("PREDICTION_ONLY" if prediction.get("available") and not experiments else ("EXPERIMENTAL_ONLY" if experiments and not prediction.get("available") else "NEEDS_REVIEW"))
+        semantic = (comparison or {}).get("status") or (
+            "PREDICTION_ONLY" if prediction.get("available") and not experiments else
+            "EXPERIMENTAL_ONLY" if experiments and not prediction.get("available") else
+            "NO_MATCHING_PREDICTION_MODEL" if experiments else
+            "UNAVAILABLE"
+        )
         primary_item = next((item for item in experiments if item.get("normalized_value") is not None), experiments[0] if experiments else {})
         display_name = _pk_display_name(source["endpoint_id"], source["display_name"]) if source["section"] == "PK" else source["display_name"]
         display_comparison = comparison
@@ -1002,6 +1040,21 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "", mw: float | None =
                 }
 
         grp = _scientific_group(source["endpoint_id"], source["section"], source.get("route", ""))
+        prediction_unavailable_reason = ""
+        if not prediction.get("available"):
+            prediction_unavailable_reason = prediction.get("unavailable_reason") or "Current Prediction Engine does not support this endpoint/context"
+        experimental_contract = {
+            "available": primary.get("value") is not None,
+            "representative_value": primary.get("value"),
+            "value": primary.get("value"),
+            "unit": primary.get("unit", ""),
+            "provenance": primary.get("provenance", ""),
+            "representative_observation_id": primary.get("representative_observation_id"),
+            "representative_reason": primary.get("representative_reason", ""),
+            "observation_count": primary.get("observation_count", 0),
+            "additional_observation_count": primary.get("additional_observation_count", 0),
+            "observations": experiments,
+        }
         rows.append({
             "section": source["section"], "group": grp,
             "canonical_endpoint": source["endpoint_id"], "display_name": display_name,
@@ -1011,11 +1064,21 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "", mw: float | None =
             "matrix": primary_item.get("context", {}).get("matrix", ""), "assay": primary_item.get("assay_type", ""),
             "direction": primary_item.get("context", {}).get("direction", ""), "analyte": primary_item.get("analyte", primary_item.get("context", {}).get("analyte", "PARENT")),
             "experimental_observations": experiments, "primary_experimental_display": primary,
+            # Stable one-row contract consumed by all section renderers.  The
+            # legacy fields above remain for compatibility, but clients no
+            # longer need to reconstruct the primary experimental value from
+            # observation details.
+            "experimental": experimental_contract,
             "prediction": prediction, "display_unit": (prediction.get("display") or {}).get("unit") or (experiments[0].get("display", {}).get("unit") if experiments else ""),
             "difference": display_comparison, "semantic_status": semantic,
             "qualification_status": (primary_item.get("qualification_details") or {}).get("context_status") or primary_item.get("qualification") or "PREDICTION_ONLY",
             "prediction_type": prediction.get("prediction_type"), "maturity": prediction.get("maturity", {}),
             "references": source.get("references", []), "unmatched_reason": (comparison or {}).get("reason") or primary.get("reason", ""),
+            "prediction_unavailable_reason": prediction_unavailable_reason,
+            "comparison_type": (display_comparison or {}).get("comparability") or (display_comparison or {}).get("status") or semantic,
+            "unit": (display_comparison or {}).get("unit") or primary.get("unit") or (prediction.get("display") or {}).get("unit", ""),
+            "context": {"species": source.get("species", "UNSPECIFIED"), "route": source.get("route", "UNSPECIFIED"), "dose": primary_item.get("dose", prediction.get("dose")), "dose_unit": primary_item.get("dose_unit", prediction.get("dose_unit", "")), "regimen": primary_item.get("regimen", primary_item.get("context", {}).get("regimen", "UNSPECIFIED")), "matrix": primary_item.get("context", {}).get("matrix", ""), "analyte": primary_item.get("analyte", primary_item.get("context", {}).get("analyte", "PARENT"))},
+            "reference": (primary_item.get("reference") if primary_item else None) or (source.get("references") or [None])[0],
             "source_endpoint_ids": [source["endpoint_id"]], "route_contexts": [source.get("route", "UNSPECIFIED")],
             "representative_observation_id": primary.get("representative_observation_id"), "representative_reason": primary.get("representative_reason"), "additional_observation_count": primary.get("additional_observation_count", 0),
             "experimental_display_value": primary.get("value"), "experimental_display_unit": primary.get("unit"),

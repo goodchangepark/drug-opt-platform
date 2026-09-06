@@ -130,3 +130,17 @@ def test_sunvozertinib_zero_pairable_loss():
     assert cov.get("successfully_paired") >= 3
     assert cov.get("direct_pairs") >= 1
     assert cov.get("converted_pairs") >= 2
+
+
+def test_sunvozertinib_golden_rows_expose_clinical_values_in_authoritative_contract():
+    db = SessionLocal()
+    comp = build_endpoint_comparison(db, 13)
+    db.close()
+    rows = {row["canonical_endpoint"]: row for row in comp["scientific_rows"]}
+    ppb = rows["HUMAN_PPB"]
+    cmax = rows["HUMAN_PK_CMAX_ORAL"]
+    auc = rows["HUMAN_PK_AUC_ORAL"]
+    assert ppb["experimental"]["value"] == 91.46
+    assert cmax["experimental"]["value"] == 412.0
+    assert cmax["experimental"]["unit"] == "ng/mL"
+    assert auc["experimental"]["value"] == 8060.0

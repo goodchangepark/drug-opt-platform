@@ -13,6 +13,26 @@ def test_qualified_external_is_displayable_without_import_and_prediction_is_expl
     assert result["primary_experimental_display"]["value"] == 91.46
     assert result["prediction"]["available"] is False
     assert result["prediction"]["unavailable_reason"]
+    assert result["experimental"]["available"] is True
+    assert result["experimental"]["value"] == 91.46
+    assert result["experimental"]["observation_count"] == 1
+
+
+def test_scientific_result_exposes_one_authoritative_experimental_prediction_contract():
+    row = _blank("HUMAN_PPB")
+    row["experimental_external_candidates"] = [{
+        "id": 10, "origin": "AUTO_QUALIFIED_EXTERNAL", "state": "AUTO_QUALIFIED_EXTERNAL",
+        "raw_endpoint": "Protein Binding", "raw_value": 0.1, "raw_unit": "fu",
+        "normalized_value": 90.0, "normalized_unit": "% bound", "comparability": "CONVERTED",
+        "context": {"matrix": "plasma"}, "reference": {"source": "test"},
+    }]
+    row["prediction"] = {"available": True, "canonical_endpoint_id": "HUMAN_PPB",
+                          "display": {"value": 91.1, "unit": "% bound"}, "unit": "% bound"}
+    result = _scientific_rows([row])[0]
+    assert result["experimental"]["representative_value"] == 90.0
+    assert result["prediction"]["available"] is True
+    assert result["unit"] == "% bound"
+    assert result["context"]["matrix"] == "plasma"
 
 
 def test_interpretation_keeps_value_and_agreement_independent_and_conservative():
