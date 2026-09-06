@@ -1,0 +1,122 @@
+{
+  "baseline_id": "DRUGOPT_PK_BASELINE_V3_3_4_FREEZE",
+  "frozen_at": "2026-09-06T21:40:00Z",
+  "commit_sha": "bbf1a95a6fc57f6b86cf0f47e2b109e200ca2586",
+  "tag": "v3.3.4-pk-critical-parameter-upgrade",
+  "production_prediction_engine": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.2",
+    "version": "3.3.2",
+    "status": "PRODUCTION_DEFAULT",
+    "policy_hash": "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
+  },
+  "candidate_prediction_engine": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+    "version": "3.3.3",
+    "status": "PRODUCTION_CANDIDATE",
+    "policy_hash": "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
+  },
+  "pk_engine": {
+    "engine_id": "drugopt-pk-engine-v1@1.0.0",
+    "version": "1.0.0",
+    "status": "PRODUCTION_PK_FOUNDATION",
+    "lineage": "Independent PK Disposition & Clinical Simulation Engine"
+  },
+  "pk_parameter_set_schema": {
+    "version": "1.1",
+    "parameters": [
+      "solubility_aq",
+      "pka_acid",
+      "pka_base",
+      "logd74",
+      "caco2",
+      "hia",
+      "fu_plasma",
+      "hlm_clint",
+      "hepatic_cl",
+      "vdss",
+      "pgp_status",
+      "bcrp_status",
+      "cyp_profile"
+    ],
+    "source_types": [
+      "EXPERIMENTAL",
+      "VALIDATED_MODEL",
+      "MECHANISTIC_DERIVED",
+      "RULE_ESTIMATE",
+      "USER_INPUT",
+      "MODEL_UNAVAILABLE"
+    ]
+  },
+  "parameter_routes": {
+    "pka": {
+      "method": "SMARTS_IONIZATION_RULES_V1",
+      "maturity_level": 1,
+      "separation": "MACRO_MICRO_ACID_BASE_SEPARATED"
+    },
+    "logd74": {
+      "method": "HENDERSON_HASSELBALCH_IONIZATION_V1",
+      "maturity_level": 1,
+      "ph_window": "7.4 +/- 0.2"
+    },
+    "vdss": {
+      "method": "LOMBARDO_PHYSCHEM_MECHANISTIC_CONSENSUS_V1",
+      "maturity_level": 3,
+      "unit": "L/kg"
+    },
+    "fu_ppb": {
+      "method": "CANONICAL_FU_4_MODE_WITH_CLIPPING_DETECTION",
+      "min_fu": 0.0001,
+      "extreme_binding_threshold": 0.02
+    },
+    "hlm_ivive": {
+      "method": "WELL_STIRRED_VENOUS_EQUILIBRIUM",
+      "assumptions": "MODEL_INPUT_ASSUMPTION"
+    }
+  },
+  "physiological_assumptions": {
+    "human": {
+      "qh_ml_min_kg": 20.7142857,
+      "liver_wt_g_kg": 25.5,
+      "mppgl_mg_g": 45.0,
+      "scaling_factor": 1147.5,
+      "default_bw_kg": 70.0,
+      "default_rb": 1.0
+    },
+    "rat": {
+      "qh_ml_min_kg": 55.2,
+      "liver_wt_g_kg": 40.0,
+      "mppgl_mg_g": 44.8,
+      "scaling_factor": 1792.0,
+      "default_bw_kg": 0.25,
+      "default_rb": 1.0
+    },
+    "mouse": {
+      "qh_ml_min_kg": 90.0,
+      "liver_wt_g_kg": 55.0,
+      "mppgl_mg_g": 45.0,
+      "scaling_factor": 2475.0,
+      "default_bw_kg": 0.025,
+      "default_rb": 1.0
+    }
+  },
+  "simulation_equations": {
+    "iv_bolus": "C(t) = (Dose / Vd) * exp(-ke * t)",
+    "oral_first_order": "C(t) = (Dose * F * ka / (Vd * (ka - ke))) * (exp(-ke * t) - exp(-ka * t))",
+    "ke_definition": "ke = CL / Vd",
+    "half_life_definition": "t_1/2 = ln(2) / ke"
+  },
+  "uncertainty_governance": {
+    "ood_downgrade": "LOW_DOWNGRADED_OOD",
+    "extreme_binding_expansion": "fu_ci90_rel = 0.60 if fu < 0.02 else 0.30"
+  },
+  "baseline_clinical_pk_metrics_n6": {
+    "cohort_size": 6,
+    "drugs": ["Acetaminophen", "Osimertinib", "Sunvozertinib", "Metformin", "Warfarin", "Midazolam"],
+    "total_evaluated_parameters": 18,
+    "aafe": 2.20,
+    "within_1_5_fold_pct": 38.9,
+    "within_2_0_fold_pct": 61.1,
+    "within_3_0_fold_pct": 77.8,
+    "gate_verdict": "PASS_WITH_LIMITATIONS"
+  }
+}

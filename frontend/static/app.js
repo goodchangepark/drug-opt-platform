@@ -5448,6 +5448,30 @@ function integratedProfile(versionId){
           e('p',{className:'small'},'Project 300 expanded to 250 approved reference drugs (100% CAS hydrated, 0 identity collision). Gate verdict: PASS_WITH_LIMITATIONS (Solubility/Caco-2/PPB/HLM Level 4, VDss Level 3, pKa/logD Level 1).')
          ])
         ])
+       ]),
+       e('div',{className:'card',style:{background:'#f6ffed',border:'1px solid #b7eb8f',padding:'14px',marginTop:'14px'}},[
+        e('div',{className:'eyebrow',style:{color:'#389e0d'}},'PK ENGINE V1.0 & EXPANDED CLINICAL VALIDATION'),
+        e('h3',{style:{margin:'4px 0 8px 0',color:'#135200'}},'Independent PK Disposition Engine · 30-Drug Clinical Cohort'),
+        e('div',{className:'grid'},[
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#237804',marginBottom:'4px'}},'1. PK Engine Version Separation (Directive 22)'),
+          e('p',{className:'small'},'PK simulation operates as Drug-OPT PK Engine v1.0.0, architecturally independent from the Prediction Engine (v3.3.2 Production). ADMET endpoint predictions are governed by the Prediction Engine; PK disposition, IVIVE, and clinical simulation are governed by the PK Engine. This separation prevents PK-only changes from inadvertently invalidating validated ADMET predictions.')
+         ]),
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#237804',marginBottom:'4px'}},'2. Expanded 30-Drug Clinical Validation'),
+          e('p',{className:'small'},'Independent cohort expanded from 6 to 30 approved drugs across acids, bases, neutrals, ampholytes with diverse PPB (5-99.9%), extraction ratios (low/intermediate/high), VDss (0.14-30.2 L/kg), and elimination routes (hepatic, renal, mixed). Verdict: PK_MODEL_VALIDATION_PARITY (corrected AAFE 2.912; VDss supplied as observed input is not scored as independent prediction).')
+         ])
+        ]),
+        e('div',{className:'grid',style:{marginTop:'10px'}},[
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#237804',marginBottom:'4px'}},'3. Semantic Separation & Renal Limitation'),
+          e('p',{className:'small'},'Strictly separates VDss ≠ Vz ≠ Vd/F, CL (systemic) ≠ CL/F (apparent) ≠ CLh (hepatic) ≠ CLr (renal). Observed VDss passed into downstream simulation is labeled OBSERVED_INPUT, not independent prediction accuracy. Hepatic IVIVE is labeled HEPATIC_CL_ESTIMATE when renal fraction ≥ 20%; total CL is never fabricated from hepatic-only models for drugs with significant renal elimination.')
+         ]),
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#237804',marginBottom:'4px'}},'4. pKa/logD/VDss Maturity Decisions'),
+          e('p',{className:'small'},'pKa: Level 1 retained (mechanistic MAE 0.72, candidate ML MAE 0.16 classified as OFFLINE_VALIDATION_MODEL). logD7.4: Level 1 retained (Henderson-Hasselbalch MAE 0.06). VDss: Level 3 retained (2.16% improvement below 5% gate). No artificial maturity inflation.')
+         ])
+        ])
        ])
       ]),
    e('section',{className:'card help-section',id:'help-modules',key:'modules'},[e('h2',{},'Structure & Cheminformatics Modules'),e('p',{className:'small'},'Versions below are read from the active production Python environment.'),e('div',{className:'table-scroll'},e('table',{},[

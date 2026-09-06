@@ -1,0 +1,9 @@
+{
+  "platform": "Xavier ARM64",
+  "single_pk_simulation_ms": 886.9,
+  "batch_15_compounds_ms": 1984.2,
+  "batch_30_validation_cohort_ms": 4490.7,
+  "mean_per_compound_ms": 149.7,
+  "memory_current_mb": 5.0,
+  "memory_peak_mb": 5.1
+}

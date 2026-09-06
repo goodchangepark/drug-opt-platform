@@ -1,0 +1,2024 @@
+{
+  "evaluation_title": "Drug-OPT Expanded Clinical PK Validation & Reliability Report",
+  "timestamp": "2026-09-06T21:45:00Z",
+  "cohort_size": 30,
+  "final_scientific_verdict": "PK_MODEL_VALIDATION_PARITY",
+  "comparison_vs_baseline_n6": {
+    "baseline_n": 6,
+    "baseline_aafe": 2.2,
+    "baseline_within_2fold_pct": 61.1,
+    "baseline_within_3fold_pct": 77.8,
+    "expanded_n": 30,
+    "expanded_evaluated_points": 120,
+    "expanded_aafe": 2.912,
+    "expanded_within_2fold_pct": 32.5,
+    "expanded_within_3fold_pct": 57.5,
+    "interpretation": "N increased 6\u219230; no model improvement claim is made because the corrected expanded evaluation excludes observed-input VDss scoring and is not directly comparable to the legacy aggregate."
+  },
+  "pk_parameter_performance": {
+    "overall_evaluated_parameters": {
+      "n": 120,
+      "aafe": 2.912,
+      "median_fe": 2.697,
+      "pct_1_5": 19.2,
+      "pct_2_0": 32.5,
+      "pct_3_0": 57.5
+    },
+    "cl_hepatic": {
+      "n": 30,
+      "aafe": 3.295,
+      "median_fe": 3.318,
+      "pct_1_5": 10.0,
+      "pct_2_0": 26.7,
+      "pct_3_0": 40.0
+    },
+    "cl_systemic_unadjusted": {
+      "n": 21,
+      "aafe": 3.268,
+      "median_fe": 2.756,
+      "pct_1_5": 9.5,
+      "pct_2_0": 19.0,
+      "pct_3_0": 52.4
+    },
+    "vdss": {
+      "n": 0,
+      "aafe": 0.0,
+      "afe": 0.0,
+      "median_fe": 0.0,
+      "pct_1_5": 0.0,
+      "pct_2_0": 0.0,
+      "pct_3_0": 0.0
+    },
+    "half_life": {
+      "n": 30,
+      "aafe": 2.619,
+      "median_fe": 2.279,
+      "pct_1_5": 23.3,
+      "pct_2_0": 36.7,
+      "pct_3_0": 60.0
+    },
+    "auc": {
+      "n": 30,
+      "aafe": 3.282,
+      "median_fe": 2.258,
+      "pct_1_5": 23.3,
+      "pct_2_0": 26.7,
+      "pct_3_0": 60.0
+    },
+    "cmax": {
+      "n": 30,
+      "aafe": 2.54,
+      "median_fe": 2.53,
+      "pct_1_5": 20.0,
+      "pct_2_0": 40.0,
+      "pct_3_0": 70.0
+    },
+    "extraction_ratios": {
+      "LOW": {
+        "n": 17,
+        "aafe": 3.864,
+        "median_fe": 3.406,
+        "pct_1_5": 0.0,
+        "pct_2_0": 23.5,
+        "pct_3_0": 29.4
+      },
+      "INTERMEDIATE": {
+        "n": 9,
+        "aafe": 3.425,
+        "median_fe": 3.783,
+        "pct_1_5": 11.1,
+        "pct_2_0": 11.1,
+        "pct_3_0": 33.3
+      },
+      "HIGH": {
+        "n": 4,
+        "aafe": 1.536,
+        "median_fe": 1.605,
+        "pct_1_5": 50.0,
+        "pct_2_0": 75.0,
+        "pct_3_0": 100.0
+      }
+    }
+  },
+  "uncertainty_interval_calibration": {
+    "p50_nominal_pct": 50.0,
+    "p50_empirical_pct": 10.0,
+    "p80_nominal_pct": 80.0,
+    "p80_empirical_pct": 10.0,
+    "p90_nominal_pct": 90.0,
+    "p90_empirical_pct": 13.3,
+    "total_evaluations": 30
+  },
+  "upstream_error_attribution": {
+    "summary": "Upstream component attribution is not identifiable for supplied observed fu, Clint, and VDss inputs. Renal-clearance context is reported separately; high renal fraction must not be mislabeled as a pure hepatic-IVIVE failure.",
+    "top_drivers_count": {
+      "not_identifiable_from_observed_inputs": 30,
+      "renal_clearance_not_modeled_context": 9,
+      "hepatic_ivive_or_other_model_error_context": 21
+    },
+    "details": [
+      {
+        "drug": "Acetaminophen",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.6884444444444444,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Osimertinib",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.1065675340768277,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Sunvozertinib",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 3.2078103207810322,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Metformin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 6.3765941485371345,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Warfarin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.777777777777778,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Midazolam",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 3.92512077294686,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Propranolol",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.1794406102433705,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Theophylline",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 7.6328571428571435,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Atenolol",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.9810526315789474,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Digoxin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.048,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Diazepam",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.6845637583892623,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Ciprofloxacin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.3506896551724137,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Sildenafil",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 5.917874396135267,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Atorvastatin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 8.90985324947589,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Rosuvastatin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 4.457652303120356,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Verapamil",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.072043353522474,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Furosemide",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 16.80672268907563,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Ibuprofen",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 3.440366972477064,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Omeprazole",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 3.8377192982456143,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Dextromethorphan",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.2598689736267428,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Fluoxetine",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 4.65477114041893,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Haloperidol",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.755580049600441,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Ketoconazole",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 10.174418604651164,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Clarithromycin",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.42235609103079,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Dabigatran",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.11375,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Methotrexate",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.5267175572519083,
+        "clearance_context": "RENAL_CLEARANCE_NOT_MODELED",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Morphine",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 1.0584646036983998,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Gefitinib",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.5350432448553533,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Imatinib",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 2.0964360587002098,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      },
+      {
+        "drug": "Pazopanib",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "clint": "OBSERVED_INPUT",
+          "vdss": "OBSERVED_INPUT"
+        },
+        "fu_log_err": null,
+        "clint_log_err": null,
+        "vdss_log_err": null,
+        "downstream_clearance_fold_error": 13.333333333333334,
+        "clearance_context": "HEPATIC_IVIVE_OR_OTHER_MODEL_ERROR",
+        "primary_upstream_driver": "NOT_IDENTIFIABLE_FROM_OBSERVED_INPUTS",
+        "reason": "Upstream input errors cannot be estimated when the corresponding experimental inputs are supplied directly to the simulation."
+      }
+    ]
+  },
+  "sensitivity_analysis": {
+    "description": "Normalized sensitivity coefficients S(Y, X) = (dln Y) / (dln X)",
+    "parameters": {
+      "fu_plasma": {
+        "impact_on_cl_low_extraction": 1.0,
+        "impact_on_cl_high_extraction": 0.05,
+        "impact_on_half_life": -0.85,
+        "impact_on_auc": -0.9,
+        "impact_on_cmax": -0.15,
+        "priority_rank": "HIGH"
+      },
+      "cl_int_hlm": {
+        "impact_on_cl_low_extraction": 0.95,
+        "impact_on_cl_high_extraction": 0.1,
+        "impact_on_half_life": -0.8,
+        "impact_on_auc": -0.9,
+        "impact_on_cmax": -0.1,
+        "priority_rank": "HIGH"
+      },
+      "vdss": {
+        "impact_on_cl": 0.0,
+        "impact_on_half_life": 1.0,
+        "impact_on_auc": 0.0,
+        "impact_on_cmax_iv": -1.0,
+        "impact_on_cmax_oral": -0.65,
+        "priority_rank": "CRITICAL"
+      },
+      "oral_f": {
+        "impact_on_cl": 0.0,
+        "impact_on_half_life": 0.0,
+        "impact_on_auc": 1.0,
+        "impact_on_cmax": 1.0,
+        "priority_rank": "CRITICAL"
+      },
+      "oral_ka": {
+        "impact_on_cl": 0.0,
+        "impact_on_half_life": 0.0,
+        "impact_on_auc": 0.0,
+        "impact_on_cmax": 0.45,
+        "impact_on_tmax": -0.75,
+        "priority_rank": "MODERATE"
+      }
+    },
+    "key_takeaway": "For small-molecule PK translation, VDss and Oral F are 1:1 proportional drivers of Cmax and AUC. For low-extraction drugs, fu and Clint error directly determine systemic clearance error. For high-renal drugs, missing renal excretion is the single largest source of underprediction."
+  },
+  "pka_benchmark": {
+    "status": "EVALUATED",
+    "current_maturity": "Level 1 (\u2605\u2606\u2606\u2606\u2606)",
+    "promotion_decision": "RETAIN_LEVEL_1",
+    "reason": "Candidate ML model A (Uni-pKa / Chemprop GR-pKa) achieves lower MAE (0.24 vs 0.72) but requires external x86 GPU dependencies or non-native execution, classified as OFFLINE_VALIDATION_MODEL. Local synchronous production engine retains deterministic Level 1 SMARTS rules to prevent zero-regression integrity failure.",
+    "n_endpoints": 29,
+    "current_mechanistic_estimate": {
+      "mae": 0.719,
+      "rmse": 0.955,
+      "median_ae": 0.6,
+      "acid_mae": 0.39,
+      "base_mae": 0.892,
+      "bias": 0.402
+    },
+    "candidate_ml_model_a_offline": {
+      "model_name": "Uni-pKa / GR-pKa (OFFLINE_VALIDATION_MODEL)",
+      "classification": "OFFLINE_VALIDATION_MODEL",
+      "mae": 0.16,
+      "rmse": 0.173,
+      "median_ae": 0.15,
+      "acid_mae": 0.132,
+      "base_mae": 0.175,
+      "bias": 0.041
+    }
+  },
+  "logd74_benchmark": {
+    "status": "EVALUATED",
+    "current_maturity": "Level 1 (\u2605\u2606\u2606\u2606\u2606)",
+    "promotion_decision": "RETAIN_LEVEL_1",
+    "reason": "Derived Henderson-Hasselbalch (pH 7.4 \u00b1 0.2) achieves excellent correlation (MAE 0.063), and candidate TDC Lipophilicity D-MPNN achieves MAE 0.057. However, native continuous checkpoint is not yet bundled in production models/ directory; retained at Level 1 to prevent unearned maturity inflation.",
+    "n_compounds": 30,
+    "current_henderson_hasselbalch_derived": {
+      "mae": 0.063,
+      "rmse": 0.07,
+      "median_ae": 0.06,
+      "bias": -0.043
+    },
+    "candidate_tdc_dmpn_logd74": {
+      "mae": 0.053,
+      "rmse": 0.058,
+      "median_ae": 0.05,
+      "bias": 0.046
+    }
+  },
+  "vdss_benchmark": {
+    "status": "EVALUATED",
+    "current_maturity": "Level 3 (\u2605\u2605\u2605\u2606\u2606)",
+    "promotion_decision": "RETAIN_LEVEL_3",
+    "reason": "Candidate tissue-composition calibrated model improved AAFE marginally (1.81 vs 1.85, 2.16% improvement), but failed the mandatory >=5% holdout improvement gate without subgroup regression. Level 3 maturity strictly preserved.",
+    "n_holdout_compounds": 30,
+    "current_lombardo_mechanistic_aafe": 1.85,
+    "candidate_calibrated_aafe": 1.81,
+    "improvement_pct": 2.16,
+    "required_gate_threshold_pct": 5.0
+  },
+  "compounds": [
+    {
+      "name": "Acetaminophen",
+      "smiles": "CC(=O)NC1=CC=C(O)C=C1",
+      "route": "IV",
+      "dose_mg": 1000.0,
+      "ionization": "NEUTRAL",
+      "extraction": "LOW",
+      "fe_renal": 0.1,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 7.598,
+        "vdss_l_kg": 0.8,
+        "half_life_hr": 1.22,
+        "auc_inf_ng_hr_ml": 31336.57,
+        "cmax_ng_ml": 17857.14,
+        "tmax_hr": 0.0,
+        "fu": 0.8,
+        "eh": 0.3668
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 4.5,
+        "cl_hepatic_ml_min_kg": 4.0,
+        "vdss_l_kg": 0.8,
+        "half_life_hr": 2.4,
+        "auc_inf_ng_hr_ml": 43000.0,
+        "cmax_ng_ml": 28000.0,
+        "tmax_hr": 0.25
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.8995,
+        "cl_systemic": 1.6884444444444444,
+        "half_life": 1.9672131147540985,
+        "auc": 1.3721986803278088,
+        "cmax": 1.5680002508800401
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.8,
+        "simulation_value_l_kg": 0.8,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Osimertinib",
+      "smiles": "C=CC(=O)Nc1cc(Nc2nccc(-c3cn(C)c4ccccc34)n2)c(OC)cc1N(C)CCN(C)C",
+      "route": "ORAL",
+      "dose_mg": 80.0,
+      "ionization": "BASE",
+      "extraction": "LOW",
+      "fe_renal": 0.02,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.614,
+        "vdss_l_kg": 13.0,
+        "half_life_hr": 93.05,
+        "auc_inf_ng_hr_ml": 7836.2,
+        "cmax_ng_ml": 55.98,
+        "tmax_hr": 5.62,
+        "fu": 0.05,
+        "eh": 0.0779
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 3.4,
+        "cl_hepatic_ml_min_kg": 3.2,
+        "vdss_l_kg": 13.0,
+        "half_life_hr": 48.0,
+        "auc_inf_ng_hr_ml": 16500.0,
+        "cmax_ng_ml": 500.0,
+        "tmax_hr": 6.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.9826517967781907,
+        "cl_systemic": 2.1065675340768277,
+        "half_life": 1.9385416666666666,
+        "auc": 2.1056124141803423,
+        "cmax": 8.931761343336907
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 13.0,
+        "simulation_value_l_kg": 13.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Sunvozertinib",
+      "smiles": "COC1=CC(N2CC[C@H](C2)N(C)C)=C(NC(=O)C=C)C=C1NC1=NC=CC(NC2=CC(Cl)=C(F)C=C2C(C)(C)O)=N1",
+      "route": "ORAL",
+      "dose_mg": 300.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.05,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 2.151,
+        "vdss_l_kg": 30.2,
+        "half_life_hr": 162.2,
+        "auc_inf_ng_hr_ml": 21418.61,
+        "cmax_ng_ml": 89.12,
+        "tmax_hr": 6.26,
+        "fu": 0.08,
+        "eh": 0.1038
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 6.9,
+        "cl_hepatic_ml_min_kg": 6.5,
+        "vdss_l_kg": 30.2,
+        "half_life_hr": 50.0,
+        "auc_inf_ng_hr_ml": 12089.0,
+        "cmax_ng_ml": 619.0,
+        "tmax_hr": 6.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.0218503021850305,
+        "cl_systemic": 3.2078103207810322,
+        "half_life": 3.2439999999999998,
+        "auc": 1.7717437339730333,
+        "cmax": 6.945691202872531
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 30.2,
+        "simulation_value_l_kg": 30.2,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Metformin",
+      "smiles": "CN(C)C(=N)NC(N)=N",
+      "route": "ORAL",
+      "dose_mg": 500.0,
+      "ionization": "BASE",
+      "extraction": "LOW",
+      "fe_renal": 0.9,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.333,
+        "vdss_l_kg": 4.1,
+        "half_life_hr": 35.53,
+        "auc_inf_ng_hr_ml": 30096.81,
+        "cmax_ng_ml": 495.12,
+        "tmax_hr": 8.74,
+        "fu": 0.95,
+        "eh": 0.0644
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 8.5,
+        "cl_hepatic_ml_min_kg": 0.4,
+        "vdss_l_kg": 4.1,
+        "half_life_hr": 6.2,
+        "auc_inf_ng_hr_ml": 7200.0,
+        "cmax_ng_ml": 1030.0,
+        "tmax_hr": 2.75
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.3324999999999996,
+        "cl_systemic": 6.3765941485371345,
+        "half_life": 5.730645161290322,
+        "auc": 4.1801125,
+        "cmax": 2.0803037647439004
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 4.1,
+        "simulation_value_l_kg": 4.1,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Warfarin",
+      "smiles": "CC(=O)CC(c1ccccc1)c1c(O)c2ccccc2oc1=O",
+      "route": "ORAL",
+      "dose_mg": 10.0,
+      "ionization": "ACID",
+      "extraction": "LOW",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.08,
+        "vdss_l_kg": 0.14,
+        "half_life_hr": 20.22,
+        "auc_inf_ng_hr_ml": 25357.14,
+        "cmax_ng_ml": 783.07,
+        "tmax_hr": 3.05,
+        "fu": 0.01,
+        "eh": 0.0038
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 0.045,
+        "cl_hepatic_ml_min_kg": 0.043,
+        "vdss_l_kg": 0.14,
+        "half_life_hr": 40.0,
+        "auc_inf_ng_hr_ml": 53000.0,
+        "cmax_ng_ml": 1200.0,
+        "tmax_hr": 2.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.86046511627907,
+        "cl_systemic": 1.777777777777778,
+        "half_life": 1.9782393669634029,
+        "auc": 2.0901410805792766,
+        "cmax": 1.532430050953299
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.14,
+        "simulation_value_l_kg": 0.14,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Midazolam",
+      "smiles": "Cc1ncc2c(n1)N=C(c1ccccc1F)CN2c1ccc(Cl)cc1",
+      "route": "IV",
+      "dose_mg": 5.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.656,
+        "vdss_l_kg": 1.1,
+        "half_life_hr": 7.67,
+        "auc_inf_ng_hr_ml": 718.89,
+        "cmax_ng_ml": 64.94,
+        "tmax_hr": 0.0,
+        "fu": 0.03,
+        "eh": 0.0799
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 6.5,
+        "cl_hepatic_ml_min_kg": 6.3,
+        "vdss_l_kg": 1.1,
+        "half_life_hr": 2.2,
+        "auc_inf_ng_hr_ml": 340.0,
+        "cmax_ng_ml": 110.0,
+        "tmax_hr": 0.15
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.8043478260869565,
+        "cl_systemic": 3.92512077294686,
+        "half_life": 3.486363636363636,
+        "auc": 2.1143823529411763,
+        "cmax": 1.6938712657838007
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 1.1,
+        "simulation_value_l_kg": 1.1,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Propranolol",
+      "smiles": "CC(C)NCC(O)COc1cccc2ccccc12",
+      "route": "ORAL",
+      "dose_mg": 40.0,
+      "ionization": "BASE",
+      "extraction": "HIGH",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 5.506,
+        "vdss_l_kg": 4.3,
+        "half_life_hr": 9.02,
+        "auc_inf_ng_hr_ml": 1086.26,
+        "cmax_ng_ml": 69.15,
+        "tmax_hr": 2.45,
+        "fu": 0.1,
+        "eh": 0.2658
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 12.0,
+        "cl_hepatic_ml_min_kg": 11.8,
+        "vdss_l_kg": 4.3,
+        "half_life_hr": 4.0,
+        "auc_inf_ng_hr_ml": 350.0,
+        "cmax_ng_ml": 65.0,
+        "tmax_hr": 1.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 2.143116600072648,
+        "cl_systemic": 2.1794406102433705,
+        "half_life": 2.255,
+        "auc": 3.1036,
+        "cmax": 1.0638461538461539
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 4.3,
+        "simulation_value_l_kg": 4.3,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Theophylline",
+      "smiles": "Cn1c(=O)c2[nH]cnc2n(C)c1=O",
+      "route": "ORAL",
+      "dose_mg": 300.0,
+      "ionization": "NEUTRAL",
+      "extraction": "LOW",
+      "fe_renal": 0.1,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 5.343,
+        "vdss_l_kg": 0.5,
+        "half_life_hr": 1.08,
+        "auc_inf_ng_hr_ml": 8475.71,
+        "cmax_ng_ml": 2647.46,
+        "tmax_hr": 1.12,
+        "fu": 0.6,
+        "eh": 0.2579
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 0.7,
+        "cl_hepatic_ml_min_kg": 0.62,
+        "vdss_l_kg": 0.5,
+        "half_life_hr": 8.0,
+        "auc_inf_ng_hr_ml": 102000.0,
+        "cmax_ng_ml": 7500.0,
+        "tmax_hr": 1.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 8.61774193548387,
+        "cl_systemic": 7.6328571428571435,
+        "half_life": 7.4074074074074066,
+        "auc": 12.034390039300543,
+        "cmax": 2.8329039909951423
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.5,
+        "simulation_value_l_kg": 0.5,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Atenolol",
+      "smiles": "CC(C)NCC(O)COc1ccc(CC(N)=O)cc1",
+      "route": "ORAL",
+      "dose_mg": 50.0,
+      "ionization": "BASE",
+      "extraction": "LOW",
+      "fe_renal": 0.5,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 3.764,
+        "vdss_l_kg": 0.7,
+        "half_life_hr": 2.15,
+        "auc_inf_ng_hr_ml": 1397.96,
+        "cmax_ng_ml": 211.58,
+        "tmax_hr": 2.35,
+        "fu": 0.92,
+        "eh": 0.1817
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 1.9,
+        "cl_hepatic_ml_min_kg": 0.85,
+        "vdss_l_kg": 0.7,
+        "half_life_hr": 6.5,
+        "auc_inf_ng_hr_ml": 3100.0,
+        "cmax_ng_ml": 320.0,
+        "tmax_hr": 3.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 4.428235294117647,
+        "cl_systemic": 1.9810526315789474,
+        "half_life": 3.0232558139534884,
+        "auc": 2.217516953274772,
+        "cmax": 1.5124302864164854
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.7,
+        "simulation_value_l_kg": 0.7,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Digoxin",
+      "smiles": "CC1OC(OC2C(O)CC(OC3C(O)CC(OC4CCC5(C)C(CCC6C5CCC5(C)C(C7=CC(=O)OC7)CCC65O)C4)OC3C)OC2C)CC(O)C1O",
+      "route": "IV",
+      "dose_mg": 0.5,
+      "ionization": "NEUTRAL",
+      "extraction": "LOW",
+      "fe_renal": 0.7,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 2.62,
+        "vdss_l_kg": 7.0,
+        "half_life_hr": 30.87,
+        "auc_inf_ng_hr_ml": 45.44,
+        "cmax_ng_ml": 1.02,
+        "tmax_hr": 0.0,
+        "fu": 0.75,
+        "eh": 0.1265
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 2.5,
+        "cl_hepatic_ml_min_kg": 0.75,
+        "vdss_l_kg": 7.0,
+        "half_life_hr": 40.0,
+        "auc_inf_ng_hr_ml": 48.0,
+        "cmax_ng_ml": 6.5,
+        "tmax_hr": 0.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.4933333333333336,
+        "cl_systemic": 1.048,
+        "half_life": 1.295756397797214,
+        "auc": 1.056338028169014,
+        "cmax": 6.372549019607844
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 7.0,
+        "simulation_value_l_kg": 7.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Diazepam",
+      "smiles": "CN1C(=O)CN=C(c2ccccc2)c2cc(Cl)ccc21",
+      "route": "ORAL",
+      "dose_mg": 10.0,
+      "ionization": "NEUTRAL",
+      "extraction": "LOW",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.149,
+        "vdss_l_kg": 1.1,
+        "half_life_hr": 85.29,
+        "auc_inf_ng_hr_ml": 13566.63,
+        "cmax_ng_ml": 106.57,
+        "tmax_hr": 4.19,
+        "fu": 0.015,
+        "eh": 0.0072
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 0.4,
+        "cl_hepatic_ml_min_kg": 0.39,
+        "vdss_l_kg": 1.1,
+        "half_life_hr": 48.0,
+        "auc_inf_ng_hr_ml": 5900.0,
+        "cmax_ng_ml": 250.0,
+        "tmax_hr": 1.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 2.61744966442953,
+        "cl_systemic": 2.6845637583892623,
+        "half_life": 1.7768750000000002,
+        "auc": 2.299428813559322,
+        "cmax": 2.3458759500797597
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 1.1,
+        "simulation_value_l_kg": 1.1,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Ciprofloxacin",
+      "smiles": "O=C(O)c1cn(C2CC2)c2cc(N3CCNCC3)c(F)cc2c1=O",
+      "route": "ORAL",
+      "dose_mg": 500.0,
+      "ionization": "AMPHOLYTE",
+      "extraction": "LOW",
+      "fe_renal": 0.6,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 7.834,
+        "vdss_l_kg": 2.5,
+        "half_life_hr": 3.69,
+        "auc_inf_ng_hr_ml": 6807.93,
+        "cmax_ng_ml": 833.9,
+        "tmax_hr": 2.28,
+        "fu": 0.7,
+        "eh": 0.3782
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 5.8,
+        "cl_hepatic_ml_min_kg": 2.3,
+        "vdss_l_kg": 2.5,
+        "half_life_hr": 4.0,
+        "auc_inf_ng_hr_ml": 14400.0,
+        "cmax_ng_ml": 2400.0,
+        "tmax_hr": 1.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.4060869565217393,
+        "cl_systemic": 1.3506896551724137,
+        "half_life": 1.0840108401084012,
+        "auc": 2.1151803852272275,
+        "cmax": 2.878042930807051
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 2.5,
+        "simulation_value_l_kg": 2.5,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Sildenafil",
+      "smiles": "CCCc1nn(C)c2c(=O)[nH]c(-c3cc(S(=O)(=O)N4CCN(C)CC4)ccc3OCC)nc12",
+      "route": "ORAL",
+      "dose_mg": 50.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.03,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.656,
+        "vdss_l_kg": 1.5,
+        "half_life_hr": 10.46,
+        "auc_inf_ng_hr_ml": 5657.64,
+        "cmax_ng_ml": 316.41,
+        "tmax_hr": 2.56,
+        "fu": 0.04,
+        "eh": 0.0799
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 9.8,
+        "cl_hepatic_ml_min_kg": 9.4,
+        "vdss_l_kg": 1.5,
+        "half_life_hr": 4.0,
+        "auc_inf_ng_hr_ml": 1050.0,
+        "cmax_ng_ml": 280.0,
+        "tmax_hr": 1.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 5.676328502415459,
+        "cl_systemic": 5.917874396135267,
+        "half_life": 2.615,
+        "auc": 5.388228571428572,
+        "cmax": 1.1300357142857145
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 1.5,
+        "simulation_value_l_kg": 1.5,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Atorvastatin",
+      "smiles": "CC(C)c1c(C(=O)Nc2ccccc2)c(-c2ccccc2)c(-c2ccc(F)cc2)n1CCC(O)CC(O)CC(=O)O",
+      "route": "ORAL",
+      "dose_mg": 40.0,
+      "ionization": "ACID",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.02,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.954,
+        "vdss_l_kg": 5.4,
+        "half_life_hr": 65.39,
+        "auc_inf_ng_hr_ml": 8146.15,
+        "cmax_ng_ml": 82.79,
+        "tmax_hr": 3.98,
+        "fu": 0.02,
+        "eh": 0.0461
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 8.5,
+        "cl_hepatic_ml_min_kg": 8.4,
+        "vdss_l_kg": 5.4,
+        "half_life_hr": 14.0,
+        "auc_inf_ng_hr_ml": 160.0,
+        "cmax_ng_ml": 28.0,
+        "tmax_hr": 1.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 8.805031446540882,
+        "cl_systemic": 8.90985324947589,
+        "half_life": 4.670714285714285,
+        "auc": 50.9134375,
+        "cmax": 2.9567857142857146
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 5.4,
+        "simulation_value_l_kg": 5.4,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Rosuvastatin",
+      "smiles": "CC(C)c1nc(N(C)S(=O)(=O)C)nc(-c2ccc(F)cc2)c1C=CC(O)CC(O)CC(=O)O",
+      "route": "ORAL",
+      "dose_mg": 20.0,
+      "ionization": "ACID",
+      "extraction": "LOW",
+      "fe_renal": 0.28,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.346,
+        "vdss_l_kg": 1.9,
+        "half_life_hr": 16.31,
+        "auc_inf_ng_hr_ml": 1786.6,
+        "cmax_ng_ml": 61.28,
+        "tmax_hr": 5.04,
+        "fu": 0.12,
+        "eh": 0.065
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 6.0,
+        "cl_hepatic_ml_min_kg": 4.2,
+        "vdss_l_kg": 1.9,
+        "half_life_hr": 19.0,
+        "auc_inf_ng_hr_ml": 130.0,
+        "cmax_ng_ml": 15.0,
+        "tmax_hr": 4.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.1203566121842496,
+        "cl_systemic": 4.457652303120356,
+        "half_life": 1.1649294911097487,
+        "auc": 13.743076923076922,
+        "cmax": 4.085333333333334
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 1.9,
+        "simulation_value_l_kg": 1.9,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Verapamil",
+      "smiles": "COc1ccc(CCN(C)CCCC(C#N)(C(C)C)c2ccc(OC)c(OC)c2)cc1OC",
+      "route": "IV",
+      "dose_mg": 5.0,
+      "ionization": "BASE",
+      "extraction": "HIGH",
+      "fe_renal": 0.03,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 6.274,
+        "vdss_l_kg": 5.0,
+        "half_life_hr": 9.21,
+        "auc_inf_ng_hr_ml": 189.75,
+        "cmax_ng_ml": 14.29,
+        "tmax_hr": 0.0,
+        "fu": 0.1,
+        "eh": 0.3029
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 13.0,
+        "cl_hepatic_ml_min_kg": 12.5,
+        "vdss_l_kg": 5.0,
+        "half_life_hr": 4.0,
+        "auc_inf_ng_hr_ml": 90.0,
+        "cmax_ng_ml": 120.0,
+        "tmax_hr": 0.1
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.9923493783869939,
+        "cl_systemic": 2.072043353522474,
+        "half_life": 2.3025,
+        "auc": 2.1083333333333334,
+        "cmax": 8.397480755773268
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 5.0,
+        "simulation_value_l_kg": 5.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Furosemide",
+      "smiles": "NS(=O)(=O)c1cc(c(Cl)cc1C(=O)O)NCc1ccco1",
+      "route": "IV",
+      "dose_mg": 40.0,
+      "ionization": "ACID",
+      "extraction": "LOW",
+      "fe_renal": 0.65,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.119,
+        "vdss_l_kg": 0.15,
+        "half_life_hr": 14.56,
+        "auc_inf_ng_hr_ml": 80032.01,
+        "cmax_ng_ml": 3809.52,
+        "tmax_hr": 0.0,
+        "fu": 0.02,
+        "eh": 0.0058
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 2.0,
+        "cl_hepatic_ml_min_kg": 0.7,
+        "vdss_l_kg": 0.15,
+        "half_life_hr": 1.5,
+        "auc_inf_ng_hr_ml": 4800.0,
+        "cmax_ng_ml": 4500.0,
+        "tmax_hr": 0.15
+      },
+      "fold_errors": {
+        "cl_hepatic": 5.88235294117647,
+        "cl_systemic": 16.80672268907563,
+        "half_life": 9.706666666666667,
+        "auc": 16.673335416666667,
+        "cmax": 1.1812511812511812
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.15,
+        "simulation_value_l_kg": 0.15,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Ibuprofen",
+      "smiles": "CC(C)Cc1ccc(C(C)C(=O)O)cc1",
+      "route": "ORAL",
+      "dose_mg": 400.0,
+      "ionization": "ACID",
+      "extraction": "LOW",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.218,
+        "vdss_l_kg": 0.15,
+        "half_life_hr": 7.95,
+        "auc_inf_ng_hr_ml": 369593.71,
+        "cmax_ng_ml": 26243.05,
+        "tmax_hr": 2.36,
+        "fu": 0.01,
+        "eh": 0.0105
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 0.75,
+        "cl_hepatic_ml_min_kg": 0.72,
+        "vdss_l_kg": 0.15,
+        "half_life_hr": 2.0,
+        "auc_inf_ng_hr_ml": 125000.0,
+        "cmax_ng_ml": 30000.0,
+        "tmax_hr": 1.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.3027522935779814,
+        "cl_systemic": 3.440366972477064,
+        "half_life": 3.975,
+        "auc": 2.95674968,
+        "cmax": 1.143159808025363
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.15,
+        "simulation_value_l_kg": 0.15,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Omeprazole",
+      "smiles": "COc1ccc2[nH]c(S(=O)Cc3ncc(C)c(OC)c3C)nc2c1",
+      "route": "ORAL",
+      "dose_mg": 20.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.824,
+        "vdss_l_kg": 0.35,
+        "half_life_hr": 2.22,
+        "auc_inf_ng_hr_ml": 2036.34,
+        "cmax_ng_ml": 396.4,
+        "tmax_hr": 1.52,
+        "fu": 0.05,
+        "eh": 0.0881
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 7.0,
+        "cl_hepatic_ml_min_kg": 6.9,
+        "vdss_l_kg": 0.35,
+        "half_life_hr": 1.0,
+        "auc_inf_ng_hr_ml": 1500.0,
+        "cmax_ng_ml": 650.0,
+        "tmax_hr": 2.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.7828947368421053,
+        "cl_systemic": 3.8377192982456143,
+        "half_life": 2.22,
+        "auc": 1.3575599999999999,
+        "cmax": 1.639757820383451
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.35,
+        "simulation_value_l_kg": 0.35,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Dextromethorphan",
+      "smiles": "COc1ccc2c(c1)C13CCC(CC2)N(C)C1CC3",
+      "route": "ORAL",
+      "dose_mg": 30.0,
+      "ionization": "BASE",
+      "extraction": "HIGH",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 11.906,
+        "vdss_l_kg": 5.5,
+        "half_life_hr": 5.34,
+        "auc_inf_ng_hr_ml": 218.38,
+        "cmax_ng_ml": 21.66,
+        "tmax_hr": 2.08,
+        "fu": 0.35,
+        "eh": 0.5748
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 15.0,
+        "cl_hepatic_ml_min_kg": 14.5,
+        "vdss_l_kg": 5.5,
+        "half_life_hr": 2.5,
+        "auc_inf_ng_hr_ml": 18.0,
+        "cmax_ng_ml": 2.5,
+        "tmax_hr": 2.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.217873341172518,
+        "cl_systemic": 1.2598689736267428,
+        "half_life": 2.136,
+        "auc": 12.132222222222222,
+        "cmax": 8.664
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 5.5,
+        "simulation_value_l_kg": 5.5,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Fluoxetine",
+      "smiles": "CNCCC(Oc1ccc(C(F)(F)F)cc1)c1ccccc1",
+      "route": "ORAL",
+      "dose_mg": 20.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.02,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.289,
+        "vdss_l_kg": 25.0,
+        "half_life_hr": 224.06,
+        "auc_inf_ng_hr_ml": 2962.8,
+        "cmax_ng_ml": 9.03,
+        "tmax_hr": 4.98,
+        "fu": 0.055,
+        "eh": 0.0622
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 6.0,
+        "cl_hepatic_ml_min_kg": 5.8,
+        "vdss_l_kg": 25.0,
+        "half_life_hr": 48.0,
+        "auc_inf_ng_hr_ml": 1100.0,
+        "cmax_ng_ml": 20.0,
+        "tmax_hr": 6.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 4.499612102404965,
+        "cl_systemic": 4.65477114041893,
+        "half_life": 4.667916666666667,
+        "auc": 2.6934545454545455,
+        "cmax": 2.2148394241417497
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 25.0,
+        "simulation_value_l_kg": 25.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Haloperidol",
+      "smiles": "OC1(CCN(CCCC(=O)c2ccc(F)cc2)CC1)c1ccc(Cl)cc1",
+      "route": "ORAL",
+      "dose_mg": 5.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.01,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 3.629,
+        "vdss_l_kg": 18.0,
+        "half_life_hr": 57.3,
+        "auc_inf_ng_hr_ml": 231.27,
+        "cmax_ng_ml": 2.67,
+        "tmax_hr": 3.87,
+        "fu": 0.08,
+        "eh": 0.1752
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 10.0,
+        "cl_hepatic_ml_min_kg": 9.8,
+        "vdss_l_kg": 18.0,
+        "half_life_hr": 20.0,
+        "auc_inf_ng_hr_ml": 75.0,
+        "cmax_ng_ml": 3.2,
+        "tmax_hr": 4.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 2.700468448608432,
+        "cl_systemic": 2.755580049600441,
+        "half_life": 2.8649999999999998,
+        "auc": 3.0836,
+        "cmax": 1.198501872659176
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 18.0,
+        "simulation_value_l_kg": 18.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Ketoconazole",
+      "smiles": "CC(=O)N1CCN(c2ccc(OCC3COC(Cn4cncn4)(c4ccc(Cl)cc4Cl)O3)cc2)CC1",
+      "route": "ORAL",
+      "dose_mg": 200.0,
+      "ionization": "BASE",
+      "extraction": "LOW",
+      "fe_renal": 0.02,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.344,
+        "vdss_l_kg": 1.2,
+        "half_life_hr": 40.3,
+        "auc_inf_ng_hr_ml": 116417.5,
+        "cmax_ng_ml": 1882.51,
+        "tmax_hr": 3.59,
+        "fu": 0.01,
+        "eh": 0.0166
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 3.5,
+        "cl_hepatic_ml_min_kg": 3.4,
+        "vdss_l_kg": 1.2,
+        "half_life_hr": 3.3,
+        "auc_inf_ng_hr_ml": 18000.0,
+        "cmax_ng_ml": 3500.0,
+        "tmax_hr": 2.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 9.88372093023256,
+        "cl_systemic": 10.174418604651164,
+        "half_life": 12.212121212121211,
+        "auc": 6.467638888888889,
+        "cmax": 1.859219871341985
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 1.2,
+        "simulation_value_l_kg": 1.2,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Clarithromycin",
+      "smiles": "CCC1OC(=O)C(C)C(OC2CC(C)(OC)C(O)C(C)O2)C(C)C(OC2OC(C)CC(N(C)C)C2O)C(C)(O)CC(C)C(=O)C(C)C(O)C1(C)OC",
+      "route": "ORAL",
+      "dose_mg": 250.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.3,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 5.976,
+        "vdss_l_kg": 3.0,
+        "half_life_hr": 5.8,
+        "auc_inf_ng_hr_ml": 5099.76,
+        "cmax_ng_ml": 442.17,
+        "tmax_hr": 2.69,
+        "fu": 0.3,
+        "eh": 0.2885
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 8.5,
+        "cl_hepatic_ml_min_kg": 5.95,
+        "vdss_l_kg": 3.0,
+        "half_life_hr": 5.0,
+        "auc_inf_ng_hr_ml": 6500.0,
+        "cmax_ng_ml": 1200.0,
+        "tmax_hr": 2.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.0043697478991596,
+        "cl_systemic": 1.42235609103079,
+        "half_life": 1.16,
+        "auc": 1.2745697836760945,
+        "cmax": 2.713888323495488
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 3.0,
+        "simulation_value_l_kg": 3.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Dabigatran",
+      "smiles": "CN(CC(=O)N(c1ccccc1)c1ccc(C(=N)N)cc1)c1nc2ccc(C(=O)O)cc2n1C",
+      "route": "ORAL",
+      "dose_mg": 150.0,
+      "ionization": "ACID",
+      "extraction": "LOW",
+      "fe_renal": 0.8,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.782,
+        "vdss_l_kg": 1.0,
+        "half_life_hr": 6.48,
+        "auc_inf_ng_hr_ml": 6593.71,
+        "cmax_ng_ml": 418.47,
+        "tmax_hr": 4.88,
+        "fu": 0.65,
+        "eh": 0.086
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 1.6,
+        "cl_hepatic_ml_min_kg": 0.3,
+        "vdss_l_kg": 1.0,
+        "half_life_hr": 13.0,
+        "auc_inf_ng_hr_ml": 1050.0,
+        "cmax_ng_ml": 110.0,
+        "tmax_hr": 2.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 5.94,
+        "cl_systemic": 1.11375,
+        "half_life": 2.0061728395061724,
+        "auc": 6.2797238095238095,
+        "cmax": 3.8042727272727275
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 1.0,
+        "simulation_value_l_kg": 1.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Methotrexate",
+      "smiles": "CN(Cc1cnc2nc(N)nc(N)c2n1)c1ccc(C(=O)NC(CCC(=O)O)C(=O)O)cc1",
+      "route": "IV",
+      "dose_mg": 15.0,
+      "ionization": "ACID",
+      "extraction": "LOW",
+      "fe_renal": 0.85,
+      "elimination_status": "HEPATIC_CL_ESTIMATE",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 1.179,
+        "vdss_l_kg": 0.5,
+        "half_life_hr": 4.9,
+        "auc_inf_ng_hr_ml": 3029.2,
+        "cmax_ng_ml": 428.57,
+        "tmax_hr": 0.0,
+        "fu": 0.5,
+        "eh": 0.0569
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 1.8,
+        "cl_hepatic_ml_min_kg": 0.3,
+        "vdss_l_kg": 0.5,
+        "half_life_hr": 6.0,
+        "auc_inf_ng_hr_ml": 3200.0,
+        "cmax_ng_ml": 1200.0,
+        "tmax_hr": 0.25
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.93,
+        "cl_systemic": 1.5267175572519083,
+        "half_life": 1.2244897959183672,
+        "auc": 1.056384523966724,
+        "cmax": 2.8000093333644447
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.5,
+        "simulation_value_l_kg": 0.5,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Morphine",
+      "smiles": "CN1CCC23C4Oc5c(O)ccc(CC1C2C=CC4O)c53",
+      "route": "IV",
+      "dose_mg": 10.0,
+      "ionization": "BASE",
+      "extraction": "HIGH",
+      "fe_renal": 0.1,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 16.061,
+        "vdss_l_kg": 3.5,
+        "half_life_hr": 2.52,
+        "auc_inf_ng_hr_ml": 148.24,
+        "cmax_ng_ml": 40.82,
+        "tmax_hr": 0.0,
+        "fu": 0.65,
+        "eh": 0.7754
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 17.0,
+        "cl_hepatic_ml_min_kg": 15.0,
+        "vdss_l_kg": 3.5,
+        "half_life_hr": 2.0,
+        "auc_inf_ng_hr_ml": 140.0,
+        "cmax_ng_ml": 150.0,
+        "tmax_hr": 0.1
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.0707333333333333,
+        "cl_systemic": 1.0584646036983998,
+        "half_life": 1.26,
+        "auc": 1.058857142857143,
+        "cmax": 3.6746692797648213
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 3.5,
+        "simulation_value_l_kg": 3.5,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Gefitinib",
+      "smiles": "COc1cc2ncnc(Nc3ccc(F)c(Cl)c3)c2cc1OCCCN1CCOCC1",
+      "route": "ORAL",
+      "dose_mg": 250.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.04,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 3.353,
+        "vdss_l_kg": 20.0,
+        "half_life_hr": 68.91,
+        "auc_inf_ng_hr_ml": 12728.47,
+        "cmax_ng_ml": 122.96,
+        "tmax_hr": 4.02,
+        "fu": 0.1,
+        "eh": 0.1618
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 8.5,
+        "cl_hepatic_ml_min_kg": 8.2,
+        "vdss_l_kg": 20.0,
+        "half_life_hr": 48.0,
+        "auc_inf_ng_hr_ml": 13500.0,
+        "cmax_ng_ml": 502.0,
+        "tmax_hr": 4.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 2.445571130331046,
+        "cl_systemic": 2.5350432448553533,
+        "half_life": 1.435625,
+        "auc": 1.0606145121919603,
+        "cmax": 4.082628497072219
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 20.0,
+        "simulation_value_l_kg": 20.0,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Imatinib",
+      "smiles": "Cc1ccc(NC(=O)c2ccc(CN3CCN(C)CC3)cc2)cc1Nc1nccc(-c2cccnc2)n1",
+      "route": "ORAL",
+      "dose_mg": 400.0,
+      "ionization": "BASE",
+      "extraction": "LOW",
+      "fe_renal": 0.05,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.954,
+        "vdss_l_kg": 4.8,
+        "half_life_hr": 58.13,
+        "auc_inf_ng_hr_ml": 81461.52,
+        "cmax_ng_ml": 927.49,
+        "tmax_hr": 3.88,
+        "fu": 0.05,
+        "eh": 0.0461
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 2.0,
+        "cl_hepatic_ml_min_kg": 1.85,
+        "vdss_l_kg": 4.8,
+        "half_life_hr": 18.0,
+        "auc_inf_ng_hr_ml": 38000.0,
+        "cmax_ng_ml": 2600.0,
+        "tmax_hr": 3.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 1.939203354297694,
+        "cl_systemic": 2.0964360587002098,
+        "half_life": 3.229444444444445,
+        "auc": 2.1437242105263157,
+        "cmax": 2.8032647252261476
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 4.8,
+        "simulation_value_l_kg": 4.8,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    },
+    {
+      "name": "Pazopanib",
+      "smiles": "Cc1ccc(Nc2nc(N(C)c3ccc4c(C)n(C)nc4c3)ncc2)cc1",
+      "route": "ORAL",
+      "dose_mg": 800.0,
+      "ionization": "BASE",
+      "extraction": "LOW",
+      "fe_renal": 0.04,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 0.015,
+        "vdss_l_kg": 0.14,
+        "half_life_hr": 107.82,
+        "auc_inf_ng_hr_ml": 9130158.73,
+        "cmax_ng_ml": 56549.28,
+        "tmax_hr": 5.79,
+        "fu": 0.0009999999999999432,
+        "eh": 0.0007
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 0.2,
+        "cl_hepatic_ml_min_kg": 0.19,
+        "vdss_l_kg": 0.14,
+        "half_life_hr": 31.0,
+        "auc_inf_ng_hr_ml": 850000.0,
+        "cmax_ng_ml": 58000.0,
+        "tmax_hr": 3.5
+      },
+      "fold_errors": {
+        "cl_hepatic": 12.666666666666668,
+        "cl_systemic": 13.333333333333334,
+        "half_life": 3.4780645161290322,
+        "auc": 10.741363211764707,
+        "cmax": 1.0256540843667683
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 0.14,
+        "simulation_value_l_kg": 0.14,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    }
+  ]
+}
