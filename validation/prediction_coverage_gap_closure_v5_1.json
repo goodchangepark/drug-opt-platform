@@ -1,0 +1,1759 @@
+{
+  "artifact": "prediction_coverage_gap_closure_v5_1",
+  "created_at": "2026-09-06T21:17:17.558346+00:00",
+  "golden_compound": {
+    "project_id": 3,
+    "compound": "Sunvozertinib",
+    "version_id": 13
+  },
+  "no_model_inventory": {
+    "reported_no_model_groups": 33,
+    "evidence_rows_in_no_model_groups": 291,
+    "actions": {
+      "NEW_MODEL_REQUIRED": 5,
+      "SCIENTIFICALLY_NOT_PREDICTABLE": 4,
+      "CONTEXT_SPECIFIC_MODEL_REQUIRED": 22
+    },
+    "rows": [
+      {
+        "canonical_endpoint": "ACTIVITY_IC50",
+        "evidence_n": 7,
+        "species": [
+          "HUMAN",
+          "MOUSE"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "nM"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "NEW_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "ACTIVITY_RATIO",
+        "evidence_n": 5,
+        "species": [
+          "HUMAN",
+          "MOUSE"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "ratio"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "NEW_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "CYP3A4_METABOLIC_CONTRIBUTION",
+        "evidence_n": 30,
+        "species": [
+          "HUMAN",
+          "RAT",
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "OTHER_ANALYTE"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "SCIENTIFICALLY_NOT_PREDICTABLE"
+      },
+      {
+        "canonical_endpoint": "EXCRETION_FECAL",
+        "evidence_n": 9,
+        "species": [
+          "HUMAN",
+          "RAT",
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "% dose"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "SCIENTIFICALLY_NOT_PREDICTABLE"
+      },
+      {
+        "canonical_endpoint": "HEPATOCYTE_CLINT",
+        "evidence_n": 7,
+        "species": [
+          "HUMAN"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%",
+          "h",
+          "uL/min"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "NEW_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "METABOLITE_OBSERVATION",
+        "evidence_n": 19,
+        "species": [
+          "HUMAN",
+          "RAT",
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%",
+          "H",
+          "h",
+          "ng/mL",
+          "μM"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "SCIENTIFICALLY_NOT_PREDICTABLE"
+      },
+      {
+        "canonical_endpoint": "EXCRETION_URINARY",
+        "evidence_n": 17,
+        "species": [
+          "HUMAN",
+          "RAT",
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "% dose"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "SCIENTIFICALLY_NOT_PREDICTABLE"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_AUC_ORAL",
+        "evidence_n": 2,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": 600.0,
+            "dose_unit": "mg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_AUC_ORAL",
+        "evidence_n": 11,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "SINGLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%",
+          "h",
+          "hours"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_F_ORAL",
+        "evidence_n": 1,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_CLF_ORAL_ORAL",
+        "evidence_n": 3,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_CLF_ORAL_ORAL",
+        "evidence_n": 5,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%",
+          "L"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "DOG_PK_CMAX_ORAL",
+        "evidence_n": 1,
+        "species": [
+          "DOG"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "μM"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "HUMAN_PK_CMAX_IV",
+        "evidence_n": 1,
+        "species": [
+          "HUMAN"
+        ],
+        "contexts": [
+          {
+            "route": "IV",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_CMAX_IV",
+        "evidence_n": 1,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "IV",
+            "dose": 9.0,
+            "dose_unit": "mg/kg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_CMAX_ORAL",
+        "evidence_n": 21,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": 9.0,
+            "dose_unit": "mg/kg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": 300.0,
+            "dose_unit": "mg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": 200.0,
+            "dose_unit": "mg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%",
+          "L",
+          "nM",
+          "μM"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_CMAX_IV",
+        "evidence_n": 2,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "IV",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "IV",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_CMAX_ORAL",
+        "evidence_n": 5,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "SINGLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": 300.0,
+            "dose_unit": "mg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "DOG_PK_F_ORAL",
+        "evidence_n": 1,
+        "species": [
+          "DOG"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": 1.0,
+            "dose_unit": "mg/kg",
+            "regimen": "SINGLE_DOSE",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "HUMAN_PK_F_ORAL",
+        "evidence_n": 1,
+        "species": [
+          "HUMAN"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_F_ORAL",
+        "evidence_n": 6,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": 3.0,
+            "dose_unit": "mg/kg",
+            "regimen": "SINGLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": 9.0,
+            "dose_unit": "mg/kg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": 9.0,
+            "dose_unit": "mg/kg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_TMAX_ORAL",
+        "evidence_n": 5,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": 300.0,
+            "dose_unit": "mg",
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": 300.0,
+            "dose_unit": "mg",
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "hours"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "HUMAN_PK_CL_ORAL",
+        "evidence_n": 2,
+        "species": [
+          "HUMAN"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "mL/min"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_CL_ORAL",
+        "evidence_n": 1,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_T_HALF_ORAL",
+        "evidence_n": 4,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": 300.0,
+            "dose_unit": "mg",
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "hours"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_T_HALF_ORAL",
+        "evidence_n": 8,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%",
+          "hours"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "HUMAN_PK_TMAX_IV",
+        "evidence_n": 2,
+        "species": [
+          "HUMAN"
+        ],
+        "contexts": [
+          {
+            "route": "IV",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "MULTIPLE_DOSE",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "IV",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "%"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "RAT_PK_TMAX_ORAL",
+        "evidence_n": 5,
+        "species": [
+          "RAT"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "hours"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNSPECIFIED_PK_VDF_ORAL_ORAL",
+        "evidence_n": 3,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "ORAL",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "L"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "PK_SCENARIO_LAYER_AVAILABLE_BUT_CONTEXT_MUST_MATCH",
+        "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "LITERATURE_CITATION",
+        "evidence_n": 102,
+        "species": [
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "UNRESOLVED"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "NEW_MODEL_REQUIRED"
+      },
+      {
+        "canonical_endpoint": "UNRESOLVED",
+        "evidence_n": 4,
+        "species": [
+          "RAT",
+          "UNSPECIFIED"
+        ],
+        "contexts": [
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          },
+          {
+            "route": "UNSPECIFIED",
+            "dose": null,
+            "dose_unit": null,
+            "regimen": "UNSPECIFIED",
+            "analyte": "PARENT"
+          }
+        ],
+        "unit": [
+          "UNRESOLVED"
+        ],
+        "current_prediction_route": "MODEL_UNAVAILABLE",
+        "why_no_model": "Current Prediction Engine does not support this endpoint/context",
+        "existing_backend_capability": "NO_ACTIVE_COMPATIBLE_PREDICTION_ROUTE",
+        "action": "NEW_MODEL_REQUIRED"
+      }
+    ]
+  },
+  "section_coverage": {
+    "ACTIVITY": {
+      "qualified_numeric": 12,
+      "model_capable": 0,
+      "direct": 0,
+      "converted": 0,
+      "context_only": 0,
+      "no_model": 12,
+      "total": 12,
+      "comparison_coverage_percent": 0.0
+    },
+    "ADMET": {
+      "qualified_numeric": 5,
+      "model_capable": 10,
+      "direct": 0,
+      "converted": 5,
+      "context_only": 0,
+      "no_model": 0,
+      "total": 5,
+      "comparison_coverage_percent": 100.0
+    },
+    "METABOLISM": {
+      "qualified_numeric": 111,
+      "model_capable": 49,
+      "direct": 0,
+      "converted": 0,
+      "context_only": 41,
+      "no_model": 82,
+      "total": 123,
+      "comparison_coverage_percent": 0.0
+    },
+    "PK": {
+      "qualified_numeric": 83,
+      "model_capable": 63,
+      "direct": 2,
+      "converted": 4,
+      "context_only": 33,
+      "no_model": 91,
+      "total": 130,
+      "comparison_coverage_percent": 4.62
+    },
+    "TOXICITY": {
+      "qualified_numeric": 0,
+      "model_capable": 3,
+      "direct": 0,
+      "converted": 0,
+      "context_only": 0,
+      "no_model": 0,
+      "total": 0,
+      "comparison_coverage_percent": 0.0
+    },
+    "UNCLASSIFIED": {
+      "qualified_numeric": 1,
+      "model_capable": 0,
+      "direct": 0,
+      "converted": 0,
+      "context_only": 0,
+      "no_model": 106,
+      "total": 106,
+      "comparison_coverage_percent": 0.0
+    }
+  },
+  "qa_metrics": {
+    "EXISTING_CAPABILITY_NOT_EXPOSED": 0,
+    "PAIRABLE_EVIDENCE_WITHOUT_PAIR": 0,
+    "UNKNOWN_MISSING_REASON": 0
+  },
+  "high_evidence_compounds": [
+    {
+      "compound": "Osimertinib",
+      "compound_id": 614,
+      "version_id": 617,
+      "evidence_n": 6,
+      "model_capable_evidence_n": 0,
+      "direct_pairs": 0,
+      "converted_pairs": 0,
+      "context_only": 6,
+      "no_model": 6,
+      "pairable_evidence_without_pair": 0
+    },
+    {
+      "compound": "Midazolam",
+      "compound_id": 333,
+      "version_id": 339,
+      "evidence_n": 8,
+      "model_capable_evidence_n": 0,
+      "direct_pairs": 0,
+      "converted_pairs": 0,
+      "context_only": 8,
+      "no_model": 8,
+      "pairable_evidence_without_pair": 0
+    },
+    {
+      "compound": "Warfarin",
+      "compound_id": 447,
+      "version_id": 453,
+      "evidence_n": 5,
+      "model_capable_evidence_n": 0,
+      "direct_pairs": 0,
+      "converted_pairs": 0,
+      "context_only": 5,
+      "no_model": 5,
+      "pairable_evidence_without_pair": 0
+    },
+    {
+      "compound": "Metformin",
+      "compound_id": 607,
+      "version_id": 610,
+      "evidence_n": 3,
+      "model_capable_evidence_n": 0,
+      "direct_pairs": 0,
+      "converted_pairs": 0,
+      "context_only": 3,
+      "no_model": 3,
+      "pairable_evidence_without_pair": 0
+    },
+    {
+      "compound": "Mobocertinib",
+      "compound_id": 709,
+      "version_id": 712,
+      "evidence_n": 10,
+      "model_capable_evidence_n": 0,
+      "direct_pairs": 0,
+      "converted_pairs": 0,
+      "context_only": 10,
+      "no_model": 10,
+      "pairable_evidence_without_pair": 0
+    }
+  ],
+  "priority_order": [
+    {
+      "endpoint": "PK scenario Cmax/AUC/Tmax/t1/2",
+      "score_basis": "dose/context-qualified evidence plus existing simulation layer",
+      "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+    },
+    {
+      "endpoint": "CL/CLF and renal clearance",
+      "score_basis": "PK importance; strict systemic versus apparent semantics",
+      "action": "CONTEXT_SPECIFIC_MODEL_REQUIRED"
+    },
+    {
+      "endpoint": "VDss",
+      "score_basis": "distribution importance; species-specific model availability",
+      "action": "NEW_MODEL_REQUIRED"
+    },
+    {
+      "endpoint": "pKa/logD7.4",
+      "score_basis": "ADME importance; endpoint-specific validation required",
+      "action": "NEW_MODEL_REQUIRED"
+    },
+    {
+      "endpoint": "quantitative CYP/transporters",
+      "score_basis": "measurement semantics and assay context",
+      "action": "SCIENTIFICALLY_NOT_PREDICTABLE"
+    }
+  ],
+  "scientific_policy": {
+    "observed_target_used_as_prediction_input": false,
+    "new_engine_version": false,
+    "raw_evidence_modified": false,
+    "historical_prediction_runs_modified": false
+  }
+}

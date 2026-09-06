@@ -1,6 +1,6 @@
 {
   "artifact": "sunvozertinib_comparison_recovery_v4_7",
-  "created_at": "2026-09-06T14:47:01.656698+00:00",
+  "created_at": "2026-09-06T21:17:54.145951+00:00",
   "compound_version_id": 13,
   "project_id": 3,
   "matching_engine_version": "drugopt-comparison-matcher-v2.0",
@@ -51283,6 +51283,7 @@
           "engine_name": "SyGMa empirical rules + RDKit chemical validation",
           "engine_version": "stage3d-sygma-1.1.0-rdkit-2025.03.1-v1"
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -51449,6 +51450,7 @@
           "engine_name": "SyGMa empirical rules + RDKit chemical validation",
           "engine_version": "stage3d-sygma-1.1.0-rdkit-2025.03.1-v1"
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -52597,6 +52599,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -52802,6 +52805,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -57412,6 +57416,39 @@
         "route": "ORAL",
         "dose": 200.0,
         "dose_unit": "mg",
+        "input_status": "COMPLETE",
+        "input_provenance": {
+          "dose": {
+            "value": 200.0,
+            "unit": "mg",
+            "source": "EXPERIMENTAL_CONTEXT"
+          },
+          "route": {
+            "value": "ORAL",
+            "source": "SCENARIO_CONTEXT"
+          },
+          "F": {
+            "value": 0.494,
+            "unit": "fraction",
+            "source": "MODEL_PREDICTED"
+          },
+          "ka": {
+            "value": 1.0,
+            "unit": "1/h",
+            "source": "DERIVED_FROM_PERMEABILITY"
+          },
+          "CL": {
+            "value": 3.251,
+            "unit": "mL/min/kg",
+            "source": "HEPATIC_IVIVE_APPARENT"
+          },
+          "V": {
+            "value": 1.066,
+            "unit": "L/kg",
+            "source": "PREDICTED_VD"
+          }
+        },
+        "engine_version": "Stage-5 PK simulation 5B-2.0",
         "display": {
           "value": 7235.87,
           "unit": "ng*h/mL",
@@ -63990,9 +64027,9 @@
         "raw_endpoint": "CMAX",
         "canonical_endpoint_id": "HUMAN_PK_CMAX_ORAL",
         "canonical_comparison_key": "HUMAN_PK_CMAX_ORAL|HUMAN|ORAL|PARENT",
-        "base_value": 650.61,
+        "base_value": 905.12,
         "project_value": null,
-        "display_value": 650.61,
+        "display_value": 905.12,
         "unit": "ng/mL",
         "prediction_type": "MECHANISTIC_ESTIMATE",
         "source_type": "MECHANISTIC_ESTIMATE",
@@ -64018,11 +64055,44 @@
         "route": "ORAL",
         "dose": 200.0,
         "dose_unit": "mg",
+        "input_status": "COMPLETE",
+        "input_provenance": {
+          "dose": {
+            "value": 200.0,
+            "unit": "mg",
+            "source": "EXPERIMENTAL_CONTEXT"
+          },
+          "route": {
+            "value": "ORAL",
+            "source": "SCENARIO_CONTEXT"
+          },
+          "F": {
+            "value": 0.494,
+            "unit": "fraction",
+            "source": "MODEL_PREDICTED"
+          },
+          "ka": {
+            "value": 1.0,
+            "unit": "1/h",
+            "source": "DERIVED_FROM_PERMEABILITY"
+          },
+          "CL": {
+            "value": 3.251,
+            "unit": "mL/min/kg",
+            "source": "HEPATIC_IVIVE_APPARENT"
+          },
+          "V": {
+            "value": 1.066,
+            "unit": "L/kg",
+            "source": "PREDICTED_VD"
+          }
+        },
+        "engine_version": "Stage-5 PK simulation 5B-2.0",
         "display": {
-          "value": 650.61,
+          "value": 905.12,
           "unit": "ng/mL",
           "raw": {
-            "value": 650.61,
+            "value": 905.12,
             "unit": "ng/mL"
           },
           "conversion": "identity"
@@ -64036,12 +64106,12 @@
           {
             "status": "CONVERTED",
             "comparability": "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION",
-            "prediction_value": 650.61,
+            "prediction_value": 905.12,
             "experimental_value": 35.04576,
-            "difference": 615.56424,
-            "signed_error": 615.56424,
-            "absolute_error": 615.56424,
-            "fold_error": 18.564585273653645,
+            "difference": 870.07424,
+            "signed_error": 870.07424,
+            "absolute_error": 870.07424,
+            "fold_error": 25.826804726163736,
             "preview": false,
             "experimental_id": 28,
             "unit": "ng/mL"
@@ -64049,12 +64119,12 @@
           {
             "status": "DIRECT",
             "comparability": "DIRECTLY_COMPARABLE",
-            "prediction_value": 650.61,
+            "prediction_value": 905.12,
             "experimental_value": 412.0,
-            "difference": 238.61,
-            "signed_error": 238.61,
-            "absolute_error": 238.61,
-            "fold_error": 1.5791504854368932,
+            "difference": 493.12,
+            "signed_error": 493.12,
+            "absolute_error": 493.12,
+            "fold_error": 2.196893203883495,
             "preview": false,
             "experimental_id": 43,
             "unit": "ng/mL"
@@ -64062,12 +64132,12 @@
           {
             "status": "CONVERTED",
             "comparability": "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION",
-            "prediction_value": 650.61,
+            "prediction_value": 905.12,
             "experimental_value": 35.04576,
-            "difference": 615.56424,
-            "signed_error": 615.56424,
-            "absolute_error": 615.56424,
-            "fold_error": 18.564585273653645,
+            "difference": 870.07424,
+            "signed_error": 870.07424,
+            "absolute_error": 870.07424,
+            "fold_error": 25.826804726163736,
             "preview": false,
             "experimental_id": 447,
             "unit": "ng/mL"
@@ -64075,12 +64145,12 @@
           {
             "status": "CONVERTED",
             "comparability": "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION",
-            "prediction_value": 650.61,
+            "prediction_value": 905.12,
             "experimental_value": 35.04576,
-            "difference": 615.56424,
-            "signed_error": 615.56424,
-            "absolute_error": 615.56424,
-            "fold_error": 18.564585273653645,
+            "difference": 870.07424,
+            "signed_error": 870.07424,
+            "absolute_error": 870.07424,
+            "fold_error": 25.826804726163736,
             "preview": false,
             "experimental_id": 450,
             "unit": "ng/mL"
@@ -64088,31 +64158,31 @@
           {
             "status": "CONVERTED",
             "comparability": "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION",
-            "prediction_value": 650.61,
+            "prediction_value": 905.12,
             "experimental_value": 35.04576,
-            "difference": 615.56424,
-            "signed_error": 615.56424,
-            "absolute_error": 615.56424,
-            "fold_error": 18.564585273653645,
+            "difference": 870.07424,
+            "signed_error": 870.07424,
+            "absolute_error": 870.07424,
+            "fold_error": 25.826804726163736,
             "preview": false,
             "experimental_id": 451,
             "unit": "ng/mL"
           }
         ],
         "error_metric_type": "absolute_error",
-        "error_value": 615.56424,
+        "error_value": 870.07424,
         "performance_policy": "PERFORMANCE_NOT_CALIBRATED",
         "performance_status": "PERFORMANCE_NOT_CALIBRATED",
-        "prediction_value": 650.61,
+        "prediction_value": 905.12,
         "experimental_value": 35.04576,
-        "difference": 615.56424,
-        "signed_error": 238.61,
-        "absolute_error": 238.61,
-        "fold_error": 1.58,
+        "difference": 870.07424,
+        "signed_error": 493.12,
+        "absolute_error": 493.12,
+        "fold_error": 2.2,
         "preview": false,
         "experimental_id": 28,
         "unit": "ng/mL",
-        "percent_error": 57.9,
+        "percent_error": 119.7,
         "display_aligned": true
       },
       "semantic_status": "CONVERTED",
@@ -64369,21 +64439,21 @@
       "additional_observation_count": 11,
       "experimental_display_value": 412.0,
       "experimental_display_unit": "ng/mL",
-      "prediction_display_value": 650.61,
+      "prediction_display_value": 905.12,
       "prediction_display_unit": "ng/mL",
       "primary_model": "",
-      "primary_prediction": 650.61,
+      "primary_prediction": 905.12,
       "alternative_models": [],
-      "consensus": 650.61,
+      "consensus": 905.12,
       "validation_n": 20,
       "model_performance": "N/A",
       "quantitative_prediction": null,
       "classification_prediction": null,
-      "difference_display_value": 238.61,
+      "difference_display_value": 493.12,
       "difference_display_unit": "ng/mL",
-      "fold_error": 1.58,
-      "absolute_error": 238.61,
-      "percent_error": 57.9,
+      "fold_error": 2.2,
+      "absolute_error": 493.12,
+      "percent_error": 119.7,
       "scientific_interpretation": "CONTEXT_DEPENDENT",
       "agreement_interpretation": "NOT_CALIBRATED",
       "interpretation": {
@@ -64467,6 +64537,39 @@
         "route": "ORAL",
         "dose": 200.0,
         "dose_unit": "mg",
+        "input_status": "COMPLETE",
+        "input_provenance": {
+          "dose": {
+            "value": 200.0,
+            "unit": "mg",
+            "source": "EXPERIMENTAL_CONTEXT"
+          },
+          "route": {
+            "value": "ORAL",
+            "source": "SCENARIO_CONTEXT"
+          },
+          "F": {
+            "value": 0.494,
+            "unit": "fraction",
+            "source": "MODEL_PREDICTED"
+          },
+          "ka": {
+            "value": 1.0,
+            "unit": "1/h",
+            "source": "DERIVED_FROM_PERMEABILITY"
+          },
+          "CL": {
+            "value": 3.251,
+            "unit": "mL/min/kg",
+            "source": "HEPATIC_IVIVE_APPARENT"
+          },
+          "V": {
+            "value": 1.066,
+            "unit": "L/kg",
+            "source": "PREDICTED_VD"
+          }
+        },
+        "engine_version": "Stage-5 PK simulation 5B-2.0",
         "display": {
           "value": 7235.87,
           "unit": "ng*h/mL",
@@ -64665,6 +64768,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -64866,6 +64970,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -65488,6 +65593,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -67588,6 +67694,39 @@
         "route": "ORAL",
         "dose": 200.0,
         "dose_unit": "mg",
+        "input_status": "COMPLETE",
+        "input_provenance": {
+          "dose": {
+            "value": 200.0,
+            "unit": "mg",
+            "source": "EXPERIMENTAL_CONTEXT"
+          },
+          "route": {
+            "value": "ORAL",
+            "source": "SCENARIO_CONTEXT"
+          },
+          "F": {
+            "value": 0.494,
+            "unit": "fraction",
+            "source": "MODEL_PREDICTED"
+          },
+          "ka": {
+            "value": 1.0,
+            "unit": "1/h",
+            "source": "DERIVED_FROM_PERMEABILITY"
+          },
+          "CL": {
+            "value": 3.251,
+            "unit": "mL/min/kg",
+            "source": "HEPATIC_IVIVE_APPARENT"
+          },
+          "V": {
+            "value": 1.066,
+            "unit": "L/kg",
+            "source": "PREDICTED_VD"
+          }
+        },
+        "engine_version": "Stage-5 PK simulation 5B-2.0",
         "display": {
           "value": 3.79,
           "unit": "hours",
@@ -68801,9 +68940,9 @@
         "raw_endpoint": "TMAX",
         "canonical_endpoint_id": "HUMAN_PK_TMAX_ORAL",
         "canonical_comparison_key": "HUMAN_PK_TMAX_ORAL|HUMAN|ORAL|PARENT",
-        "base_value": 3.88,
+        "base_value": 2.08,
         "project_value": null,
-        "display_value": 3.88,
+        "display_value": 2.08,
         "unit": "hours",
         "prediction_type": "MECHANISTIC_ESTIMATE",
         "source_type": "MECHANISTIC_ESTIMATE",
@@ -68829,11 +68968,44 @@
         "route": "ORAL",
         "dose": 200.0,
         "dose_unit": "mg",
+        "input_status": "COMPLETE",
+        "input_provenance": {
+          "dose": {
+            "value": 200.0,
+            "unit": "mg",
+            "source": "EXPERIMENTAL_CONTEXT"
+          },
+          "route": {
+            "value": "ORAL",
+            "source": "SCENARIO_CONTEXT"
+          },
+          "F": {
+            "value": 0.494,
+            "unit": "fraction",
+            "source": "MODEL_PREDICTED"
+          },
+          "ka": {
+            "value": 1.0,
+            "unit": "1/h",
+            "source": "DERIVED_FROM_PERMEABILITY"
+          },
+          "CL": {
+            "value": 3.251,
+            "unit": "mL/min/kg",
+            "source": "HEPATIC_IVIVE_APPARENT"
+          },
+          "V": {
+            "value": 1.066,
+            "unit": "L/kg",
+            "source": "PREDICTED_VD"
+          }
+        },
+        "engine_version": "Stage-5 PK simulation 5B-2.0",
         "display": {
-          "value": 3.88,
+          "value": 2.08,
           "unit": "hours",
           "raw": {
-            "value": 3.88,
+            "value": 2.08,
             "unit": "hours"
           },
           "conversion": "identity"
@@ -68905,12 +69077,12 @@
       "additional_observation_count": 0,
       "experimental_display_value": 7.0,
       "experimental_display_unit": "hours",
-      "prediction_display_value": 3.88,
+      "prediction_display_value": 2.08,
       "prediction_display_unit": "hours",
       "primary_model": "",
-      "primary_prediction": 3.88,
+      "primary_prediction": 2.08,
       "alternative_models": [],
-      "consensus": 3.88,
+      "consensus": 2.08,
       "validation_n": 1,
       "model_performance": "N/A",
       "quantitative_prediction": null,
@@ -69047,6 +69219,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -69252,6 +69425,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -69453,6 +69627,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -69654,6 +69829,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -69859,6 +70035,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -70060,6 +70237,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -70263,6 +70441,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -70464,6 +70643,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -81254,6 +81434,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",
@@ -81457,6 +81638,7 @@
             "gi_transit_context": "Base: Fully dissolved in stomach (pH 1.2: 100.0% ionized); partial neutralization in jejunum/ileum (pH 6.5–7.4: 0.0% neutral) provides uncharged species for transcellular intestinal uptake."
           }
         },
+        "input_provenance": {},
         "input_status": "UNKNOWN",
         "assumptions": [],
         "fallback_status": "NONE",

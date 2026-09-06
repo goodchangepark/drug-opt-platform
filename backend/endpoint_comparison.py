@@ -193,6 +193,7 @@ def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", rou
         "dose": dose if dose is not None else data.get("dose"),
         "dose_unit": dose_unit or data.get("dose_unit", ""),
         "provenance": data.get("provenance", {}),
+        "input_provenance": data.get("input_provenance") or data.get("provenance", {}).get("input_provenance", {}),
         "input_status": data.get("input_status", "UNKNOWN"),
         "assumptions": data.get("assumptions", []),
         "fallback_status": data.get("fallback_status", "NONE"),
@@ -1258,10 +1259,13 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                             target_doses.add(dv)
                     except Exception:
                         pass
-        if not target_doses:
-            target_doses = {100.0}
-
-        f_oral = (human_pset.f_predicted / 100.0) if human_pset.f_predicted else 0.5
+        # A scenario is only defensible when its dose and oral absorption
+        # inputs are present.  Never manufacture a 100 mg scenario, F=0.5,
+        # or an arbitrary ka merely to populate a comparison row.
+        f_oral = (human_pset.f_predicted / 100.0) if human_pset.f_predicted is not None else None
+        ka_oral = human_pset.ka_value if human_pset.ka_value is not None else None
+        if not target_doses or f_oral is None or ka_oral is None or f_oral <= 0 or ka_oral <= 0:
+            target_doses = set()
         for d_mg in sorted(target_doses):
             try:
                 sim_res = simulate_one_compartment_disposition(
@@ -1270,7 +1274,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                     cl_plasma_ml_min_kg=human_pset.cl_value,
                     vdss_l_kg=human_pset.v_value,
                     f_oral=f_oral,
-                    ka_hr_inv=0.35,
+                    ka_hr_inv=ka_oral,
                     body_weight_kg=70.0,
                 )
                 sim_values = [
@@ -1308,6 +1312,16 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                             "route": "ORAL",
                             "dose": d_mg,
                             "dose_unit": "mg",
+                            "input_status": "COMPLETE",
+                            "input_provenance": {
+                                "dose": {"value": d_mg, "unit": "mg", "source": "EXPERIMENTAL_CONTEXT"},
+                                "route": {"value": "ORAL", "source": "SCENARIO_CONTEXT"},
+                                "F": {"value": f_oral, "unit": "fraction", "source": getattr(human_pset, "f_source_type", "MODEL_PREDICTED")},
+                                "ka": {"value": ka_oral, "unit": "1/h", "source": human_pset.ka_source_type or "MODEL_PREDICTED"},
+                                "CL": {"value": human_pset.cl_value, "unit": human_pset.cl_unit, "source": human_pset.cl_source_type},
+                                "V": {"value": human_pset.v_value, "unit": human_pset.v_unit, "source": human_pset.v_source_type},
+                            },
+                            "engine_version": "Stage-5 PK simulation 5B-2.0",
                         }
             except Exception:
                 pass
