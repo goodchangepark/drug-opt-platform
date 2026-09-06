@@ -84,7 +84,7 @@ def resolve_pk_study_context(
     all_text = " ".join(text for _, text in texts if text)
     explicit_species = normalize_species(species, "")
     inferred_species, species_source = _first_match([
-        (r"\b(?:human|patients?|healthy volunteers?|nsclc)\b", "HUMAN"),
+        (r"\b(?:human|patients?|healthy volunteers?|nsclc|clinical|males?|females?|subjects?|volunteers?)\b", "HUMAN"),
         (r"\b(?:rats?|wistar|sprague[- ]dawley)\b", "RAT"),
         (r"\b(?:mice|mouse)\b", "MOUSE"),
         (r"\b(?:dogs?|beagle)\b", "DOG"),

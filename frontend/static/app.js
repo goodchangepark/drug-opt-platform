@@ -5437,6 +5437,41 @@ function integratedProfile(versionId){
    e('section',{className:'card help-section',id:'help-pk',key:'pk'},[e('div',{className:'row toolbar'},[e('h2',{},'PK / DMPK'),StatusBadge({type:'READY'})]),e('p',{className:'help-flow'},'Experimental PK → NCA → IVIVE → PK Foundation → IV/PO/SC/IP Simulation → Cross-Species Translation → Human Translational PK → Prospective Validation'),e('div',{className:'help-topic-grid'},[
     ['Experimental PK',['PK Study and concentration-time input','CSV import and BLQ handling','Noncompartmental analysis (NCA)']],['IVIVE',['Clint, MPPGL and hepatocellularity','PPB/fu and blood:plasma ratio','Well-stirred CLh, extraction ratio and Fh']],['Simulation',['IV bolus and infusion','PO, SC and IP routes','Repeated dosing, ka, F, Cmax, Tmax and AUC']],['Translation',['Allometry and LOSO','Human clearance and volume','Simulation readiness','Prospective freeze and retrospective validation']]
    ].map(([title,items])=>e('article',{key:title},[e('h3',{},title),e('ul',{},items.map(item=>e('li',{key:item},item)))]))),e('h3',{},'Implemented capability registry'),e('ul',{className:'help-capability-list'},pkCaps.map(row=>e('li',{key:row.key},[e('span',{},row.label),StatusBadge({type:row.availability})]))),e('details',{},[e('summary',{},'Registered PK methods'),e('ul',{},(helpRegistry.pk_method_registry||[]).map(row=>e('li',{key:row.method_key},row.method_name+' · '+row.method_version+' · '+row.status)))])]),
+   e('section',{className:'card help-section',id:'help-comparison-engine',key:'comparison-engine'},[
+    e('div',{className:'eyebrow'},'UNIFIED COMPARISON & CANONICAL HARMONIZATION ENGINE'),
+    e('div',{className:'row toolbar',style:{alignItems:'flex-start'}},[
+     e('div',{},[
+      e('h2',{},'Unified Experimental ↔ Prediction Comparison Engine'),
+      e('p',{className:'small'},'Harmonizes raw experimental observations and computational predictions into a unified scientific comparison layer across 95 canonical endpoints. Eliminates unit and scale discrepancies through deterministic conversion and dose normalization.')
+     ]),
+     e('span',{className:'badge-favorable',style:{fontSize:'13px',padding:'6px 14px',fontWeight:'bold'}},'ZERO_PAIR_LOSS')
+    ]),
+    e('h3',{},'Comparison Classification Standards'),
+    e('div',{className:'table-scroll',style:{marginTop:'8px'}},e('table',{},[
+     e('thead',{},e('tr',{},['Comparison Status','Badge','Scientific Meaning','Error Metric Calculated'].map(l=>e('th',{key:l},l)))),
+     e('tbody',{},[
+      {status:'DIRECTLY_COMPARABLE',badge:'DIRECT',desc:'Same canonical endpoint, same unit/scale, matching species & route.',err:'Signed error, Absolute error, Fold error'},
+      {status:'CONVERTED_COMPARABLE',badge:'UNIT CONVERTED / DOSE NORMALIZED',desc:'Identical scientific quantity mapped via deterministic unit conversion or linear dose normalization.',err:'Fold error, Percentage points, Absolute error'},
+      {status:'CONTEXTUALLY_RELATED_NOT_DIRECTLY_COMPARABLE',badge:'CONTEXT ONLY',desc:'Qualitative classifier vs quantitative IC50, or cross-species / route mismatch.',err:'No numeric error (semantic context preserved)'},
+      {status:'NO_MATCHING_PREDICTION_MODEL',badge:'NO MODEL',desc:'Experimental endpoint not currently modeled by prediction engine (fail-closed).',err:'None (Fail-closed)'}
+     ].map(r=>e('tr',{key:r.status,style:{background:r.status==='DIRECTLY_COMPARABLE'?'#f6ffed':r.status==='CONVERTED_COMPARABLE'?'#e6f7ff':r.status==='CONTEXTUALLY_RELATED_NOT_DIRECTLY_COMPARABLE'?'#fffbe6':'#fafafa'}},[
+      e('td',{className:'mono small bold'},r.status),
+      e('td',{},e('span',{className:r.badge==='DIRECT'?'badge-favorable':r.badge.includes('CONVERTED')?'badge-info':'badge-intermediate'},r.badge)),
+      e('td',{className:'small'},r.desc),
+      e('td',{className:'small'},r.err)
+     ])))
+    ])),
+    e('h3',{style:{marginTop:'16px'}},'Supported Deterministic Unit Conversions'),
+    e('ul',{className:'small'},[
+     e('li',{key:'conc'},'Concentration: Molar ↔ Mass (M, mM, µM, nM, pM ↔ g/L, mg/mL, µg/mL, ng/mL) using compound molecular weight.'),
+     e('li',{key:'caco2'},'Caco-2 Permeability: 10^-6 cm/s ↔ log10(cm/s) via Papp(cm/s) = Papp(10^-6 cm/s) * 1e-6.'),
+     e('li',{key:'ppb'},'Plasma Protein Binding: % bound ↔ fu (unbound fraction) via fu = (100 - % bound) / 100.'),
+     e('li',{key:'cl'},'Clearance: mL/min/kg ↔ L/h/kg (factor 0.06) and L/h/kg ↔ L/h (using 70 kg human body weight).'),
+     e('li',{key:'vd'},'Volume of Distribution: L/kg ↔ mL/kg (factor 1000) and L/kg ↔ L (using 70 kg human body weight).'),
+     e('li',{key:'time'},'Time / Half-Life: min ↔ hours ↔ days.'),
+     e('li',{key:'auc'},'AUC: ng*h/mL ↔ µg*h/L (identity: 1 ng/mL = 1 µg/L) and mg*h/L (factor 1000).')
+    ])
+   ]),
    e('section',{className:'card help-section',id:'help-glossary',key:'glossary'},[e('h2',{},'Important Scientific Terminology'),e('dl',{className:'help-glossary'},(helpRegistry.glossary||[]).map(row=>e('div',{key:row.term},[e('dt',{},row.term),e('dd',{},row.definition)])))]),
    e('section',{className:'card help-section',id:'help-limitations',key:'limits'},[e('h2',{},'Current Limitations'),e('ul',{},(helpRegistry.limitations||[]).map(item=>e('li',{key:item},item))),e('p',{className:'small'},'Registry source: '+helpRegistry.source)])
   ]);

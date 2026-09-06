@@ -46,7 +46,14 @@ def representative_rank(item: dict) -> tuple:
     # 1. Clinical / Approved Human Context Hierarchy
     species = str(qualification.get("species") or context.get("species") or item.get("species") or "").upper()
     regimen = str(qualification.get("regimen") or context.get("regimen") or item.get("regimen") or "").upper()
+    route = str(qualification.get("route") or context.get("route") or item.get("route") or "").upper()
     target_context = str(qualification.get("target_context") or context.get("target") or "").upper()
+    endpoint = str(item.get("canonical_endpoint_id") or item.get("endpoint") or item.get("raw_endpoint") or "").upper()
+
+    is_invitro = any(term in endpoint for term in (
+        "PGP", "BCRP", "OATP", "OCT", "MATE", "CYP", "HLM", "RLM", "MLM",
+        "CACO2", "HERG", "AMES", "DILI", "SOLUBILITY", "ACTIVITY"
+    )) or "INHIBITION" in endpoint or "SUBSTRATE" in endpoint
 
     # Clinical relevance rank
     # Human steady-state clinical dose: 0
@@ -55,9 +62,9 @@ def representative_rank(item: dict) -> tuple:
     # Animal in-vivo / in-vitro: 3
     # Unspecified: 5
     if species == "HUMAN":
-        if "STEADY" in regimen or "QD" in regimen or "DAILY" in regimen or "CLINICAL" in str(context).upper():
+        if not is_invitro and ("STEADY" in regimen or "QD" in regimen or "DAILY" in regimen or "BID" in regimen or "TID" in regimen):
             clinical_rank = 0
-        elif "SINGLE" in regimen or "ORAL" in str(context).upper() or "IV" in str(context).upper():
+        elif not is_invitro and ("SINGLE" in regimen or route in {"ORAL", "IV", "PO"} or "CLINICAL" in str(context.get("study_type", "")).upper()):
             clinical_rank = 1
         else:
             clinical_rank = 2
@@ -82,6 +89,16 @@ def representative_rank(item: dict) -> tuple:
     else:
         target_rank = 3
 
+    # Quantitative Potency Metric Preference
+    # IC50 / Ki / EC50 / Kd > % inhibition / single-dose percent > categorical / others
+    mtype = str(item.get("measurement_type") or qualification.get("refinement", {}).get("measurement_type") or item.get("raw_endpoint") or "").upper()
+    if any(k in mtype for k in ("IC50", "KI", "EC50", "KD")):
+        meas_rank = 0
+    elif any(k in mtype for k in ("PERCENT", "%", "INHIBITION")):
+        meas_rank = 1
+    else:
+        meas_rank = 2
+
     # 3. Context Completeness
     complete_context = bool(stages.get("CONTEXT_QUALIFIED")) or (
         species not in {"", "UNSPECIFIED"} and
@@ -97,6 +114,7 @@ def representative_rank(item: dict) -> tuple:
     return (
         clinical_rank,
         target_rank,
+        meas_rank,
         _ORIGIN_PRIORITY.get(origin, 9),
         _SEMANTIC_PRIORITY.get(semantic, 5),
         0 if complete_context else 1,

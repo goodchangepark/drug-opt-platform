@@ -41,6 +41,11 @@ CANONICAL_ENDPOINTS = {
     "RLM intrinsic clearance": "RLM_CLINT", "MLM intrinsic clearance": "MLM_CLINT",
 }
 
+DIRECT_OR_CONVERTED = {
+    DIRECT, CONVERTED, "DIRECT", "CONVERTED",
+    "DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"
+}
+
 
 def _iso(value):
     return value.isoformat() if value else None
@@ -461,34 +466,109 @@ def _blank(endpoint_id, display_name=""):
     return {"endpoint_id": endpoint_id, "canonical_comparison_key": endpoint_id, "section": _section(endpoint_id), "display_name": _display_name(endpoint_id, display_name), "species": "UNSPECIFIED", "route": "UNSPECIFIED", "prediction": {"available": False, "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"}, "experimental_internal": [], "experimental_external_imported": [], "experimental_external_candidates": [], "related_evidence": [], "needs_review": [], "references": [], "project_learning": {}}
 
 
-def _comparison(prediction, experiments):
+def _comparison(prediction, experiments, mw: float | None = None):
     if not prediction or not prediction.get("available"):
-        if any(item.get("comparability") == RELATED for item in experiments): return {"status": "RELATED_SAME_SCIENTIFIC_GROUP", "reason": "Related measurement semantics; no numeric error calculated", "difference": None}
+        if any(item.get("comparability") == RELATED for item in experiments):
+            return {"status": "RELATED_SAME_SCIENTIFIC_GROUP", "reason": "Related measurement semantics; no numeric error calculated", "difference": None}
         return None
     direct, related = [], []
     for experiment in experiments:
-        if experiment.get("comparability") in {DIRECT, CONVERTED} and experiment.get("normalized_value") is not None:
-            # PK rows include analyte in their comparison key. A parent
-            # prediction must never be scored against a metabolite result.
-            if str(prediction.get("canonical_endpoint_id", "")).startswith("PK_") or "_PK_" in str(prediction.get("canonical_endpoint_id", "")):
+        exp_comp = experiment.get("comparability")
+        if exp_comp in DIRECT_OR_CONVERTED and experiment.get("normalized_value") is not None:
+            pred_eid = str(prediction.get("canonical_endpoint_id", "")).upper()
+            is_pk = pred_eid.startswith("PK_") or "_PK_" in pred_eid
+            dose_ratio = 1.0
+            is_dose_norm = False
+            
+            if is_pk:
                 pred_key = str(prediction.get("canonical_comparison_key", ""))
                 exp_key = str(experiment.get("canonical_comparison_key", ""))
                 if pred_key and exp_key and pred_key.rsplit("|", 1)[-1] != exp_key.rsplit("|", 1)[-1]:
                     continue
-                pred_route, exp_route = prediction.get("route", "UNSPECIFIED"), experiment.get("route", "UNSPECIFIED")
+                pred_route = prediction.get("route", "UNSPECIFIED")
+                exp_route = experiment.get("route", "UNSPECIFIED")
                 if pred_route != "UNSPECIFIED" and exp_route != "UNSPECIFIED" and pred_route != exp_route:
                     continue
+                
                 pred_dose = _dose_mg_kg(prediction.get("dose"), prediction.get("dose_unit"))
                 exp_dose = _dose_mg_kg(experiment.get("dose"), experiment.get("dose_unit"))
-                if pred_dose is not None and exp_dose is not None and abs(pred_dose - exp_dose) > max(1e-9, 1e-6 * max(abs(pred_dose), abs(exp_dose), 1.0)):
+                is_dose_dependent = any(tok in pred_eid for tok in ("CMAX", "AUC"))
+                if is_dose_dependent and pred_dose is not None and exp_dose is not None and pred_dose > 0 and exp_dose > 0:
+                    if abs(pred_dose - exp_dose) > max(1e-9, 1e-6 * max(abs(pred_dose), abs(exp_dose), 1.0)):
+                        dose_ratio = pred_dose / exp_dose
+                        is_dose_norm = True
+                elif is_dose_dependent and pred_dose is not None and exp_dose is not None:
+                    if abs(pred_dose - exp_dose) > max(1e-9, 1e-6 * max(abs(pred_dose), abs(exp_dose), 1.0)):
+                        continue
+
+            pv = _number(prediction.get("display_value"))
+            ev_raw = _number(experiment.get("normalized_value"))
+            if pv is None or ev_raw is None:
+                continue
+
+            ev = ev_raw * dose_ratio
+            p_unit = str(prediction.get("unit") or "").strip()
+            e_unit = str(experiment.get("normalized_unit") or "").strip()
+            is_converted_pair = (exp_comp in {CONVERTED, "CONVERTED", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}) or is_dose_norm
+
+            if p_unit and e_unit and p_unit != e_unit:
+                try:
+                    from .unit_normalization import (
+                        convert_concentration, convert_clearance, convert_volume,
+                        convert_time, convert_caco2_papp, clean_unit_str, convert_ppb
+                    )
+                    u_p = clean_unit_str(p_unit)
+                    u_e = clean_unit_str(e_unit)
+                    if any(tok in u_p for tok in ("m", "g/l", "g/ml", "mol/l")) and any(tok in u_e for tok in ("m", "g/l", "g/ml", "mol/l")):
+                        conv = convert_concentration(ev, e_unit, p_unit, mw=mw)
+                        ev = conv.normalized_value
+                        is_converted_pair = True
+                    elif any(tok in u_p for tok in ("l/h", "ml/min")) and any(tok in u_e for tok in ("l/h", "ml/min")):
+                        conv = convert_clearance(ev, e_unit, p_unit)
+                        ev = conv.normalized_value
+                        is_converted_pair = True
+                    elif any(tok in u_p for tok in ("h", "min", "day")) and any(tok in u_e for tok in ("h", "min", "day")):
+                        conv = convert_time(ev, e_unit, p_unit)
+                        ev = conv.normalized_value
+                        is_converted_pair = True
+                    elif "cm/s" in u_p and "cm/s" in u_e:
+                        conv = convert_caco2_papp(ev, e_unit, p_unit)
+                        ev = conv.normalized_value
+                        is_converted_pair = True
+                    elif ("*h/" in u_p or "h*" in u_p or "ng*h" in u_p or "µg*h" in u_p) and ("*h/" in u_e or "h*" in u_e or "ng*h" in u_e or "µg*h" in u_e):
+                        from .unit_normalization import convert_auc
+                        conv = convert_auc(ev, e_unit, p_unit)
+                        ev = conv.normalized_value
+                        is_converted_pair = True
+                    elif "%" in u_p and "fu" in u_e:
+                        conv = convert_ppb(ev, e_unit, p_unit)
+                        ev = conv.normalized_value
+                        is_converted_pair = True
+                    else:
+                        continue
+                except Exception:
                     continue
-                if prediction.get("unit") and experiment.get("normalized_unit") and prediction.get("unit") != experiment.get("normalized_unit"):
-                    continue
-            pv, ev = _number(prediction.get("display_value")), _number(experiment.get("normalized_value"))
-            if pv is None or ev is None: continue
+
             diff = pv - ev
-            direct.append({"status": "DIRECT" if experiment["comparability"] == DIRECT else "CONVERTED", "comparability": experiment["comparability"], "prediction_value": pv, "experimental_value": ev, "difference": diff, "signed_error": diff, "absolute_error": abs(diff), "preview": experiment.get("state") == "EXTERNAL_CANDIDATE", "experimental_id": experiment.get("id"), "unit": prediction.get("unit") or experiment.get("normalized_unit")})
-        elif experiment.get("comparability") == RELATED: related.append(experiment)
+            status_str = "CONVERTED" if is_converted_pair else "DIRECT"
+            comp_type = CONVERTED if is_converted_pair else DIRECT
+            fold_err = max(pv / ev, ev / pv) if (pv > 0 and ev > 0) else None
+            direct.append({
+                "status": status_str,
+                "comparability": comp_type,
+                "prediction_value": pv,
+                "experimental_value": ev,
+                "difference": diff,
+                "signed_error": diff,
+                "absolute_error": abs(diff),
+                "fold_error": fold_err,
+                "preview": experiment.get("state") == "EXTERNAL_CANDIDATE",
+                "experimental_id": experiment.get("id"),
+                "unit": prediction.get("unit") or experiment.get("normalized_unit"),
+            })
+        elif exp_comp == RELATED or exp_comp == "RELATED_SAME_SCIENTIFIC_GROUP":
+            related.append(experiment)
+
     if direct:
         endpoint = str(prediction.get("canonical_endpoint_id", "")).upper()
         if endpoint.endswith("_PPB") or endpoint.endswith("_F_ORAL"):
@@ -499,8 +579,23 @@ def _comparison(prediction, experiments):
             metric = "absolute_and_fold"
         else:
             metric = "absolute"
-        return {"status": direct[0]["status"], "comparability": direct[0]["comparability"], "matches": direct, "error_metric_type": metric, "error_value": direct[0]["absolute_error"], "performance_policy": "PERFORMANCE_NOT_CALIBRATED", "performance_status": "PERFORMANCE_NOT_CALIBRATED", **direct[0]}
-    if related: return {"status": "RELATED_SAME_SCIENTIFIC_GROUP", "reason": "Related measurement semantics; no numeric error calculated", "difference": None, "related_observation_count": len(related)}
+        return {
+            "status": direct[0]["status"],
+            "comparability": direct[0]["comparability"],
+            "matches": direct,
+            "error_metric_type": metric,
+            "error_value": direct[0]["absolute_error"],
+            "performance_policy": "PERFORMANCE_NOT_CALIBRATED",
+            "performance_status": "PERFORMANCE_NOT_CALIBRATED",
+            **direct[0]
+        }
+    if related:
+        return {
+            "status": "RELATED_SAME_SCIENTIFIC_GROUP",
+            "reason": "Related measurement semantics; no numeric error calculated",
+            "difference": None,
+            "related_observation_count": len(related)
+        }
     return None
 
 
@@ -710,7 +805,7 @@ def _presentation_prediction(prediction: dict, endpoint_id: str) -> dict:
     return result
 
 
-def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
+def _scientific_rows(endpoints: list[dict], smiles: str = "", mw: float | None = None) -> list[dict]:
     from .classifier_interpretation import interpret_classifier_prediction, compare_classifier_with_experiment, CLASSIFIER_REGISTRY
 
     rows = []
@@ -724,7 +819,7 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
         display_name = _pk_display_name(source["endpoint_id"], source["display_name"]) if source["section"] == "PK" else source["display_name"]
         display_comparison = comparison
 
-        interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in {DIRECT, CONVERTED}, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
+        interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in DIRECT_OR_CONVERTED, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
 
         # Check for classifier endpoints (e.g. CYP3A4, P-gp, hERG, Ames, DILI)
         interp = None
@@ -760,16 +855,67 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
                     }
 
         if interp is None or not interp.get("is_classifier") or primary.get("value") is None:
-            if semantic in {DIRECT, CONVERTED} and primary.get("value") is not None and prediction.get("available"):
+            if semantic in DIRECT_OR_CONVERTED and primary.get("value") is not None and prediction.get("available"):
                 predicted_display = prediction.get("display") or {}
-                if predicted_display.get("unit") == primary.get("unit") and _number(predicted_display.get("value")) is not None:
-                    signed = _number(predicted_display["value"]) - _number(primary["value"])
+                p_val = _number(predicted_display.get("value"))
+                e_val = _number(primary.get("value"))
+                p_unit = str(predicted_display.get("unit") or "").strip()
+                e_unit = str(primary.get("unit") or "").strip()
+                if p_unit == e_unit and p_val is not None and e_val is not None:
+                    signed = p_val - e_val
                     metric = "percentage_points" if primary.get("unit") in {"%", "% bound"} else "absolute_error"
-                    display_comparison = {**(comparison or {}), "status": semantic, "signed_error": signed, "absolute_error": abs(signed), "error_metric_type": metric, "unit": primary.get("unit"), "display_aligned": True}
-                else:
-                    semantic = "CONTEXT_MISMATCH"
-                    display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
-                interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in {DIRECT, CONVERTED}, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
+                    fold_err = round(max(p_val / e_val, e_val / p_val), 2) if (p_val > 0 and e_val > 0) else None
+                    pct_err = round((abs(signed) / abs(e_val)) * 100.0, 1) if (e_val != 0) else None
+                    display_comparison = {**(comparison or {}), "status": semantic, "signed_error": signed, "absolute_error": abs(signed), "fold_error": fold_err, "percent_error": pct_err, "error_metric_type": metric, "unit": primary.get("unit"), "display_aligned": True}
+                elif p_val is not None and e_val is not None:
+                    # Deterministic unit conversion for scientist-facing display
+                    from .unit_normalization import (
+                        convert_concentration, convert_solubility, convert_ppb,
+                        convert_clearance, convert_volume, convert_time, convert_caco2_papp, convert_auc, clean_unit_str
+                    )
+                    u_p = clean_unit_str(p_unit)
+                    u_e = clean_unit_str(e_unit)
+                    try:
+                        aligned_e_val = None
+                        if "cm/s" in u_p and "cm/s" in u_e:
+                            conv = convert_caco2_papp(e_val, e_unit, p_unit)
+                            aligned_e_val = conv.normalized_value
+                        elif ("*h/" in u_p or "h*" in u_p or "ng*h" in u_p or "µg*h" in u_p) and ("*h/" in u_e or "h*" in u_e or "ng*h" in u_e or "µg*h" in u_e):
+                            conv = convert_auc(e_val, e_unit, p_unit)
+                            aligned_e_val = conv.normalized_value
+                        elif any(tok in u_p for tok in ("m", "g/l", "g/ml", "mol/l")) and any(tok in u_e for tok in ("m", "g/l", "g/ml", "mol/l")):
+                            conv = convert_concentration(e_val, e_unit, p_unit, mw=mw)
+                            aligned_e_val = conv.normalized_value
+                        elif any(tok in u_p for tok in ("l/h", "ml/min")) and any(tok in u_e for tok in ("l/h", "ml/min")):
+                            conv = convert_clearance(e_val, e_unit, p_unit)
+                            aligned_e_val = conv.normalized_value
+                        elif any(tok in u_p for tok in ("h", "min", "day")) and any(tok in u_e for tok in ("h", "min", "day")):
+                            conv = convert_time(e_val, e_unit, p_unit)
+                            aligned_e_val = conv.normalized_value
+                        elif "%" in u_p and "fu" in u_e:
+                            conv = convert_ppb(e_val, e_unit, p_unit)
+                            aligned_e_val = conv.normalized_value
+
+                        if aligned_e_val is not None:
+                            signed = p_val - aligned_e_val
+                            metric = "percentage_points" if "%" in u_p else p_unit
+                            fold_err = round(max(p_val / aligned_e_val, aligned_e_val / p_val), 2) if (p_val > 0 and aligned_e_val > 0) else None
+                            pct_err = round((abs(signed) / abs(aligned_e_val)) * 100.0, 1) if (aligned_e_val != 0) else None
+                            display_comparison = {**(comparison or {}), "status": "CONVERTED", "signed_error": signed, "absolute_error": abs(signed), "fold_error": fold_err, "percent_error": pct_err, "error_metric_type": metric, "unit": p_unit, "display_aligned": True}
+                        else:
+                            signed = (comparison or {}).get("signed_error")
+                            abs_err = (comparison or {}).get("absolute_error")
+                            f_err = (comparison or {}).get("fold_error")
+                            if abs_err is not None:
+                                display_comparison = {**(comparison or {}), "status": semantic, "signed_error": signed, "absolute_error": abs_err, "fold_error": f_err, "unit": p_unit, "display_aligned": True}
+                            else:
+                                semantic = "CONTEXT_MISMATCH"
+                                display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
+                    except Exception:
+                        semantic = "CONTEXT_MISMATCH"
+                        display_comparison = {**(comparison or {}), "status": "CONTEXT_MISMATCH", "absolute_error": None, "reason": "Direct display-unit alignment is unavailable; no numeric difference shown."}
+
+                interpretation = interpret_row(prediction_available=bool(prediction.get("available")), direct=semantic in DIRECT_OR_CONVERTED, difference_available=bool(display_comparison and display_comparison.get("absolute_error") is not None))
 
         strat = get_endpoint_strategy(source["endpoint_id"]) or get_endpoint_strategy(display_name)
         prim_mid = strat.primary_model_ids[0] if (strat and strat.primary_model_ids) else ""
@@ -880,6 +1026,9 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "") -> list[dict]:
             "quantitative_prediction": cyp_quant,
             "classification_prediction": prediction.get("display", {}).get("value") if (interp and interp.get("is_classifier")) else None,
             "difference_display_value": (display_comparison or {}).get("signed_error"), "difference_display_unit": (display_comparison or {}).get("unit"),
+            "fold_error": (display_comparison or {}).get("fold_error"),
+            "absolute_error": (display_comparison or {}).get("absolute_error"),
+            "percent_error": (display_comparison or {}).get("percent_error"),
             "scientific_interpretation": interpretation["value_assessment"], "agreement_interpretation": interpretation["agreement"], "interpretation": interpretation,
             "interpretation_policy": SCIENTIFIC_INTERPRETATION_VERSION, "agreement_policy": AGREEMENT_POLICY_VERSION,
             "scientific_result_row_id": f"{source.get('project_id', '')}:{source.get('compound_id', '')}:{source['endpoint_id']}:{source.get('canonical_comparison_key', '')}",
@@ -1010,7 +1159,8 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     # Concentration-time simulations provide the Stage-5 Cmax/Tmax/AUC/t1/2
     # predictions. They are joined by the same species/route key as external
     # PK observations, rather than being hidden in the simulation tab.
-    for sim in db.scalars(select(PKSimulationRun).where(PKSimulationRun.version_id.in_(evidence_version_ids)).order_by(PKSimulationRun.created_at.desc())).all():
+    sims = db.scalars(select(PKSimulationRun).where(PKSimulationRun.version_id.in_(evidence_version_ids)).order_by(PKSimulationRun.created_at.desc())).all()
+    for sim in sims:
         species = normalize_species(sim.species); route = "ORAL" if str(sim.route).upper() == "PO" else str(sim.route).upper()
         for parameter, value, unit in _simulation_values(sim):
             if value is None: continue
@@ -1020,6 +1170,84 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                 row["prediction"] = _snapshot_prediction(snapshot, eid, parameter, species=species, route=route, dose=sim.dose, dose_unit=sim.dose_unit)
             elif not row["prediction"].get("available"):
                 row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{route}|PARENT", "base_value": value, "project_value": None, "display_value": value, "unit": unit, "prediction_type": "MECHANISTIC_ESTIMATE", "source_type": PREDICTION_MECHANISTIC, "source_label": prediction_source_label(PREDICTION_MECHANISTIC), "maturity": get_endpoint_maturity(eid), "timestamp": _iso(sim.created_at), "model_count": 1, "species": species, "route": route, "dose": sim.dose, "dose_unit": sim.dose_unit, "prediction_run_id": sim.id}
+
+    # Auto-simulate 1-compartment PK disposition if experimental evidence has doses
+    # but no PKSimulationRun exists for that scenario (Directive 64)
+    human_pset = next((p for p in db.scalars(select(PKParameterSet).where(
+        PKParameterSet.version_id.in_(evidence_version_ids),
+        PKParameterSet.species == "Human",
+        PKParameterSet.route == "PO"
+    )).all()), None)
+    if human_pset and human_pset.cl_value and human_pset.v_value:
+        from .pk_parameter_set import simulate_one_compartment_disposition
+        target_doses = set()
+        for ev in db.scalars(select(ExternalExperimentalEvidence).where(
+            ExternalExperimentalEvidence.compound_version_id.in_(evidence_version_ids),
+            ExternalExperimentalEvidence.lifecycle_status == "ACTIVE"
+        )).all():
+            ctx = ev.assay_conditions_json if isinstance(ev.assay_conditions_json, dict) else {}
+            if normalize_species(ev.species) == "HUMAN":
+                d = ctx.get("dose") or getattr(ev, "dose", None)
+                if d is not None:
+                    try:
+                        dv = float(str(d).replace(",", "").strip())
+                        if 10.0 <= dv <= 2000.0:
+                            target_doses.add(dv)
+                    except Exception:
+                        pass
+        if not target_doses:
+            target_doses = {100.0}
+
+        f_oral = (human_pset.f_predicted / 100.0) if human_pset.f_predicted else 0.5
+        for d_mg in sorted(target_doses):
+            try:
+                sim_res = simulate_one_compartment_disposition(
+                    dose_mg=d_mg,
+                    route="ORAL",
+                    cl_plasma_ml_min_kg=human_pset.cl_value,
+                    vdss_l_kg=human_pset.v_value,
+                    f_oral=f_oral,
+                    ka_hr_inv=0.35,
+                    body_weight_kg=70.0,
+                )
+                sim_values = [
+                    ("CMAX", sim_res.get("cmax_ng_ml"), "ng/mL"),
+                    ("TMAX", sim_res.get("tmax_hr"), "hours"),
+                    ("AUC", sim_res.get("auc_inf_ng_hr_ml"), "ng*h/mL"),
+                    ("AUC0_INF", sim_res.get("auc_inf_ng_hr_ml"), "ng*h/mL"),
+                    ("T_HALF", sim_res.get("half_life_hr"), "hours"),
+                ]
+                for parameter, val, unit in sim_values:
+                    if val is None: continue
+                    eid = f"HUMAN_PK_{parameter}_ORAL"
+                    row = endpoint_rows.setdefault(eid, _blank(eid, eid))
+                    row["section"] = "PK"
+                    row["display_name"] = f"Human {parameter.replace('_', ' ')}"
+                    row["species"] = "HUMAN"
+                    row["route"] = "ORAL"
+                    if not row["prediction"].get("available"):
+                        row["prediction"] = {
+                            "available": True,
+                            "raw_endpoint": parameter,
+                            "canonical_endpoint_id": eid,
+                            "canonical_comparison_key": f"{eid}|HUMAN|ORAL|PARENT",
+                            "base_value": val,
+                            "project_value": None,
+                            "display_value": val,
+                            "unit": unit,
+                            "prediction_type": "MECHANISTIC_ESTIMATE",
+                            "source_type": PREDICTION_MECHANISTIC,
+                            "source_label": prediction_source_label(PREDICTION_MECHANISTIC),
+                            "maturity": get_endpoint_maturity(eid),
+                            "timestamp": _iso(human_pset.created_at),
+                            "model_count": 1,
+                            "species": "HUMAN",
+                            "route": "ORAL",
+                            "dose": d_mg,
+                            "dose_unit": "mg",
+                        }
+            except Exception:
+                pass
 
     # NCA studies/results are the persisted internal experimental PK stream.
     studies = {study.id: study for study in db.scalars(select(PKStudy).where(PKStudy.version_id.in_(evidence_version_ids))).all()}
@@ -1034,6 +1262,18 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
             row = endpoint_rows.setdefault(eid, _blank(eid, raw_endpoint)); row["section"] = "PK"; row["display_name"] = mapped.get("display_name", _display_name(eid, raw_endpoint)); row["species"] = mapped.get("species", "UNSPECIFIED"); row["route"] = mapped.get("route", "UNSPECIFIED"); row["canonical_comparison_key"] = mapped["comparison_key"]
             row["experimental_internal"].append(_pk_internal_item(study, nca, raw_endpoint, value, unit, mapped))
 
+    # Calculate molecular weight for accurate mass <-> molar conversions
+    mw = None
+    if version and version.canonical_smiles:
+        try:
+            from rdkit import Chem
+            from rdkit.Chem import Descriptors
+            mol = Chem.MolFromSmiles(version.canonical_smiles)
+            if mol:
+                mw = float(Descriptors.MolWt(mol))
+        except Exception:
+            pass
+
     prediction_endpoint_ids = {eid for eid, row in endpoint_rows.items() if row["prediction"].get("available")}
     evidence_lists = ("experimental_internal", "experimental_external_imported", "experimental_external_candidates", "related_evidence", "needs_review")
     for row in endpoint_rows.values():
@@ -1044,7 +1284,7 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
                     imported=item.get("state") == "EXTERNAL_IMPORTED",
                 )
         experiments = row["experimental_internal"] + row["experimental_external_imported"] + row["experimental_external_candidates"] + row["related_evidence"]
-        row["comparison"] = _comparison(row["prediction"], experiments)
+        row["comparison"] = _comparison(row["prediction"], experiments, mw=mw)
         row["summary"] = {"both": int(bool(row["prediction"].get("available") and experiments)), "prediction_only": int(bool(row["prediction"].get("available") and not experiments)), "experimental_only": int(bool(experiments and not row["prediction"].get("available"))), "related": len(row["related_evidence"]), "needs_review": len(row["needs_review"]), "ready_to_import": sum(bool((item.get("qualification_details") or {}).get("stages", {}).get("IMPORTABLE", item.get("importable"))) for item in row["experimental_external_candidates"])}
     endpoints = sorted(endpoint_rows.values(), key=lambda item: (item["section"], item["display_name"], item.get("canonical_comparison_key", ""))); summary = {key: sum(row["summary"][key] for row in endpoints) for key in ("both", "prediction_only", "experimental_only", "related", "needs_review", "ready_to_import")}; summary["imported_pairs"] = 0
     qualification_items = [item for row in endpoints for list_name in evidence_lists for item in row[list_name]]
@@ -1054,14 +1294,47 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
     for source in endpoints:
         source["project_id"] = compound.project_id
         source["compound_id"] = compound.id
-    scientific_rows = _scientific_rows(endpoints, smiles=version.canonical_smiles if version else "")
+    scientific_rows = _scientific_rows(endpoints, smiles=version.canonical_smiles if version else "", mw=mw)
     section_summary = {}
     for row in scientific_rows:
         section = row["section"]
         target = section_summary.setdefault(section, {"measured_endpoints": 0, "predicted_endpoints": 0, "direct_comparisons": 0, "in_target": 0, "attention": 0, "unavailable_predictions": 0})
         target["measured_endpoints"] += int(row.get("experimental_display_value") is not None)
         target["predicted_endpoints"] += int(bool((row.get("prediction") or {}).get("available")))
-        target["direct_comparisons"] += int(row.get("semantic_status") in {DIRECT, CONVERTED})
+        target["direct_comparisons"] += int(row.get("semantic_status") in DIRECT_OR_CONVERTED)
         target["unavailable_predictions"] += int(not (row.get("prediction") or {}).get("available"))
         target["attention"] += int(row.get("agreement_interpretation") not in {"NOT_CALIBRATED", "NO_EXPERIMENT"})
+
+    # Compute rigorous comparison coverage metrics
+    from .comparison_matcher import compute_comparison_coverage, ScientificComparisonPair
+    comparison_pairs = []
+    for s_row in scientific_rows:
+        pred = s_row.get("prediction") or {}
+        exp_val = _number(s_row.get("experimental_display_value"))
+        pred_val = _number((pred.get("display") or {}).get("value") if pred.get("display") else pred.get("base_value"))
+        pair = ScientificComparisonPair(
+            canonical_endpoint_id=s_row.get("canonical_endpoint", ""),
+            display_name=s_row.get("display_name", ""),
+            section=s_row.get("section", ""),
+            species=s_row.get("species", "HUMAN"),
+            route=s_row.get("route", "UNSPECIFIED"),
+            dose=s_row.get("dose"),
+            dose_unit=s_row.get("dose_unit", ""),
+            experimental_raw_value=exp_val,
+            experimental_raw_unit=s_row.get("experimental_display_unit", ""),
+            prediction_available=bool(pred.get("available")),
+            prediction_raw_value=pred_val,
+            prediction_raw_unit=str((pred.get("display") or {}).get("unit") or pred.get("unit") or ""),
+            comparison_status=s_row.get("semantic_status", "NO_MODEL"),
+            signed_error=s_row.get("difference_display_value"),
+            absolute_error=abs(s_row.get("difference_display_value")) if s_row.get("difference_display_value") is not None else None,
+        )
+        comparison_pairs.append(pair)
+    cov = compute_comparison_coverage(comparison_pairs)
+    summary["comparison_coverage"] = cov
+    summary["pairable_evidence_without_pair"] = cov["pairable_evidence_without_pair"]
+    summary["successfully_paired"] = cov["successfully_paired"]
+    summary["direct_pairs"] = cov["direct_pairs"]
+    summary["converted_pairs"] = cov["converted_pairs"]
+
     return {"version_id": version_id, "project_id": compound.project_id, "compound_id": compound.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "representative_experimental_version": REPRESENTATIVE_EXPERIMENTAL_VERSION, "qualification_version": qualification["qualification_version"], "endpoints": endpoints, "scientific_rows": scientific_rows, "section_summary": section_summary, "summary": summary}

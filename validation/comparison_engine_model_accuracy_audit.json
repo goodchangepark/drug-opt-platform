@@ -1,0 +1,501 @@
+{
+  "audit_timestamp": "2026-09-06T09:10:00Z",
+  "comparison_engine_version": "drugopt-comparison-matcher-v2.0",
+  "total_audited_versions": 15,
+  "platform_coverage_summary": {
+    "total_evidence": 898,
+    "numeric_evidence": 192,
+    "model_capable_evidence": 65,
+    "successfully_paired": 27,
+    "direct_pairs": 12,
+    "converted_pairs": 15,
+    "pairable_evidence_without_pair": 0,
+    "overall_pairing_success_percent": 41.5
+  },
+  "overall_accuracy_metrics": {
+    "total_verified_pairs": 27,
+    "within_2_fold_pct": 29.6,
+    "within_3_fold_pct": 51.9,
+    "geometric_mean_fold_error": 3.274
+  },
+  "endpoint_benchmarks": {
+    "HLM_CLINT": {
+      "section": "ADMET",
+      "unit": "mL/min/kg",
+      "n_pairs": 2,
+      "mae": 54.5845,
+      "rmse": 54.5845,
+      "median_ae": 54.5845,
+      "geometric_mean_fold_error": 2.2,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 1,
+          "exp": 100.19999999999996,
+          "pred": 45.615476412977,
+          "status": "CONVERTED",
+          "signed_error": -54.58452358702296,
+          "abs_error": 54.58452358702296,
+          "fold_error": 2.2,
+          "percent_error": 54.5
+        },
+        {
+          "version_id": 11,
+          "exp": 100.19999999999996,
+          "pred": 45.615476412977,
+          "status": "CONVERTED",
+          "signed_error": -54.58452358702296,
+          "abs_error": 54.58452358702296,
+          "fold_error": 2.2,
+          "percent_error": 54.5
+        }
+      ]
+    },
+    "HUMAN_PPB": {
+      "section": "ADMET",
+      "unit": "% bound",
+      "n_pairs": 4,
+      "mae": 9.3799,
+      "rmse": 10.768,
+      "median_ae": 13.1408,
+      "geometric_mean_fold_error": 1.106,
+      "within_2_fold_pct": 100.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 1,
+          "exp": 99.0,
+          "pred": 85.85917663574219,
+          "status": "CONVERTED",
+          "signed_error": -13.140823364257812,
+          "abs_error": 13.140823364257812,
+          "fold_error": 1.15,
+          "percent_error": 13.3
+        },
+        {
+          "version_id": 11,
+          "exp": 99.0,
+          "pred": 85.85917663574219,
+          "status": "CONVERTED",
+          "signed_error": -13.140823364257812,
+          "abs_error": 13.140823364257812,
+          "fold_error": 1.15,
+          "percent_error": 13.3
+        },
+        {
+          "version_id": 13,
+          "exp": 91.46,
+          "pred": 91.09892272949219,
+          "status": "CONVERTED",
+          "signed_error": -0.36107727050780625,
+          "abs_error": 0.36107727050780625,
+          "fold_error": 1.0,
+          "percent_error": 0.4
+        },
+        {
+          "version_id": 22,
+          "exp": 97.7,
+          "pred": 86.82304382324219,
+          "status": "CONVERTED",
+          "signed_error": -10.876956176757815,
+          "abs_error": 10.876956176757815,
+          "fold_error": 1.13,
+          "percent_error": 11.1
+        }
+      ]
+    },
+    "RLM_CLINT": {
+      "section": "ADMET",
+      "unit": "mL/min/kg",
+      "n_pairs": 2,
+      "mae": 55.1763,
+      "rmse": 55.1763,
+      "median_ae": 55.1763,
+      "geometric_mean_fold_error": 2.23,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 1,
+          "exp": 99.9,
+          "pred": 44.72365126966719,
+          "status": "CONVERTED",
+          "signed_error": -55.17634873033282,
+          "abs_error": 55.17634873033282,
+          "fold_error": 2.23,
+          "percent_error": 55.2
+        },
+        {
+          "version_id": 11,
+          "exp": 99.9,
+          "pred": 44.72365126966719,
+          "status": "CONVERTED",
+          "signed_error": -55.17634873033282,
+          "abs_error": 55.17634873033282,
+          "fold_error": 2.23,
+          "percent_error": 55.2
+        }
+      ]
+    },
+    "SOLUBILITY_GENERIC": {
+      "section": "ADMET",
+      "unit": "\u00b5M",
+      "n_pairs": 2,
+      "mae": 6.4783,
+      "rmse": 6.4783,
+      "median_ae": 6.4783,
+      "geometric_mean_fold_error": 7.48,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 1,
+          "exp": 1.0,
+          "pred": 7.478271554070573,
+          "status": "CONVERTED",
+          "signed_error": 6.478271554070573,
+          "abs_error": 6.478271554070573,
+          "fold_error": 7.48,
+          "percent_error": 647.8
+        },
+        {
+          "version_id": 11,
+          "exp": 1.0,
+          "pred": 7.478271554070573,
+          "status": "CONVERTED",
+          "signed_error": 6.478271554070573,
+          "abs_error": 6.478271554070573,
+          "fold_error": 7.48,
+          "percent_error": 647.8
+        }
+      ]
+    },
+    "HUMAN_PK_TMAX_ORAL": {
+      "section": "PK",
+      "unit": "hours",
+      "n_pairs": 3,
+      "mae": 6.8067,
+      "rmse": 8.1764,
+      "median_ae": 10.01,
+      "geometric_mean_fold_error": 2.805,
+      "within_2_fold_pct": 33.3,
+      "within_3_fold_pct": 33.3,
+      "pairs": [
+        {
+          "version_id": 1,
+          "exp": 12.9,
+          "pred": 2.89,
+          "status": "DIRECT",
+          "signed_error": -10.01,
+          "abs_error": 10.01,
+          "fold_error": 4.46,
+          "percent_error": 77.6
+        },
+        {
+          "version_id": 11,
+          "exp": 12.9,
+          "pred": 2.89,
+          "status": "DIRECT",
+          "signed_error": -10.01,
+          "abs_error": 10.01,
+          "fold_error": 4.46,
+          "percent_error": 77.6
+        },
+        {
+          "version_id": 23,
+          "exp": 4.0,
+          "pred": 3.6,
+          "status": "DIRECT",
+          "signed_error": -0.3999999999999999,
+          "abs_error": 0.3999999999999999,
+          "fold_error": 1.11,
+          "percent_error": 10.0
+        }
+      ]
+    },
+    "RAT_PK_T_HALF_IV": {
+      "section": "PK",
+      "unit": "hours",
+      "n_pairs": 3,
+      "mae": 31.9731,
+      "rmse": 38.4231,
+      "median_ae": 47.0406,
+      "geometric_mean_fold_error": 9.936,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 33.3,
+      "pairs": [
+        {
+          "version_id": 1,
+          "exp": 49.3,
+          "pred": 2.2594,
+          "status": "DIRECT",
+          "signed_error": -47.0406,
+          "abs_error": 47.0406,
+          "fold_error": 21.82,
+          "percent_error": 95.4
+        },
+        {
+          "version_id": 11,
+          "exp": 49.3,
+          "pred": 2.2594,
+          "status": "DIRECT",
+          "signed_error": -47.0406,
+          "abs_error": 47.0406,
+          "fold_error": 21.82,
+          "percent_error": 95.4
+        },
+        {
+          "version_id": 23,
+          "exp": 3.58,
+          "pred": 1.7419,
+          "status": "DIRECT",
+          "signed_error": -1.8381,
+          "abs_error": 1.8381,
+          "fold_error": 2.06,
+          "percent_error": 51.3
+        }
+      ]
+    },
+    "HUMAN_PK_AUC_ORAL": {
+      "section": "PK",
+      "unit": "ng*h/mL",
+      "n_pairs": 1,
+      "mae": 824.13,
+      "rmse": 824.13,
+      "median_ae": 824.13,
+      "geometric_mean_fold_error": 1.11,
+      "within_2_fold_pct": 100.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 13,
+          "exp": 8060.0,
+          "pred": 7235.87,
+          "status": "DIRECT",
+          "signed_error": -824.1300000000001,
+          "abs_error": 824.1300000000001,
+          "fold_error": 1.11,
+          "percent_error": 10.2
+        }
+      ]
+    },
+    "HUMAN_PK_CMAX_ORAL": {
+      "section": "PK",
+      "unit": "ng/mL",
+      "n_pairs": 1,
+      "mae": 615.5642,
+      "rmse": 615.5642,
+      "median_ae": 615.5642,
+      "geometric_mean_fold_error": 18.56,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 13,
+          "exp": 60.0,
+          "pred": 650.61,
+          "status": "CONVERTED",
+          "signed_error": 615.56424,
+          "abs_error": 615.56424,
+          "fold_error": 18.56,
+          "percent_error": 1756.5
+        }
+      ]
+    },
+    "RAT_PK_CL_IV": {
+      "section": "PK",
+      "unit": "mL/min/kg",
+      "n_pairs": 2,
+      "mae": 37.412,
+      "rmse": 38.7979,
+      "median_ae": 47.689,
+      "geometric_mean_fold_error": 5.55,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 22,
+          "exp": 36.67,
+          "pred": 9.535,
+          "status": "DIRECT",
+          "signed_error": -27.135,
+          "abs_error": 27.135,
+          "fold_error": 3.85,
+          "percent_error": 74.0
+        },
+        {
+          "version_id": 23,
+          "exp": 54.5,
+          "pred": 6.811,
+          "status": "DIRECT",
+          "signed_error": -47.689,
+          "abs_error": 47.689,
+          "fold_error": 8.0,
+          "percent_error": 87.5
+        }
+      ]
+    },
+    "HUMAN_PK_CLF_ORAL_ORAL": {
+      "section": "PK",
+      "unit": "mL/min/kg",
+      "n_pairs": 1,
+      "mae": 22.0063,
+      "rmse": 22.0063,
+      "median_ae": 22.0063,
+      "geometric_mean_fold_error": 6.93,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 108.0,
+          "pred": 3.708,
+          "status": "CONVERTED",
+          "signed_error": -22.006285714285717,
+          "abs_error": 22.006285714285717,
+          "fold_error": 6.93,
+          "percent_error": 85.6
+        }
+      ]
+    },
+    "HUMAN_PK_T_HALF_ORAL": {
+      "section": "PK",
+      "unit": "hours",
+      "n_pairs": 1,
+      "mae": 14.4,
+      "rmse": 14.4,
+      "median_ae": 14.4,
+      "geometric_mean_fold_error": 5.5,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 17.6,
+          "pred": 3.2,
+          "status": "DIRECT",
+          "signed_error": -14.400000000000002,
+          "abs_error": 14.400000000000002,
+          "fold_error": 5.5,
+          "percent_error": 81.8
+        }
+      ]
+    },
+    "RAT_PK_CMAX_ORAL": {
+      "section": "PK",
+      "unit": "ng/mL",
+      "n_pairs": 1,
+      "mae": 333.0925,
+      "rmse": 333.0925,
+      "median_ae": 333.0925,
+      "geometric_mean_fold_error": 3.33,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 244.15,
+          "pred": 476.0934,
+          "status": "CONVERTED",
+          "signed_error": 333.09254765,
+          "abs_error": 333.09254765,
+          "fold_error": 3.33,
+          "percent_error": 232.9
+        }
+      ]
+    },
+    "RAT_PK_AUC0_T_IV": {
+      "section": "PK",
+      "unit": "ng*h/mL",
+      "n_pairs": 1,
+      "mae": 1520.87,
+      "rmse": 1520.87,
+      "median_ae": 1520.87,
+      "geometric_mean_fold_error": 2.64,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 927.0,
+          "pred": 2447.87,
+          "status": "CONVERTED",
+          "signed_error": 1520.87,
+          "abs_error": 1520.87,
+          "fold_error": 2.64,
+          "percent_error": 164.1
+        }
+      ]
+    },
+    "RAT_PK_AUC0_T_ORAL": {
+      "section": "PK",
+      "unit": "ng*h/mL",
+      "n_pairs": 1,
+      "mae": 414.96,
+      "rmse": 414.96,
+      "median_ae": 414.96,
+      "geometric_mean_fold_error": 1.23,
+      "within_2_fold_pct": 100.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 1783.0,
+          "pred": 2197.96,
+          "status": "CONVERTED",
+          "signed_error": 414.96000000000004,
+          "abs_error": 414.96000000000004,
+          "fold_error": 1.23,
+          "percent_error": 23.3
+        }
+      ]
+    },
+    "RAT_PK_T_HALF_ORAL": {
+      "section": "PK",
+      "unit": "hours",
+      "n_pairs": 1,
+      "mae": 1.4181,
+      "rmse": 1.4181,
+      "median_ae": 1.4181,
+      "geometric_mean_fold_error": 1.81,
+      "within_2_fold_pct": 100.0,
+      "within_3_fold_pct": 100.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 3.16,
+          "pred": 1.7419,
+          "status": "DIRECT",
+          "signed_error": -1.4181000000000001,
+          "abs_error": 1.4181000000000001,
+          "fold_error": 1.81,
+          "percent_error": 44.9
+        }
+      ]
+    },
+    "RAT_PK_TMAX_ORAL": {
+      "section": "PK",
+      "unit": "hours",
+      "n_pairs": 1,
+      "mae": 4.4695,
+      "rmse": 4.4695,
+      "median_ae": 4.4695,
+      "geometric_mean_fold_error": 3.92,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 0.0,
+      "pairs": [
+        {
+          "version_id": 23,
+          "exp": 6.0,
+          "pred": 1.5305,
+          "status": "DIRECT",
+          "signed_error": -4.4695,
+          "abs_error": 4.4695,
+          "fold_error": 3.92,
+          "percent_error": 74.5
+        }
+      ]
+    }
+  }
+}
