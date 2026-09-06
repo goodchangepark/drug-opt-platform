@@ -5440,8 +5440,8 @@ function integratedProfile(versionId){
         ]),
         e('div',{className:'grid',style:{marginTop:'10px'}},[
          e('div',{className:'col-6'},[
-          e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'3. Clinical PK Validation (AAFE 2.20)'),
-          e('p',{className:'small'},'Benchmarked on 6 clinical drugs (APAP, Osimertinib, Sunvozertinib, Metformin, Warfarin, Midazolam): 61.1% within 2-fold, 77.8% within 3-fold. 15 internal pipeline compounds (GLP-1, EGFR, AMYR) validated with 100% simulation success.')
+          e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'3. PK Validation (expanded cohort)'),
+          e('p',{className:'small'},'Independent cohort N=30: AAFE 2.912, 32.5% within 2-fold and 57.5% within 3-fold. Verdict: PK_MODEL_VALIDATION_PARITY — the larger cohort improves external coverage, not measured accuracy. Clearance remains the principal weakness (AAFE 3.295); uncertainty coverage is below the nominal 90% interval target.')
          ]),
          e('div',{className:'col-6'},[
           e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'4. DrugBank 250 & PK Critical Gate'),
