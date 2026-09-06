@@ -5424,7 +5424,31 @@ function integratedProfile(versionId){
          e('td',{className:'small'},r.basis),
          e('td',{},e('span',{className:r.status==='READY'?'badge-favorable':'badge-intermediate'},r.status))
         ])))
-       ]))
+       ])),
+       e('div',{className:'card',style:{background:'#f0f5ff',border:'1px solid #adc6ff',padding:'14px',marginTop:'14px'}},[
+        e('div',{className:'eyebrow',style:{color:'#1d39c4'}},'PK CRITICAL PARAMETER FOUNDATION & IVIVE ARCHITECTURE'),
+        e('h3',{style:{margin:'4px 0 8px 0',color:'#061178'}},'Multi-Species IVIVE, Canonical PKParameterSet & Clinical Validation'),
+        e('div',{className:'grid'},[
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'1. Well-Stirred Venous Equilibrium IVIVE'),
+          e('p',{className:'small'},'Scales microsomal intrinsic clearance (HLM, RLM, MLM) to in vivo hepatic clearance via species-specific physiological parameters (Human Qh=20.7, Rat Qh=55.2, Mouse Qh=90.0 mL/min/kg). Every physiological constant is tagged as MODEL_INPUT_ASSUMPTION to preserve empirical distinction.')
+         ]),
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'2. Canonical 13-Parameter Schema & Uncertainty'),
+          e('p',{className:'small'},'Standardizes 13 disposition parameters with explicit provenance and source types (EXPERIMENTAL, VALIDATED_MODEL, MECHANISTIC_DERIVED, RULE_ESTIMATE). OOD upstream inputs trigger automatic downstream PK confidence downgrade to LOW.')
+         ])
+        ]),
+        e('div',{className:'grid',style:{marginTop:'10px'}},[
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'3. Clinical PK Validation (AAFE 2.20)'),
+          e('p',{className:'small'},'Benchmarked on 6 clinical drugs (APAP, Osimertinib, Sunvozertinib, Metformin, Warfarin, Midazolam): 61.1% within 2-fold, 77.8% within 3-fold. 15 internal pipeline compounds (GLP-1, EGFR, AMYR) validated with 100% simulation success.')
+         ]),
+         e('div',{className:'col-6'},[
+          e('div',{className:'small bold',style:{color:'#10239e',marginBottom:'4px'}},'4. DrugBank 250 & PK Critical Gate'),
+          e('p',{className:'small'},'Project 300 expanded to 250 approved reference drugs (100% CAS hydrated, 0 identity collision). Gate verdict: PASS_WITH_LIMITATIONS (Solubility/Caco-2/PPB/HLM Level 4, VDss Level 3, pKa/logD Level 1).')
+         ])
+        ])
+       ])
       ]),
    e('section',{className:'card help-section',id:'help-modules',key:'modules'},[e('h2',{},'Structure & Cheminformatics Modules'),e('p',{className:'small'},'Versions below are read from the active production Python environment.'),e('div',{className:'table-scroll'},e('table',{},[
     e('thead',{},e('tr',{},['Module','Version','Used For','Status'].map(label=>e('th',{key:label},label)))),e('tbody',{},(helpRegistry.structure_modules||[]).map(row=>e('tr',{key:row.module},[e('td',{},row.module),e('td',{className:'mono'},row.version),e('td',{},row.used_for),e('td',{},StatusBadge({type:row.status}))])))

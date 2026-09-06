@@ -1,26 +1,26 @@
 {
   "hardware": "NVIDIA Jetson Xavier ARM64 (8-core Carmel CPU, 32GB Unified LPDDR4x)",
   "engine_version": "drugopt-prediction-engine-v3@3.3.3-candidate",
-  "timestamp": "2026-09-05T23:11:26Z",
+  "timestamp": "2026-09-06T11:27:36Z",
   "endpoints_evaluated": 16,
-  "cold_start_latency_ms": 743.86,
-  "warm_start_latency_ms": 270.97,
+  "cold_start_latency_ms": 701.43,
+  "warm_start_latency_ms": 399.05,
   "sequential_latencies_ms": {
-    "Orforglipron": 317.85,
-    "Sunvozertinib": 283.53,
-    "Aspirin": 197.68,
-    "Imatinib": 284.37,
-    "Atorvastatin": 24.41
+    "Orforglipron": 297.17,
+    "Sunvozertinib": 457.51,
+    "Aspirin": 191.68,
+    "Imatinib": 249.5,
+    "Atorvastatin": 29.89
   },
-  "mean_latency_ms": 221.57,
-  "p95_latency_ms": 311.15,
-  "throughput_compounds_per_sec": 4.51,
+  "mean_latency_ms": 245.15,
+  "p95_latency_ms": 425.44,
+  "throughput_compounds_per_sec": 4.08,
   "memory_profile": {
-    "initial_rss_mb": 539.98,
-    "peak_rss_mb": 566.79,
-    "delta_rss_mb": 26.81,
+    "initial_rss_mb": 547.71,
+    "peak_rss_mb": 572.71,
+    "delta_rss_mb": 25.0,
     "system_ram_total_gb": 30.26,
-    "system_ram_used_gb": 24.02
+    "system_ram_used_gb": 11.55
   },
   "verdict": "PRODUCTION_LATENCY_COMPLIANT"
 }

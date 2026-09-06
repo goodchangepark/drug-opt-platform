@@ -37,8 +37,11 @@ _SEMANTIC_PRIORITY = {
 
 def representative_rank(item: dict) -> tuple:
     """Rank without accepting or consulting any predicted numeric value."""
-    context = item.get("context") or {}
+    raw_context = item.get("context") or {}
+    context = {"text": raw_context} if isinstance(raw_context, str) else raw_context
     qualification = item.get("qualification_details") or {}
+    if isinstance(qualification, str):
+        qualification = {"text": qualification}
     stages = qualification.get("stages") or {}
     origin = item.get("origin") or item.get("state") or "EXTERNAL_CANDIDATE"
     semantic = item.get("comparability") or item.get("qualification") or ""
@@ -48,7 +51,7 @@ def representative_rank(item: dict) -> tuple:
     regimen = str(qualification.get("regimen") or context.get("regimen") or item.get("regimen") or "").upper()
     route = str(qualification.get("route") or context.get("route") or item.get("route") or "").upper()
     target_context = str(qualification.get("target_context") or context.get("target") or "").upper()
-    endpoint = str(item.get("canonical_endpoint_id") or item.get("endpoint") or item.get("raw_endpoint") or "").upper()
+    endpoint = str(item.get("canonical_endpoint_id") or item.get("endpoint") or item.get("raw_endpoint") or item.get("raw_endpoint_name") or "").upper()
 
     is_invitro = any(term in endpoint for term in (
         "PGP", "BCRP", "OATP", "OCT", "MATE", "CYP", "HLM", "RLM", "MLM",
@@ -91,7 +94,15 @@ def representative_rank(item: dict) -> tuple:
 
     # Quantitative Potency Metric Preference
     # IC50 / Ki / EC50 / Kd > % inhibition / single-dose percent > categorical / others
-    mtype = str(item.get("measurement_type") or qualification.get("refinement", {}).get("measurement_type") or item.get("raw_endpoint") or "").upper()
+    mtype = str(
+        item.get("measurement_type")
+        or qualification.get("refinement", {}).get("measurement_type")
+        or item.get("raw_endpoint")
+        or item.get("raw_endpoint_name")
+        or item.get("endpoint")
+        or item.get("raw_unit")
+        or ""
+    ).upper()
     if any(k in mtype for k in ("IC50", "KI", "EC50", "KD")):
         meas_rank = 0
     elif any(k in mtype for k in ("PERCENT", "%", "INHIBITION")):
@@ -107,8 +118,13 @@ def representative_rank(item: dict) -> tuple:
 
     # 4. Source Quality
     source_quality = str(context.get("source_quality") or item.get("source_quality") or "D").upper()
-    reference = item.get("reference") or {}
-    reference_present = bool(reference.get("reference") or reference.get("url") or reference.get("source_record_id"))
+    ref_item = item.get("reference") or {}
+    if isinstance(ref_item, str):
+        reference_present = bool(ref_item.strip())
+    elif isinstance(ref_item, dict):
+        reference_present = bool(ref_item.get("reference") or ref_item.get("url") or ref_item.get("source_record_id"))
+    else:
+        reference_present = False
     stable_id = str(item.get("display_evidence_group_id") or item.get("independent_experiment_group_id") or item.get("id") or "")
 
     return (
@@ -125,7 +141,12 @@ def representative_rank(item: dict) -> tuple:
 
 
 def select_representative(items: list[dict]) -> tuple[dict | None, str]:
-    eligible = [item for item in items if item.get("display", {}).get("value") is not None]
+    eligible = [
+        item for item in items
+        if item.get("display", {}).get("value") is not None
+        or item.get("raw_value") is not None
+        or item.get("value") is not None
+    ]
     if not eligible:
         return None, "NO_DISPLAYABLE_NUMERIC_OBSERVATION"
     selected = min(eligible, key=representative_rank)

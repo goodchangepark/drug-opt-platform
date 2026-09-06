@@ -117,7 +117,9 @@ REGISTRY: dict[str, CanonicalEndpoint] = {
     # -----------------------------------------------------------------
     # Group 5: Ionization & Distribution (4 endpoints)
     # -----------------------------------------------------------------
-    "PKA": _ep("PKA", "ADMET", "pKa", "acid/base dissociation constant", "numeric", "pKa", "LINEAR", domain="physicochemical", experimental_endpoint_aliases=("pka", "acidic pka", "basic pka"), prediction_endpoint_aliases=("pka", "pka (quantitative ml)")),
+    "PKA": _ep("PKA", "ADMET", "pKa", "acid/base dissociation constant", "numeric", "pKa", "LINEAR", domain="physicochemical", experimental_endpoint_aliases=("pka",), prediction_endpoint_aliases=("pka", "pka (quantitative ml)")),
+    "PKA_ACID": _ep("PKA_ACID", "ADMET", "Acidic pKa", "strongest acidic dissociation constant (macro pKa)", "numeric", "pKa", "LINEAR", domain="physicochemical", experimental_endpoint_aliases=("acidic pka", "pka_acid", "pka acid", "pka (acidic)")),
+    "PKA_BASE": _ep("PKA_BASE", "ADMET", "Basic pKa", "strongest basic dissociation constant (macro pKa)", "numeric", "pKa", "LINEAR", domain="physicochemical", experimental_endpoint_aliases=("basic pka", "pka_base", "pka base", "pka (basic)")),
     "LOGD_7_4": _ep("LOGD_7_4", "ADMET", "logD 7.4", "octanol-water distribution coefficient at pH 7.4", "numeric", "logD", "LINEAR", domain="physicochemical", experimental_endpoint_aliases=("logd", "logd7.4", "logd 7.4"), prediction_endpoint_aliases=("logd7.4", "logd7.4 (quantitative ml)")),
     "LOGP_RELATED": _ep("LOGP_RELATED", "ADMET", "logP (related)", "partition coefficient; distinct from logD 7.4", "numeric", "logP", "LINEAR", domain="physicochemical", experimental_endpoint_aliases=("logp",)),
     "VDSS": _ep("VDSS", "ADMET", "Volume of distribution at steady state (Vdss)", "human steady-state volume of distribution", "numeric", "L/kg", "LINEAR", domain="distribution", species_requirement="HUMAN", prediction_endpoint_aliases=("vdss", "vss", "vd")),
@@ -790,19 +792,28 @@ def normalize_experimental_observation(
 
     # 12. Physicochemical Descriptors (pKa, logD, logP)
     if "pka" in raw_l:
+        if any(tok in raw_l for tok in ("acid", "acidic")):
+            eid = "PKA_ACID"
+            dname = "Acidic pKa"
+        elif any(tok in raw_l for tok in ("base", "basic")):
+            eid = "PKA_BASE"
+            dname = "Basic pKa"
+        else:
+            eid = "PKA"
+            dname = "pKa"
         return {
-            "canonical_endpoint_id": "PKA",
+            "canonical_endpoint_id": eid,
             "section": "ADMET",
-            "display_name": "pKa",
+            "display_name": dname,
             "species": normalized_species,
             "route": route,
-            "measurement_subtype": "PKA",
+            "measurement_subtype": eid,
             "normalized_value": number,
             "normalized_unit": "pKa",
             "comparability_status": DIRECT if number is not None else UNSUPPORTED,
             "normalization_rule": "identity",
             "reason": "",
-            "comparison_key": "PKA"
+            "comparison_key": eid
         }
     if "logd" in raw_l:
         return {

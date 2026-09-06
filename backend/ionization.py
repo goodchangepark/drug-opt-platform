@@ -564,6 +564,41 @@ def analyze_ionization(
         "basic_centers_count": num_bases,
         "strongest_acidic_pka": min((c["estimated_rule_pka"] for c in acid_centers), default=None),
         "strongest_basic_pka": max((c["estimated_rule_pka"] for c in base_centers), default=None),
+        "pka_acid": min((c["estimated_rule_pka"] for c in acid_centers), default=None),
+        "pka_base": max((c["estimated_rule_pka"] for c in base_centers), default=None),
+        "macro_pka": {
+            "pka_acidic": min((c["estimated_rule_pka"] for c in acid_centers), default=None),
+            "pka_basic": max((c["estimated_rule_pka"] for c in base_centers), default=None),
+            "primary_pka": rep_pka,
+            "primary_type": rep_type,
+            "separation_status": "EXPLICIT_ACID_BASE_SEPARATED",
+        },
+        "micro_pka": {
+            "acidic_centers": [
+                {
+                    "atom_index": c["atom_index"],
+                    "atom_symbol": c["atom_symbol"],
+                    "motif_name": c["motif_name"],
+                    "estimated_micro_pka": c["estimated_rule_pka"],
+                    "typical_pka_range": c["typical_pka_range"],
+                    "evidence": c["evidence"],
+                }
+                for c in acid_centers
+            ],
+            "basic_centers": [
+                {
+                    "atom_index": c["atom_index"],
+                    "atom_symbol": c["atom_symbol"],
+                    "motif_name": c["motif_name"],
+                    "estimated_micro_pka": c["estimated_rule_pka"],
+                    "typical_pka_range": c["typical_pka_range"],
+                    "evidence": c["evidence"],
+                }
+                for c in base_centers
+            ],
+            "macro_micro_distinct": True,
+            "total_micro_centers": len(acid_centers) + len(base_centers),
+        },
         "ionizable_centers": all_centers,
         "primary_pka": rep_pka,
         "primary_pka_type": rep_type,
@@ -571,12 +606,15 @@ def analyze_ionization(
         "primary_pka_evidence_type": rep_evidence_type,
         "ph_profiles": ph_profiles,
         "physiological_state_7_4": {
+            "target_ph": 7.4,
+            "ph_tolerance": 0.2,
             "dominant_state": ph74_profile["dominant_state"],
             "fraction_neutral": ph74_profile["fraction_neutral"],
             "fraction_ionized": ph74_profile["fraction_ionized"],
             "estimated_logd74": ph74_profile["estimated_logd"],
             "logd74_evidence_type": "DERIVED_ESTIMATE",
             "logd74_label": "DERIVED logD ESTIMATE",
+            "clogp_vs_logd_distinction": "cLogP represents neutral species octanol-water partition; logD7.4 accounts for Henderson-Hasselbalch ionization equilibria at pH 7.4 (do not substitute logP for logD).",
         },
         "admet_context": admet_context,
         "model_provenance": {

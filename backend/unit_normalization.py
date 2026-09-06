@@ -320,21 +320,36 @@ def convert_ppb(
         fraction_bound = max(0.0, min(1.0, value))
 
     pct_bound_val = fraction_bound * 100.0
-    fu_val = max(1.0 - fraction_bound, 0.0001)
-
-    if u_to in {"%bound", "%", "percent", "%_bound"}:
-        norm_val = pct_bound_val
-        formula = f"fraction_bound * 100 = {norm_val:.2f}%"
-    elif u_to in {"fu", "fraction_unbound", "fractionunbound"}:
-        norm_val = fu_val
-        formula = f"max(1.0 - (pct_bound / 100), 0.0001) = {norm_val:.4f}"
-    elif u_to in {"fraction_bound", "fractionbound"}:
-        norm_val = fraction_bound
-        formula = f"pct_bound / 100 = {norm_val:.4f}"
+    raw_fu = 1.0 - fraction_bound
+    was_clipped = False
+    clip_reason = ""
+    if raw_fu < 0.0001:
+        fu_val = 0.0001
+        was_clipped = True
+        clip_reason = "fu bounded at physical lower limit 0.0001 (0.01% free) to prevent unphysical clearance singularity"
     else:
-        norm_val = pct_bound_val
+        fu_val = max(raw_fu, 0.0001)
+
+    pct_unbound_val = fu_val * 100.0
+
+    if u_to in {"%unbound", "%_unbound", "percent_unbound", "percentunbound"}:
+        norm_val = round(pct_unbound_val, 4)
+        to_unit = "% unbound"
+        formula = f"(1.0 - fraction_bound) * 100 = {norm_val:.4f}% unbound"
+    elif u_to in {"fu", "fraction_unbound", "fractionunbound"}:
+        norm_val = round(fu_val, 6)
+        to_unit = "fraction unbound"
+        formula = f"1.0 - fraction_bound = {norm_val:.6f}"
+        if was_clipped:
+            formula += f" ({clip_reason})"
+    elif u_to in {"fraction_bound", "fractionbound"}:
+        norm_val = round(fraction_bound, 4)
+        to_unit = "fraction bound"
+        formula = f"pct_bound / 100 = {norm_val:.4f}"
+    else:  # "% bound" default
+        norm_val = round(pct_bound_val, 2)
         to_unit = "% bound"
-        formula = f"normalized to {norm_val:.2f}% bound"
+        formula = f"fraction_bound * 100 = {norm_val:.2f}% bound"
 
     is_identity = (abs(norm_val - value) < 1e-9 and u_from == u_to)
     return UnitConversionResult(
