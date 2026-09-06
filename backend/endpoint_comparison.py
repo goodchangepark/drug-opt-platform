@@ -1043,7 +1043,13 @@ def _scientific_rows(endpoints: list[dict], smiles: str = "", mw: float | None =
         grp = _scientific_group(source["endpoint_id"], source["section"], source.get("route", ""))
         prediction_unavailable_reason = ""
         if not prediction.get("available"):
-            prediction_unavailable_reason = prediction.get("unavailable_reason") or "Current Prediction Engine does not support this endpoint/context"
+            prediction_unavailable_reason = prediction.get("unavailable_reason") or (
+                "Matching species/route/dose/regimen context is required for this PK scenario"
+                if source["section"] == "PK" else
+                "Current Prediction Engine does not support this endpoint/context"
+            )
+            prediction["availability_status"] = "CONTEXT_REQUIRED" if source["section"] == "PK" else "MODEL_UNAVAILABLE"
+            prediction["unavailable_reason"] = prediction_unavailable_reason
         experimental_contract = {
             "available": primary.get("value") is not None,
             "representative_value": primary.get("value"),

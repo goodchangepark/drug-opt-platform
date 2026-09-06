@@ -1516,14 +1516,18 @@ function integratedProfile(versionId){
       : epRoute === 'CLASSIFICATION_ONLY' ? 'Classification Only'
       : 'Model Unavailable';
 
-    if(!prediction.available)return e('div',{},[
-      e('span',{className:'mono'},'Unavailable'),
+    if(!prediction.available){
+     const availability=prediction.availability_status||'MODEL_UNAVAILABLE';
+     const label=availability==='CONTEXT_REQUIRED'?'Context Required':availability==='INSUFFICIENT_INPUT'?'Insufficient Input':availability==='SCIENTIFICALLY_NOT_PREDICTABLE'?'Scientifically Not Predictable':'Model Unavailable';
+     return e('div',{},[
+      e('span',{className:'mono'},label),
       e('div',{className:'small mono',style:{color:'#6b7280'}},'Engine: '+(workspace?.prediction_engine?.engine_name||'Prediction Engine v3.3.2')),
       e('div',{style:{marginTop:'2px'}},[
-        e('span',{className:'badge-caution',style:{fontSize:'10px',padding:'1px 5px'}},'Model Unavailable')
+        e('span',{className:availability==='CONTEXT_REQUIRED'?'badge-intermediate':'badge-caution',style:{fontSize:'10px',padding:'1px 5px'}},availability)
       ]),
       e('div',{className:'small'},prediction.unavailable_reason||'Current Prediction Engine does not support this endpoint/context')
-    ]);
+     ]);
+    }
     const display=prediction.display||{value:prediction.display_value,unit:prediction.unit};
     return e('div',{},[
      e('div',{className:'mono bold'},scientificValue(display)),
@@ -5199,6 +5203,17 @@ function integratedProfile(versionId){
     e('div',{className:'eyebrow'},'WORKFLOW GUIDE'),
     e('h2',{},'Typical Workflow'),
     e('p',{className:'small'},'Recommended 7-step sequence for compound evaluation and optimization from project registration to translational PK simulation.')
+   ]),
+   e('section',{className:'card help-section',id:'help-prediction-coverage',key:'prediction-coverage'},[
+    e('div',{className:'eyebrow'},'PREDICTION COVERAGE METHODOLOGY'),
+    e('h2',{},'Context-aware prediction coverage'),
+    e('p',{className:'small'},'Prediction coverage means that a scientifically compatible prediction route exists for a qualified experimental endpoint; it is not an accuracy claim. Endpoint, species, matrix, assay semantics, route, dose, regimen, and analyte are resolved before comparison.'),
+    e('ul',{},[
+     e('li',{key:'context'},'Context Required means the current calculation family may apply, but a required context value is missing or does not match.'),
+     e('li',{key:'unavailable'},'Model Unavailable means no qualified current route is exposed. Insufficient Input and Scientifically Not Predictable remain fail-closed states.'),
+     e('li',{key:'provenance'},'PK outputs expose independent F, ka, CL, and V provenance. Observed target AUC/Cmax/Tmax values are never reused as their own predictions.'),
+     e('li',{key:'metrics'},'AUC, Cmax, Tmax, and half-life are evaluated separately; fold error is secondary and endpoint-specific.')
+    ])
    ]),
    e('section',{className:'card help-section',id:'help-version',key:'version'},[e('h2',{},'Current Platform Version'),e('dl',{className:'help-version-grid'},[
     ['Application version',appInfo.version],['Current Stage',appInfo.current_stage_label||'Internal Validation'],['Git/build version',appInfo.build_version],['Standardizer',appInfo.standardizer+' '+appInfo.standardizer_version],['RDKit',appInfo.rdkit_version]

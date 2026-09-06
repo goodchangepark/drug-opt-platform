@@ -1,6 +1,6 @@
 {
   "artifact": "sunvozertinib_comparison_recovery_v4_7",
-  "created_at": "2026-09-06T21:17:54.145951+00:00",
+  "created_at": "2026-09-06T23:08:28.044310+00:00",
   "compound_version_id": 13,
   "project_id": 3,
   "matching_engine_version": "drugopt-comparison-matcher-v2.0",
@@ -11643,7 +11643,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "nM",
       "difference": {
@@ -13080,7 +13081,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "ratio",
       "difference": {
@@ -36068,7 +36070,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "%",
       "difference": null,
@@ -39320,7 +39323,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "% dose",
       "difference": null,
@@ -43852,7 +43856,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "% dose",
       "difference": null,
@@ -45929,7 +45934,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "h",
       "difference": {
@@ -50942,7 +50948,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "H",
       "difference": null,
@@ -52403,7 +52410,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "μM",
       "difference": null,
@@ -53224,7 +53232,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -58055,7 +58064,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -65397,7 +65407,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -66310,7 +66321,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "mL/min",
       "difference": null,
@@ -68506,7 +68518,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -71348,7 +71361,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -71761,7 +71775,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -78054,7 +78069,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -79249,7 +79265,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -81188,7 +81205,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -82955,7 +82973,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "hours",
       "difference": null,
@@ -84596,7 +84615,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "hours",
       "difference": null,
@@ -87999,7 +88019,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -88842,7 +88863,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -90407,7 +90429,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -92036,7 +92059,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -93071,7 +93095,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "L",
       "difference": null,
@@ -93512,7 +93537,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -93933,7 +93959,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -96406,7 +96433,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "%",
       "difference": null,
@@ -98103,7 +98131,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "CONTEXT_REQUIRED"
       },
       "display_unit": "hours",
       "difference": null,
@@ -125914,7 +125943,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "",
       "difference": null,
@@ -128419,7 +128449,8 @@
       },
       "prediction": {
         "available": false,
-        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context"
+        "unavailable_reason": "Current Prediction Engine does not support this endpoint/context",
+        "availability_status": "MODEL_UNAVAILABLE"
       },
       "display_unit": "",
       "difference": null,
