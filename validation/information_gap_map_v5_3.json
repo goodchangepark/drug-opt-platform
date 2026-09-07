@@ -1,0 +1,52 @@
+{
+  "artifact": "information_gap_map_v5_3",
+  "created_at": "2026-09-07T00:21:31.760666+00:00",
+  "decision": "DO_NOT_EXPAND_YET",
+  "reason": "Current weakness is primarily semantic/component completeness and lack of qualified human clearance checkpoints, not an unqualified need for 50 generic compounds.",
+  "gaps": [
+    {
+      "endpoint": "HUMAN_TOTAL_CL",
+      "missing": [
+        "independent renal/other component measurements",
+        "route-matched IV total CL",
+        "validated executable human total-CL model"
+      ],
+      "useful_additional_compounds": "20-30 with IV CL and component provenance",
+      "chemical_space": "high/low extraction, high PPB, renal-dominant and mixed elimination"
+    },
+    {
+      "endpoint": "VDSS",
+      "missing": [
+        "independent predicted-vs-observed evaluation without observed VDss input"
+      ],
+      "useful_additional_compounds": "20+ diverse IV volume studies",
+      "chemical_space": "high VDss bases, high PPB acids, ampholytes"
+    },
+    {
+      "endpoint": "PK oral AUC/Cmax/Tmax",
+      "missing": [
+        "dose/formulation/food/regimen-complete cohorts",
+        "validated F and ka provenance"
+      ],
+      "useful_additional_compounds": "30 context-complete oral PK records",
+      "chemical_space": "absorption-limited and permeability/solubility-diverse drugs"
+    },
+    {
+      "endpoint": "pKa/logD7.4",
+      "missing": [
+        "site-resolved continuous labels and deployable checkpoint"
+      ],
+      "useful_additional_compounds": "not actionable until a qualified model/data source exists",
+      "chemical_space": "acid/base/macro/micro ionization diversity"
+    },
+    {
+      "endpoint": "CYP2C19/P-gp/BCRP quantitative",
+      "missing": [
+        "validated quantitative checkpoint and exact assay semantics"
+      ],
+      "useful_additional_compounds": "endpoint-specific, not generic DrugBank expansion",
+      "chemical_space": "substrate/inhibitor mechanism and concentration-complete assays"
+    }
+  ],
+  "next_expansion_if_revisited": "Targeted 50 compounds stratified by clearance route, extraction, PPB, VDss, ionization, logD and clinical PK richness; no generic count expansion."
+}
