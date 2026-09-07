@@ -43,15 +43,13 @@ def test_prediction_engine_current_baseline():
     assert v331_entry["policy_hash"] == "4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9"
     assert v331_entry["reference_compound_N"] == 150
 
-def test_drugbank_150_cas_hydration():
-    """Verify DrugBank compounds have CAS numbers and canonical identifiers."""
+def test_reference_project_identity_hydration():
+    """Verify the 250 DrugBank rows retain identifiers within the 1000-row reference project."""
     conn = sqlite3.connect("drug_opt.db")
     c = conn.cursor()
     c.execute("SELECT id, name, cas_number FROM compounds WHERE project_id = 300")
     db_rows = c.fetchall()
-    assert len(db_rows) in (150, 200, 250)
-    missing_cas = [r for r in db_rows if not r[2] or r[2].strip() == ""]
-    assert len(missing_cas) == 0, f"Found {len(missing_cas)} compounds missing CAS: {missing_cas[:5]}"
+    assert len(db_rows) == 1000
 
     # Check compound_identifiers for DrugBank compounds
     c.execute("""
@@ -62,11 +60,11 @@ def test_drugbank_150_cas_hydration():
         GROUP BY ci.identifier_type
     """)
     id_counts = dict(c.fetchall())
-    assert id_counts.get("CAS") in (150, 200, 250)
-    assert id_counts.get("DRUGBANK_ID") in (150, 200, 250)
-    assert id_counts.get("CHEMBL_ID") in (150, 200, 250)
-    assert id_counts.get("PUBCHEM_CID") in (150, 200, 250)
-    assert id_counts.get("UNII") in (150, 200, 250)
+    assert id_counts.get("CAS") == 250
+    assert id_counts.get("DRUGBANK_ID") == 250
+    assert id_counts.get("CHEMBL_ID") == 250
+    assert id_counts.get("PUBCHEM_CID") == 250
+    assert id_counts.get("UNII") == 250
     conn.close()
 
 def test_historical_prediction_runs_protected():

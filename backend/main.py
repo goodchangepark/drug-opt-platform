@@ -244,14 +244,16 @@ def _project_out(db: Session, project: Project):
 
 @app.get("/api/health")
 def health():
+    current_engine = get_current_production_engine_info()
     return {
         "status": "ok", "stage": "5B", "step": CURRENT_STAGE, "version": APP_VERSION,
         "updated": latest_release_date(),
-        "engine": ENGINE_V3_1_NAME,
-        "engine_version": ENGINE_V3_1_POLICY_VERSION,
+        "engine": current_engine["name"],
+        "engine_id": current_engine["engine_id"],
+        "engine_version": current_engine["engine_version"],
         "superseded_engine": f"{ENGINE_V3_POLICY_ID}@{ENGINE_V3_POLICY_VERSION}",
         "legacy_engine": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
-        "decision": ENGINE_V3_1_DECISION,
+        "decision": current_engine["decision"],
     }
 
 

@@ -158,8 +158,8 @@ def test_test4_idempotent_cleanup_maintains_protected_projects():
     assert set(result2["remaining_ids"]) == {1, 3, 5, 300}
 
 
-def test_test5_drugbank_150_compound_integrity():
-    """TEST 5: Verify DrugBank project 300 contains 150 unique compounds, 150 versions, 955 evidence records, and 0 duplicate InChIKey."""
+def test_test5_reference_project_1000_compound_integrity():
+    """TEST 5: Verify reference project 300 contains 1000 identity-safe compounds and versions."""
     db = SessionLocal()
     try:
         p300 = db.scalar(select(Project).where(Project.id == 300))
@@ -169,15 +169,15 @@ def test_test5_drugbank_150_compound_integrity():
         assert "GLOBAL_MODEL_DEVELOPMENT" in p300.indication
 
         compounds = list(db.scalars(select(Compound).where(Compound.project_id == 300)))
-        assert len(compounds) in (150, 200, 250), f"DrugBank must have 150, 200, or 250 compounds, got {len(compounds)}"
+        assert len(compounds) == 1000, f"Reference project must have 1000 compounds, got {len(compounds)}"
 
         comp_ids = [c.id for c in compounds]
         versions = list(db.scalars(select(CompoundVersion).where(CompoundVersion.compound_row_id.in_(comp_ids))))
-        assert len(versions) in (150, 200, 250), f"DrugBank must have 150, 200, or 250 versions, got {len(versions)}"
+        assert len(versions) == 1000, f"Reference project must have 1000 versions, got {len(versions)}"
 
         inchikeys = [v.inchikey for v in versions if v.inchikey]
-        assert len(inchikeys) in (150, 200, 250), "All versions must have an inchikey"
-        assert len(set(inchikeys)) in (150, 200, 250), "All InChIKeys must be strictly unique (0 duplicates)"
+        assert len(inchikeys) == 1000, "All versions must have an inchikey"
+        assert len(set(inchikeys)) == 1000, "All InChIKeys must be strictly unique (0 duplicates)"
 
         version_ids = [v.id for v in versions]
         ev_count = db.scalar(

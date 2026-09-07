@@ -208,7 +208,7 @@ def test_drugbank_250_catalog_and_database_integrity():
 
     cur.execute("SELECT COUNT(*) FROM compounds WHERE project_id = 300;")
     c_count = cur.fetchone()[0]
-    assert c_count == 250, f"Expected 250 compounds in Project 300, got {c_count}"
+    assert c_count == 1000, f"Expected 1000 reference compounds in Project 300, got {c_count}"
 
     # Verify CAS hydration
     cur.execute("""
@@ -219,7 +219,7 @@ def test_drugbank_250_catalog_and_database_integrity():
         );
     """)
     cas_hydrated = cur.fetchone()[0]
-    assert cas_hydrated == 250, f"Expected 250 CAS hydrated, got {cas_hydrated}"
+    assert cas_hydrated == 250, f"Expected 250 DrugBank CAS identifiers hydrated, got {cas_hydrated}"
 
     # Verify InChIKey uniqueness in compound_versions for Project 300
     cur.execute("""
@@ -229,7 +229,7 @@ def test_drugbank_250_catalog_and_database_integrity():
         WHERE c.project_id = 300;
     """)
     unique_inchikeys = cur.fetchone()[0]
-    assert unique_inchikeys == 250, f"Expected 250 unique InChIKeys, got {unique_inchikeys}"
+    assert unique_inchikeys == 1000, f"Expected 1000 unique reference InChIKeys, got {unique_inchikeys}"
 
     # Verify zero orphans
     cur.execute("SELECT COUNT(*) FROM compound_versions WHERE compound_row_id NOT IN (SELECT id FROM compounds);")
