@@ -1,0 +1,1810 @@
+{
+  "artifact": "human_clearance_upgrade_v5_2",
+  "created_at": "2026-09-07T00:00:53.969370+00:00",
+  "architecture_version": "drugopt-clearance-architecture-v1",
+  "engine_unchanged": true,
+  "drugbank_compounds": 250,
+  "baseline": {
+    "overall_evaluated_parameters": {
+      "n": 120,
+      "aafe": 2.912,
+      "median_fe": 2.697,
+      "pct_1_5": 19.2,
+      "pct_2_0": 32.5,
+      "pct_3_0": 57.5
+    },
+    "cl_hepatic": {
+      "n": 30,
+      "aafe": 3.295,
+      "median_fe": 3.318,
+      "pct_1_5": 10.0,
+      "pct_2_0": 26.7,
+      "pct_3_0": 40.0
+    },
+    "cl_systemic_unadjusted": {
+      "n": 21,
+      "aafe": 3.268,
+      "median_fe": 2.756,
+      "pct_1_5": 9.5,
+      "pct_2_0": 19.0,
+      "pct_3_0": 52.4
+    },
+    "vdss": {
+      "n": 0,
+      "aafe": 0.0,
+      "afe": 0.0,
+      "median_fe": 0.0,
+      "pct_1_5": 0.0,
+      "pct_2_0": 0.0,
+      "pct_3_0": 0.0
+    },
+    "half_life": {
+      "n": 30,
+      "aafe": 2.619,
+      "median_fe": 2.279,
+      "pct_1_5": 23.3,
+      "pct_2_0": 36.7,
+      "pct_3_0": 60.0
+    },
+    "auc": {
+      "n": 30,
+      "aafe": 3.282,
+      "median_fe": 2.258,
+      "pct_1_5": 23.3,
+      "pct_2_0": 26.7,
+      "pct_3_0": 60.0
+    },
+    "cmax": {
+      "n": 30,
+      "aafe": 2.54,
+      "median_fe": 2.53,
+      "pct_1_5": 20.0,
+      "pct_2_0": 40.0,
+      "pct_3_0": 70.0
+    },
+    "extraction_ratios": {
+      "LOW": {
+        "n": 17,
+        "aafe": 3.864,
+        "median_fe": 3.406,
+        "pct_1_5": 0.0,
+        "pct_2_0": 23.5,
+        "pct_3_0": 29.4
+      },
+      "INTERMEDIATE": {
+        "n": 9,
+        "aafe": 3.425,
+        "median_fe": 3.783,
+        "pct_1_5": 11.1,
+        "pct_2_0": 11.1,
+        "pct_3_0": 33.3
+      },
+      "HIGH": {
+        "n": 4,
+        "aafe": 1.536,
+        "median_fe": 1.605,
+        "pct_1_5": 50.0,
+        "pct_2_0": 75.0,
+        "pct_3_0": 100.0
+      }
+    }
+  },
+  "clearance_semantics_audit": {
+    "classes": [
+      "CL_TOTAL_IV",
+      "CL_HEPATIC",
+      "CL_RENAL",
+      "CL_NONRENAL",
+      "CL_ORAL_APPARENT",
+      "CL_OVER_F",
+      "CL_UNRESOLVED"
+    ],
+    "records": [
+      {
+        "compound": "Acetaminophen",
+        "route": "IV",
+        "dose_mg": 1000.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Solution",
+        "observed": {
+          "CL_TOTAL_IV": 4.5,
+          "CL_HEPATIC": 4.0,
+          "CL_RENAL": 0.5,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 0.8,
+          "AUC": 43000.0,
+          "Cmax": 28000.0,
+          "Tmax": 0.25,
+          "half_life": 2.4
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Osimertinib",
+        "route": "ORAL",
+        "dose_mg": 80.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 3.4,
+          "CL_HEPATIC": 3.2,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 4.86,
+          "VDss": 13.0,
+          "AUC": 16500.0,
+          "Cmax": 500.0,
+          "Tmax": 6.0,
+          "half_life": 48.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Sunvozertinib",
+        "route": "ORAL",
+        "dose_mg": 300.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Capsule",
+        "observed": {
+          "CL_TOTAL_IV": 6.9,
+          "CL_HEPATIC": 6.5,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 11.5,
+          "VDss": 30.2,
+          "AUC": 12089.0,
+          "Cmax": 619.0,
+          "Tmax": 6.0,
+          "half_life": 50.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Metformin",
+        "route": "ORAL",
+        "dose_mg": 500.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral IR Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 8.5,
+          "CL_HEPATIC": 0.4,
+          "CL_RENAL": 8.1,
+          "CL_ORAL_APPARENT": 17.0,
+          "VDss": 4.1,
+          "AUC": 7200.0,
+          "Cmax": 1030.0,
+          "Tmax": 2.75,
+          "half_life": 6.2
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Warfarin",
+        "route": "ORAL",
+        "dose_mg": 10.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 0.045,
+          "CL_HEPATIC": 0.043,
+          "CL_RENAL": 0.002,
+          "CL_ORAL_APPARENT": 0.045,
+          "VDss": 0.14,
+          "AUC": 53000.0,
+          "Cmax": 1200.0,
+          "Tmax": 2.0,
+          "half_life": 40.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Midazolam",
+        "route": "IV",
+        "dose_mg": 5.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Solution",
+        "observed": {
+          "CL_TOTAL_IV": 6.5,
+          "CL_HEPATIC": 6.3,
+          "CL_RENAL": 0.05,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 1.1,
+          "AUC": 340.0,
+          "Cmax": 110.0,
+          "Tmax": 0.15,
+          "half_life": 2.2
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Propranolol",
+        "route": "ORAL",
+        "dose_mg": 40.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 12.0,
+          "CL_HEPATIC": 11.8,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 48.0,
+          "VDss": 4.3,
+          "AUC": 350.0,
+          "Cmax": 65.0,
+          "Tmax": 1.5,
+          "half_life": 4.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Theophylline",
+        "route": "ORAL",
+        "dose_mg": 300.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Solution",
+        "observed": {
+          "CL_TOTAL_IV": 0.7,
+          "CL_HEPATIC": 0.62,
+          "CL_RENAL": 0.08,
+          "CL_ORAL_APPARENT": 0.72,
+          "VDss": 0.5,
+          "AUC": 102000.0,
+          "Cmax": 7500.0,
+          "Tmax": 1.5,
+          "half_life": 8.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Atenolol",
+        "route": "ORAL",
+        "dose_mg": 50.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 1.9,
+          "CL_HEPATIC": 0.85,
+          "CL_RENAL": 0.95,
+          "CL_ORAL_APPARENT": 3.8,
+          "VDss": 0.7,
+          "AUC": 3100.0,
+          "Cmax": 320.0,
+          "Tmax": 3.0,
+          "half_life": 6.5
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Digoxin",
+        "route": "IV",
+        "dose_mg": 0.5,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Injection",
+        "observed": {
+          "CL_TOTAL_IV": 2.5,
+          "CL_HEPATIC": 0.75,
+          "CL_RENAL": 1.75,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 7.0,
+          "AUC": 48.0,
+          "Cmax": 6.5,
+          "Tmax": 0.5,
+          "half_life": 40.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Diazepam",
+        "route": "ORAL",
+        "dose_mg": 10.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 0.4,
+          "CL_HEPATIC": 0.39,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 0.4,
+          "VDss": 1.1,
+          "AUC": 5900.0,
+          "Cmax": 250.0,
+          "Tmax": 1.0,
+          "half_life": 48.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Ciprofloxacin",
+        "route": "ORAL",
+        "dose_mg": 500.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 5.8,
+          "CL_HEPATIC": 2.3,
+          "CL_RENAL": 3.5,
+          "CL_ORAL_APPARENT": 8.28,
+          "VDss": 2.5,
+          "AUC": 14400.0,
+          "Cmax": 2400.0,
+          "Tmax": 1.5,
+          "half_life": 4.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Sildenafil",
+        "route": "ORAL",
+        "dose_mg": 50.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 9.8,
+          "CL_HEPATIC": 9.4,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 24.0,
+          "VDss": 1.5,
+          "AUC": 1050.0,
+          "Cmax": 280.0,
+          "Tmax": 1.0,
+          "half_life": 4.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Atorvastatin",
+        "route": "ORAL",
+        "dose_mg": 40.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 8.5,
+          "CL_HEPATIC": 8.4,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 60.0,
+          "VDss": 5.4,
+          "AUC": 160.0,
+          "Cmax": 28.0,
+          "Tmax": 1.5,
+          "half_life": 14.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Rosuvastatin",
+        "route": "ORAL",
+        "dose_mg": 20.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 6.0,
+          "CL_HEPATIC": 4.2,
+          "CL_RENAL": 1.8,
+          "CL_ORAL_APPARENT": 30.0,
+          "VDss": 1.9,
+          "AUC": 130.0,
+          "Cmax": 15.0,
+          "Tmax": 4.0,
+          "half_life": 19.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Verapamil",
+        "route": "IV",
+        "dose_mg": 5.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Injection",
+        "observed": {
+          "CL_TOTAL_IV": 13.0,
+          "CL_HEPATIC": 12.5,
+          "CL_RENAL": 0.5,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 5.0,
+          "AUC": 90.0,
+          "Cmax": 120.0,
+          "Tmax": 0.1,
+          "half_life": 4.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Furosemide",
+        "route": "IV",
+        "dose_mg": 40.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Injection",
+        "observed": {
+          "CL_TOTAL_IV": 2.0,
+          "CL_HEPATIC": 0.7,
+          "CL_RENAL": 1.3,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 0.15,
+          "AUC": 4800.0,
+          "Cmax": 4500.0,
+          "Tmax": 0.15,
+          "half_life": 1.5
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Ibuprofen",
+        "route": "ORAL",
+        "dose_mg": 400.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 0.75,
+          "CL_HEPATIC": 0.72,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 0.75,
+          "VDss": 0.15,
+          "AUC": 125000.0,
+          "Cmax": 30000.0,
+          "Tmax": 1.5,
+          "half_life": 2.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Omeprazole",
+        "route": "ORAL",
+        "dose_mg": 20.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Delayed Release",
+        "observed": {
+          "CL_TOTAL_IV": 7.0,
+          "CL_HEPATIC": 6.9,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 17.5,
+          "VDss": 0.35,
+          "AUC": 1500.0,
+          "Cmax": 650.0,
+          "Tmax": 2.0,
+          "half_life": 1.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Dextromethorphan",
+        "route": "ORAL",
+        "dose_mg": 30.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Syrup",
+        "observed": {
+          "CL_TOTAL_IV": 15.0,
+          "CL_HEPATIC": 14.5,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 150.0,
+          "VDss": 5.5,
+          "AUC": 18.0,
+          "Cmax": 2.5,
+          "Tmax": 2.5,
+          "half_life": 2.5
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Fluoxetine",
+        "route": "ORAL",
+        "dose_mg": 20.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Capsule",
+        "observed": {
+          "CL_TOTAL_IV": 6.0,
+          "CL_HEPATIC": 5.8,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 8.57,
+          "VDss": 25.0,
+          "AUC": 1100.0,
+          "Cmax": 20.0,
+          "Tmax": 6.0,
+          "half_life": 48.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Haloperidol",
+        "route": "ORAL",
+        "dose_mg": 5.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 10.0,
+          "CL_HEPATIC": 9.8,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 16.7,
+          "VDss": 18.0,
+          "AUC": 75.0,
+          "Cmax": 3.2,
+          "Tmax": 4.0,
+          "half_life": 20.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Ketoconazole",
+        "route": "ORAL",
+        "dose_mg": 200.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 3.5,
+          "CL_HEPATIC": 3.4,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 4.67,
+          "VDss": 1.2,
+          "AUC": 18000.0,
+          "Cmax": 3500.0,
+          "Tmax": 2.0,
+          "half_life": 3.3
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Clarithromycin",
+        "route": "ORAL",
+        "dose_mg": 250.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 8.5,
+          "CL_HEPATIC": 5.95,
+          "CL_RENAL": 2.55,
+          "CL_ORAL_APPARENT": 17.0,
+          "VDss": 3.0,
+          "AUC": 6500.0,
+          "Cmax": 1200.0,
+          "Tmax": 2.0,
+          "half_life": 5.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Dabigatran",
+        "route": "ORAL",
+        "dose_mg": 150.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Capsule",
+        "observed": {
+          "CL_TOTAL_IV": 1.6,
+          "CL_HEPATIC": 0.3,
+          "CL_RENAL": 1.3,
+          "CL_ORAL_APPARENT": 24.6,
+          "VDss": 1.0,
+          "AUC": 1050.0,
+          "Cmax": 110.0,
+          "Tmax": 2.0,
+          "half_life": 13.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Methotrexate",
+        "route": "IV",
+        "dose_mg": 15.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Injection",
+        "observed": {
+          "CL_TOTAL_IV": 1.8,
+          "CL_HEPATIC": 0.3,
+          "CL_RENAL": 1.5,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 0.5,
+          "AUC": 3200.0,
+          "Cmax": 1200.0,
+          "Tmax": 0.25,
+          "half_life": 6.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Morphine",
+        "route": "IV",
+        "dose_mg": 10.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "IV Injection",
+        "observed": {
+          "CL_TOTAL_IV": 17.0,
+          "CL_HEPATIC": 15.0,
+          "CL_RENAL": 2.0,
+          "CL_ORAL_APPARENT": null,
+          "VDss": 3.5,
+          "AUC": 140.0,
+          "Cmax": 150.0,
+          "Tmax": 0.1,
+          "half_life": 2.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "OBSERVED_INPUT",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Gefitinib",
+        "route": "ORAL",
+        "dose_mg": 250.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 8.5,
+          "CL_HEPATIC": 8.2,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 14.2,
+          "VDss": 20.0,
+          "AUC": 13500.0,
+          "Cmax": 502.0,
+          "Tmax": 4.0,
+          "half_life": 48.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Imatinib",
+        "route": "ORAL",
+        "dose_mg": 400.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 2.0,
+          "CL_HEPATIC": 1.85,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 2.04,
+          "VDss": 4.8,
+          "AUC": 38000.0,
+          "Cmax": 2600.0,
+          "Tmax": 3.0,
+          "half_life": 18.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      },
+      {
+        "compound": "Pazopanib",
+        "route": "ORAL",
+        "dose_mg": 800.0,
+        "regimen": "SINGLE_DOSE",
+        "formulation": "Oral Tablet",
+        "observed": {
+          "CL_TOTAL_IV": 0.2,
+          "CL_HEPATIC": 0.19,
+          "CL_RENAL": null,
+          "CL_ORAL_APPARENT": 0.95,
+          "VDss": 0.14,
+          "AUC": 850000.0,
+          "Cmax": 58000.0,
+          "Tmax": 3.5,
+          "half_life": 31.0
+        },
+        "clearance_semantics": "CL_HEPATIC",
+        "input_provenance": {
+          "fu": "OBSERVED_INPUT",
+          "HLM_Clint": "OBSERVED_INPUT",
+          "VDss": "OBSERVED_INPUT",
+          "renal": "UNKNOWN",
+          "fu_inc": "UNKNOWN",
+          "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+        },
+        "not_independent_model_target": [
+          "VDss"
+        ]
+      }
+    ],
+    "route_aware_tracks": [
+      "HUMAN_IV_TOTAL_CL",
+      "HUMAN_HEPATIC_CL",
+      "HUMAN_RENAL_CL",
+      "HUMAN_ORAL_CLF"
+    ]
+  },
+  "component_completeness": {
+    "hepatic_cl_available": 30,
+    "renal_cl_available": 15,
+    "total_cl_available": 30,
+    "oral_clf_available": 23,
+    "total_cl_prediction_supported": 0,
+    "total_cl_incomplete": 30
+  },
+  "renal_readiness": [
+    {
+      "compound": "Acetaminophen",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.1,
+      "renal_clearance": 0.5,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Osimertinib",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.02,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Sunvozertinib",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.05,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Metformin",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.9,
+      "renal_clearance": 8.1,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Warfarin",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": 0.002,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Midazolam",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": 0.05,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Propranolol",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Theophylline",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.1,
+      "renal_clearance": 0.08,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Atenolol",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.5,
+      "renal_clearance": 0.95,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Digoxin",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.7,
+      "renal_clearance": 1.75,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Diazepam",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Ciprofloxacin",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.6,
+      "renal_clearance": 3.5,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Sildenafil",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.03,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Atorvastatin",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.02,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Rosuvastatin",
+      "status": "MIXED_CLEARANCE",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.28,
+      "renal_clearance": 1.8,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Verapamil",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.03,
+      "renal_clearance": 0.5,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Furosemide",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.65,
+      "renal_clearance": 1.3,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Ibuprofen",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Omeprazole",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Dextromethorphan",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Fluoxetine",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.02,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Haloperidol",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.01,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Ketoconazole",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.02,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Clarithromycin",
+      "status": "MIXED_CLEARANCE",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.3,
+      "renal_clearance": 2.55,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Dabigatran",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.8,
+      "renal_clearance": 1.3,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Methotrexate",
+      "status": "RENAL_DOMINANT",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.85,
+      "renal_clearance": 1.5,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Morphine",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.1,
+      "renal_clearance": 2.0,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": true,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Gefitinib",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.04,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Imatinib",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.05,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    },
+    {
+      "compound": "Pazopanib",
+      "status": "LOW_RENAL_CONTRIBUTION",
+      "evidence_present": true,
+      "fraction_excreted_unchanged": 0.04,
+      "renal_clearance": null,
+      "mechanisms": {
+        "filtration": false,
+        "active_secretion": false,
+        "reabsorption": false,
+        "unknown": false
+      },
+      "quantitative_prediction_supported": false,
+      "silent_zero_assumption": false
+    }
+  ],
+  "sunvozertinib_sensitivity": {
+    "observed": {
+      "AUC_ng_h_mL": 8060.0,
+      "Cmax_ng_mL": 412.0
+    },
+    "baseline_prediction": {
+      "AUC_ng_h_mL": 7235.87,
+      "Cmax_ng_mL": 905.12
+    },
+    "fold_error": {
+      "AUC": 0.898,
+      "Cmax": 2.197
+    },
+    "input_provenance": {
+      "F": "MODEL_PREDICTED",
+      "ka": "DERIVED_FROM_PERMEABILITY",
+      "CL": "HEPATIC_IVIVE_APPARENT",
+      "V": "PREDICTED_VD"
+    },
+    "sensitivity_policy": "LOCAL_NORMALIZED_SENSITIVITY_FROM_FROZEN_VALIDATION_ARTIFACT",
+    "sensitivity": {
+      "fu_plasma": {
+        "impact_on_cl_low_extraction": 1.0,
+        "impact_on_cl_high_extraction": 0.05,
+        "impact_on_half_life": -0.85,
+        "impact_on_auc": -0.9,
+        "impact_on_cmax": -0.15,
+        "priority_rank": "HIGH"
+      },
+      "cl_int_hlm": {
+        "impact_on_cl_low_extraction": 0.95,
+        "impact_on_cl_high_extraction": 0.1,
+        "impact_on_half_life": -0.8,
+        "impact_on_auc": -0.9,
+        "impact_on_cmax": -0.1,
+        "priority_rank": "HIGH"
+      },
+      "vdss": {
+        "impact_on_cl": 0.0,
+        "impact_on_half_life": 1.0,
+        "impact_on_auc": 0.0,
+        "impact_on_cmax_iv": -1.0,
+        "impact_on_cmax_oral": -0.65,
+        "priority_rank": "CRITICAL"
+      },
+      "oral_f": {
+        "impact_on_cl": 0.0,
+        "impact_on_half_life": 0.0,
+        "impact_on_auc": 1.0,
+        "impact_on_cmax": 1.0,
+        "priority_rank": "CRITICAL"
+      },
+      "oral_ka": {
+        "impact_on_cl": 0.0,
+        "impact_on_half_life": 0.0,
+        "impact_on_auc": 0.0,
+        "impact_on_cmax": 0.45,
+        "impact_on_tmax": -0.75,
+        "priority_rank": "MODERATE"
+      }
+    },
+    "diagnosis": "Cmax discrepancy is mixed: F and V have direct peak sensitivity, ka controls peak timing/shape, while CL materially affects exposure and half-life. No single-driver attribution is claimed without independent component perturbation data.",
+    "target_value_used_as_input": false,
+    "source_cohort_record": {
+      "compound": "Sunvozertinib",
+      "route": "ORAL",
+      "dose_mg": 300.0,
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Capsule",
+      "observed": {
+        "CL_TOTAL_IV": 6.9,
+        "CL_HEPATIC": 6.5,
+        "CL_RENAL": null,
+        "CL_ORAL_APPARENT": 11.5,
+        "VDss": 30.2,
+        "AUC": 12089.0,
+        "Cmax": 619.0,
+        "Tmax": 6.0,
+        "half_life": 50.0
+      },
+      "clearance_semantics": "CL_HEPATIC",
+      "input_provenance": {
+        "fu": "OBSERVED_INPUT",
+        "HLM_Clint": "OBSERVED_INPUT",
+        "VDss": "OBSERVED_INPUT",
+        "renal": "UNKNOWN",
+        "fu_inc": "UNKNOWN",
+        "Rb": "COHORT_VALUE_REQUIRES_SOURCE_AUDIT"
+      },
+      "not_independent_model_target": [
+        "VDss"
+      ]
+    },
+    "source_report_record": {
+      "name": "Sunvozertinib",
+      "smiles": "COC1=CC(N2CC[C@H](C2)N(C)C)=C(NC(=O)C=C)C=C1NC1=NC=CC(NC2=CC(Cl)=C(F)C=C2C(C)(C)O)=N1",
+      "route": "ORAL",
+      "dose_mg": 300.0,
+      "ionization": "BASE",
+      "extraction": "INTERMEDIATE",
+      "fe_renal": 0.05,
+      "elimination_status": "TOTAL_CL_PREDICTION",
+      "oral_confidence": "PK_CONFIDENCE_HIGH",
+      "simulated": {
+        "cl_plasma_ml_min_kg": 2.151,
+        "vdss_l_kg": 30.2,
+        "half_life_hr": 162.2,
+        "auc_inf_ng_hr_ml": 21418.61,
+        "cmax_ng_ml": 89.12,
+        "tmax_hr": 6.26,
+        "fu": 0.08,
+        "eh": 0.1038
+      },
+      "observed": {
+        "cl_systemic_ml_min_kg": 6.9,
+        "cl_hepatic_ml_min_kg": 6.5,
+        "vdss_l_kg": 30.2,
+        "half_life_hr": 50.0,
+        "auc_inf_ng_hr_ml": 12089.0,
+        "cmax_ng_ml": 619.0,
+        "tmax_hr": 6.0
+      },
+      "fold_errors": {
+        "cl_hepatic": 3.0218503021850305,
+        "cl_systemic": 3.2078103207810322,
+        "half_life": 3.2439999999999998,
+        "auc": 1.7717437339730333,
+        "cmax": 6.945691202872531
+      },
+      "vdss_evaluation": {
+        "status": "NOT_INDEPENDENTLY_PREDICTED",
+        "source_type": "OBSERVED_INPUT",
+        "observed_input_l_kg": 30.2,
+        "simulation_value_l_kg": 30.2,
+        "included_in_accuracy_metrics": false,
+        "reason": "Observed VDss was supplied to the simulation; no independent VDss prediction was evaluated."
+      }
+    }
+  },
+  "failure_mode_matrix": {
+    "CLINT_ERROR": "NOT_IDENTIFIABLE_WITH_OBSERVED_CLINT_INPUT",
+    "FU_ERROR": "NOT_IDENTIFIABLE_WITH_OBSERVED_FU_INPUT",
+    "FU_INC_ERROR": "FU_INC_UNKNOWN",
+    "RB_ERROR": "RB_UNKNOWN",
+    "RENAL_MISSING": 9,
+    "EXTRAHEPATIC_MISSING": 15,
+    "VD_ERROR": "NOT_SCORED_WHEN_OBSERVED_INPUT",
+    "F_ERROR": "NOT_DECOMPOSED",
+    "KA_ERROR": "NOT_DECOMPOSED",
+    "OOD": "SEE_BASELINE_ARTIFACT",
+    "OTHER": 0
+  },
+  "qa": {
+    "CL_CLF_MIXED": 0,
+    "HEPATIC_TOTAL_CL_MISLABEL": 0,
+    "SPECIES_CLEARANCE_MIXED": 0,
+    "SILENT_RENAL_ZERO_ASSUMPTION": 0,
+    "SILENT_FU_INC_DEFAULT": 0,
+    "UNKNOWN_CLEARANCE_SEMANTICS": 0,
+    "observed_vdss_scored_as_independent_prediction": 0
+  },
+  "cohort_metrics_before_after": {
+    "before": {
+      "overall_evaluated_parameters": {
+        "n": 120,
+        "aafe": 2.912,
+        "median_fe": 2.697,
+        "pct_1_5": 19.2,
+        "pct_2_0": 32.5,
+        "pct_3_0": 57.5
+      },
+      "cl_hepatic": {
+        "n": 30,
+        "aafe": 3.295,
+        "median_fe": 3.318,
+        "pct_1_5": 10.0,
+        "pct_2_0": 26.7,
+        "pct_3_0": 40.0
+      },
+      "cl_systemic_unadjusted": {
+        "n": 21,
+        "aafe": 3.268,
+        "median_fe": 2.756,
+        "pct_1_5": 9.5,
+        "pct_2_0": 19.0,
+        "pct_3_0": 52.4
+      },
+      "vdss": {
+        "n": 0,
+        "aafe": 0.0,
+        "afe": 0.0,
+        "median_fe": 0.0,
+        "pct_1_5": 0.0,
+        "pct_2_0": 0.0,
+        "pct_3_0": 0.0
+      },
+      "half_life": {
+        "n": 30,
+        "aafe": 2.619,
+        "median_fe": 2.279,
+        "pct_1_5": 23.3,
+        "pct_2_0": 36.7,
+        "pct_3_0": 60.0
+      },
+      "auc": {
+        "n": 30,
+        "aafe": 3.282,
+        "median_fe": 2.258,
+        "pct_1_5": 23.3,
+        "pct_2_0": 26.7,
+        "pct_3_0": 60.0
+      },
+      "cmax": {
+        "n": 30,
+        "aafe": 2.54,
+        "median_fe": 2.53,
+        "pct_1_5": 20.0,
+        "pct_2_0": 40.0,
+        "pct_3_0": 70.0
+      },
+      "extraction_ratios": {
+        "LOW": {
+          "n": 17,
+          "aafe": 3.864,
+          "median_fe": 3.406,
+          "pct_1_5": 0.0,
+          "pct_2_0": 23.5,
+          "pct_3_0": 29.4
+        },
+        "INTERMEDIATE": {
+          "n": 9,
+          "aafe": 3.425,
+          "median_fe": 3.783,
+          "pct_1_5": 11.1,
+          "pct_2_0": 11.1,
+          "pct_3_0": 33.3
+        },
+        "HIGH": {
+          "n": 4,
+          "aafe": 1.536,
+          "median_fe": 1.605,
+          "pct_1_5": 50.0,
+          "pct_2_0": 75.0,
+          "pct_3_0": 100.0
+        }
+      }
+    },
+    "after": {
+      "overall_evaluated_parameters": {
+        "n": 120,
+        "aafe": 2.912,
+        "median_fe": 2.697,
+        "pct_1_5": 19.2,
+        "pct_2_0": 32.5,
+        "pct_3_0": 57.5
+      },
+      "cl_hepatic": {
+        "n": 30,
+        "aafe": 3.295,
+        "median_fe": 3.318,
+        "pct_1_5": 10.0,
+        "pct_2_0": 26.7,
+        "pct_3_0": 40.0
+      },
+      "cl_systemic_unadjusted": {
+        "n": 21,
+        "aafe": 3.268,
+        "median_fe": 2.756,
+        "pct_1_5": 9.5,
+        "pct_2_0": 19.0,
+        "pct_3_0": 52.4
+      },
+      "vdss": {
+        "n": 0,
+        "aafe": 0.0,
+        "afe": 0.0,
+        "median_fe": 0.0,
+        "pct_1_5": 0.0,
+        "pct_2_0": 0.0,
+        "pct_3_0": 0.0
+      },
+      "half_life": {
+        "n": 30,
+        "aafe": 2.619,
+        "median_fe": 2.279,
+        "pct_1_5": 23.3,
+        "pct_2_0": 36.7,
+        "pct_3_0": 60.0
+      },
+      "auc": {
+        "n": 30,
+        "aafe": 3.282,
+        "median_fe": 2.258,
+        "pct_1_5": 23.3,
+        "pct_2_0": 26.7,
+        "pct_3_0": 60.0
+      },
+      "cmax": {
+        "n": 30,
+        "aafe": 2.54,
+        "median_fe": 2.53,
+        "pct_1_5": 20.0,
+        "pct_2_0": 40.0,
+        "pct_3_0": 70.0
+      },
+      "extraction_ratios": {
+        "LOW": {
+          "n": 17,
+          "aafe": 3.864,
+          "median_fe": 3.406,
+          "pct_1_5": 0.0,
+          "pct_2_0": 23.5,
+          "pct_3_0": 29.4
+        },
+        "INTERMEDIATE": {
+          "n": 9,
+          "aafe": 3.425,
+          "median_fe": 3.783,
+          "pct_1_5": 11.1,
+          "pct_2_0": 11.1,
+          "pct_3_0": 33.3
+        },
+        "HIGH": {
+          "n": 4,
+          "aafe": 1.536,
+          "median_fe": 1.605,
+          "pct_1_5": 50.0,
+          "pct_2_0": 75.0,
+          "pct_3_0": 100.0
+        }
+      }
+    },
+    "interpretation": "No equations or parameters were tuned; identical frozen-cohort baseline is retained."
+  },
+  "production_decision": {
+    "clearance": "CL_MODEL_INSUFFICIENT",
+    "pk_accuracy": "PK_ACCURACY_PARITY",
+    "engine_promoted": false
+  }
+}

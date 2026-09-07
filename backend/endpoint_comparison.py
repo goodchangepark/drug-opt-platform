@@ -33,6 +33,10 @@ from .representative_experimental import REPRESENTATIVE_EXPERIMENTAL_VERSION, se
 from .scientific_interpretation import interpret_row, SCIENTIFIC_INTERPRETATION_VERSION, AGREEMENT_POLICY_VERSION
 from .endpoint_strategy_registry import get_endpoint_strategy
 from .prediction_maturity import get_endpoint_maturity
+from .clearance_architecture import (
+    CLEARANCE_ARCHITECTURE_VERSION, CL_HEPATIC, CL_ORAL_APPARENT,
+    TOTAL_CL_INCOMPLETE, renal_readiness,
+)
 
 
 CANONICAL_ENDPOINTS = {
@@ -197,6 +201,9 @@ def _snapshot_prediction(snapshot, endpoint_id, raw_endpoint, *, species="", rou
         "input_status": data.get("input_status", "UNKNOWN"),
         "assumptions": data.get("assumptions", []),
         "fallback_status": data.get("fallback_status", "NONE"),
+        "clearance_architecture_version": data.get("clearance_architecture_version", CLEARANCE_ARCHITECTURE_VERSION) if str(endpoint_id).startswith(("HUMAN_PK_CL", "HUMAN_PK_CLF", "RAT_PK_CL", "MOUSE_PK_CL", "DOG_PK_CL", "MONKEY_PK_CL")) else None,
+        "clearance_semantics": data.get("clearance_semantics"),
+        "total_clearance_status": data.get("total_clearance_status"),
     }
 
 
@@ -234,6 +241,23 @@ def _pk_snapshot_values(pset):
         if value is None or prediction_source_type(source=source, endpoint=parameter) == PREDICTION_UNAVAILABLE:
             continue
         yield parameter, value, unit, _pk_prediction_source(source)
+
+
+def _pk_clearance_metadata(pset, route: str) -> dict:
+    """Expose hepatic-vs-total semantics without changing historical values."""
+    source = str(pset.cl_source_type or "")
+    hepatic = source in {"PREDICTED_HEPATIC_IVIVE", "HEPATIC_IVIVE", "HEPATIC_IVIVE_APPARENT"} or pset.clh_value is not None
+    semantics = CL_HEPATIC if hepatic else (CL_ORAL_APPARENT if route == "ORAL" else "CL_TOTAL_IV")
+    renal = renal_readiness()
+    return {
+        "clearance_architecture_version": CLEARANCE_ARCHITECTURE_VERSION,
+        "clearance_semantics": semantics,
+        "clearance_components": {"CL_H": pset.clh_value if pset.clh_value is not None else (pset.cl_value if hepatic else None), "CL_R": None, "CL_OTHER": None},
+        "total_clearance_status": TOTAL_CL_INCOMPLETE if hepatic or route == "ORAL" else "TOTAL_CL_INCOMPLETE",
+        "renal_readiness": renal,
+        "confidence": pset.confidence,
+        "provenance": pset.provenance_json or {},
+    }
 
 
 def _simulation_values(sim):
@@ -1222,9 +1246,11 @@ def build_endpoint_comparison(db, version_id: int) -> dict:
             snapshot = latest_canonical_snapshots.get(eid)
             if snapshot is not None:
                 row["prediction"] = _snapshot_prediction(snapshot, eid, parameter, species=species, route="ORAL" if parameter == "F" else route, dose=pset.dose_value, dose_unit=pset.dose_unit)
+                if parameter in {"CL", "CLF_ORAL"}:
+                    row["prediction"].update(_pk_clearance_metadata(pset, route))
             elif not row["prediction"].get("available"):
                 mapped_pk = normalize_experimental_observation(parameter, value, unit, species=species, context={"route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit})
-                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{'ORAL' if parameter == 'F' else route}|PARENT", "base_value": mapped_pk.get("normalized_value", value), "project_value": None, "display_value": mapped_pk.get("normalized_value", value), "unit": mapped_pk.get("normalized_unit", unit), "prediction_type": source_type, "source_type": source_type, "source_label": prediction_source_label(source_type), "maturity": get_endpoint_maturity(eid), "timestamp": _iso(pset.created_at), "model_count": 1, "species": species, "route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit}
+                row["prediction"] = {"available": True, "raw_endpoint": parameter, "canonical_endpoint_id": eid, "canonical_comparison_key": f"{eid}|{species}|{'ORAL' if parameter == 'F' else route}|PARENT", "base_value": mapped_pk.get("normalized_value", value), "project_value": None, "display_value": mapped_pk.get("normalized_value", value), "unit": mapped_pk.get("normalized_unit", unit), "prediction_type": source_type, "source_type": source_type, "source_label": prediction_source_label(source_type), "maturity": get_endpoint_maturity(eid), "timestamp": _iso(pset.created_at), "model_count": 1, "species": species, "route": "ORAL" if parameter == "F" else route, "dose": pset.dose_value, "dose_unit": pset.dose_unit, **(_pk_clearance_metadata(pset, route) if parameter in {"CL", "CLF_ORAL"} else {})}
 
     # Concentration-time simulations provide the Stage-5 Cmax/Tmax/AUC/t1/2
     # predictions. They are joined by the same species/route key as external

@@ -1529,8 +1529,13 @@ function integratedProfile(versionId){
      ]);
     }
     const display=prediction.display||{value:prediction.display_value,unit:prediction.unit};
+    const clearanceNote=prediction.clearance_semantics?e('div',{className:'small',style:{color:'#5b6470'}},[
+      'Clearance: '+prediction.clearance_semantics.replaceAll('_',' '),
+      prediction.total_clearance_status&&e('span',{className:'badge-intermediate',style:{marginLeft:'4px',fontSize:'10px',padding:'1px 4px'}},prediction.total_clearance_status.replaceAll('_',' '))
+    ]):null;
     return e('div',{},[
      e('div',{className:'mono bold'},scientificValue(display)),
+     clearanceNote,
      display.conversion&&display.conversion!=='identity'&&e('details',{},[e('summary',{},'Model representation'),e('div',{className:'small'},scientificValue(display.raw)),display.definition&&e('div',{className:'small'},display.definition)])
     ]);
    }
@@ -5497,6 +5502,12 @@ function integratedProfile(versionId){
    e('section',{className:'card help-section',id:'help-safety',key:'safety'},[e('h2',{},'Safety / Toxicology'),renderModelTable(safety,false),e('p',{className:'small'},'hERG, Ames and DILI are classification models. Structural Alerts are deterministic rule-based calculations and remain distinct from model predictions. Outputs are screening evidence, not regulatory toxicology conclusions.')]),
    e('section',{className:'card help-section',id:'help-activity',key:'activity'},[e('h2',{},'Activity / SAR'),e('p',{},'Define project-local assays and record experimental IC50, EC50, Ki, Kd or GI50 values with cell line, species, mutation and protocol context. Project SAR includes similarity, matched molecular pairs and activity cliffs.'),e('p',{className:'help-caution'},'Activity prediction depends on the selected project assay and sufficient project data. It is not automatically run by Save & Predict.')]),
    e('section',{className:'card help-section',id:'help-optimization',key:'optimization'},[e('h2',{},'Optimization Engine'),e('h3',{},'Stage 4A — Optimization Strategy Engine'),e('p',{},'Identifies liabilities, protected and modifiable regions, metabolic soft spots and relevant MMP evidence.'),e('h3',{},'Stage 4B — Analog Generation Engine'),e('p',{},'Applies the transformation library, generates and filters analogs, predicts supported properties, and ranks candidates using transparent objectives and Pareto evidence.'),e('p',{className:'help-caution'},'Proposed structures are medicinal chemistry hypotheses, not experimentally validated compounds.')]),
+   e('section',{className:'card help-section',id:'help-clearance-methodology',key:'clearance-methodology'},[
+    e('div',{className:'eyebrow'},'HUMAN CLEARANCE METHODOLOGY'),e('h2',{},'Hepatic, renal, and total clearance'),
+    e('p',{className:'small'},'HLM intrinsic clearance is scaled through the documented well-stirred IVIVE model using fu, blood/plasma ratio, hepatic blood flow, liver weight, and microsomal protein scaling. The result is hepatic clearance (CLH), not automatically total systemic clearance.'),
+    e('p',{className:'small'},'Renal and other clearance components are kept separate. When they are unresolved, Total CL is shown as incomplete rather than assuming renal clearance is zero. Oral CL/F is apparent clearance and is never mixed with IV systemic CL. Every component exposes source, applicability, confidence, and provenance.'),
+    e('p',{className:'help-caution'},'Current N=30 PK validation remains parity: clearance is the principal limitation, and no new production model has been promoted.')
+   ]),
    e('section',{className:'card help-section',id:'help-pk',key:'pk'},[e('div',{className:'row toolbar'},[e('h2',{},'PK / DMPK'),StatusBadge({type:'READY'})]),e('p',{className:'help-flow'},'Experimental PK → NCA → IVIVE → PK Foundation → IV/PO/SC/IP Simulation → Cross-Species Translation → Human Translational PK → Prospective Validation'),e('div',{className:'help-topic-grid'},[
     ['Experimental PK',['PK Study and concentration-time input','CSV import and BLQ handling','Noncompartmental analysis (NCA)']],['IVIVE',['Clint, MPPGL and hepatocellularity','PPB/fu and blood:plasma ratio','Well-stirred CLh, extraction ratio and Fh']],['Simulation',['IV bolus and infusion','PO, SC and IP routes','Repeated dosing, ka, F, Cmax, Tmax and AUC']],['Translation',['Allometry and LOSO','Human clearance and volume','Simulation readiness','Prospective freeze and retrospective validation']]
    ].map(([title,items])=>e('article',{key:title},[e('h3',{},title),e('ul',{},items.map(item=>e('li',{key:item},item)))]))),e('h3',{},'Implemented capability registry'),e('ul',{className:'help-capability-list'},pkCaps.map(row=>e('li',{key:row.key},[e('span',{},row.label),StatusBadge({type:row.availability})]))),e('details',{},[e('summary',{},'Registered PK methods'),e('ul',{},(helpRegistry.pk_method_registry||[]).map(row=>e('li',{key:row.method_key},row.method_name+' · '+row.method_version+' · '+row.status)))])]),
