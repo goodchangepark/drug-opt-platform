@@ -8,6 +8,11 @@ def test_completion_board_has_exact_production_version_and_terminal_policy():
     assert data["production_engine_version"] == "drugopt-prediction-engine-v3@3.3.2"
     assert data["reference_library_n"] == 1000
     assert all(row["status"] in data["status_policy"] for row in data["rows"])
+    assert "EXTERNAL_ACCESS_BLOCKED" not in data["status_policy"]
+    assert all(row["status"] != "EXTERNAL_ACCESS_BLOCKED" for row in data["rows"])
+    ppb = next(row for row in data["rows"] if row["endpoint"] == "HUMAN_FU_PLASMA")
+    assert ppb["development_N"] == 476
+    assert ppb["status"] == "MODEL_OPTIMIZING"
 
 
 def test_runtime_project300_has_identity_safe_1000_compounds():

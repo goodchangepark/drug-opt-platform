@@ -1,0 +1,54 @@
+{
+  "artifact": "ENDPOINT_DEPENDENCY_GRAPH_V71",
+  "edges": [
+    [
+      "PPB_FU",
+      "HUMAN_HEPATIC_CL"
+    ],
+    [
+      "HLM_CLINT",
+      "HUMAN_HEPATIC_CL"
+    ],
+    [
+      "HUMAN_TOTAL_IV_CL",
+      "IV_HALF_LIFE"
+    ],
+    [
+      "HUMAN_VDSS",
+      "IV_HALF_LIFE"
+    ],
+    [
+      "HUMAN_F",
+      "ORAL_AUC"
+    ],
+    [
+      "HUMAN_TOTAL_IV_CL",
+      "ORAL_AUC"
+    ],
+    [
+      "KA",
+      "ORAL_CMAX"
+    ],
+    [
+      "HUMAN_F",
+      "ORAL_CMAX"
+    ],
+    [
+      "HUMAN_VDSS",
+      "ORAL_CMAX"
+    ],
+    [
+      "PKA_ACID",
+      "LOGD_7_4"
+    ],
+    [
+      "PKA_BASE",
+      "LOGD_7_4"
+    ],
+    [
+      "LOGD_7_4",
+      "HUMAN_VDSS"
+    ]
+  ],
+  "routing_rule": "When a parent candidate is retained, schedule dependent research reevaluation; never silently alter production routing."
+}

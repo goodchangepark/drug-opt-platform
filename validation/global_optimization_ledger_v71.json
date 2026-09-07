@@ -1,0 +1,313 @@
+{
+  "artifact": "GLOBAL_OPTIMIZATION_LEDGER_V71",
+  "created_at": "2026-09-07T13:03:37.003314+00:00",
+  "dataset_hash": "9dcaa34ba7773bb902fc0c53a6dd280d95c77ceac30a28529a77077ff9dae894",
+  "experiments": [
+    {
+      "endpoint": "HUMAN_FU_PLASMA",
+      "experiment_id": "V71-PPB-LOGFU-LADDER",
+      "models": {
+        "extra_trees_logfu": {
+          "cv_strategy": "5-fold GroupKFold by Murcko scaffold",
+          "decision": "RESEARCH_CANDIDATE_BEST_CURRENT_DATA",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "features": "RDKit descriptors",
+          "folds": [
+            {
+              "aafe": 5.420849004802396,
+              "bias_log10": 0.019503587274562608,
+              "mae_log10": 0.39832995901356866,
+              "n": 96,
+              "within_2_fold_pct": 55.208333333333336,
+              "within_3_fold_pct": 69.79166666666666
+            },
+            {
+              "aafe": 3.792408517432738,
+              "bias_log10": -0.013385028167139653,
+              "mae_log10": 0.39042434977673973,
+              "n": 95,
+              "within_2_fold_pct": 50.526315789473685,
+              "within_3_fold_pct": 71.57894736842105
+            },
+            {
+              "aafe": 5.747942412407024,
+              "bias_log10": 0.026827513204016305,
+              "mae_log10": 0.471072685865324,
+              "n": 95,
+              "within_2_fold_pct": 55.78947368421052,
+              "within_3_fold_pct": 64.21052631578948
+            },
+            {
+              "aafe": 4.0534900524465165,
+              "bias_log10": -0.017605220611250947,
+              "mae_log10": 0.42472058261013734,
+              "n": 95,
+              "within_2_fold_pct": 44.21052631578947,
+              "within_3_fold_pct": 67.36842105263158
+            },
+            {
+              "aafe": 4.82277042820097,
+              "bias_log10": -0.04202407019958264,
+              "mae_log10": 0.4451408806275679,
+              "n": 95,
+              "within_2_fold_pct": 48.421052631578945,
+              "within_3_fold_pct": 65.26315789473685
+            }
+          ],
+          "mean_aafe": 4.767492083057928,
+          "mean_bias_log10": -0.005336643699878866,
+          "mean_mae_log10": 0.42593769157866757,
+          "mean_within_2_fold_pct": 50.83114035087719,
+          "median_aafe": 4.82277042820097,
+          "target_transform": "logfu",
+          "worst_aafe": 5.747942412407024
+        },
+        "extra_trees_percent_bound": {
+          "cv_strategy": "5-fold GroupKFold by Murcko scaffold",
+          "decision": "REJECTED",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "features": "RDKit descriptors",
+          "folds": [
+            {
+              "aafe": 7.435844220166145,
+              "bias_log10": 0.253020501097662,
+              "mae_log10": 0.4133313823924736,
+              "n": 96,
+              "within_2_fold_pct": 54.166666666666664,
+              "within_3_fold_pct": 68.75
+            },
+            {
+              "aafe": 5.535593723585748,
+              "bias_log10": 0.23853541267695835,
+              "mae_log10": 0.4230052219578741,
+              "n": 95,
+              "within_2_fold_pct": 56.84210526315789,
+              "within_3_fold_pct": 72.63157894736842
+            },
+            {
+              "aafe": 11.225827859826184,
+              "bias_log10": 0.280933356625975,
+              "mae_log10": 0.4876987824945982,
+              "n": 95,
+              "within_2_fold_pct": 56.84210526315789,
+              "within_3_fold_pct": 69.47368421052632
+            },
+            {
+              "aafe": 5.380468240357829,
+              "bias_log10": 0.25687119298564365,
+              "mae_log10": 0.44410746688166797,
+              "n": 95,
+              "within_2_fold_pct": 48.421052631578945,
+              "within_3_fold_pct": 65.26315789473685
+            },
+            {
+              "aafe": 8.088031159377628,
+              "bias_log10": 0.22677225415580932,
+              "mae_log10": 0.44283835104243985,
+              "n": 95,
+              "within_2_fold_pct": 53.68421052631579,
+              "within_3_fold_pct": 65.26315789473685
+            }
+          ],
+          "mean_aafe": 7.5331530406627065,
+          "mean_bias_log10": 0.25122654350840967,
+          "mean_mae_log10": 0.4421962409538107,
+          "mean_within_2_fold_pct": 53.99122807017543,
+          "median_aafe": 7.435844220166145,
+          "target_transform": "percent_bound",
+          "worst_aafe": 11.225827859826184
+        },
+        "gradient_boosting_huber_logfu": {
+          "cv_strategy": "5-fold GroupKFold by Murcko scaffold",
+          "decision": "REJECTED",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "features": "RDKit descriptors",
+          "folds": [
+            {
+              "aafe": 5.515084010739489,
+              "bias_log10": 0.057388113456973956,
+              "mae_log10": 0.4357942807200925,
+              "n": 96,
+              "within_2_fold_pct": 44.79166666666667,
+              "within_3_fold_pct": 65.625
+            },
+            {
+              "aafe": 3.9090384376357985,
+              "bias_log10": 0.023020333456245004,
+              "mae_log10": 0.41904145716909386,
+              "n": 95,
+              "within_2_fold_pct": 45.26315789473684,
+              "within_3_fold_pct": 65.26315789473685
+            },
+            {
+              "aafe": 6.696030901235579,
+              "bias_log10": 0.062135693649091744,
+              "mae_log10": 0.46943090194177317,
+              "n": 95,
+              "within_2_fold_pct": 51.578947368421055,
+              "within_3_fold_pct": 65.26315789473685
+            },
+            {
+              "aafe": 4.958755053494651,
+              "bias_log10": 0.025451086230823275,
+              "mae_log10": 0.46726951293323177,
+              "n": 95,
+              "within_2_fold_pct": 43.15789473684211,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 5.841244134917291,
+              "bias_log10": 0.03944011658410817,
+              "mae_log10": 0.4660210079325803,
+              "n": 95,
+              "within_2_fold_pct": 42.10526315789473,
+              "within_3_fold_pct": 66.3157894736842
+            }
+          ],
+          "mean_aafe": 5.384030507604562,
+          "mean_bias_log10": 0.041487068675448435,
+          "mean_mae_log10": 0.45151143213935435,
+          "mean_within_2_fold_pct": 45.37938596491228,
+          "median_aafe": 5.515084010739489,
+          "target_transform": "logfu",
+          "worst_aafe": 6.696030901235579
+        },
+        "random_forest_logfu": {
+          "cv_strategy": "5-fold GroupKFold by Murcko scaffold",
+          "decision": "REJECTED",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "features": "RDKit descriptors",
+          "folds": [
+            {
+              "aafe": 5.3447386310277,
+              "bias_log10": 0.0032118560670882277,
+              "mae_log10": 0.39982852333320057,
+              "n": 96,
+              "within_2_fold_pct": 53.125,
+              "within_3_fold_pct": 66.66666666666666
+            },
+            {
+              "aafe": 3.6298885001495007,
+              "bias_log10": -0.0058270495191083795,
+              "mae_log10": 0.39884382040561894,
+              "n": 95,
+              "within_2_fold_pct": 51.578947368421055,
+              "within_3_fold_pct": 65.26315789473685
+            },
+            {
+              "aafe": 5.951450516886039,
+              "bias_log10": 0.027004378819013648,
+              "mae_log10": 0.47947363260453746,
+              "n": 95,
+              "within_2_fold_pct": 48.421052631578945,
+              "within_3_fold_pct": 64.21052631578948
+            },
+            {
+              "aafe": 4.265780533527113,
+              "bias_log10": -0.022808021130431785,
+              "mae_log10": 0.46078868395051675,
+              "n": 95,
+              "within_2_fold_pct": 38.94736842105263,
+              "within_3_fold_pct": 64.21052631578948
+            },
+            {
+              "aafe": 5.3773028947576496,
+              "bias_log10": -0.0020298360388074617,
+              "mae_log10": 0.4361065604591249,
+              "n": 95,
+              "within_2_fold_pct": 46.31578947368421,
+              "within_3_fold_pct": 68.42105263157895
+            }
+          ],
+          "mean_aafe": 4.913832215269601,
+          "mean_bias_log10": -8.973436044915021e-05,
+          "mean_mae_log10": 0.43500824415059974,
+          "mean_within_2_fold_pct": 47.67763157894737,
+          "median_aafe": 5.3447386310277,
+          "target_transform": "logfu",
+          "worst_aafe": 5.951450516886039
+        },
+        "ridge_logfu": {
+          "cv_strategy": "5-fold GroupKFold by Murcko scaffold",
+          "decision": "REJECTED",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "features": "RDKit descriptors",
+          "folds": [
+            {
+              "aafe": 5.696681937162477,
+              "bias_log10": -0.07850537958369048,
+              "mae_log10": 0.5142853241418857,
+              "n": 96,
+              "within_2_fold_pct": 31.25,
+              "within_3_fold_pct": 57.291666666666664
+            },
+            {
+              "aafe": 4.133954488433844,
+              "bias_log10": -0.02634829056119116,
+              "mae_log10": 0.44546024323093697,
+              "n": 95,
+              "within_2_fold_pct": 43.15789473684211,
+              "within_3_fold_pct": 57.89473684210527
+            },
+            {
+              "aafe": 7.453788244589993,
+              "bias_log10": 0.0025993647065707497,
+              "mae_log10": 0.5172781121615664,
+              "n": 95,
+              "within_2_fold_pct": 38.94736842105263,
+              "within_3_fold_pct": 56.84210526315789
+            },
+            {
+              "aafe": 4.590168070945875,
+              "bias_log10": 0.000731644218745834,
+              "mae_log10": 0.44136244634595884,
+              "n": 95,
+              "within_2_fold_pct": 46.31578947368421,
+              "within_3_fold_pct": 56.84210526315789
+            },
+            {
+              "aafe": 5.383281524343291,
+              "bias_log10": -0.010479636408628219,
+              "mae_log10": 0.47942861060413783,
+              "n": 95,
+              "within_2_fold_pct": 41.05263157894737,
+              "within_3_fold_pct": 62.10526315789474
+            }
+          ],
+          "mean_aafe": 5.451574853095096,
+          "mean_bias_log10": -0.022400459525638655,
+          "mean_mae_log10": 0.47956294729689714,
+          "mean_within_2_fold_pct": 40.14473684210527,
+          "median_aafe": 5.383281524343291,
+          "target_transform": "logfu",
+          "worst_aafe": 7.453788244589993
+        }
+      },
+      "reason": "Research-only scaffold CV; no independent source validation.",
+      "selected": "extra_trees_logfu",
+      "training_N": 476,
+      "validation_N": 476
+    }
+  ],
+  "logd74": {
+    "qualified_experimental_N": 0,
+    "reason": "No qualified pH-explicit experimental labels in current accessible assets.",
+    "status": "MECHANISTIC_ONLY"
+  },
+  "next_queue": [
+    "HUMAN_FU_PLASMA",
+    "HUMAN_HEPATIC_CL",
+    "HUMAN_VDSS",
+    "HUMAN_TOTAL_IV_CL",
+    "IV_HALF_LIFE",
+    "ORAL_AUC",
+    "ORAL_CMAX"
+  ],
+  "pka": {
+    "qualified_experimental_N": 0,
+    "reason": "No qualified experimental labels in current accessible assets.",
+    "status": "MECHANISTIC_ONLY"
+  },
+  "production_decision": "UNCHANGED",
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2"
+}
