@@ -1,0 +1,454 @@
+{
+  "artifact": "model_qualification_data_closure_v6_2",
+  "commercial_data_specification": [
+    {
+      "current_qualified_n": 232,
+      "desired_new_n": 50,
+      "endpoint": "HUMAN_FU_PLASMA",
+      "independent_source_n": 0,
+      "metadata": [
+        "chemical identity",
+        "matrix",
+        "method",
+        "temperature",
+        "concentration",
+        "source record",
+        "study/reference"
+      ],
+      "priority": 3,
+      "role": "LOCKED_VALIDATION",
+      "semantics": "human plasma fraction unbound or fraction bound with method and concentration context"
+    },
+    {
+      "current_qualified_n": 748,
+      "desired_new_n": 30,
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "independent_source_n": 0,
+      "metadata": [
+        "analyte",
+        "chemical form",
+        "IV route",
+        "dose",
+        "formulation",
+        "study",
+        "unit",
+        "source record"
+      ],
+      "priority": 2,
+      "role": "LOCKED_VALIDATION",
+      "semantics": "human intravenous total systemic clearance, not CL/F, hepatic-only, renal-only, or derived"
+    },
+    {
+      "current_qualified_n": 50,
+      "desired_new_n": 100,
+      "endpoint": "HUMAN_VDSS",
+      "independent_source_n": 0,
+      "metadata": [
+        "analyte",
+        "IV route",
+        "steady-state definition",
+        "body weight",
+        "chemical form",
+        "study/reference",
+        "unit"
+      ],
+      "priority": 1,
+      "role": "DEVELOPMENT plus independent validation",
+      "semantics": "human IV-derived true Vss/Vdss in L/kg; exclude Vz, Vc, Vd/F"
+    }
+  ],
+  "created_from": {
+    "endpoint_rebuild": "f454cd63aee36ab2d24310ea720515d25cad7b85eb02034ab73e6ab2742bcb51",
+    "reference_library": "80f612caaef2f09f8ade3339226965e362d8a47b053cf06536c9583592afb1b2",
+    "script": "4ac6c637eb903ae469ed91503e0062107d84e5b687af7b42510d290e4e06cfc4"
+  },
+  "frozen_candidate_status": {
+    "PPB_FU": {
+      "algorithm": "extra_trees_descriptors",
+      "decision": "INDEPENDENT_VALIDATION_REQUIRED",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "features": "descriptors",
+      "independent_validation_n": 0,
+      "scaffold_cv": {
+        "features": "descriptors",
+        "folds": [
+          {
+            "aafe": 1.4826107655686316,
+            "afe": 1.1287032786148739,
+            "bias_log10": -0.005508016878459224,
+            "mae_log10": 0.14023627888199652,
+            "median_fold_error": 1.1884024566591846,
+            "n": 47,
+            "within_1_5_fold_pct": 70.2127659574468,
+            "within_2_fold_pct": 85.1063829787234,
+            "within_3_fold_pct": 97.87234042553192
+          },
+          {
+            "aafe": 1.2692076318171799,
+            "afe": 1.153918077038941,
+            "bias_log10": 0.03732633703821499,
+            "mae_log10": 0.08696903603719348,
+            "median_fold_error": 1.1290012863518495,
+            "n": 47,
+            "within_1_5_fold_pct": 87.2340425531915,
+            "within_2_fold_pct": 93.61702127659575,
+            "within_3_fold_pct": 97.87234042553192
+          },
+          {
+            "aafe": 1.3965726786442223,
+            "afe": 1.0544251914038054,
+            "bias_log10": -0.015879200714857145,
+            "mae_log10": 0.11232144368034926,
+            "median_fold_error": 1.1163225255304838,
+            "n": 46,
+            "within_1_5_fold_pct": 80.43478260869566,
+            "within_2_fold_pct": 93.47826086956522,
+            "within_3_fold_pct": 93.47826086956522
+          },
+          {
+            "aafe": 1.2111151879370774,
+            "afe": 0.9937361332807552,
+            "bias_log10": -0.019657518974012765,
+            "mae_log10": 0.07374581592165519,
+            "median_fold_error": 1.136805795807478,
+            "n": 46,
+            "within_1_5_fold_pct": 91.30434782608695,
+            "within_2_fold_pct": 95.65217391304348,
+            "within_3_fold_pct": 100.0
+          },
+          {
+            "aafe": 1.2245644060434888,
+            "afe": 1.0550000275441476,
+            "bias_log10": -0.007972458225845067,
+            "mae_log10": 0.06511606084390383,
+            "median_fold_error": 1.0833108975126073,
+            "n": 46,
+            "within_1_5_fold_pct": 95.65217391304348,
+            "within_2_fold_pct": 97.82608695652173,
+            "within_3_fold_pct": 97.82608695652173
+          }
+        ],
+        "mean_aafe": 1.31681413400212,
+        "mean_within_2": 93.13598519888993
+      },
+      "status": "RESEARCH_CANDIDATE",
+      "target_transform": "existing HUMAN_PPB normalized target; no silent fu relabel",
+      "training_n": 232
+    },
+    "TOTAL_IV_CL": {
+      "algorithm": "random_forest_descriptors",
+      "decision": "INDEPENDENT_VALIDATION_REQUIRED",
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "features": "descriptors",
+      "independent_validation_n": 0,
+      "locked_validation": {
+        "aafe": 1.69998285420217,
+        "afe": 1.1168379651820808,
+        "bias_log10": -0.016819031776503495,
+        "mae_log10": 0.2086186304694527,
+        "median_fold_error": 1.6230746882664668,
+        "n": 7,
+        "within_1_5_fold_pct": 42.857142857142854,
+        "within_2_fold_pct": 71.42857142857143,
+        "within_3_fold_pct": 100.0
+      },
+      "scaffold_cv": {
+        "features": "descriptors",
+        "folds": [
+          {
+            "aafe": 5.445650743736039,
+            "afe": 3.499235253034767,
+            "bias_log10": 0.016969344513773705,
+            "mae_log10": 0.47521506241914985,
+            "median_fold_error": 2.4465094263153686,
+            "n": 150,
+            "within_1_5_fold_pct": 24.0,
+            "within_2_fold_pct": 38.666666666666664,
+            "within_3_fold_pct": 59.333333333333336
+          },
+          {
+            "aafe": 13.595646746856131,
+            "afe": 12.52306552198863,
+            "bias_log10": 0.11236512969911923,
+            "mae_log10": 0.41940078033936756,
+            "median_fold_error": 1.941959521875411,
+            "n": 150,
+            "within_1_5_fold_pct": 32.666666666666664,
+            "within_2_fold_pct": 51.33333333333333,
+            "within_3_fold_pct": 68.0
+          },
+          {
+            "aafe": 7.958250839264318,
+            "afe": 5.459163433293364,
+            "bias_log10": -0.011025291806713173,
+            "mae_log10": 0.4401961070304703,
+            "median_fold_error": 2.091565412201568,
+            "n": 150,
+            "within_1_5_fold_pct": 30.0,
+            "within_2_fold_pct": 48.66666666666667,
+            "within_3_fold_pct": 69.33333333333334
+          },
+          {
+            "aafe": 3.5175246743822153,
+            "afe": 2.221151255470446,
+            "bias_log10": 0.00020018667417503983,
+            "mae_log10": 0.37373202861125215,
+            "median_fold_error": 1.9725279877314874,
+            "n": 149,
+            "within_1_5_fold_pct": 29.53020134228188,
+            "within_2_fold_pct": 51.67785234899329,
+            "within_3_fold_pct": 74.49664429530202
+          },
+          {
+            "aafe": 5.472082404218514,
+            "afe": 1.4633819645135,
+            "bias_log10": -0.09384688965141821,
+            "mae_log10": 0.377315838651213,
+            "median_fold_error": 1.9417806729103486,
+            "n": 149,
+            "within_1_5_fold_pct": 32.21476510067114,
+            "within_2_fold_pct": 51.67785234899329,
+            "within_3_fold_pct": 68.45637583892618
+          }
+        ],
+        "mean_aafe": 7.197831081691443,
+        "mean_within_2": 48.404474272930656
+      },
+      "status": "RESEARCH_CANDIDATE",
+      "target_transform": "log10 clearance",
+      "training_n": 748
+    }
+  },
+  "global_status": "MORE_FOUNDATION_REQUIRED",
+  "global_status_reason": "Core reference library and provenance are stable, but PPB and total-IV-CL lack independent validation and strict Vdss evidence is only 50 records from one source family.",
+  "independent_validation": {
+    "HUMAN_TOTAL_IV_CL": {
+      "qualified_n": 0,
+      "reason": "All qualified total-IV-CL candidate records are PKSmart source family; no independent source-family cohort was found in the current warehouse."
+    },
+    "PPB_FU": {
+      "qualified_n": 0,
+      "reason": "No independent source-family human plasma fu/PPB cohort available in the current warehouse; PKSmart fup is not an independent PPB validation source."
+    },
+    "VDSS": {
+      "qualified_n": 0,
+      "reason": "No independent source-family strict human Vdss cohort is present."
+    }
+  },
+  "learning_and_data_value": {
+    "HUMAN_TOTAL_IV_CL": "Within-source candidate performance is not sufficient for qualification; independent source-family IV total CL is required.",
+    "PPB_FU": "Scaffold-CV is strong but independent validation is the limiting experiment; buy/source validation before more training records.",
+    "VDSS": "Semantic qualification reduces 735 to 50; the dominant value is exact Vdss context and independent source diversity, not another tree-model sweep."
+  },
+  "production": "UNCHANGED",
+  "reference_library_n": 1000,
+  "vdss_strict_audit": {
+    "ambiguous_n": 735,
+    "decision": "VDSS_PUBLIC_DATA_INSUFFICIENT",
+    "model_comparison": {
+      "n": 50,
+      "results": {
+        "extra_trees_descriptors": {
+          "folds": [
+            {
+              "aafe": 2.7134147758549405,
+              "afe": 1.125749308243734,
+              "bias_log10": -0.10658922323810446,
+              "mae_log10": 0.3505598313079274,
+              "median_fold_error": 1.9248438251500812,
+              "n": 10,
+              "within_1_5_fold_pct": 40.0,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 70.0
+            },
+            {
+              "aafe": 2.9931629510333773,
+              "afe": 1.635368478722564,
+              "bias_log10": -0.07983381098607464,
+              "mae_log10": 0.40826442500916366,
+              "median_fold_error": 2.38840035525783,
+              "n": 10,
+              "within_1_5_fold_pct": 20.0,
+              "within_2_fold_pct": 30.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 4.509659745205759,
+              "afe": 3.397461751187818,
+              "bias_log10": 0.051328630541026266,
+              "mae_log10": 0.41480178832326287,
+              "median_fold_error": 2.150162328753555,
+              "n": 10,
+              "within_1_5_fold_pct": 40.0,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 5.307707185694463,
+              "afe": 2.5911313624626837,
+              "bias_log10": -0.12138018712770302,
+              "mae_log10": 0.4736704756076674,
+              "median_fold_error": 1.88146075372907,
+              "n": 10,
+              "within_1_5_fold_pct": 40.0,
+              "within_2_fold_pct": 60.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 2.9493665259964983,
+              "afe": 2.1357040680585895,
+              "bias_log10": 0.16336240205278418,
+              "mae_log10": 0.42486611515203576,
+              "median_fold_error": 2.4021969754510017,
+              "n": 10,
+              "within_1_5_fold_pct": 0.0,
+              "within_2_fold_pct": 40.0,
+              "within_3_fold_pct": 80.0
+            }
+          ],
+          "mean_aafe": 3.694662236757008,
+          "mean_within_2_fold_pct": 46.0
+        },
+        "median_log_vdss": {
+          "folds": [
+            {
+              "aafe": 3.1618432129766996,
+              "afe": 1.3948685600856987,
+              "bias_log10": -0.06200496266137667,
+              "mae_log10": 0.3827214844030665,
+              "median_fold_error": 2.009771546560493,
+              "n": 10,
+              "within_1_5_fold_pct": 40.0,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 2.906914217546091,
+              "afe": 1.5396096648362239,
+              "bias_log10": -0.07067835563137409,
+              "mae_log10": 0.3811582095111878,
+              "median_fold_error": 2.09704621997074,
+              "n": 10,
+              "within_1_5_fold_pct": 20.0,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 70.0
+            },
+            {
+              "aafe": 3.314989691195238,
+              "afe": 2.5660971036716322,
+              "bias_log10": 0.17988690025227938,
+              "mae_log10": 0.42089540817638804,
+              "median_fold_error": 2.056293315139506,
+              "n": 10,
+              "within_1_5_fold_pct": 20.0,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 6.5202919254658385,
+              "afe": 2.543313423700248,
+              "bias_log10": -0.3232668021199013,
+              "mae_log10": 0.6125441296686001,
+              "median_fold_error": 3.916666666666667,
+              "n": 10,
+              "within_1_5_fold_pct": 20.0,
+              "within_2_fold_pct": 40.0,
+              "within_3_fold_pct": 40.0
+            },
+            {
+              "aafe": 2.6919650193123936,
+              "afe": 2.3411773484529355,
+              "bias_log10": 0.23165340426067277,
+              "mae_log10": 0.37271880376879984,
+              "median_fold_error": 2.300131658566319,
+              "n": 10,
+              "within_1_5_fold_pct": 20.0,
+              "within_2_fold_pct": 30.0,
+              "within_3_fold_pct": 70.0
+            }
+          ],
+          "mean_aafe": 3.7192008132992527,
+          "mean_within_2_fold_pct": 44.0
+        },
+        "ridge_descriptors": {
+          "folds": [
+            {
+              "aafe": 2.6384942646407388,
+              "afe": 1.0633538935764741,
+              "bias_log10": -0.1175606261488352,
+              "mae_log10": 0.31484765093174,
+              "median_fold_error": 1.5404668938851809,
+              "n": 10,
+              "within_1_5_fold_pct": 50.0,
+              "within_2_fold_pct": 60.0,
+              "within_3_fold_pct": 70.0
+            },
+            {
+              "aafe": 2.8498624626045412,
+              "afe": 1.5701915342774315,
+              "bias_log10": -0.06408208604663677,
+              "mae_log10": 0.3859399528047252,
+              "median_fold_error": 2.6070514723399847,
+              "n": 10,
+              "within_1_5_fold_pct": 30.0,
+              "within_2_fold_pct": 40.0,
+              "within_3_fold_pct": 50.0
+            },
+            {
+              "aafe": 4.869518402643177,
+              "afe": 3.9614442779425816,
+              "bias_log10": 0.09213526740085766,
+              "mae_log10": 0.4228571611943356,
+              "median_fold_error": 2.0244631071960497,
+              "n": 10,
+              "within_1_5_fold_pct": 30.0,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 5.455891144868242,
+              "afe": 2.9282077478861006,
+              "bias_log10": -0.15757213659213393,
+              "mae_log10": 0.5254640026789309,
+              "median_fold_error": 2.4829556530480863,
+              "n": 10,
+              "within_1_5_fold_pct": 10.0,
+              "within_2_fold_pct": 40.0,
+              "within_3_fold_pct": 60.0
+            },
+            {
+              "aafe": 3.2126434686436247,
+              "afe": 2.4805269305317688,
+              "bias_log10": 0.22315457466950286,
+              "mae_log10": 0.4296026264302434,
+              "median_fold_error": 3.005405130666114,
+              "n": 10,
+              "within_1_5_fold_pct": 30.0,
+              "within_2_fold_pct": 40.0,
+              "within_3_fold_pct": 50.0
+            }
+          ],
+          "mean_aafe": 3.805281948680064,
+          "mean_within_2_fold_pct": 46.0
+        }
+      },
+      "status": "STRICT_SAME_SOURCE_CV"
+    },
+    "original_v6_1_qualified_n": 735,
+    "pksmart_marker_n": 750,
+    "rejected_n": 15,
+    "source_families": [
+      "DrugBank/reference"
+    ],
+    "source_independence": "SINGLE_EXISTING_REFERENCE_FAMILY",
+    "strict_n30_overlap": 0,
+    "strict_qualified_n": 50,
+    "strict_semantics": {
+      "analyte": "record-level analyte not present in PKSmart marker records; structured records retain source reference",
+      "context": "Clinical IV Pharmacokinetics",
+      "endpoint": "true Vdss",
+      "species": "Homo sapiens",
+      "unit": "L/kg"
+    }
+  }
+}
