@@ -1,0 +1,246 @@
+{
+  "artifact": "independent_evidence_acquisition_v6_3",
+  "commercial_vendor_framework": {
+    "decision_bands": {
+      "HIGH_VALUE": ">=80",
+      "LOW_VALUE": "40-59",
+      "MODERATE_VALUE": "60-79",
+      "REDUNDANT": "<40 or source-family overlap"
+    },
+    "minimums": {
+      "HUMAN_FU_PLASMA": {
+        "metadata": [
+          "human plasma",
+          "fu or bound fraction",
+          "method",
+          "concentration",
+          "temperature",
+          "analyte",
+          "study/publication"
+        ],
+        "minimum_n": 50,
+        "preferred_n": "100",
+        "role": "locked validation"
+      },
+      "HUMAN_TOTAL_IV_CL": {
+        "metadata": [
+          "human IV",
+          "total systemic CL",
+          "mL/min/kg",
+          "analyte",
+          "dose",
+          "formulation",
+          "study/publication",
+          "chemical form"
+        ],
+        "minimum_n": 30,
+        "preferred_n": "50-100",
+        "role": "locked validation"
+      },
+      "HUMAN_VDSS": {
+        "metadata": [
+          "true Vss/Vdss",
+          "human IV",
+          "L/kg",
+          "analyte",
+          "body weight",
+          "study/publication",
+          "chemical form"
+        ],
+        "minimum_n": 100,
+        "preferred_n": "150-300",
+        "role": "development plus locked validation"
+      }
+    },
+    "scoring": {
+      "duplicate_rate": 5,
+      "endpoint_match": 20,
+      "independent_source_families": 10,
+      "license_internal_ml_rights": 10,
+      "original_study_lineage": 15,
+      "record_level_metadata": 15,
+      "species_context_match": 15,
+      "unique_compounds_and_scaffolds": 10
+    }
+  },
+  "created_at": "2026-09-07",
+  "endpoint_datasets": {
+    "HUMAN_FU_PLASMA": {
+      "canonical_unit": "fraction unbound",
+      "created_at": "2026-09-07",
+      "dataset_hash": "a13614efd04174aa8ec96afd2487f181b63cecaf50473b3a70a0aad3800a8bb8",
+      "dataset_version": "human_fu_plasma_independent_v1",
+      "desired_new_n": 50,
+      "endpoint": "HUMAN_FU_PLASMA",
+      "endpoint_definition": "human plasma fraction unbound or explicitly invertible fraction bound",
+      "notes": "The current candidate uses DrugBank/reference PPB records; PKSmart fup is not independent PPB validation and related public compilations lack reproducible study lineage in this gate.",
+      "qualification_policy": [
+        "human species",
+        "exact endpoint semantics",
+        "record-level experimental value and unit",
+        "chemical identity and chemical form resolution",
+        "original study/publication lineage",
+        "source-family independence from PKSmart"
+      ],
+      "qualified_n": 0,
+      "rejections": [],
+      "role": "LOCKED_EXTERNAL_VALIDATION",
+      "source_families_searched": [
+        "PKSmart",
+        "PK-DB",
+        "TDC",
+        "ADMET-MTFT",
+        "FDA-DailyMed-DrugCentral",
+        "ChEMBL-PubChem"
+      ],
+      "status": "NO_QUALIFIED_INDEPENDENT_RECORDS",
+      "unique_compounds": 0,
+      "unique_scaffolds": 0,
+      "unique_studies": 0
+    },
+    "HUMAN_TOTAL_IV_CL": {
+      "canonical_unit": "mL/min/kg",
+      "created_at": "2026-09-07",
+      "dataset_hash": "b96d3c847c89cdcac775f4084717db81a58701ffcf1b3883a914efe82871385d",
+      "dataset_version": "human_total_iv_cl_independent_v1",
+      "desired_new_n": 30,
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "endpoint_definition": "human intravenous total systemic clearance; exclude CL/F and organ-specific clearance",
+      "notes": "No non-PKSmart source-family cohort with reproducible IV total-CL study lineage was qualified.",
+      "qualification_policy": [
+        "human species",
+        "exact endpoint semantics",
+        "record-level experimental value and unit",
+        "chemical identity and chemical form resolution",
+        "original study/publication lineage",
+        "source-family independence from PKSmart"
+      ],
+      "qualified_n": 0,
+      "rejections": [],
+      "role": "LOCKED_EXTERNAL_VALIDATION",
+      "source_families_searched": [
+        "PKSmart",
+        "PK-DB",
+        "TDC",
+        "ADMET-MTFT",
+        "FDA-DailyMed-DrugCentral",
+        "ChEMBL-PubChem"
+      ],
+      "status": "NO_QUALIFIED_INDEPENDENT_RECORDS",
+      "unique_compounds": 0,
+      "unique_scaffolds": 0,
+      "unique_studies": 0
+    },
+    "HUMAN_VDSS": {
+      "canonical_unit": "L/kg",
+      "created_at": "2026-09-07",
+      "dataset_hash": "8dcaced6abf6fbd3e739673ad557eafd827536925c67adf29a8db7a4867ac574",
+      "dataset_version": "human_vdss_independent_v1",
+      "desired_new_n": 100,
+      "endpoint": "HUMAN_VDSS",
+      "endpoint_definition": "human IV-derived true steady-state volume; exclude Vz/Vc/Vd/F",
+      "notes": "PKSmart values without record-level analyte/formulation/study context remain ambiguous; existing 50 structured records are the only strict set and are not an independent source family.",
+      "qualification_policy": [
+        "human species",
+        "exact endpoint semantics",
+        "record-level experimental value and unit",
+        "chemical identity and chemical form resolution",
+        "original study/publication lineage",
+        "source-family independence from PKSmart"
+      ],
+      "qualified_n": 0,
+      "rejections": [],
+      "role": "LOCKED_EXTERNAL_VALIDATION",
+      "source_families_searched": [
+        "PKSmart",
+        "PK-DB",
+        "TDC",
+        "ADMET-MTFT",
+        "FDA-DailyMed-DrugCentral",
+        "ChEMBL-PubChem"
+      ],
+      "status": "NO_QUALIFIED_INDEPENDENT_RECORDS",
+      "unique_compounds": 0,
+      "unique_scaffolds": 0,
+      "unique_studies": 0
+    }
+  },
+  "frozen_candidate_evaluation": {
+    "HUMAN_TOTAL_IV_CL": {
+      "external_n": 0,
+      "status": "RESEARCH_CANDIDATE"
+    },
+    "HUMAN_VDSS": {
+      "external_n": 0,
+      "status": "DATA_LIMITED"
+    },
+    "PPB_FU": {
+      "external_n": 0,
+      "status": "RESEARCH_CANDIDATE"
+    }
+  },
+  "global_blocker": "Independent, record-level study-qualified validation data for PPB/fu and total IV CL, plus strict Vdss source diversity, are still absent.",
+  "global_status": "MORE_FOUNDATION_REQUIRED",
+  "prior_qualification_artifact": "model_qualification_data_closure_v6_2.json",
+  "production": "UNCHANGED",
+  "reference_library_n": 1000,
+  "source_policy": "source_family and original_study are separate; mirrors are not independent",
+  "sources_searched": [
+    {
+      "accepted": 0,
+      "database": "PKSmart Human_PK_data.csv / External_test_315.csv",
+      "lineage": "PKSmart",
+      "reason": "Already supplies the development/consumed stress lineage; mirrored or split files cannot qualify external validation.",
+      "source_family": "PKSmart",
+      "status": "SAME_SOURCE_FAMILY_NOT_INDEPENDENT"
+    },
+    {
+      "accepted": 0,
+      "database": "PK-DB REST API",
+      "lineage": "PK-DB",
+      "reason": "Public API discovery was inspected; no reproducible qualified human IV total-CL or strict Vdss/fu validation records were extracted in this gate.",
+      "source_family": "PK-DB",
+      "status": "NO_REPRODUCIBLE_TARGET_RECORDS"
+    },
+    {
+      "accepted": 0,
+      "database": "PPBR / Clearance_Hepatocyte benchmark families",
+      "lineage": "TDC-associated source datasets",
+      "reason": "Related PPB or hepatocyte datasets do not establish human plasma fu study lineage or human IV total CL/Vdss semantics required here.",
+      "source_family": "TDC",
+      "status": "RELATED_ENDPOINT_NOT_VALIDATION_TARGET"
+    },
+    {
+      "accepted": 0,
+      "database": "public ADME benchmark files",
+      "lineage": "ADME benchmark compilation",
+      "reason": "Human fup is documented, but original-study deduplication and independent validation lineage are not reproducible from the current accessible artifact.",
+      "source_family": "ADMET-MTFT",
+      "status": "FOUND_NOT_LINEAGE_QUALIFIED"
+    },
+    {
+      "accepted": 0,
+      "database": "regulatory labels and curated reference evidence",
+      "lineage": "DrugBank/reference",
+      "reason": "Current structured PPB/Vdss evidence is already represented by the DrugBank/reference family; no new non-overlapping study set was established.",
+      "source_family": "FDA-DailyMed-DrugCentral",
+      "status": "EXISTING_REFERENCE_FAMILY"
+    },
+    {
+      "accepted": 0,
+      "database": "bioassay repositories",
+      "lineage": "mixed/public assay aggregation",
+      "reason": "Useful assay evidence is not a substitute for clinical human IV total CL, true IV Vdss, or study-qualified plasma fu validation.",
+      "source_family": "ChEMBL-PubChem",
+      "status": "SEMANTICS_NOT_TARGET"
+    }
+  ],
+  "study_lineage": {
+    "cross_database_duplicates": 0,
+    "duplicate_studies_detected_in_accepted_set": 0,
+    "independent_studies": 0,
+    "newly_accepted_records": 0,
+    "policy": "unresolved lineage is held/rejected, never counted as independent",
+    "unknown_lineage_records_accepted": 0
+  }
+}

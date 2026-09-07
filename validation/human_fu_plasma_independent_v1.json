@@ -1,0 +1,34 @@
+{
+  "canonical_unit": "fraction unbound",
+  "created_at": "2026-09-07",
+  "dataset_hash": "a13614efd04174aa8ec96afd2487f181b63cecaf50473b3a70a0aad3800a8bb8",
+  "dataset_version": "human_fu_plasma_independent_v1",
+  "desired_new_n": 50,
+  "endpoint": "HUMAN_FU_PLASMA",
+  "endpoint_definition": "human plasma fraction unbound or explicitly invertible fraction bound",
+  "notes": "The current candidate uses DrugBank/reference PPB records; PKSmart fup is not independent PPB validation and related public compilations lack reproducible study lineage in this gate.",
+  "qualification_policy": [
+    "human species",
+    "exact endpoint semantics",
+    "record-level experimental value and unit",
+    "chemical identity and chemical form resolution",
+    "original study/publication lineage",
+    "source-family independence from PKSmart"
+  ],
+  "qualified_n": 0,
+  "qualified_records": [],
+  "rejections": [],
+  "role": "LOCKED_EXTERNAL_VALIDATION",
+  "source_families_searched": [
+    "PKSmart",
+    "PK-DB",
+    "TDC",
+    "ADMET-MTFT",
+    "FDA-DailyMed-DrugCentral",
+    "ChEMBL-PubChem"
+  ],
+  "status": "NO_QUALIFIED_INDEPENDENT_RECORDS",
+  "unique_compounds": 0,
+  "unique_scaffolds": 0,
+  "unique_studies": 0
+}
