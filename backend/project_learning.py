@@ -23,6 +23,7 @@ from sqlalchemy.orm import Session
 
 from .admet import ADMETMeasurement, ADMETModelRegistry, ADMETPrediction, PredictionExperimentalPairRecord
 from .models import Compound, CompoundVersion, ExternalExperimentalEvidence
+from .project_learning_contract import ProjectPredictionResidual
 
 LEARNING_OBSERVATION_POLICY_VERSION = "drugopt-learning-observation-policy-v1"
 DIRECT_COMPARABILITY = {"DIRECTLY_COMPARABLE", "COMPARABLE_AFTER_DETERMINISTIC_CONVERSION"}
@@ -230,6 +231,9 @@ def record_canonical_evidence_pair(db: Session, project_id: int, evidence: Exter
 
 
 def ledger_out(row: PredictionExperimentalPairRecord):
+    residual = None
+    if row.base_prediction is not None and row.experimental_value is not None:
+        residual = ProjectPredictionResidual.from_pair(row)
     return {
         "id": row.id, "pair_key": row.pair_key, "project_id": row.project_id,
         "compound_version_id": row.compound_version_id, "endpoint": row.endpoint_name,
@@ -242,8 +246,16 @@ def ledger_out(row: PredictionExperimentalPairRecord):
         "independent_experiment_group_id": row.independent_experiment_group_id,
         "base_prediction": row.base_prediction, "project_prediction": row.project_prediction,
         "experimental_value": row.experimental_value, "experimental_unit": row.experimental_unit,
+        "global_model_version": residual.global_model_version if residual else None,
+        "global_prediction": residual.global_prediction if residual else row.base_prediction,
+        "global_uncertainty": residual.global_uncertainty if residual else None,
+        "global_ad": residual.global_ad if residual else "UNKNOWN",
+        "residual": residual.residual if residual else None,
         "absolute_error": row.absolute_error, "signed_error": row.signed_error,
         "project_absolute_error": row.project_absolute_error,
+        "fold_error": residual.fold_error if residual else None,
+        "project_residual": residual.project_residual if residual else None,
+        "prospective_status": residual.prospective_status if residual else "NO_NUMERIC_PAIR",
         "adapter_version": row.adapter_version, "included_in_future_adapter": row.included_in_future_adapter,
         "exclusion_reason": row.exclusion_reason,
     }

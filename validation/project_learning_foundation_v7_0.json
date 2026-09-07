@@ -1,0 +1,1678 @@
+{
+  "adapter_contract": [
+    "global_prediction",
+    "global_uncertainty",
+    "GLOBAL_AD",
+    "PROJECT_AD",
+    "model_version",
+    "model_status",
+    "recommended_source",
+    "residual"
+  ],
+  "artifact": "project_learning_foundation_v7_0",
+  "created_at": "2026-09-07",
+  "global_baseline_sha256": "afbffdf0806f2270a5e34431b159c1c5ea96474908f48cd8c64771eff4b7a27c",
+  "global_engine": {
+    "hash": "12757ab197b5a70d8ea1754678d9a342ab0b6ea0d82f2896bebb767d686bbdeb",
+    "policy": "drugopt-prediction-engine-v1@1.0.0",
+    "status": "UNCHANGED"
+  },
+  "policy_version": "drugopt-project-learning-v7.0",
+  "project_adapter_registry": {
+    "existing_rows": 0,
+    "historical_immutability": true,
+    "table": "project_adapter_versions"
+  },
+  "projects": [
+    {
+      "compound_n": 4,
+      "endpoint_readiness": [
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HLM % remaining"
+          },
+          "endpoint": "HLM % remaining",
+          "experimental_compounds": 1,
+          "global_model": "endpoint-specific/unknown",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RLM % remaining"
+          },
+          "endpoint": "RLM % remaining",
+          "experimental_compounds": 1,
+          "global_model": "endpoint-specific/unknown",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_EC50"
+          },
+          "endpoint": "ACTIVITY_EC50",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_EMAX"
+          },
+          "endpoint": "ACTIVITY_EMAX",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_SELECTIVITY_RATIO"
+          },
+          "endpoint": "ACTIVITY_SELECTIVITY_RATIO",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "BCRP_INHIBITION"
+          },
+          "endpoint": "BCRP_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP1A2_INHIBITION"
+          },
+          "endpoint": "CYP1A2_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP1A2_SUBSTRATE"
+          },
+          "endpoint": "CYP1A2_SUBSTRATE",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2B6_INHIBITION"
+          },
+          "endpoint": "CYP2B6_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2C19_INHIBITION"
+          },
+          "endpoint": "CYP2C19_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2C8_INHIBITION"
+          },
+          "endpoint": "CYP2C8_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2C8_METABOLIC_CONTRIBUTION"
+          },
+          "endpoint": "CYP2C8_METABOLIC_CONTRIBUTION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2C9_INHIBITION"
+          },
+          "endpoint": "CYP2C9_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP3A4_INHIBITION"
+          },
+          "endpoint": "CYP3A4_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP3A4_METABOLIC_CONTRIBUTION"
+          },
+          "endpoint": "CYP3A4_METABOLIC_CONTRIBUTION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP3A4_SUBSTRATE"
+          },
+          "endpoint": "CYP3A4_SUBSTRATE",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "EXCRETION_FECAL"
+          },
+          "endpoint": "EXCRETION_FECAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "EXCRETION_URINARY"
+          },
+          "endpoint": "EXCRETION_URINARY",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_INF_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_AUC0_INF_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_ORAL"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY84"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY84",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC_ORAL"
+          },
+          "endpoint": "HUMAN_PK_AUC_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_AUC_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC_UNSPECIFIED_DAY28"
+          },
+          "endpoint": "HUMAN_PK_AUC_UNSPECIFIED_DAY28",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CLF_ORAL_ORAL"
+          },
+          "endpoint": "HUMAN_PK_CLF_ORAL_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CL_IV"
+          },
+          "endpoint": "HUMAN_PK_CL_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CL_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_CL_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CL_UNSPECIFIED_DAY28"
+          },
+          "endpoint": "HUMAN_PK_CL_UNSPECIFIED_DAY28",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_ORAL"
+          },
+          "endpoint": "HUMAN_PK_CMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED_DAY17"
+          },
+          "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED_DAY17",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED_DAY21"
+          },
+          "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED_DAY21",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_DDI_RELATIVE_RATIO"
+          },
+          "endpoint": "HUMAN_PK_DDI_RELATIVE_RATIO",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_F_ORAL"
+          },
+          "endpoint": "HUMAN_PK_F_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_F_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_F_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_TMAX_ORAL"
+          },
+          "endpoint": "HUMAN_PK_TMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED_DAY84"
+          },
+          "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED_DAY84",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_T_HALF_IV"
+          },
+          "endpoint": "HUMAN_PK_T_HALF_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_T_HALF_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_T_HALF_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_VD_IV"
+          },
+          "endpoint": "HUMAN_PK_VD_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_VD_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_VD_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PPB"
+          },
+          "endpoint": "HUMAN_PPB",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "LITERATURE_CITATION"
+          },
+          "endpoint": "LITERATURE_CITATION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "METABOLITE_OBSERVATION"
+          },
+          "endpoint": "METABOLITE_OBSERVATION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MONKEY_PK_DDI_RELATIVE_RATIO"
+          },
+          "endpoint": "MONKEY_PK_DDI_RELATIVE_RATIO",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MONKEY_PK_F_ORAL"
+          },
+          "endpoint": "MONKEY_PK_F_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MONKEY_PK_TMAX_ORAL"
+          },
+          "endpoint": "MONKEY_PK_TMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "PGP_INHIBITION"
+          },
+          "endpoint": "PGP_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "SOLUBILITY_GENERIC"
+          },
+          "endpoint": "SOLUBILITY_GENERIC",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "UNRESOLVED"
+          },
+          "endpoint": "UNRESOLVED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "UNSPECIFIED_PK_DDI_RELATIVE_RATIO"
+          },
+          "endpoint": "UNSPECIFIED_PK_DDI_RELATIVE_RATIO",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        }
+      ],
+      "project": "GLP-1 (small molecule)",
+      "project_id": 1,
+      "reason": "No project/endpoint has sufficient validated LOCO improvement evidence; no real adapter was trained.",
+      "trained_real_adapter_n": 0
+    },
+    {
+      "compound_n": 7,
+      "endpoint_readiness": [
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_EC50"
+          },
+          "endpoint": "ACTIVITY_EC50",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_GI50"
+          },
+          "endpoint": "ACTIVITY_GI50",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_IC50"
+          },
+          "endpoint": "ACTIVITY_IC50",
+          "experimental_compounds": 5,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_INHIBITION"
+          },
+          "endpoint": "ACTIVITY_INHIBITION",
+          "experimental_compounds": 4,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_KD"
+          },
+          "endpoint": "ACTIVITY_KD",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_SELECTIVITY_RATIO"
+          },
+          "endpoint": "ACTIVITY_SELECTIVITY_RATIO",
+          "experimental_compounds": 4,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "ACTIVITY_TGI"
+          },
+          "endpoint": "ACTIVITY_TGI",
+          "experimental_compounds": 3,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "BCRP_INHIBITION"
+          },
+          "endpoint": "BCRP_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP1A2_INHIBITION"
+          },
+          "endpoint": "CYP1A2_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP1A2_METABOLIC_CONTRIBUTION"
+          },
+          "endpoint": "CYP1A2_METABOLIC_CONTRIBUTION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2B6_INHIBITION"
+          },
+          "endpoint": "CYP2B6_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2B6_SUBSTRATE"
+          },
+          "endpoint": "CYP2B6_SUBSTRATE",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2C8_SUBSTRATE"
+          },
+          "endpoint": "CYP2C8_SUBSTRATE",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2C9_SUBSTRATE"
+          },
+          "endpoint": "CYP2C9_SUBSTRATE",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2D6_INHIBITION"
+          },
+          "endpoint": "CYP2D6_INHIBITION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP2D6_METABOLIC_CONTRIBUTION"
+          },
+          "endpoint": "CYP2D6_METABOLIC_CONTRIBUTION",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP3A4_INHIBITION"
+          },
+          "endpoint": "CYP3A4_INHIBITION",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP3A4_METABOLIC_CONTRIBUTION"
+          },
+          "endpoint": "CYP3A4_METABOLIC_CONTRIBUTION",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "CYP3A4_SUBSTRATE"
+          },
+          "endpoint": "CYP3A4_SUBSTRATE",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_MICROSOMAL_STABILITY_T_HALF"
+          },
+          "endpoint": "DOG_MICROSOMAL_STABILITY_T_HALF",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_AUC0_T_IV"
+          },
+          "endpoint": "DOG_PK_AUC0_T_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_AUC0_T_ORAL"
+          },
+          "endpoint": "DOG_PK_AUC0_T_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_CL_IV"
+          },
+          "endpoint": "DOG_PK_CL_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_CMAX_ORAL"
+          },
+          "endpoint": "DOG_PK_CMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_CMAX_UNSPECIFIED"
+          },
+          "endpoint": "DOG_PK_CMAX_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_F_IV"
+          },
+          "endpoint": "DOG_PK_F_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_F_ORAL"
+          },
+          "endpoint": "DOG_PK_F_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_F_UNSPECIFIED"
+          },
+          "endpoint": "DOG_PK_F_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_TMAX_ORAL"
+          },
+          "endpoint": "DOG_PK_TMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_T_HALF_IV"
+          },
+          "endpoint": "DOG_PK_T_HALF_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_T_HALF_ORAL"
+          },
+          "endpoint": "DOG_PK_T_HALF_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_T_HALF_UNSPECIFIED"
+          },
+          "endpoint": "DOG_PK_T_HALF_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PK_VSS_IV"
+          },
+          "endpoint": "DOG_PK_VSS_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "DOG_PPB"
+          },
+          "endpoint": "DOG_PPB",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "EXCRETION_FECAL"
+          },
+          "endpoint": "EXCRETION_FECAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "EXCRETION_URINARY"
+          },
+          "endpoint": "EXCRETION_URINARY",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HEPATOCYTE_CLINT"
+          },
+          "endpoint": "HEPATOCYTE_CLINT",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HERG_LIABILITY"
+          },
+          "endpoint": "HERG_LIABILITY",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HLM_CLINT"
+          },
+          "endpoint": "HLM_CLINT",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_MICROSOMAL_PROTEIN_BINDING"
+          },
+          "endpoint": "HUMAN_MICROSOMAL_PROTEIN_BINDING",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY1"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY1",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY29"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY29",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED_DAY82"
+          },
+          "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED_DAY82",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC_ORAL"
+          },
+          "endpoint": "HUMAN_PK_AUC_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_AUC_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_AUC_UNSPECIFIED",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CLF_ORAL_IV"
+          },
+          "endpoint": "HUMAN_PK_CLF_ORAL_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CLF_ORAL_ORAL"
+          },
+          "endpoint": "HUMAN_PK_CLF_ORAL_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CL_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_CL_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_IV"
+          },
+          "endpoint": "HUMAN_PK_CMAX_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_IV_DAY1"
+          },
+          "endpoint": "HUMAN_PK_CMAX_IV_DAY1",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_IV_DAY2"
+          },
+          "endpoint": "HUMAN_PK_CMAX_IV_DAY2",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_ORAL"
+          },
+          "endpoint": "HUMAN_PK_CMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_ORAL_DAY1"
+          },
+          "endpoint": "HUMAN_PK_CMAX_ORAL_DAY1",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_ORAL_DAY29"
+          },
+          "endpoint": "HUMAN_PK_CMAX_ORAL_DAY29",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_DDI_RELATIVE_RATIO"
+          },
+          "endpoint": "HUMAN_PK_DDI_RELATIVE_RATIO",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_F_IV"
+          },
+          "endpoint": "HUMAN_PK_F_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_F_ORAL"
+          },
+          "endpoint": "HUMAN_PK_F_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_F_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_F_UNSPECIFIED",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_TMAX_ORAL"
+          },
+          "endpoint": "HUMAN_PK_TMAX_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_T_HALF_ORAL"
+          },
+          "endpoint": "HUMAN_PK_T_HALF_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_T_HALF_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_T_HALF_UNSPECIFIED",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_VDF_ORAL_ORAL"
+          },
+          "endpoint": "HUMAN_PK_VDF_ORAL_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_VDF_ORAL_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_VDF_ORAL_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_VSSF_ORAL_ORAL"
+          },
+          "endpoint": "HUMAN_PK_VSSF_ORAL_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PK_VSS_UNSPECIFIED"
+          },
+          "endpoint": "HUMAN_PK_VSS_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "HUMAN_PPB"
+          },
+          "endpoint": "HUMAN_PPB",
+          "experimental_compounds": 3,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "LITERATURE_CITATION"
+          },
+          "endpoint": "LITERATURE_CITATION",
+          "experimental_compounds": 5,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "METABOLITE_OBSERVATION"
+          },
+          "endpoint": "METABOLITE_OBSERVATION",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MOUSE_PK_AUC0_T_ORAL"
+          },
+          "endpoint": "MOUSE_PK_AUC0_T_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MOUSE_PK_AUC_ORAL"
+          },
+          "endpoint": "MOUSE_PK_AUC_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MOUSE_PK_CMAX_ORAL"
+          },
+          "endpoint": "MOUSE_PK_CMAX_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "MOUSE_PK_CMAX_UNSPECIFIED"
+          },
+          "endpoint": "MOUSE_PK_CMAX_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "PGP_INHIBITION"
+          },
+          "endpoint": "PGP_INHIBITION",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_AUC0_T_IV"
+          },
+          "endpoint": "RAT_PK_AUC0_T_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_AUC0_T_ORAL"
+          },
+          "endpoint": "RAT_PK_AUC0_T_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_AUC_ORAL"
+          },
+          "endpoint": "RAT_PK_AUC_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_AUC_UNSPECIFIED"
+          },
+          "endpoint": "RAT_PK_AUC_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_CL_IV"
+          },
+          "endpoint": "RAT_PK_CL_IV",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_CMAX_IV_DAY1"
+          },
+          "endpoint": "RAT_PK_CMAX_IV_DAY1",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_CMAX_ORAL"
+          },
+          "endpoint": "RAT_PK_CMAX_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_CMAX_UNSPECIFIED"
+          },
+          "endpoint": "RAT_PK_CMAX_UNSPECIFIED",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_DDI_RELATIVE_RATIO"
+          },
+          "endpoint": "RAT_PK_DDI_RELATIVE_RATIO",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_F_IV"
+          },
+          "endpoint": "RAT_PK_F_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_F_ORAL"
+          },
+          "endpoint": "RAT_PK_F_ORAL",
+          "experimental_compounds": 2,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_TMAX_IV_DAY1"
+          },
+          "endpoint": "RAT_PK_TMAX_IV_DAY1",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_TMAX_ORAL"
+          },
+          "endpoint": "RAT_PK_TMAX_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_T_HALF_IV"
+          },
+          "endpoint": "RAT_PK_T_HALF_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_T_HALF_ORAL"
+          },
+          "endpoint": "RAT_PK_T_HALF_ORAL",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "RAT_PK_VSS_IV"
+          },
+          "endpoint": "RAT_PK_VSS_IV",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "SOLUBILITY_GENERIC"
+          },
+          "endpoint": "SOLUBILITY_GENERIC",
+          "experimental_compounds": 1,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        },
+        {
+          "adapter": {
+            "capability": "ADAPTER_SUPPORTED",
+            "eligible": true,
+            "endpoint": "UNRESOLVED"
+          },
+          "endpoint": "UNRESOLVED",
+          "experimental_compounds": 5,
+          "global_model": "canonical route if supported",
+          "status": "INSUFFICIENT_REAL_N"
+        }
+      ],
+      "project": "EGFR",
+      "project_id": 3,
+      "reason": "No project/endpoint has sufficient validated LOCO improvement evidence; no real adapter was trained.",
+      "trained_real_adapter_n": 0
+    },
+    {
+      "compound_n": 4,
+      "endpoint_readiness": [],
+      "project": "AMYR (small molecules)",
+      "project_id": 5,
+      "reason": "No project/endpoint has sufficient validated LOCO improvement evidence; no real adapter was trained.",
+      "trained_real_adapter_n": 0
+    }
+  ],
+  "real_pilot": {
+    "reason": "Real projects do not currently meet leakage-safe validation gate.",
+    "status": "NO_SCIENTIFIC_ADAPTER_TRAINED",
+    "trained": false
+  },
+  "recommendation": "ACCUMULATE_INTERNAL_EXPERIMENTAL_DATA_AND_ACTIVATE_PROJECT_ADAPTERS",
+  "synthetic_fixture_policy": "TEST_ONLY; never inserted into project measurements, evidence warehouse, or runtime DB"
+}
