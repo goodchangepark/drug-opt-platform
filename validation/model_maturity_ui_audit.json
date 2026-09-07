@@ -1,0 +1,455 @@
+{
+  "artifact": "model_maturity_ui_audit_v1",
+  "rows": [
+    {
+      "endpoint": "SOLUBILITY_GENERIC",
+      "current_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Multi-model stacking ensemble (ESOL Delaney + ADMETica + RDKit GBR), 4.86% error reduction vs v3.3 base, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "CACO2_PAPP_AB",
+      "current_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Multi-model stacking ensemble (ADMETica + PhysChem flux), 9.43% error reduction on normalized log10(cm/s) scale, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "HUMAN_PPB",
+      "current_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Multi-model stacking ensemble (ADMETica + PhysChem + Descriptor GBR), 12.72% error reduction on % bound, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "CYP3A4_INHIBITION",
+      "current_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Multi-model stacking ensemble (Drug-OPT Calibrated Residual Stacking + CheMeleon), 35.7% error reduction on pIC50, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "CYP2D6_INHIBITION",
+      "current_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Multi-model stacking ensemble (Drug-OPT Calibrated Residual Stacking + CheMeleon), 27.4% error reduction on pIC50, locked holdout N=5.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "HLM_CLINT",
+      "current_model": "V3_3_1_BEST_SINGLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Best single calibrated model (Log10 Clearance scale), 47.27% error reduction vs OpenADMET baseline, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "CYP1A2_INHIBITION",
+      "current_model": "V3_3_1_BEST_SINGLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Best single calibrated model (Calibrated pIC50), 19.3% error reduction vs v1 baseline, locked holdout N=5.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "CYP2C9_INHIBITION",
+      "current_model": "V3_3_1_BEST_SINGLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Best single calibrated model (Calibrated pIC50), 23.2% error reduction vs v3.3 baseline, locked holdout N=5.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "HERG_LIABILITY",
+      "current_model": "V3_3_1_BEST_SINGLE",
+      "registry_status": "PRODUCTION_DEFAULT",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Best single calibrated model (Continuous pIC50), 24.7% error reduction vs v3.3 baseline, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT"
+    },
+    {
+      "endpoint": "RLM_CLINT",
+      "current_model": "V3_3_2_BEST_SINGLE",
+      "registry_status": "PRODUCTION_VALIDATED",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Best single neural network model (OpenADMET CheMeleon RLM intrinsic clearance), 9.6% error reduction vs v3.3 base, locked holdout N=13.",
+      "production_status": "PRODUCTION_VALIDATED"
+    },
+    {
+      "endpoint": "MLM_CLINT",
+      "current_model": "V3_3_2_BEST_SINGLE",
+      "registry_status": "PRODUCTION_VALIDATED",
+      "maturity_level": 4,
+      "star_count": 4,
+      "evidence_basis": "Production Validated: Best single neural network model (OpenADMET CheMeleon MLM intrinsic clearance), 6.2% error reduction vs v3.3 base, locked holdout N=13.",
+      "production_status": "PRODUCTION_VALIDATED"
+    },
+    {
+      "endpoint": "VDSS",
+      "current_model": "RETAIN_V3_3",
+      "registry_status": "RETAINED_PRODUCTION",
+      "maturity_level": 3,
+      "star_count": 3,
+      "evidence_basis": "Validated Multi-Model: Multi-model consensus (Oie-Tozer physiologic distribution + PhysChem regression), validated on clinical human steady-state Vd dataset (N=20).",
+      "production_status": "RETAINED_PRODUCTION"
+    },
+    {
+      "endpoint": "HIA",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Gradient-boosted binary classifier, benchmarked and validated on TDC human intestinal absorption dataset.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "BBB_PENETRATION",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Machine learning binary classifier, benchmarked and validated on TDC blood-brain barrier penetration dataset.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Standard TDC binary classifier for CYP1A2 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Standard TDC binary classifier for CYP2C9 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Standard TDC binary classifier for CYP2C19 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Standard TDC binary classifier for CYP2D6 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Standard TDC binary classifier for CYP3A4 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Machine learning substrate probability model, validated on public substrate annotations.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP2D6_SUBSTRATE",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Machine learning substrate probability model, validated on public substrate annotations.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Machine learning substrate probability model, validated on public substrate annotations.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "PGP_INHIBITION",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Binary classifier for P-glycoprotein efflux inhibition, validated on TDC benchmark.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "BCRP_INHIBITOR",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Binary classifier for BCRP efflux transport inhibition, validated on TDC benchmark.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "HERG_CLASS",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Binary liability screen for hERG channel blockage, benchmarked on TDC dataset.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "AMES_MUTAGENICITY",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: Hansen et al. bacterial mutagenicity binary classifier, benchmarked on external Ames validation set.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "DILI_LIABILITY",
+      "current_model": "CLASSIFICATION_ONLY",
+      "registry_status": "BASELINE_CLASSIFICATION",
+      "maturity_level": 2,
+      "star_count": 2,
+      "evidence_basis": "Validated Base: FDA DILIrank-derived binary hepatotoxicity screen, validated on clinical liver injury database.",
+      "production_status": "BASELINE_CLASSIFICATION"
+    },
+    {
+      "endpoint": "MW",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Deterministic exact molecular weight calculated from atomic composition (RDKit).",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "CLOGP",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Wildman-Crippen atom-contribution octanol/water partition coefficient (RDKit).",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "TPSA",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Polar surface area computed from standard polar fragment topological sums (Ertl et al.).",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "HBD",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Exact count of Lipinski hydrogen bond donors (OH and NH groups).",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "HBA",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Exact count of Lipinski hydrogen bond acceptors (O and N atoms).",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "ROTB",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Exact count of rotatable non-ring single bonds (RDKit).",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "FSP3",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Fraction of sp3 hybridized carbons over total carbon count.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "QED",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Bickerton et al. desirability metric aggregating 8 physicochemical properties.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "FORMAL_CHARGE",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Net molecular electrical charge from formal valence state.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "HEAVY_ATOM_COUNT",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Exact count of non-hydrogen constituent atoms.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "METABOLIC_SOFT_SPOTS",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Semi-empirical SMARTCyp/SyGMa chemical vulnerability mapping.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "METABOLITE_HYPOTHESES",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Rule-based Phase I/II metabolic transformation tree generation.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "PKA",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Empirical ionization constant estimation based on acid/base substructure matching.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "LOGD_7_4",
+      "current_model": "LEGACY_BASE_FALLBACK",
+      "registry_status": "DETERMINISTIC_PROPERTY",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Base / Rule Estimate: Derived from Henderson-Hasselbalch ionization fraction and cLogP at pH 7.4.",
+      "production_status": "DETERMINISTIC_PROPERTY"
+    },
+    {
+      "endpoint": "HUMAN_PK_CLF_ORAL",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MECHANISTIC_ESTIMATE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Mechanistic Estimate: Derived from HLM IVIVE and hepatic extraction ratio, not directly fitted to clinical oral PK observations.",
+      "production_status": "MECHANISTIC_ESTIMATE"
+    },
+    {
+      "endpoint": "HUMAN_PK_VDF_ORAL",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MECHANISTIC_ESTIMATE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Mechanistic Estimate: Derived from physiologic tissue-plasma partitioning (Oie-Tozer) and bioavailability estimate, not directly fitted to clinical PK observations.",
+      "production_status": "MECHANISTIC_ESTIMATE"
+    },
+    {
+      "endpoint": "CYP2C19_INHIBITION",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Continuous pIC50 regression lacks sufficient high-quality training pairs to surpass promotion criteria; binary classifier available.",
+      "production_status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint": "PGP_INHIBITION_QUANT",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Standardized continuous transport IC50 datasets lack sufficient holdout stability; binary classification available.",
+      "production_status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint": "BCRP_INHIBITOR_QUANT",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Lack of standardized continuous efflux IC50 datasets; binary classifier available.",
+      "production_status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint": "OATP1B1_INHIBITOR",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint": "OATP1B3_INHIBITOR",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint": "OCT1_INHIBITOR",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "endpoint": "OCT2_INHIBITOR",
+      "current_model": "MODEL_UNAVAILABLE",
+      "registry_status": "MODEL_UNAVAILABLE",
+      "maturity_level": 1,
+      "star_count": 1,
+      "evidence_basis": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE"
+    }
+  ]
+}

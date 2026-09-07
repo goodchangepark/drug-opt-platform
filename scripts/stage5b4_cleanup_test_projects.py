@@ -17,13 +17,13 @@ from backend.admet import ADMETPrediction
 from backend.database import SessionLocal, engine
 from backend.human_pk import ensure_human_pk_schema
 from backend.main import _confirmed_project_delete
-from backend.models import Compound, CompoundVersion, Project
+from backend.models import Compound, CompoundVersion, ExternalExperimentalEvidence, Project
 from backend.optimization import OptimizationRun
 from backend.pk import PKStudy
 from backend.stabilization import classify_project
 
 
-OUTPUT = ROOT / "validation" / "test_projects_cleanup.json"
+OUTPUT = ROOT / "validation" / "test_project_cleanup_audit.json"
 
 
 def project_rows(db) -> list[dict]:
@@ -34,10 +34,13 @@ def project_rows(db) -> list[dict]:
         predictions = int(db.scalar(select(func.count(ADMETPrediction.id)).join(
             CompoundVersion, ADMETPrediction.version_id == CompoundVersion.id).join(
             Compound, CompoundVersion.compound_row_id == Compound.id).where(Compound.project_id == project.id)) or 0)
+        evidence = int(db.scalar(select(func.count(ExternalExperimentalEvidence.id)).join(
+            CompoundVersion, ExternalExperimentalEvidence.compound_version_id == CompoundVersion.id).join(
+            Compound, CompoundVersion.compound_row_id == Compound.id).where(Compound.project_id == project.id)) or 0)
         optimization = int(db.scalar(select(func.count(OptimizationRun.id)).where(OptimizationRun.project_id == project.id)) or 0)
         row = {"project_id": project.id, "project_name": project.name, "target": project.target,
                "description": project.description, "compound_count": compounds, "pk_study_count": pk_studies,
-               "prediction_count": predictions, "optimization_run_count": optimization,
+               "prediction_count": predictions, "evidence_count": evidence, "optimization_run_count": optimization,
                "created_at": project.created_at.isoformat() if project.created_at else None}
         classification, reason = classify_project(row)
         row.update({"classification": classification, "reason_classified_as_test": reason,

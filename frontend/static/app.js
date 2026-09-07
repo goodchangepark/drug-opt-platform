@@ -70,7 +70,7 @@ function StatusBadge({type}){
  return e('span',{className:'status-badge status-'+String(type||'not-applicable').toLowerCase().replace(/[^a-z]+/g,'-')},labels[type]||type||'NOT APPLICABLE');
 }
 
-function AIChatSection({compoundId,section,placeholder='Qwen3.5 9B',title='AI Section Assistant (Qwen3.5 9B)'}){
+function AIChatSection({compoundId,section,placeholder='Ask about this section',title='AI Section Assistant'}){
  const [input,setInput]=useState('');
  const [loading,setLoading]=useState(false);
  const [history,setHistory]=useState([]);
@@ -97,8 +97,8 @@ function AIChatSection({compoundId,section,placeholder='Qwen3.5 9B',title='AI Se
 
  return e('div',{className:'card ai-chat-box',key:'ai-chat-section-'+section},[
   e('div',{className:'ai-chat-header'},[
-   e('span',{className:'ai-chat-badge'},'🤖 Qwen3.5 9B'),
-   e('span',{className:'ai-chat-title'},title+' · '+String(section||'OVERVIEW').toUpperCase()),
+   e('span',{className:'ai-chat-badge'},'🤖 AI Section Assistant'),
+   e('span',{className:'ai-chat-title'},title),
    history.length>0&&e('button',{type:'button',className:'link-button small',onClick:()=>setHistory([]),style:{marginLeft:'auto'}},'Clear')
   ]),
   history.length>0&&e('div',{className:'ai-chat-history'},history.map((item,idx)=>e('div',{className:'ai-chat-bubble',key:idx},[
@@ -187,7 +187,7 @@ function CompoundIdentityProvenanceCard({detail,version,workspace}){
  ]);
 }
 
-function AIChatCompare({projectId,compoundIds,placeholder='Qwen3.5 9B',title='AI Comparison Assistant (Qwen3.5 9B)'}){
+function AIChatCompare({projectId,compoundIds,placeholder='Ask about this section',title='AI Section Assistant'}){
  const [input,setInput]=useState('');
  const [loading,setLoading]=useState(false);
  const [history,setHistory]=useState([]);
@@ -214,8 +214,8 @@ function AIChatCompare({projectId,compoundIds,placeholder='Qwen3.5 9B',title='AI
 
  return e('div',{className:'card ai-chat-box',key:'ai-chat-compare'},[
   e('div',{className:'ai-chat-header'},[
-   e('span',{className:'ai-chat-badge'},'🤖 Qwen3.5 9B'),
-   e('span',{className:'ai-chat-title'},title+' · ('+String(compoundIds?.length||0)+' Compounds Selected)'),
+   e('span',{className:'ai-chat-badge'},'🤖 AI Section Assistant'),
+   e('span',{className:'ai-chat-title'},title),
    history.length>0&&e('button',{type:'button',className:'link-button small',onClick:()=>setHistory([]),style:{marginLeft:'auto'}},'Clear')
   ]),
   history.length>0&&e('div',{className:'ai-chat-history'},history.map((item,idx)=>e('div',{className:'ai-chat-bubble',key:idx},[
@@ -518,6 +518,7 @@ function App(){
  const workspaceRequest=useRef(0),detailRequest=useRef(0);
  const navigationReady=useRef(false),navigationKey=useRef(''),navigationPop=useRef(false),navigationRestorePending=useRef(false);
  const [projectTab,setProjectTab]=useState('dashboard'),[detailTab,setDetailTab]=useState('overview');
+ const [projectListPage,setProjectListPage]=useState(1),[projectListSearch,setProjectListSearch]=useState('');
  const [admet,setAdmet]=useState(null),[admetVersionId,setAdmetVersionId]=useState(''),[admetForm,setAdmetForm]=useState({...EMPTY_ADMET_FORM});
  const [projectAdaptation,setProjectAdaptation]=useState(null),[learningLedger,setLearningLedger]=useState(null);
  const [admetCsv,setAdmetCsv]=useState(''),[admetCsvPreview,setAdmetCsvPreview]=useState(null),[admetBusy,setAdmetBusy]=useState(false);
@@ -574,16 +575,25 @@ function App(){
   };
   const loadDashboard=async()=>{const data=await api.get('/dashboard');setDashboard(data);return data};
   const loadHelpRegistry=async()=>{setHelpBusy(true);try{const data=await api.get('/help/registry');setHelpRegistry(data);return data}finally{setHelpBusy(false)}};
-  const loadProject=async id=>{
+  const loadProject=async(id,options={})=>{
    if(!id){setProject(null);setLearningLedger(null);return null;}
    try{
-    const data=await api.get('/projects/'+id);setProject(data);
+    const isReferenceLibrary=Number(id)===300;
+    const page=Math.max(1,Number(options.page??projectListPage)||1);
+    const search=String((options.search??projectListSearch)||'').trim();
+    const query=isReferenceLibrary?('?page='+page+'&page_size=50&search='+encodeURIComponent(search)):'';
+    const data=await api.get('/projects/'+id+query);setProject(data);
     api.get('/projects/'+id+'/project-adaptation').then(setProjectAdaptation).catch(()=>setProjectAdaptation(null));
     api.get('/projects/'+id+'/learning-ledger').then(setLearningLedger).catch(()=>setLearningLedger(null));
-    api.get('/projects/'+id+'/evidence-summary').then(setProjectEvidenceSummary).catch(()=>setProjectEvidenceSummary(null));
-    api.get('/projects/'+id+'/evidence-review?filter=HIGH_VALUE').then(setProjectEvidenceReview).catch(()=>setProjectEvidenceReview(null));
+    // These aggregate project views are useful for ordinary projects but
+    // would defeat the reference-library summary pagination by eagerly
+    // traversing evidence for all 1,000 compounds.
+    if(isReferenceLibrary){setProjectEvidenceSummary(null);setProjectEvidenceReview(null)}else{
+     api.get('/projects/'+id+'/evidence-summary').then(setProjectEvidenceSummary).catch(()=>setProjectEvidenceSummary(null));
+     api.get('/projects/'+id+'/evidence-review?filter=HIGH_VALUE').then(setProjectEvidenceReview).catch(()=>setProjectEvidenceReview(null));
+    }
     setAdmetVersionId(current=>data.compounds?.some(item=>item.version?.id===Number(current))?current:(data.compounds?.find(item=>item.version)?.version.id||''));
-    return data;
+   return data;
    }catch(err){
     setProject(null);setLearningLedger(null);
     return null;
@@ -1598,7 +1608,7 @@ function integratedProfile(versionId){
      return renderPredictionMaturity(prediction.maturity.level||1, prediction.maturity.label||'Base Prediction', prediction.maturity);
    }
    if(!prediction || !prediction.available || prediction.status==='UNAVAILABLE'){
-     return renderPredictionMaturity(1, 'MODEL UNAVAILABLE', { level: 1, label: 'MODEL UNAVAILABLE', reason: 'Fail-closed / model unavailable in engine v3.3.1 baseline' });
+     return renderPredictionMaturity(1, 'MODEL UNAVAILABLE', { level: 1, label: 'MODEL UNAVAILABLE', reason: 'Fail-closed; no quantitative route is available.' });
    }
    return renderPredictionMaturity(1, 'Base Prediction', { level: 1, label: 'Base Prediction', reason: 'Base rule or mechanistic estimate' });
   }
@@ -1607,11 +1617,12 @@ function integratedProfile(versionId){
    if(value.directly_comparable===false || value.comparable===false || value.reason==='NOT_DIRECTLY_COMPARABLE'){
      return e('span',{className:'badge-intermediate',style:{fontSize:'11px',padding:'2px 6px'}},'NOT_DIRECTLY_COMPARABLE');
    }
-   if(value.absolute_error==null)return e('span',{className:'small'},value.reason||'—');
+   if(value.numeric_pairable===false || value.absolute_error==null)return e('span',{className:'badge-intermediate',style:{fontSize:'11px',padding:'2px 6px'}},'NOT_COMPARABLE'+(value.reason?': '+value.reason:''));
    const metric=value.error_metric_type==='percentage_points'?'percentage points':(value.unit||row.display_unit||'');
    return e('div',{},[
      e('div',{className:'mono bold',style:{color:Number(value.absolute_error)>2.0?'#cf1322':'#096dd9'}},Number(value.absolute_error).toFixed(3)+' '+metric),
-     e('div',{className:'small'},value.interpretation||'Delta vs Ground Truth')
+     value.fold_error!=null&&e('div',{className:'small'},'Absolute Fold Error: '+Number(value.fold_error).toFixed(2)+'×'),
+     e('div',{className:'small'},value.interpretation||'Prediction Error')
    ]);
   }
  function ScientificResultTable({rows,pk=false}){
@@ -4485,8 +4496,8 @@ function integratedProfile(versionId){
      key:'compound-ai-chat-'+detail.row_id+'-'+detailTab,
      compoundId:detail.row_id,
      section:detailTab,
-     placeholder:'Qwen3.5 9B',
-     title:'AI Section Assistant (Qwen3.5 9B)'
+     placeholder:'Ask about this section',
+     title:'AI Section Assistant'
     }),
     e(CompoundIdentityProvenanceCard,{detail,version,workspace,key:'compound-identity-provenance-card'}),
     e('nav',{className:'detail-tabs',key:'tabs'},tabs.map(tab=>{
@@ -4528,27 +4539,27 @@ function integratedProfile(versionId){
      e('div',{className:'admet-highlights-grid'},[
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Aqueous Solubility'),
-       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Solubility')?Number(detailPredictions.find(p=>p.endpoint==='Solubility').predicted_value).toFixed(1)+' µM':'—',detailPredictions.find(p=>p.endpoint==='Solubility')&&MaturityStars({level:4,label:'Production Validated',reason:'v3.3.1 Stacking Ensemble: Ridge meta-regressor over Chemprop, XGBoost, and RF trained on unified curated solubility cohort.'})]),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Solubility')?Number(detailPredictions.find(p=>p.endpoint==='Solubility').predicted_value).toFixed(1)+' µM':'—',detailPredictions.find(p=>p.endpoint==='Solubility')&&MaturityStars({maturity:maturityForPrediction(detailPredictions.find(p=>p.endpoint==='Solubility'))})]),
        ScientificBadge(getInterpretation('solubility',detailPredictions.find(p=>p.endpoint==='Solubility')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Caco-2 Permeability'),
-       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Permeability')?Number(detailPredictions.find(p=>p.endpoint==='Permeability').predicted_value).toFixed(2)+' log cm/s':'—',detailPredictions.find(p=>p.endpoint==='Permeability')&&MaturityStars({level:4,label:'Production Validated',reason:'v3.3.1 Stacking Ensemble: 0.198 log10(cm/s) RMSE across 2 independent cohorts.'})]),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Permeability')?Number(detailPredictions.find(p=>p.endpoint==='Permeability').predicted_value).toFixed(2)+' log cm/s':'—',detailPredictions.find(p=>p.endpoint==='Permeability')&&MaturityStars({maturity:maturityForPrediction(detailPredictions.find(p=>p.endpoint==='Permeability'))})]),
        ScientificBadge(getInterpretation('caco2',detailPredictions.find(p=>p.endpoint==='Permeability')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Human Microsomal Stab (HLM)'),
-       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')?Number(detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance').predicted_value).toFixed(1)+' mL/min/kg':'—',detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')&&MaturityStars({level:4,label:'Production Validated',reason:'v3.3.1 Best Single Model: Chemprop D-MPNN model locked on ChEMBL/NCATS clearance dataset.'})]),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')?Number(detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance').predicted_value).toFixed(1)+' mL/min/kg':'—',detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')&&MaturityStars({maturity:maturityForPrediction(detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance'))})]),
        ScientificBadge(getInterpretation('hlm_clint',detailPredictions.find(p=>p.endpoint==='HLM intrinsic clearance')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'Plasma Protein Binding (fu)'),
-       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Plasma protein binding')?'fu '+Number(detailPredictions.find(p=>p.endpoint==='Plasma protein binding').predicted_value).toFixed(3):'—',detailPredictions.find(p=>p.endpoint==='Plasma protein binding')&&MaturityStars({level:4,label:'Production Validated',reason:'v3.3.1 Stacking Ensemble: Chemprop + GBDT ensemble on human plasma fraction unbound.'})]),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='Plasma protein binding')?'fu '+Number(detailPredictions.find(p=>p.endpoint==='Plasma protein binding').predicted_value).toFixed(3):'—',detailPredictions.find(p=>p.endpoint==='Plasma protein binding')&&MaturityStars({maturity:maturityForPrediction(detailPredictions.find(p=>p.endpoint==='Plasma protein binding'))})]),
        ScientificBadge(getInterpretation('ppb',detailPredictions.find(p=>p.endpoint==='Plasma protein binding')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'hERG Cardiac Safety'),
-       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='hERG liability')?(detailPredictions.find(p=>p.endpoint==='hERG liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—',detailPredictions.find(p=>p.endpoint==='hERG liability')&&MaturityStars({level:4,label:'Production Validated',reason:'v3.3.1 Best Single Model: Chemprop classification model with locked ROC-AUC > 0.88.'})]),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='hERG liability')?(detailPredictions.find(p=>p.endpoint==='hERG liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—',detailPredictions.find(p=>p.endpoint==='hERG liability')&&MaturityStars({maturity:maturityForPrediction(detailPredictions.find(p=>p.endpoint==='hERG liability'))})]),
        ScientificBadge(getInterpretation('herg',detailPredictions.find(p=>p.endpoint==='hERG liability')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
@@ -4975,8 +4986,8 @@ function integratedProfile(versionId){
     key:'compare-ai-chat-'+projectId+'-'+selected.join('-'),
     projectId:projectId,
     compoundIds:selected,
-    placeholder:'Qwen3.5 9B',
-    title:'AI Comparison Assistant (Qwen3.5 9B)'
+    placeholder:'Ask about this section',
+    title:'AI Section Assistant'
    }),
    comparison&&e('div',{className:'card',key:'table'},[
     e('h3',{},'Selected Compound Comparison'),e('p',{className:'small'},'Experimental values take precedence. Each cell retains its evidence type. No overall score or automatic ranking is calculated.'),
@@ -5814,7 +5825,7 @@ ledgerTable
       ['Target',project.target||'Not set'],['Molecule Type',project.molecule_type],['Compounds',summary?.compound_count??currentVersions.length],['Experimental Activity',summary?.experimental_activity_count??0],['Experimental ADMET',summary?.experimental_admet_count??0],['Predictions',summary?.prediction_count??0],['Optimization Runs',summary?.optimization_run_count??0]
      ].map(([label,value])=>e('div',{className:'project-overview-item',key:label},[e('span',{},label),e('strong',{},String(value))])))]),
      e('section',{className:'card workflow-card',key:'workflow'},[e('div',{className:'eyebrow'},'WORKFLOW STATUS'),e('div',{className:'workflow-strip'},['Structure','Properties','Activity','ADMET','Optimization','PK'].map((stage,index)=>e(React.Fragment,{key:stage},[e('div',{className:'workflow-step'},[e('span',{},stage),StatusBadge({type:summary?.workflow?.[stage]||'NOT_STARTED'})]),index<5&&e('span',{className:'workflow-arrow'},'→')])))]),
-      e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},isReferenceLibrary?'DrugBank Reference Library (200 Approved Drugs)':'Compound Status'),e('p',{className:'small'},isReferenceLibrary?'Canonical reference catalog of 200 approved reference drugs with verified CAS, 2D structure, multi-registry identifiers, and qualified experimental evidence.':'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),currentVersions.length?e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},(isReferenceLibrary?['','Compound & CAS','2D Structure','Canonical SMILES / InChIKey','Registry IDs','Evidence','Prediction','Identity Status','']:['','Compound','Structure','Properties','Activity','ADMET','Optimization','']).map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id,className:'compound-row','data-compound-id':compound.compound_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button compound-name-link',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{className:'cid-tag'},compound.compound_id),compound.cas_number?e('span',{className:'cas-tag',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'600'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||(compound.version?'STRUCTURE_READY':'NOT_STARTED')})]),isReferenceLibrary?e('td',{style:{maxWidth:'240px'}},[e('div',{className:'mono small smiles-text',style:{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'230px'},title:compound.version?.canonical_smiles},compound.version?.canonical_smiles||'—'),e('div',{className:'mono small inchikey-text',style:{color:'#64748b',marginTop:'2px'}},compound.version?.inchikey||'—')]):e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),isReferenceLibrary?e('td',{style:{minWidth:'170px'}},[e('div',{className:'small'},[compound.drugbank_id?e('span',{key:'db',className:'mono bold',style:{marginRight:'6px',color:'#0369a1'}},compound.drugbank_id):null,compound.chembl_id?e('span',{key:'chembl',className:'mono small',style:{marginRight:'6px',color:'#475569'}},compound.chembl_id):null]),e('div',{className:'small mono',style:{color:'#64748b',marginTop:'2px'}},[compound.pubchem_cid?e('span',{key:'pc',style:{marginRight:'6px'}},'CID: '+compound.pubchem_cid):null,compound.unii?e('span',{key:'unii'},'UNII: '+compound.unii):null])]):e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),isReferenceLibrary?e('td',{className:'mono bold evidence-count-cell',style:{color:'#15803d',textAlign:'center'}},String(compound.evidence_count??0)):e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.prediction_status||'PREDICTED'})):e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.verification_status||'VERIFIED'})):null,e('td',{},e('button',{className:'secondary btn-open-detail',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
+     e('section',{className:'card',key:'compounds'},[e('div',{className:'row toolbar'},[e('div',{},[e('h2',{},isReferenceLibrary?'Global Reference Library (1000 compounds)':'Compound Status'),e('p',{className:'small'},isReferenceLibrary?'Server-paginated reference summaries. Open a compound to load its structure and detailed evidence.':'Each row summarizes only the current CompoundVersion in this project.')]),e('div',{className:'row'},[e('button',{className:'secondary',disabled:selected.length<2,onClick:compare},'Compare Selected'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])]),isReferenceLibrary&&e('form',{className:'row toolbar',onSubmit:event=>{event.preventDefault();setProjectListPage(1);loadProject(project.id,{page:1,search:projectListSearch})},style:{marginBottom:'10px'}},[e('input',{key:'search',className:'project-reference-search',placeholder:'Search name, CAS, InChIKey, DrugBank, PubChem, ChEMBL',value:projectListSearch,onChange:event=>setProjectListSearch(event.target.value),'aria-label':'Search reference compounds'}),e('button',{key:'submit',type:'submit',className:'secondary'},'Search'),project.search&&e('button',{key:'clear',type:'button',className:'secondary',onClick:()=>{setProjectListSearch('');setProjectListPage(1);loadProject(project.id,{page:1,search:''})}},'Clear')]),currentVersions.length?e(React.Fragment,{},[e('div',{className:'table-scroll'},e('table',{className:'compound-list project-status-table'},[e('thead',{},e('tr',{},(isReferenceLibrary?['','Compound & CAS','2D Structure','Canonical SMILES / InChIKey','Registry IDs','Evidence','Prediction','Identity Status','']:['','Compound','Structure','Properties','Activity','ADMET','Optimization','']).map((x,index)=>e('th',{key:x||index},x)))),e('tbody',{},currentVersions.map(compound=>{const status=statusByCompound.get(compound.row_id)||{};return e('tr',{key:compound.row_id,className:'compound-row','data-compound-id':compound.compound_id},[e('td',{className:'compound-select-cell'},e('input',{className:'compound-select',type:'checkbox',checked:selected.includes(compound.row_id),onClick:event=>event.stopPropagation(),onChange:event=>setSelected(current=>event.target.checked?(current.includes(compound.row_id)?current:[...current,compound.row_id]):current.filter(id=>id!==compound.row_id))})),e('td',{},[e('button',{className:'link-button compound-name-link',onClick:()=>openDetail(compound.row_id)},compound.name),e('div',{className:'mono small'},[e('span',{className:'cid-tag'},compound.compound_id),compound.cas_number?e('span',{className:'cas-tag',style:{marginLeft:'6px',color:'#0284c7',fontWeight:'600'}},' · CAS: '+compound.cas_number):null])]),e('td',{className:'thumbnail'},[Svg({src:compound.version?.svg}),StatusBadge({type:status.structure||(compound.version?'STRUCTURE_READY':'NOT_STARTED')})]),isReferenceLibrary?e('td',{style:{maxWidth:'240px'}},[e('div',{className:'mono small smiles-text',style:{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'230px'},title:compound.version?.canonical_smiles},compound.version?.canonical_smiles||'—'),e('div',{className:'mono small inchikey-text',style:{color:'#64748b',marginTop:'2px'}},compound.version?.inchikey||'—')]):e('td',{},StatusBadge({type:status.properties||'NOT_RUN'})),isReferenceLibrary?e('td',{style:{minWidth:'170px'}},[e('div',{className:'small'},[compound.drugbank_id?e('span',{key:'db',className:'mono bold',style:{marginRight:'6px',color:'#0369a1'}},compound.drugbank_id):null,compound.chembl_id?e('span',{key:'chembl',className:'mono small',style:{marginRight:'6px',color:'#475569'}},compound.chembl_id):null]),e('div',{className:'small mono',style:{color:'#64748b',marginTop:'2px'}},[compound.pubchem_cid?e('span',{key:'pc',style:{marginRight:'6px'}},'CID: '+compound.pubchem_cid):null,compound.unii?e('span',{key:'unii'},'UNII: '+compound.unii):null])]):e('td',{},StatusBadge({type:status.activity||'NOT_RUN'})),isReferenceLibrary?e('td',{className:'mono bold evidence-count-cell',style:{color:'#15803d',textAlign:'center'}},String(compound.evidence_count??0)):e('td',{},StatusBadge({type:status.admet||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.prediction_status||'PREDICTED'})):e('td',{},StatusBadge({type:status.optimization||'NOT_RUN'})),isReferenceLibrary?e('td',{},StatusBadge({type:compound.verification_status||'VERIFIED'})):null,e('td',{},e('button',{className:'secondary btn-open-detail',onClick:()=>openDetail(compound.row_id)},'Open'))])}))])),isReferenceLibrary&&project.pagination&&e('div',{className:'row toolbar',style:{marginTop:'10px'}},[e('span',{key:'range',className:'small'},'Page '+project.pagination.page+' of '+project.pagination.total_pages+' · '+project.pagination.total+' compounds'),e('div',{key:'controls',className:'row'},[e('button',{className:'secondary',disabled:project.pagination.page<=1,onClick:()=>{const next=project.pagination.page-1;setProjectListPage(next);loadProject(project.id,{page:next,search:projectListSearch})}},'Previous'),e('button',{className:'secondary',disabled:project.pagination.page>=project.pagination.total_pages,onClick:()=>{const next=project.pagination.page+1;setProjectListPage(next);loadProject(project.id,{page:next,search:projectListSearch})}},'Next')])])]):e('div',{className:'empty-state'},[e('h3',{},'No compounds yet'),e('p',{},'Add the first compound by name; structure and calculation may follow later.'),e('button',{id:'btn-add-compound','data-testid':'btn-add-compound',onClick:()=>{setMessage('');setAddCompoundOpen(true)}},'Add Compound')])])
     ]),
     project&&projectTab==='evidence'&&!detail&&e(React.Fragment,{key:'project-evidence-view'},[
      e('div',{className:'card row toolbar',key:'project-evidence-toolbar'},[

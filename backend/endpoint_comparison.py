@@ -527,6 +527,18 @@ def _comparison(prediction, experiments, mw: float | None = None):
                 elif is_dose_dependent and pred_dose is not None and exp_dose is not None:
                     if abs(pred_dose - exp_dose) > max(1e-9, 1e-6 * max(abs(pred_dose), abs(exp_dose), 1.0)):
                         continue
+                # Cmax/AUC cannot be paired across explicitly different
+                # formulations or regimens.  Missing context remains
+                # displayable evidence but is not a numeric pair.
+                if is_dose_dependent:
+                    pctx, ectx = prediction.get("context") or {}, experiment.get("context") or {}
+                    context_mismatch = False
+                    for key in ("formulation", "regimen", "fed_fasted", "analyte"):
+                        left, right = str(pctx.get(key, "UNSPECIFIED")).upper(), str(ectx.get(key, "UNSPECIFIED")).upper()
+                        if left != "UNSPECIFIED" and right != "UNSPECIFIED" and left != right:
+                            context_mismatch = True
+                    if context_mismatch:
+                        continue
 
             pv = _number(prediction.get("display_value"))
             ev_raw = _number(experiment.get("normalized_value"))
@@ -592,6 +604,9 @@ def _comparison(prediction, experiments, mw: float | None = None):
                 "preview": experiment.get("state") == "EXTERNAL_CANDIDATE",
                 "experimental_id": experiment.get("id"),
                 "unit": prediction.get("unit") or experiment.get("normalized_unit"),
+                "display_comparable": True,
+                "numeric_pairable": True,
+                "learning_eligible": bool(experiment.get("adaptation_eligibility")),
             })
         elif exp_comp == RELATED or exp_comp == "RELATED_SAME_SCIENTIFIC_GROUP":
             related.append(experiment)
@@ -614,6 +629,9 @@ def _comparison(prediction, experiments, mw: float | None = None):
             "error_value": direct[0]["absolute_error"],
             "performance_policy": "PERFORMANCE_NOT_CALIBRATED",
             "performance_status": "PERFORMANCE_NOT_CALIBRATED",
+            "display_comparable": True,
+            "numeric_pairable": True,
+            "learning_eligible": bool(direct[0].get("learning_eligible")),
             **direct[0]
         }
     if related:

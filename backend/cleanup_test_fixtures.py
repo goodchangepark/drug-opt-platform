@@ -17,6 +17,7 @@ from sqlalchemy import select, text
 from backend.database import SessionLocal, engine
 from backend.models import Project, Compound, CompoundVersion, ExternalExperimentalEvidence, ensure_ui_schema
 from backend.main import _delete_project_tree_rows
+from backend.stabilization import classify_project
 
 PROTECTED_PROJECT_IDS = {1, 3, 5, 300}
 
@@ -31,13 +32,26 @@ def run_cleanup(manifest_path: str = "validation/test_fixture_cleanup_manifest.j
     with open(manifest_file, "r", encoding="utf-8") as f:
         manifest = json.load(f)
 
-    confirmed_test_ids = [p["id"] for p in manifest["categories"]["CONFIRMED_TEST_FIXTURE"]]
+    confirmed_test_ids = {p["id"] for p in manifest["categories"]["CONFIRMED_TEST_FIXTURE"]}
     print(f"Loaded manifest: {len(confirmed_test_ids)} confirmed test fixtures to remove.")
 
     db = SessionLocal()
     try:
         all_projects = db.scalars(select(Project)).all()
         all_p_ids = set(p.id for p in all_projects)
+        # The checked-in manifest intentionally records the historic fixture
+        # population.  Tests can create UUID-suffixed fixtures after it was
+        # generated, so safely classify the current rows as well.  The
+        # classifier is anchored and conservative; ambiguous projects remain.
+        for project in all_projects:
+            classification, _reason = classify_project({
+                "id": project.id,
+                "name": project.name,
+                "target": project.target,
+                "description": project.description,
+            })
+            if classification == "CONFIRMED_TEST":
+                confirmed_test_ids.add(project.id)
         print(f"Total projects in live database: {len(all_p_ids)}")
 
         # Safety sanity checks
@@ -45,7 +59,7 @@ def run_cleanup(manifest_path: str = "validation/test_fixture_cleanup_manifest.j
             assert prot_id in all_p_ids, f"CRITICAL: Protected project ID {prot_id} missing from database!"
             assert prot_id not in confirmed_test_ids, f"CRITICAL: Protected project ID {prot_id} marked for deletion in manifest!"
 
-        to_delete = [pid for pid in confirmed_test_ids if pid in all_p_ids]
+        to_delete = sorted(pid for pid in confirmed_test_ids if pid in all_p_ids)
         print(f"Executing cascading deletion of {len(to_delete)} test fixture projects...")
 
         chunk_size = 50

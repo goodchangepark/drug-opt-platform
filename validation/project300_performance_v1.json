@@ -1,0 +1,34 @@
+{
+  "artifact": "project300_performance_v1",
+  "before": "NOT_MEASURED: historical full-payload endpoint was not safely restored",
+  "measurement": "warm in-process backend call; excludes import/cold start",
+  "runs": {
+    "first_page": {
+      "latency_ms": {
+        "min": 25.86,
+        "median": 28.14,
+        "max": 819.06
+      },
+      "payload_bytes": 30617,
+      "row_count": 50
+    },
+    "search_warfarin": {
+      "latency_ms": {
+        "min": 17.85,
+        "median": 21.41,
+        "max": 28.47
+      },
+      "payload_bytes": 1225,
+      "row_count": 1
+    },
+    "compound_detail": {
+      "latency_ms": {
+        "min": 12.78,
+        "median": 15.95,
+        "max": 38.26
+      },
+      "payload_bytes": 299300,
+      "row_count": 0
+    }
+  }
+}

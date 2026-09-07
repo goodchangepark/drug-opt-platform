@@ -170,6 +170,7 @@ REGISTRY: dict[str, CanonicalEndpoint] = {
     # Group 9: Pharmacokinetics Disposition (Human & Preclinical)
     # -----------------------------------------------------------------
     "HUMAN_PK_CL_IV": _ep("HUMAN_PK_CL_IV", "PK", "Human IV systemic clearance", "human systemic total blood clearance (IV)", "numeric", "mL/min/kg", "LINEAR", domain="pharmacokinetics", species_requirement="HUMAN", route_requirement="IV", experimental_endpoint_aliases=("human cl", "human clearance", "clearance iv"), prediction_endpoint_aliases=("human_pk_cl_iv",)),
+    "HUMAN_PK_CL_UNSPECIFIED": _ep("HUMAN_PK_CL_UNSPECIFIED", "PK", "Human systemic clearance (route unspecified)", "human systemic clearance where the primary source does not establish an administration route", "numeric", "L/h", "LINEAR", domain="pharmacokinetics", species_requirement="HUMAN", experimental_endpoint_aliases=()),
     "HUMAN_PK_VD_IV": _ep("HUMAN_PK_VD_IV", "PK", "Human IV volume of distribution", "human volume of distribution (IV)", "numeric", "L/kg", "LINEAR", domain="pharmacokinetics", species_requirement="HUMAN", route_requirement="IV", experimental_endpoint_aliases=("human vd", "volume of distribution iv")),
     "HUMAN_PK_F_IV": _ep("HUMAN_PK_F_IV", "PK", "Human IV bioavailability reference", "IV reference bioavailability (100%)", "numeric", "%", "PERCENT", domain="pharmacokinetics", species_requirement="HUMAN", route_requirement="IV"),
     "HUMAN_PK_T_HALF_IV": _ep("HUMAN_PK_T_HALF_IV", "PK", "Human IV terminal half-life", "elimination half-life following IV administration", "numeric", "hours", "LINEAR", domain="pharmacokinetics", species_requirement="HUMAN", route_requirement="IV"),
@@ -302,6 +303,20 @@ def normalize_experimental_observation(
         route = "ORAL"
 
     raw_l = raw.lower()
+
+    # A source can explicitly establish systemic clearance while leaving the
+    # administration route unstated.  Do not relabel that observation as IV
+    # (or CL/F) just because a generic clearance parser has no third option.
+    if str(canonical_hint or "").upper() == "HUMAN_PK_CL_UNSPECIFIED":
+        ep = REGISTRY["HUMAN_PK_CL_UNSPECIFIED"]
+        return {
+            "canonical_endpoint_id": ep.canonical_endpoint_id, "section": ep.section, "display_name": ep.display_name,
+            "species": normalized_species, "route": "UNSPECIFIED", "measurement_subtype": ep.canonical_endpoint_id,
+            "normalized_value": number, "normalized_unit": ep.canonical_unit,
+            "comparability_status": CONDITIONAL if number is not None else UNSUPPORTED,
+            "normalization_rule": "explicit_route_unspecified_clearance", "reason": "Source does not establish IV or oral CL/F context",
+            "comparison_key": f"{ep.canonical_endpoint_id}|{normalized_species}|UNSPECIFIED|PARENT",
+        }
 
     # 1. Literature Citation / Bibliographic records
     if raw_l in {"literature candidate", "citation", "pubmed"} or "literature" in raw_l:

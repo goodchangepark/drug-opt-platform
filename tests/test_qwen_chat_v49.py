@@ -5,7 +5,7 @@ Validates:
 2. Backend comparison chat endpoint (/api/chat/compare) across selected compounds
 3. Isolation of compound-specific data and absence of cross-compound leakage
 4. Absence of fabricated data / proper fallback to "현재 데이터에서는 확인할 수 없습니다."
-5. Frontend UI contract: placeholder "Qwen3.5 9B", section & comparison chat boxes
+5. Frontend UI contract: provider-neutral AI Section Assistant, section & comparison chat boxes
 """
 
 from pathlib import Path
@@ -29,13 +29,14 @@ def test_qwen_model_configuration():
     assert QWEN_MODEL == "qwen3.5:9b"
 
 
-def test_frontend_qwen_chat_ui_contract():
+def test_frontend_ai_section_assistant_ui_contract():
     root = Path(__file__).resolve().parents[1]
     js = (root / "frontend" / "static" / "app.js").read_text(encoding="utf-8")
     css = (root / "frontend" / "static" / "app.css").read_text(encoding="utf-8")
 
-    # Placeholder and component checks
-    assert "placeholder='Qwen3.5 9B'" in js or 'placeholder="Qwen3.5 9B"' in js or "placeholder: 'Qwen3.5 9B'" in js
+    # Provider provenance is deliberately not exposed in the normal UI.
+    assert "AI Section Assistant" in js
+    assert "Qwen3.5 9B" not in js
     assert "AIChatSection" in js
     assert "AIChatCompare" in js
     assert "ai-chat-box" in js

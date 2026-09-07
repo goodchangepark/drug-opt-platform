@@ -12,6 +12,8 @@ CONFIRMED_PATTERNS = (
     re.compile(r"^(?:TEST|Test|test)$"),
     re.compile(r"^(?:TEMP|Temporary)(?:\s|$)", re.I),
     re.compile(r"^(?:Browser|Synthetic)\s+(?:Test|E2E|Validation)", re.I),
+    # These exact UUID-suffixed names are created by tests/test_stage5b4_human_pk.py.
+    re.compile(r"^(?:Human Allometry Test|Precedence Test|Human IV Sim|Human PO Guardrail|F Precedence|Prospective Freeze|Iso Project [12]|Clean Test) [0-9a-f]{6}$", re.I),
 )
 
 
@@ -30,4 +32,3 @@ def classify_project(project: dict) -> tuple[str, str]:
     if name and target and (description or compound_count > 0):
         return "KEEP", "No development marker; project has substantive research metadata or compounds"
     return "AMBIGUOUS", "Insufficient positive evidence to identify either development or genuine research use"
-

@@ -20,7 +20,7 @@ from pathlib import Path
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from rdkit import Chem
-from sqlalchemy import delete, func, inspect, select
+from sqlalchemy import delete, func, inspect, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -76,7 +76,7 @@ from .proposal_engine import (ENGINE_NAME as PROPOSAL_ENGINE,
                               STRATEGY_ONLY_TRANSFORMATIONS,
                               execute_proposal_run, process_user_candidate,
                               rank_candidates)
-from .models import (Compound, CompoundVersion, ExternalExperimentalEvidence, EvidenceImportBatch, ExperimentalSearchRun, PredictionRun, Project,
+from .models import (Compound, CompoundIdentifier, CompoundVersion, ExternalExperimentalEvidence, EvidenceImportBatch, ExperimentalSearchRun, PredictionRun, Project,
                      PropertyCalculation, StructuralAlert, ensure_ui_schema,
                      utcnow)
 from .evidence_capture import entry_options, save_internal_evidence
@@ -712,10 +712,46 @@ def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/api/projects/{project_id}")
-def get_project(project_id: int, db: Session = Depends(get_db)):
+def get_project(project_id: int, db: Session = Depends(get_db), page: int = Query(1, ge=1),
+                page_size: int = Query(50, ge=1, le=100), search: str = Query("", max_length=200)):
     project = db.get(Project, project_id)
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    # Reference libraries must not serialize all structures, evidence, history,
+    # and identifiers on initial open.  Other small projects retain legacy
+    # behaviour for compatibility.
+    if project_id == 300:
+        base = select(Compound).where(Compound.project_id == project_id)
+        term = search.strip()
+        if term:
+            like = f"%{term}%"
+            matching_ids = select(CompoundIdentifier.compound_id).where(CompoundIdentifier.identifier_value.ilike(like))
+            base = base.where(or_(Compound.name.ilike(like), Compound.compound_id.ilike(like), Compound.cas_number.ilike(like), Compound.id.in_(matching_ids)))
+        total = db.scalar(select(func.count()).select_from(base.subquery())) or 0
+        compounds = db.scalars(base.order_by(Compound.name.collate("NOCASE"), Compound.id).offset((page - 1) * page_size).limit(page_size)).all()
+        ids = [c.id for c in compounds]
+        versions = {v.compound_row_id: v for v in db.scalars(select(CompoundVersion).where(CompoundVersion.compound_row_id.in_(ids), CompoundVersion.version_number.in_([c.current_version for c in compounds]))) } if ids else {}
+        version_ids = [v.id for v in versions.values()]
+        evidence_counts = dict(db.execute(select(ExternalExperimentalEvidence.compound_version_id, func.count(ExternalExperimentalEvidence.id)).where(ExternalExperimentalEvidence.compound_version_id.in_(version_ids)).group_by(ExternalExperimentalEvidence.compound_version_id)).all()) if version_ids else {}
+        identifier_rows = db.scalars(select(CompoundIdentifier).where(CompoundIdentifier.compound_id.in_(ids))).all() if ids else []
+        identifiers = {}
+        for ident in identifier_rows:
+            identifiers.setdefault(ident.compound_id, {})[ident.identifier_type] = ident.identifier_value
+        rows = []
+        for compound in compounds:
+            version = versions.get(compound.id)
+            ident = identifiers.get(compound.id, {})
+            rows.append({"row_id": compound.id, "project_id": compound.project_id, "compound_id": compound.compound_id,
+                "name": compound.name, "cas_number": compound.cas_number or None, "status": compound.status,
+                "current_version": compound.current_version, "drugbank_id": ident.get("DRUGBANK_ID"), "chembl_id": ident.get("CHEMBL_ID"),
+                "pubchem_cid": ident.get("PUBCHEM_CID"), "unii": ident.get("UNII"), "verification_status": "VERIFIED" if version and version.inchikey else "REVIEW_REQUIRED",
+                "evidence_count": evidence_counts.get(version.id, 0) if version else 0, "prediction_count": 0,
+                "prediction_status": "PREDICTED" if compound.status in ("CALCULATED", "APPROVED_REFERENCE") else "PENDING",
+                "version": {"id": version.id, "version_number": version.version_number, "canonical_smiles": version.canonical_smiles, "inchikey": version.inchikey, "svg": "", "calculated": bool(version.properties_json)} if version else None,
+                "versions": []})
+        data = _project_out(db, project).model_dump()
+        data.update({"compounds": rows, "pagination": {"page": page, "page_size": page_size, "total": total, "total_pages": (total + page_size - 1) // page_size}, "search": term, "list_mode": "PAGINATED_SUMMARY"})
+        return data
     compounds = db.scalars(select(Compound).where(Compound.project_id == project_id).order_by(Compound.compound_id)).all()
     data = _project_out(db, project).model_dump()
     rows = []
@@ -1333,7 +1369,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "unavailable_endpoints": unavailable_endpoints,
         "failed_endpoints": failed_endpoints,
         "timestamp": timestamp,
-        "engine_id": ENGINE_V3_1_POLICY_ID,
+        "engine_id": CURRENT_ENGINE_ID,
         "engine_version": CURRENT_ENGINE_VERSION,
         "engine_name": CURRENT_ENGINE_NAME,
         "engine_status": CURRENT_ENGINE_STATUS,
@@ -1344,7 +1380,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
     db.add(PredictionRun(
         version_id=version.id,
         stage="prediction_workflow",
-        model_name="Properties + ADMET + Metabolism + PK workflow (Engine v3.3.1)",
+        model_name=f"Properties + ADMET + Metabolism + PK workflow (Engine v{CURRENT_ENGINE_VERSION})",
         model_version=CURRENT_ENGINE_VERSION,
         inputs_hash=request_fingerprint,
         outputs_json=workflow_output,
@@ -1354,7 +1390,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
             "persisted": True,
             "request_fingerprint": request_fingerprint,
             "force_rerun": force_rerun,
-            "engine_id": ENGINE_V3_1_POLICY_ID,
+            "engine_id": CURRENT_ENGINE_ID,
             "engine_version": CURRENT_ENGINE_VERSION,
             "engine_name": CURRENT_ENGINE_NAME,
             "engine_status": CURRENT_ENGINE_STATUS,
@@ -1386,13 +1422,13 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "prediction_run_id": workflow_run_id,
         "request_fingerprint": request_fingerprint,
         "reused_existing_run": False,
-        "engine_id": ENGINE_V3_1_POLICY_ID,
+        "engine_id": CURRENT_ENGINE_ID,
         "endpoint_routing": workflow_output["endpoint_routing"],
         "engine_version": CURRENT_ENGINE_VERSION,
         "engine_name": CURRENT_ENGINE_NAME,
         "engine_status": CURRENT_ENGINE_STATUS,
         "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
-        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated via Engine v3.3.1, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
+        "message": f"Prediction {status.lower()}: {len(completed_endpoints)} endpoints calculated via Engine v{CURRENT_ENGINE_VERSION}, {len(unavailable_endpoints)} unavailable, Activity not run (assay required).",
     }
 
 
@@ -1436,7 +1472,7 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
         "ledger": [row for row in learning_rows if row["compound_version_id"] in {version.id for version in compound.versions}],
     }
     result["prediction_engine"] = {
-        "engine_id": ENGINE_V3_1_POLICY_ID,
+        "engine_id": CURRENT_ENGINE_ID,
         "engine_version": CURRENT_ENGINE_VERSION,
         "engine_name": CURRENT_ENGINE_NAME,
         "engine_status": CURRENT_ENGINE_STATUS,
@@ -2517,6 +2553,7 @@ def chat_section(payload: dict = Body(...), db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="compound_id is required")
     if not question:
         raise HTTPException(status_code=400, detail="question is required")
+    # Gemini remains staged but inactive while its secure configuration is on hold.
     from backend.qwen_chat import answer_section_question
     return answer_section_question(db, int(compound_id), str(section), question, workspace_data=workspace_data)
 
@@ -2533,6 +2570,7 @@ def chat_compare(payload: dict = Body(...), db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="compound_ids are required")
     if not question:
         raise HTTPException(status_code=400, detail="question is required")
+    # Gemini remains staged but inactive while its secure configuration is on hold.
     from backend.qwen_chat import answer_comparison_question
     return answer_comparison_question(db, int(project_id), [int(cid) for cid in compound_ids], question, comparison_data=comparison_data)
 
