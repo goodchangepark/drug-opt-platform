@@ -1,0 +1,57 @@
+{
+  "artifact": "predictive_hepatic_cl_v5_5_candidate",
+  "status": "EXPERIMENTAL_CANDIDATE_NOT_PRODUCTION_PROMOTED",
+  "frozen_cohort_n": 30,
+  "baseline": {
+    "route": "SMILES -> production PPB model -> fu; SMILES -> production HLM model -> Clint; well-stirred IVIVE",
+    "aafe": 4.5311,
+    "within_2_fold_pct": 33.3,
+    "within_3_fold_pct": 50.0
+  },
+  "retained_candidate": {
+    "route": "same chain + PPB development-only offset calibration",
+    "development_compounds_n": 226,
+    "development_compound_overlap_with_locked_n30": 0,
+    "ppb_offset_percent": 2.246017699115046,
+    "aafe": 3.6852,
+    "within_1_5_fold_pct": 26.7,
+    "within_2_fold_pct": 33.3,
+    "within_3_fold_pct": 60.0,
+    "bias_log10": 0.0899,
+    "in_domain": {"n": 5, "aafe": 2.6427, "within_2_fold_pct": 20.0, "within_3_fold_pct": 60.0, "bias_log10": -0.3899},
+    "borderline": {"n": 18, "aafe": 2.8275, "within_2_fold_pct": 44.4, "within_3_fold_pct": 66.7, "bias_log10": 0.022},
+    "ood": {"n": 7, "aafe": 9.2361, "within_2_fold_pct": 14.3, "within_3_fold_pct": 42.9, "bias_log10": 0.6072},
+    "interpretation": "Improves the prediction-only chain by 18.7% with no extraction subgroup AAFE regression; it remains worse than assisted validation and is diagnostic only.",
+    "observed_inputs_used": []
+  },
+  "downstream_assisted_sensitivity_with_vd_f_ka_held": {
+    "AUC_AAFE": {"before": 3.2821, "after": 5.0777},
+    "half_life_AAFE": {"before": 2.6188, "after": 4.2321},
+    "Cmax_AAFE": {"before": 2.5399, "after": 2.8594},
+    "decision": "DO_NOT_PROMOTE; downstream PK regressed"
+  },
+  "upstream_prediction_only": {
+    "PPB_fu": {"n": 30, "aafe": 3.7297, "within_2_fold_pct": 26.7},
+    "HLM_clint": {"n": 30, "aafe": 3.5370, "within_2_fold_pct": 40.0}
+  },
+  "attempts": [
+    {"name": "HLM development offset", "aafe": 4.6000, "decision": "REJECT"},
+    {"name": "HLM development affine", "aafe": 6.2046, "decision": "REJECT"},
+    {"name": "PPB development affine", "aafe": 4.1352, "decision": "REJECT"},
+    {"name": "PPB development offset", "aafe": 3.6852, "decision": "RETAIN_CANDIDATE"}
+  ],
+  "subgroup_regression_check": {
+    "LOW": {"baseline_aafe": 4.365, "candidate_aafe": 4.286, "baseline_within_2_pct": 47.1, "candidate_within_2_pct": 41.2},
+    "INTERMEDIATE": {"baseline_aafe": 5.847, "candidate_aafe": 3.459, "baseline_within_2_pct": 0.0, "candidate_within_2_pct": 11.1},
+    "HIGH": {"baseline_aafe": 2.993, "candidate_aafe": 2.238, "baseline_within_2_pct": 50.0, "candidate_within_2_pct": 50.0}
+  },
+  "production_engine_changed": false,
+  "production_decision": "CURRENT_ROUTE_RETAINED",
+  "target_leakage": 0,
+  "frozen_validation_targets_used_for_fitting": false,
+  "limitations": [
+    "The candidate is not better than the observed-upstream assisted AAFE 3.295.",
+    "N30 is used only for final evaluation, not calibration.",
+    "External model-training overlap for the public development evidence remains a qualification limitation."
+  ]
+}
