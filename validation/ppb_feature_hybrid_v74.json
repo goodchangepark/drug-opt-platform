@@ -1,0 +1,128 @@
+{
+  "artifact": "PPB_FEATURE_HYBRID_V74",
+  "baseline": {
+    "aafe": 4.760840445074518,
+    "bias_log10": -0.005126789067290659,
+    "mae_log10": 0.42574425486772005,
+    "median_fold_error": 1.9911529417156462,
+    "n": 476,
+    "within_2_fold_pct": 50.42016806722689,
+    "within_3_fold_pct": 67.64705882352942
+  },
+  "best": "random_forest_descriptor_fp",
+  "candidates": {
+    "extra_trees_descriptor_fp": {
+      "pooled_oof": {
+        "aafe": 5.2066228749144186,
+        "mae_log10": 0.420321621856221,
+        "median_fold_error": 2.086038578244379,
+        "n": 476,
+        "within_2_fold_pct": 46.84873949579832,
+        "within_3_fold_pct": 67.22689075630252
+      },
+      "subgroups": {
+        "fu_0_01_to_0_1": {
+          "aafe": 4.121802729394765,
+          "mae_log10": 0.4921920644907879,
+          "median_fold_error": 2.9507796116472687,
+          "n": 109,
+          "within_2_fold_pct": 31.19266055045872,
+          "within_3_fold_pct": 51.37614678899083
+        },
+        "fu_ge_0_1": {
+          "aafe": 2.5354839556146054,
+          "mae_log10": 0.31288462867887396,
+          "median_fold_error": 1.8652751109999088,
+          "n": 337,
+          "within_2_fold_pct": 56.083086053412465,
+          "within_3_fold_pct": 78.33827893175074
+        },
+        "fu_lt_0_01": {
+          "aafe": 39.15392993043706,
+          "mae_log10": 1.366067903642828,
+          "median_fold_error": 20.448538640215087,
+          "n": 30,
+          "within_2_fold_pct": 0.0,
+          "within_3_fold_pct": 0.0
+        }
+      }
+    },
+    "hist_gradient_descriptor": {
+      "pooled_oof": {
+        "aafe": 6.018081531435699,
+        "mae_log10": 0.45511013679132767,
+        "median_fold_error": 2.0710433968513833,
+        "n": 476,
+        "within_2_fold_pct": 49.159663865546214,
+        "within_3_fold_pct": 64.07563025210085
+      },
+      "subgroups": {
+        "fu_0_01_to_0_1": {
+          "aafe": 5.433765994416192,
+          "mae_log10": 0.5422391933543955,
+          "median_fold_error": 3.204471118145602,
+          "n": 109,
+          "within_2_fold_pct": 32.11009174311927,
+          "within_3_fold_pct": 48.62385321100918
+        },
+        "fu_ge_0_1": {
+          "aafe": 3.363850539624374,
+          "mae_log10": 0.35324466076115163,
+          "median_fold_error": 1.6974488498491913,
+          "n": 337,
+          "within_2_fold_pct": 58.160237388724035,
+          "within_3_fold_pct": 73.88724035608308
+        },
+        "fu_lt_0_01": {
+          "aafe": 37.956956123953795,
+          "mae_log10": 1.2828300786844915,
+          "median_fold_error": 20.47543925225237,
+          "n": 30,
+          "within_2_fold_pct": 10.0,
+          "within_3_fold_pct": 10.0
+        }
+      }
+    },
+    "random_forest_descriptor_fp": {
+      "pooled_oof": {
+        "aafe": 5.061075447906222,
+        "mae_log10": 0.42671110792403616,
+        "median_fold_error": 2.02639785860614,
+        "n": 476,
+        "within_2_fold_pct": 49.57983193277311,
+        "within_3_fold_pct": 69.11764705882352
+      },
+      "subgroups": {
+        "fu_0_01_to_0_1": {
+          "aafe": 4.560418414164754,
+          "mae_log10": 0.5197778781484562,
+          "median_fold_error": 2.796359911107114,
+          "n": 109,
+          "within_2_fold_pct": 35.77981651376147,
+          "within_3_fold_pct": 52.293577981651374
+        },
+        "fu_ge_0_1": {
+          "aafe": 2.475763197317657,
+          "mae_log10": 0.3119698556298363,
+          "median_fold_error": 1.8305084326948111,
+          "n": 337,
+          "within_2_fold_pct": 58.45697329376854,
+          "within_3_fold_pct": 80.71216617210682
+        },
+        "fu_lt_0_01": {
+          "aafe": 35.92180361877844,
+          "mae_log10": 1.3774952435468217,
+          "median_fold_error": 24.610353223227428,
+          "n": 30,
+          "within_2_fold_pct": 0.0,
+          "within_3_fold_pct": 0.0
+        }
+      }
+    }
+  },
+  "canonical_benchmark": "PPB_CANONICAL_BENCHMARK_V72",
+  "created_at": "2026-09-07T22:41:23.813318+00:00",
+  "decision": "REJECT_NO_MEANINGFUL_IMPROVEMENT",
+  "n": 476,
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2"
+}

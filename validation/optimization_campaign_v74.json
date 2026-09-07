@@ -1,0 +1,12 @@
+{
+  "artifact": "OPTIMIZATION_CAMPAIGN_V74",
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2",
+  "last_completed_endpoint": "HUMAN_FU_PLASMA",
+  "last_completed_experiment": "V74-PPB-DESCRIPTOR-MORGAN-FEATURE-HYBRID",
+  "current_best_candidate": "extra_trees_logfu (V72 canonical baseline)",
+  "canonical_benchmark": "validation/ppb_canonical_benchmark_v72.json",
+  "dynamic_queue": ["PPB regime experts", "HLM dependency audit", "hepatic CL residual inputs", "VDss hybrid"],
+  "next_action": "Evaluate a train-fold-only PPB binding-regime classifier with expert quantitative heads and score all inverse-transformed OOF predictions in fu space.",
+  "dependency_triggers": {"HUMAN_FU_PLASMA": ["HUMAN_HEPATIC_CL"]},
+  "unresolved_blockers": ["No independent PPB qualification cohort", "fu <0.01 subgroup remains sparse (N=30)"]
+}

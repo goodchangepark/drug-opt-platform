@@ -1,0 +1,20 @@
+{
+  "artifact": "GLOBAL_OPTIMIZATION_LEDGER_V74",
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2",
+  "production_decision": "UNCHANGED",
+  "experiments": [
+    {
+      "experiment_id": "V74-PPB-DESCRIPTOR-MORGAN-FEATURE-HYBRID",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "benchmark": "validation/ppb_canonical_benchmark_v72.json",
+      "result_artifact": "validation/ppb_feature_hybrid_v74.json",
+      "n": 476,
+      "baseline": {"candidate": "extra_trees_logfu", "aafe": 4.760840445074518, "within_2_fold_pct": 50.42016806722689},
+      "best_candidate": {"candidate": "random_forest_descriptor_fp", "aafe": 5.061075447906222, "within_2_fold_pct": 49.57983193277311},
+      "decision": "REJECTED_OVERALL_REGRESSION",
+      "reason": "The descriptor-plus-Morgan feature family did not beat the frozen canonical log-fu Extra Trees baseline; no routing or maturity change."
+    }
+  ],
+  "next_queue": ["HUMAN_FU_PLASMA: leakage-safe two-stage regime classifier plus expert heads", "HUMAN_HEPATIC_CL: rerun only after retained PPB/HLM change", "HUMAN_VDSS", "HUMAN_TOTAL_IV_CL"],
+  "exact_next_action": "Implement PPB V74 regime-expert evaluation with train-fold-only classifiers and inverse-transformed fu scoring; do not use true fu for routing."
+}
