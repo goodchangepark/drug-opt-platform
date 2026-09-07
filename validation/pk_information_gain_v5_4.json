@@ -1,0 +1,15 @@
+{
+  "artifact": "pk_information_gain_v5_4",
+  "created_at": "2026-09-07T01:30:00.876270+00:00",
+  "drugbank_decision": "DO_NOT_EXPAND_YET",
+  "underrepresented_regions": [
+    "direct human IV total CL",
+    "renal dominant/mixed elimination",
+    "human IV VDss",
+    "pH-7.4 logD",
+    "site-resolved pKa",
+    "human hepatocyte Clint",
+    "Rb/fu_inc"
+  ],
+  "next_action": "Enrich existing 250 with traceable public evidence before selecting any 50-compound expansion."
+}

@@ -1,0 +1,54 @@
+{
+  "artifact": "pk_model_development_readiness_v5_4",
+  "created_at": "2026-09-07T01:30:00.876270+00:00",
+  "rows": [
+    {
+      "endpoint": "Human total CL",
+      "experimental_n": 30,
+      "qualified_n": 21,
+      "trainable": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Acquire independent IV total CL plus renal/nonrenal context."
+    },
+    {
+      "endpoint": "Renal CL",
+      "experimental_n": 15,
+      "qualified_n": 15,
+      "trainable": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Routing/readiness only; distinguish filtration, secretion, reabsorption."
+    },
+    {
+      "endpoint": "VDss",
+      "experimental_n": 30,
+      "qualified_n": 30,
+      "trainable": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Separate VDss from Vz/Vd/F and add independent development data."
+    },
+    {
+      "endpoint": "pKa",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "trainable": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Build acid/base macro/micro method-qualified set."
+    },
+    {
+      "endpoint": "logD7.4",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "trainable": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Acquire exact pH 7.4 measurements; never substitute logP."
+    },
+    {
+      "endpoint": "Human hepatocyte Clint",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "trainable": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Acquire qualified human hepatocyte data/checkpoint."
+    }
+  ]
+}

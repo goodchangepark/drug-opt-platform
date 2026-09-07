@@ -1,0 +1,864 @@
+{
+  "artifact": "pk_e2e_baseline_v5_3_frozen",
+  "created_at": "2026-09-07T01:30:00.876270+00:00",
+  "immutable_source": "validation/end_to_end_pk_baseline_v5_3.json",
+  "cohort_n": 30,
+  "prediction_runs": 140,
+  "modes": {
+    "OBSERVED_PARAMETER_ASSISTED": {
+      "complete_n": 30,
+      "predicted_n": 30,
+      "eligible_n": 30,
+      "metrics": {
+        "overall_evaluated_parameters": {
+          "n": 120,
+          "aafe": 2.912,
+          "median_fe": 2.697,
+          "pct_1_5": 19.2,
+          "pct_2_0": 32.5,
+          "pct_3_0": 57.5
+        },
+        "cl_hepatic": {
+          "n": 30,
+          "aafe": 3.295,
+          "median_fe": 3.318,
+          "pct_1_5": 10.0,
+          "pct_2_0": 26.7,
+          "pct_3_0": 40.0
+        },
+        "cl_systemic_unadjusted": {
+          "n": 21,
+          "aafe": 3.268,
+          "median_fe": 2.756,
+          "pct_1_5": 9.5,
+          "pct_2_0": 19.0,
+          "pct_3_0": 52.4
+        },
+        "vdss": {
+          "n": 0,
+          "aafe": 0.0,
+          "afe": 0.0,
+          "median_fe": 0.0,
+          "pct_1_5": 0.0,
+          "pct_2_0": 0.0,
+          "pct_3_0": 0.0
+        },
+        "half_life": {
+          "n": 30,
+          "aafe": 2.619,
+          "median_fe": 2.279,
+          "pct_1_5": 23.3,
+          "pct_2_0": 36.7,
+          "pct_3_0": 60.0
+        },
+        "auc": {
+          "n": 30,
+          "aafe": 3.282,
+          "median_fe": 2.258,
+          "pct_1_5": 23.3,
+          "pct_2_0": 26.7,
+          "pct_3_0": 60.0
+        },
+        "cmax": {
+          "n": 30,
+          "aafe": 2.54,
+          "median_fe": 2.53,
+          "pct_1_5": 20.0,
+          "pct_2_0": 40.0,
+          "pct_3_0": 70.0
+        },
+        "extraction_ratios": {
+          "LOW": {
+            "n": 17,
+            "aafe": 3.864,
+            "median_fe": 3.406,
+            "pct_1_5": 0.0,
+            "pct_2_0": 23.5,
+            "pct_3_0": 29.4
+          },
+          "INTERMEDIATE": {
+            "n": 9,
+            "aafe": 3.425,
+            "median_fe": 3.783,
+            "pct_1_5": 11.1,
+            "pct_2_0": 11.1,
+            "pct_3_0": 33.3
+          },
+          "HIGH": {
+            "n": 4,
+            "aafe": 1.536,
+            "median_fe": 1.605,
+            "pct_1_5": 50.0,
+            "pct_2_0": 75.0,
+            "pct_3_0": 100.0
+          }
+        }
+      },
+      "status": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS"
+    },
+    "HYBRID_PREDICTION": {
+      "complete_n": 0,
+      "predicted_n": 0,
+      "eligible_n": 30,
+      "metrics": null,
+      "status": "END_TO_END_INCOMPLETE",
+      "reason": "No pre-registered hybrid upstream selection was evaluated on this frozen cohort; observed HLM/fu/VDss inputs cannot be relabeled as predicted."
+    },
+    "FULL_END_TO_END_PREDICTION": {
+      "complete_n": 0,
+      "predicted_n": 0,
+      "eligible_n": 30,
+      "metrics": null,
+      "status": "END_TO_END_INCOMPLETE",
+      "reason": "No qualified fully predicted pKa, logD, fu, HLM Clint, renal, VDss, F and ka chain was available without observed target inputs."
+    }
+  },
+  "records": [
+    {
+      "compound": "Acetaminophen",
+      "dose_mg": 1000.0,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Solution",
+      "population": "Healthy Adult",
+      "source": "DailyMed NDA 022450 / FDA Review Table 5",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Osimertinib",
+      "dose_mg": 80.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Cancer Patient",
+      "source": "FDA NDA 208065 Multidisciplinary Review",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Sunvozertinib",
+      "dose_mg": 300.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Capsule",
+      "population": "NSCLC Patient",
+      "source": "FDA NDA 219839 Multidiscipline Review 2025",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Metformin",
+      "dose_mg": 500.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral IR Tablet",
+      "population": "Healthy Adult",
+      "source": "DailyMed Metformin NDA / Tucker et al. Br J Clin Pharmacol",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Warfarin",
+      "dose_mg": 10.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Goodman & Gilman 14th ed / DailyMed Coumadin",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Midazolam",
+      "dose_mg": 5.0,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Solution",
+      "population": "Healthy Adult",
+      "source": "DailyMed / Heidegger et al. Clin Pharmacokinet",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Propranolol",
+      "dose_mg": 40.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Routledge & Shand Clin Pharmacokinet / DailyMed",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Theophylline",
+      "dose_mg": 300.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Solution",
+      "population": "Healthy Adult",
+      "source": "Hendeles et al. Clin Pharmacokinet / DailyMed",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Atenolol",
+      "dose_mg": 50.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Mason et al. Clin Pharmacokinet / DailyMed Tenormin",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Digoxin",
+      "dose_mg": 0.5,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Injection",
+      "population": "Healthy Adult",
+      "source": "Iisalo Clin Pharmacokinet / DailyMed Lanoxin",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Diazepam",
+      "dose_mg": 10.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Klotz et al. J Clin Invest / DailyMed Valium",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Ciprofloxacin",
+      "dose_mg": 500.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Bergan et al. / DailyMed Cipro",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Sildenafil",
+      "dose_mg": 50.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Muirhead et al. Br J Clin Pharmacol / DailyMed Viagra",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Atorvastatin",
+      "dose_mg": 40.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Cilla et al. Clin Pharmacokinet / DailyMed Lipitor",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Rosuvastatin",
+      "dose_mg": 20.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Martin et al. Clin Pharmacokinet / DailyMed Crestor",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Verapamil",
+      "dose_mg": 5.0,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Injection",
+      "population": "Healthy Adult",
+      "source": "Eichelbaum et al. Eur J Clin Pharmacol / DailyMed",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Furosemide",
+      "dose_mg": 40.0,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Injection",
+      "population": "Healthy Adult",
+      "source": "Hammarlund-Udenaes Clin Pharmacokinet / DailyMed Lasix",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Ibuprofen",
+      "dose_mg": 400.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Davies Clin Pharmacokinet / DailyMed Motrin",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Omeprazole",
+      "dose_mg": 20.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Delayed Release",
+      "population": "Healthy Adult",
+      "source": "Regardh et al. Scand J Gastroenterol / DailyMed Prilosec",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Dextromethorphan",
+      "dose_mg": 30.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Syrup",
+      "population": "Healthy Adult (EM)",
+      "source": "Capon et al. Clin Pharmacokinet / DailyMed",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Fluoxetine",
+      "dose_mg": 20.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Capsule",
+      "population": "Healthy Adult",
+      "source": "Altamura et al. Clin Pharmacokinet / DailyMed Prozac",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Haloperidol",
+      "dose_mg": 5.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Froemming et al. Psychopharmacology / DailyMed Haldol",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Ketoconazole",
+      "dose_mg": 200.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Daneshmend & Warnock Clin Pharmacokinet / DailyMed Nizoral",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Clarithromycin",
+      "dose_mg": 250.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Healthy Adult",
+      "source": "Chu et al. Antimicrob Agents Chemother / DailyMed Biaxin",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Dabigatran",
+      "dose_mg": 150.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Capsule",
+      "population": "Healthy Adult",
+      "source": "Stangier et al. Clin Pharmacokinet / DailyMed Pradaxa",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": true
+      }
+    },
+    {
+      "compound": "Methotrexate",
+      "dose_mg": 15.0,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Injection",
+      "population": "Healthy Adult",
+      "source": "Bleyer Cancer Treat Rev / DailyMed Methotrexate",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Morphine",
+      "dose_mg": 10.0,
+      "route": "IV",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "IV Injection",
+      "population": "Healthy Adult",
+      "source": "Hasselstrom & Sawe Clin Pharmacokinet / DailyMed",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": true,
+        "F": false
+      }
+    },
+    {
+      "compound": "Gefitinib",
+      "dose_mg": 250.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "Cancer Patient",
+      "source": "FDA NDA 021399 Review / DailyMed Iressa",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Imatinib",
+      "dose_mg": 400.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "CML Patient",
+      "source": "Peng et al. Clin Pharmacokinet / DailyMed Gleevec",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    },
+    {
+      "compound": "Pazopanib",
+      "dose_mg": 800.0,
+      "route": "ORAL",
+      "regimen": "SINGLE_DOSE",
+      "formulation": "Oral Tablet",
+      "population": "RCC Patient",
+      "source": "FDA NDA 022465 Review / DailyMed Votrient",
+      "modes": {
+        "OBSERVED_PARAMETER_ASSISTED": "COMPLETE_WITH_OBSERVED_UPSTREAM_INPUTS",
+        "HYBRID_PREDICTION": "END_TO_END_INCOMPLETE",
+        "FULL_END_TO_END_PREDICTION": "END_TO_END_INCOMPLETE"
+      },
+      "observed_upstream_parameters": {
+        "fu": true,
+        "HLM_Clint": true,
+        "VDss": true,
+        "CL": true,
+        "renal_CL": false,
+        "F": true
+      }
+    }
+  ],
+  "metrics": {
+    "overall_evaluated_parameters": {
+      "n": 120,
+      "aafe": 2.912,
+      "median_fe": 2.697,
+      "pct_1_5": 19.2,
+      "pct_2_0": 32.5,
+      "pct_3_0": 57.5
+    },
+    "cl_hepatic": {
+      "n": 30,
+      "aafe": 3.295,
+      "median_fe": 3.318,
+      "pct_1_5": 10.0,
+      "pct_2_0": 26.7,
+      "pct_3_0": 40.0
+    },
+    "cl_systemic_unadjusted": {
+      "n": 21,
+      "aafe": 3.268,
+      "median_fe": 2.756,
+      "pct_1_5": 9.5,
+      "pct_2_0": 19.0,
+      "pct_3_0": 52.4
+    },
+    "vdss": {
+      "n": 0,
+      "aafe": 0.0,
+      "afe": 0.0,
+      "median_fe": 0.0,
+      "pct_1_5": 0.0,
+      "pct_2_0": 0.0,
+      "pct_3_0": 0.0
+    },
+    "half_life": {
+      "n": 30,
+      "aafe": 2.619,
+      "median_fe": 2.279,
+      "pct_1_5": 23.3,
+      "pct_2_0": 36.7,
+      "pct_3_0": 60.0
+    },
+    "auc": {
+      "n": 30,
+      "aafe": 3.282,
+      "median_fe": 2.258,
+      "pct_1_5": 23.3,
+      "pct_2_0": 26.7,
+      "pct_3_0": 60.0
+    },
+    "cmax": {
+      "n": 30,
+      "aafe": 2.54,
+      "median_fe": 2.53,
+      "pct_1_5": 20.0,
+      "pct_2_0": 40.0,
+      "pct_3_0": 70.0
+    },
+    "extraction_ratios": {
+      "LOW": {
+        "n": 17,
+        "aafe": 3.864,
+        "median_fe": 3.406,
+        "pct_1_5": 0.0,
+        "pct_2_0": 23.5,
+        "pct_3_0": 29.4
+      },
+      "INTERMEDIATE": {
+        "n": 9,
+        "aafe": 3.425,
+        "median_fe": 3.783,
+        "pct_1_5": 11.1,
+        "pct_2_0": 11.1,
+        "pct_3_0": 33.3
+      },
+      "HIGH": {
+        "n": 4,
+        "aafe": 1.536,
+        "median_fe": 1.605,
+        "pct_1_5": 50.0,
+        "pct_2_0": 75.0,
+        "pct_3_0": 100.0
+      }
+    }
+  },
+  "freeze_rule": "No observed upstream or downstream value is relabeled as a prediction."
+}

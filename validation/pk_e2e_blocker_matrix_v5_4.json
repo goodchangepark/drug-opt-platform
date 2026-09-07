@@ -1,0 +1,1967 @@
+{
+  "artifact": "pk_e2e_blocker_matrix_v5_4",
+  "created_at": "2026-09-07T01:30:00.876270+00:00",
+  "cohort_n": 30,
+  "status_counts": {
+    "MECHANISTIC_DERIVED": 210,
+    "PREDICTED_VALIDATED": 120,
+    "PREDICTED_LOW_CONFIDENCE": 120,
+    "EXPERIMENTAL_ONLY": 15,
+    "DATA_MISSING": 45
+  },
+  "endpoint_status_counts": {
+    "pKa": {
+      "MECHANISTIC_DERIVED": 30
+    },
+    "logD7.4": {
+      "MECHANISTIC_DERIVED": 30
+    },
+    "solubility": {
+      "PREDICTED_VALIDATED": 30
+    },
+    "Caco2": {
+      "PREDICTED_VALIDATED": 30
+    },
+    "HIA": {
+      "PREDICTED_LOW_CONFIDENCE": 30
+    },
+    "PPB/fu": {
+      "PREDICTED_VALIDATED": 30
+    },
+    "HLM Clint": {
+      "PREDICTED_VALIDATED": 30
+    },
+    "hepatic CL": {
+      "MECHANISTIC_DERIVED": 30
+    },
+    "renal CL": {
+      "EXPERIMENTAL_ONLY": 15,
+      "DATA_MISSING": 15
+    },
+    "total CL": {
+      "DATA_MISSING": 30
+    },
+    "VDss": {
+      "PREDICTED_LOW_CONFIDENCE": 30
+    },
+    "F": {
+      "PREDICTED_LOW_CONFIDENCE": 30
+    },
+    "ka": {
+      "PREDICTED_LOW_CONFIDENCE": 30
+    },
+    "AUC": {
+      "MECHANISTIC_DERIVED": 30
+    },
+    "Cmax": {
+      "MECHANISTIC_DERIVED": 30
+    },
+    "Tmax": {
+      "MECHANISTIC_DERIVED": 30
+    },
+    "half-life": {
+      "MECHANISTIC_DERIVED": 30
+    }
+  },
+  "records": [
+    {
+      "compound_index": 1,
+      "compound": "Acetaminophen",
+      "route": "IV",
+      "dose_mg": 1000.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Solution",
+        "population": "Healthy Adult",
+        "source": "DailyMed NDA 022450 / FDA Review Table 5"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 2,
+      "compound": "Osimertinib",
+      "route": "ORAL",
+      "dose_mg": 80.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Cancer Patient",
+        "source": "FDA NDA 208065 Multidisciplinary Review"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 3,
+      "compound": "Sunvozertinib",
+      "route": "ORAL",
+      "dose_mg": 300.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Capsule",
+        "population": "NSCLC Patient",
+        "source": "FDA NDA 219839 Multidiscipline Review 2025"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 4,
+      "compound": "Metformin",
+      "route": "ORAL",
+      "dose_mg": 500.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral IR Tablet",
+        "population": "Healthy Adult",
+        "source": "DailyMed Metformin NDA / Tucker et al. Br J Clin Pharmacol"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 5,
+      "compound": "Warfarin",
+      "route": "ORAL",
+      "dose_mg": 10.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Goodman & Gilman 14th ed / DailyMed Coumadin"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 6,
+      "compound": "Midazolam",
+      "route": "IV",
+      "dose_mg": 5.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Solution",
+        "population": "Healthy Adult",
+        "source": "DailyMed / Heidegger et al. Clin Pharmacokinet"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 7,
+      "compound": "Propranolol",
+      "route": "ORAL",
+      "dose_mg": 40.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Routledge & Shand Clin Pharmacokinet / DailyMed"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 8,
+      "compound": "Theophylline",
+      "route": "ORAL",
+      "dose_mg": 300.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Solution",
+        "population": "Healthy Adult",
+        "source": "Hendeles et al. Clin Pharmacokinet / DailyMed"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 9,
+      "compound": "Atenolol",
+      "route": "ORAL",
+      "dose_mg": 50.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Mason et al. Clin Pharmacokinet / DailyMed Tenormin"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 10,
+      "compound": "Digoxin",
+      "route": "IV",
+      "dose_mg": 0.5,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Injection",
+        "population": "Healthy Adult",
+        "source": "Iisalo Clin Pharmacokinet / DailyMed Lanoxin"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 11,
+      "compound": "Diazepam",
+      "route": "ORAL",
+      "dose_mg": 10.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Klotz et al. J Clin Invest / DailyMed Valium"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 12,
+      "compound": "Ciprofloxacin",
+      "route": "ORAL",
+      "dose_mg": 500.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Bergan et al. / DailyMed Cipro"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 13,
+      "compound": "Sildenafil",
+      "route": "ORAL",
+      "dose_mg": 50.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Muirhead et al. Br J Clin Pharmacol / DailyMed Viagra"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 14,
+      "compound": "Atorvastatin",
+      "route": "ORAL",
+      "dose_mg": 40.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Cilla et al. Clin Pharmacokinet / DailyMed Lipitor"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 15,
+      "compound": "Rosuvastatin",
+      "route": "ORAL",
+      "dose_mg": 20.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Martin et al. Clin Pharmacokinet / DailyMed Crestor"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 16,
+      "compound": "Verapamil",
+      "route": "IV",
+      "dose_mg": 5.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Injection",
+        "population": "Healthy Adult",
+        "source": "Eichelbaum et al. Eur J Clin Pharmacol / DailyMed"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 17,
+      "compound": "Furosemide",
+      "route": "IV",
+      "dose_mg": 40.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Injection",
+        "population": "Healthy Adult",
+        "source": "Hammarlund-Udenaes Clin Pharmacokinet / DailyMed Lasix"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 18,
+      "compound": "Ibuprofen",
+      "route": "ORAL",
+      "dose_mg": 400.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Davies Clin Pharmacokinet / DailyMed Motrin"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 19,
+      "compound": "Omeprazole",
+      "route": "ORAL",
+      "dose_mg": 20.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Delayed Release",
+        "population": "Healthy Adult",
+        "source": "Regardh et al. Scand J Gastroenterol / DailyMed Prilosec"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 20,
+      "compound": "Dextromethorphan",
+      "route": "ORAL",
+      "dose_mg": 30.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Syrup",
+        "population": "Healthy Adult (EM)",
+        "source": "Capon et al. Clin Pharmacokinet / DailyMed"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 21,
+      "compound": "Fluoxetine",
+      "route": "ORAL",
+      "dose_mg": 20.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Capsule",
+        "population": "Healthy Adult",
+        "source": "Altamura et al. Clin Pharmacokinet / DailyMed Prozac"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 22,
+      "compound": "Haloperidol",
+      "route": "ORAL",
+      "dose_mg": 5.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Froemming et al. Psychopharmacology / DailyMed Haldol"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 23,
+      "compound": "Ketoconazole",
+      "route": "ORAL",
+      "dose_mg": 200.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Daneshmend & Warnock Clin Pharmacokinet / DailyMed Nizoral"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 24,
+      "compound": "Clarithromycin",
+      "route": "ORAL",
+      "dose_mg": 250.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Healthy Adult",
+        "source": "Chu et al. Antimicrob Agents Chemother / DailyMed Biaxin"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 25,
+      "compound": "Dabigatran",
+      "route": "ORAL",
+      "dose_mg": 150.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Capsule",
+        "population": "Healthy Adult",
+        "source": "Stangier et al. Clin Pharmacokinet / DailyMed Pradaxa"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 26,
+      "compound": "Methotrexate",
+      "route": "IV",
+      "dose_mg": 15.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Injection",
+        "population": "Healthy Adult",
+        "source": "Bleyer Cancer Treat Rev / DailyMed Methotrexate"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 27,
+      "compound": "Morphine",
+      "route": "IV",
+      "dose_mg": 10.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "EXPERIMENTAL_ONLY",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "IV Injection",
+        "population": "Healthy Adult",
+        "source": "Hasselstrom & Sawe Clin Pharmacokinet / DailyMed"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 28,
+      "compound": "Gefitinib",
+      "route": "ORAL",
+      "dose_mg": 250.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "Cancer Patient",
+        "source": "FDA NDA 021399 Review / DailyMed Iressa"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 29,
+      "compound": "Imatinib",
+      "route": "ORAL",
+      "dose_mg": 400.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "CML Patient",
+        "source": "Peng et al. Clin Pharmacokinet / DailyMed Gleevec"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    },
+    {
+      "compound_index": 30,
+      "compound": "Pazopanib",
+      "route": "ORAL",
+      "dose_mg": 800.0,
+      "regimen": "SINGLE_DOSE",
+      "blockers": {
+        "HYBRID_BLOCKERS": [
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ],
+        "FULL_E2E_BLOCKERS": [
+          "pKa",
+          "logD7.4",
+          "HLM Clint",
+          "renal CL",
+          "total CL",
+          "VDss",
+          "F",
+          "ka",
+          "AUC",
+          "Cmax",
+          "Tmax",
+          "half-life"
+        ]
+      },
+      "cells": {
+        "pKa": "MECHANISTIC_DERIVED",
+        "logD7.4": "MECHANISTIC_DERIVED",
+        "solubility": "PREDICTED_VALIDATED",
+        "Caco2": "PREDICTED_VALIDATED",
+        "HIA": "PREDICTED_LOW_CONFIDENCE",
+        "PPB/fu": "PREDICTED_VALIDATED",
+        "HLM Clint": "PREDICTED_VALIDATED",
+        "hepatic CL": "MECHANISTIC_DERIVED",
+        "renal CL": "DATA_MISSING",
+        "total CL": "DATA_MISSING",
+        "VDss": "PREDICTED_LOW_CONFIDENCE",
+        "F": "PREDICTED_LOW_CONFIDENCE",
+        "ka": "PREDICTED_LOW_CONFIDENCE",
+        "AUC": "MECHANISTIC_DERIVED",
+        "Cmax": "MECHANISTIC_DERIVED",
+        "Tmax": "MECHANISTIC_DERIVED",
+        "half-life": "MECHANISTIC_DERIVED"
+      },
+      "observed_context": {
+        "formulation": "Oral Tablet",
+        "population": "RCC Patient",
+        "source": "FDA NDA 022465 Review / DailyMed Votrient"
+      },
+      "observed_upstream_provenance": {
+        "fu": "EXPERIMENTAL",
+        "HLM_Clint": "EXPERIMENTAL",
+        "VDss": "EXPERIMENTAL",
+        "CL": "EXPERIMENTAL"
+      }
+    }
+  ],
+  "blocker_counts": {
+    "TOTAL_CL_BLOCKER": 30,
+    "VDSS_BLOCKER": 30,
+    "PKA_BLOCKER": 30,
+    "LOGD_BLOCKER": 30,
+    "F_BLOCKER": 30,
+    "KA_BLOCKER": 30,
+    "RENAL_BLOCKER": 15
+  }
+}

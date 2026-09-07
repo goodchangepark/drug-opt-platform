@@ -1,0 +1,21 @@
+{
+  "artifact": "total_clearance_evidence_set_v5_4",
+  "cohort_n": 30,
+  "qualified_semantics": {
+    "CL_TOTAL_IV": 7,
+    "CL_H": 30,
+    "CL_R": 15,
+    "CL_NONRENAL": 0,
+    "CL/F": 23
+  },
+  "statuses": {
+    "TOTAL_CL_READY": 0,
+    "TOTAL_CL_PARTIAL": 15,
+    "TOTAL_CL_INCOMPLETE": 15
+  },
+  "no_silent_assumptions": [
+    "renal CL is not zero-filled",
+    "CL/F is not converted to CL without F",
+    "hepatic CL is not labeled total CL"
+  ]
+}

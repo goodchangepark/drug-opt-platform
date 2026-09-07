@@ -1,0 +1,161 @@
+{
+  "artifact": "pk_endpoint_completeness_v5_4",
+  "created_at": "2026-09-07T01:30:00.876270+00:00",
+  "cohort_n": 30,
+  "rows": [
+    {
+      "endpoint": "pKa",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "logD7.4",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "solubility",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "Caco2",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "HIA",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "PPB/fu",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "HLM Clint",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "hepatic CL",
+      "assisted_complete_n": 30,
+      "hybrid_complete_n": 30,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "renal CL",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "total CL",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "VDss",
+      "assisted_complete_n": 0,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "F",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "ka",
+      "assisted_complete_n": null,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "AUC",
+      "assisted_complete_n": 30,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "Cmax",
+      "assisted_complete_n": 30,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "Tmax",
+      "assisted_complete_n": 30,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    },
+    {
+      "endpoint": "half-life",
+      "assisted_complete_n": 30,
+      "hybrid_complete_n": 0,
+      "full_end_to_end_complete_n": 0,
+      "eligible_n": 30,
+      "reason": "Observed upstream inputs are permitted only in assisted mode; no validated complete hybrid/full chain is currently registered."
+    }
+  ],
+  "profiles": {
+    "HYBRID_CL_TEST": {
+      "complete_n": 30,
+      "semantics": "hepatic CL only; not total systemic CL"
+    },
+    "HYBRID_VDSS_TEST": {
+      "complete_n": 0
+    },
+    "HYBRID_ABSORPTION_TEST": {
+      "complete_n": 0
+    },
+    "HYBRID_FULL_PK": {
+      "complete_n": 0
+    },
+    "FULL_END_TO_END": {
+      "complete_n": 0
+    }
+  }
+}

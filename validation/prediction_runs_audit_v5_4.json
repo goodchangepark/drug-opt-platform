@@ -1,0 +1,34 @@
+{
+  "artifact": "prediction_runs_audit_v5_4",
+  "created_at": "2026-09-07T01:30:00.876270+00:00",
+  "total_runtime_runs": 140,
+  "baseline_expected_runs": 138,
+  "additive_runs": [
+    {
+      "id": 165,
+      "version_id": 21,
+      "stage": "stage_1",
+      "model_name": "RDKit property pipeline",
+      "model_version": "2025.03.1",
+      "created_at": "2026-09-06 23:59:10.177380",
+      "source_action": "Calculated",
+      "engine_id": null,
+      "engine_version": "2025.03.1",
+      "request_fingerprint": null,
+      "classification": "RUNTIME_PREDICTION_WORKFLOW; test-fixture-vs-real not encoded in persisted provenance"
+    },
+    {
+      "id": 166,
+      "version_id": 21,
+      "stage": "prediction_workflow",
+      "model_name": "Properties + ADMET + Metabolism + PK workflow (Engine v3.3.1)",
+      "model_version": "3.3.2",
+      "created_at": "2026-09-07 00:00:54.847983",
+      "source_action": "predict-workflow",
+      "engine_id": "drugopt-prediction-engine-v3",
+      "engine_version": "3.3.2",
+      "request_fingerprint": "f21852290068e111f83b4316c17b9da5d891d76bcadc716f50e43ecd6dd7edfe",
+      "classification": "RUNTIME_PREDICTION_WORKFLOW; test-fixture-vs-real not encoded in persisted provenance"
+    }
+  ]
+}
