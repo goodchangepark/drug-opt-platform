@@ -1,0 +1,94 @@
+{
+  "artifact": "pk_model_development_readiness_v5_3",
+  "created_at": "2026-09-07T00:53:48.143633+00:00",
+  "rows": [
+    {
+      "endpoint": "Human total CL",
+      "experimental_n": 30,
+      "qualified_n": 30,
+      "context_completeness": "IV/oral semantics heterogeneous; component provenance incomplete",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": true,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Acquire IV CL plus renal/nonrenal component data."
+    },
+    {
+      "endpoint": "Human hepatocyte Clint",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "context_completeness": "NONE",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": false,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Acquire qualified human hepatocyte data first."
+    },
+    {
+      "endpoint": "Renal CL",
+      "experimental_n": 15,
+      "qualified_n": 15,
+      "context_completeness": "fe/CL coverage partial",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": true,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Routing/readiness only; no universal regression."
+    },
+    {
+      "endpoint": "VDss",
+      "experimental_n": 30,
+      "qualified_n": 30,
+      "context_completeness": "IV-derived vs Vz/Vd/F separation required",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": true,
+      "verdict": "MORE_DATA_REQUIRED",
+      "action": "Collect independent IV VDss and run leakage-safe evaluation."
+    },
+    {
+      "endpoint": "pKa",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "context_completeness": "site/type/method absent",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": false,
+      "verdict": "NO_VALIDATED_MODEL",
+      "action": "PKA_DATA_INSUFFICIENT."
+    },
+    {
+      "endpoint": "logD7.4",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "context_completeness": "exact pH-7.4 labels absent",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": false,
+      "verdict": "NO_VALIDATED_MODEL",
+      "action": "LOGD_DATA_INSUFFICIENT."
+    },
+    {
+      "endpoint": "CYP2C19/P-gp/BCRP quantitative",
+      "experimental_n": 0,
+      "qualified_n": 0,
+      "context_completeness": "quantitative assay/checkpoint absent",
+      "checkpoint_available": false,
+      "trainable": false,
+      "independent_validation_possible": false,
+      "verdict": "NO_VALIDATED_MODEL",
+      "action": "Remain fail-closed."
+    },
+    {
+      "endpoint": "DrugBank 250\u2192300",
+      "experimental_n": null,
+      "qualified_n": null,
+      "context_completeness": "targeted gaps not yet populated",
+      "checkpoint_available": null,
+      "trainable": null,
+      "independent_validation_possible": null,
+      "verdict": "NOT_PRIORITY",
+      "action": "DO_NOT_EXPAND_YET."
+    }
+  ]
+}

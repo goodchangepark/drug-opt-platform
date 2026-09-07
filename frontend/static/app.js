@@ -5220,6 +5220,12 @@ function integratedProfile(versionId){
      e('li',{key:'metrics'},'AUC, Cmax, Tmax, and half-life are evaluated separately; fold error is secondary and endpoint-specific.')
     ])
    ]),
+   e('section',{className:'card help-section',id:'help-pk-validation-modes',key:'pk-validation-modes'},[
+    e('div',{className:'eyebrow'},'PK VALIDATION METHODOLOGY'),
+    e('h2',{},'Observed-assisted, hybrid, and full end-to-end PK'),
+    e('p',{className:'small'},'Observed-parameter-assisted validation may use explicitly observed fu, HLM Clint, VDss, or clearance to verify downstream equations. Hybrid validation mixes predicted and experimental upstream parameters. Full end-to-end prediction starts from SMILES plus explicit dose/route/context and does not use observed target or upstream PK values.'),
+    e('p',{className:'help-caution'},'These modes are not interchangeable accuracy claims. Missing critical inputs remain END_TO_END_INCOMPLETE; no silent renal, F, ka, fu_inc, or clearance defaults are inserted.')
+   ]),
    e('section',{className:'card help-section',id:'help-version',key:'version'},[e('h2',{},'Current Platform Version'),e('dl',{className:'help-version-grid'},[
     ['Application version',appInfo.version],['Current Stage',appInfo.current_stage_label||'Internal Validation'],['Git/build version',appInfo.build_version],['Standardizer',appInfo.standardizer+' '+appInfo.standardizer_version],['RDKit',appInfo.rdkit_version]
     ].map(([label,value])=>e('div',{key:label},[e('dt',{},label),e('dd',{className:'mono'},value||'Unavailable')])))]),
