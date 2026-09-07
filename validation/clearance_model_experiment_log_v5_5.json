@@ -1,0 +1,87 @@
+{
+  "artifact": "clearance_model_experiment_log_v5_5",
+  "created_at": "2026-09-07",
+  "locked_validation": {"n": 30, "fit_or_calibration_compound_overlap": 0},
+  "target": "HUMAN_HEPATIC_CL",
+  "baseline": {
+    "name": "prediction-only PPB + HLM + well-stirred IVIVE",
+    "aafe": 4.5310537831,
+    "within_2_fold_pct": 33.3333333333,
+    "within_3_fold_pct": 50.0,
+    "bias_log10": -0.0456303055
+  },
+  "experiments": [
+    {
+      "id": "CL55-A",
+      "name": "HLM development offset",
+      "features": ["predicted_HLM_Clint", "predicted_fu", "AD"],
+      "development_n": 163,
+      "aafe": 4.6000,
+      "decision": "REJECT",
+      "reason": "Worsened identical locked-cohort AAFE."
+    },
+    {
+      "id": "CL55-B",
+      "name": "HLM development affine calibration",
+      "features": ["predicted_HLM_Clint", "predicted_fu", "AD"],
+      "development_n": 163,
+      "aafe": 6.2046,
+      "within_2_fold_pct": 23.3333333333,
+      "within_3_fold_pct": 30.0,
+      "decision": "REJECT",
+      "reason": "Large regression on the locked cohort."
+    },
+    {
+      "id": "CL55-C",
+      "name": "PPB development affine calibration",
+      "features": ["predicted_PPB", "predicted_HLM_Clint", "AD"],
+      "development_n": 226,
+      "aafe": 4.1351819327,
+      "within_2_fold_pct": 30.0,
+      "within_3_fold_pct": 60.0,
+      "decision": "REJECT",
+      "reason": "Improved over the raw baseline but inferior to the retained offset candidate and did not meet the acceptance target."
+    },
+    {
+      "id": "CL55-D",
+      "name": "PPB development offset",
+      "features": ["predicted_PPB", "predicted_HLM_Clint", "AD"],
+      "development_n": 226,
+      "aafe": 3.6852191526,
+      "within_2_fold_pct": 33.3333333333,
+      "within_3_fold_pct": 60.0,
+      "bias_log10": 0.0899,
+      "in_domain_aafe": 2.6427,
+      "ood_aafe": 9.2361,
+      "decision": "RETAIN_DIAGNOSTIC_ONLY",
+      "reason": "Best tested candidate, but below the <3.0 and >=40% goals, with severe OOD degradation and downstream AUC/half-life regression."
+    },
+    {
+      "id": "CL55-E",
+      "name": "PKSmart direct molecular CL candidate",
+      "features": ["molecular_descriptors"],
+      "development_source": "PKSmart Human_PK_data.csv",
+      "target": "CL_TOTAL_IV",
+      "development_n": 1280,
+      "decision": "NOT_VALID_FOR_HEPATIC_TARGET",
+      "reason": "The acquired target is human total IV clearance, not human hepatic clearance. It is reserved for a separate total-CL model and was not mixed into the hepatic benchmark."
+    }
+  ],
+  "ood_analysis": {
+    "ad_counts": {"IN_DOMAIN": 5, "BORDERLINE": 18, "OUT_OF_DOMAIN": 7},
+    "candidate_aafe": {"IN_DOMAIN": 2.6427, "BORDERLINE": 2.8275, "OUT_OF_DOMAIN": 9.2361},
+    "diagnostic_findings": [
+      "OOD is the dominant reliability problem; the current AD separates a lower-error in-domain group from a high-error OOD group but is not yet a validated accuracy-recovery route.",
+      "Observed upstream error magnitude was not a statistically reliable predictor of downstream absolute log error in this N=30 diagnostic (fu Spearman 0.197, p=0.297; HLM Clint Spearman 0.095, p=0.619).",
+      "The largest candidate errors include Warfarin, Atorvastatin, Diazepam, Sunvozertinib, Digoxin, Metformin, Verapamil, and Osimertinib; this is consistent with mixed chemical space and clearance-mechanism limitations, not a single safe global offset."
+    ],
+    "gating_decision": "Do not convert OOD labels into silently improved predictions; retain low-confidence/fail-closed routing until matched human hepatic/nonrenal development data support a route."
+  },
+  "upstream_prediction_only": {
+    "PPB_fu": {"n": 30, "aafe": 3.7296739768, "within_2_fold_pct": 26.6666666667},
+    "HLM_clint": {"n": 30, "aafe": 3.5369971356, "within_2_fold_pct": 40.0}
+  },
+  "production_decision": "KEEP_CURRENT_PRODUCTION",
+  "final_verdict": "CLEARANCE_MODEL_DATA_LIMIT_REACHED",
+  "next_highest_value_action": "Acquire record-level human hepatic/nonrenal clearance and human hepatocyte Clint with resolvable species, matrix, assay, fu_inc, Rb, and IV context; keep CL_TOTAL_IV in a separate development track."
+}

@@ -1,0 +1,40 @@
+{
+  "artifact": "human_clearance_data_acquisition_v5_5",
+  "created_at": "2026-09-07",
+  "policy": "Development-only acquisition; frozen N=30 is never used for fitting or calibration.",
+  "sources": [
+    {
+      "source": "PKSmart Human_PK_data.csv",
+      "url": "https://raw.githubusercontent.com/srijitseal/PKSmart/refs/heads/main/data/Human_PK_data.csv",
+      "dataset_page": "https://srijitseal.com/PKSmart/datasets.html",
+      "sha256": "2e4140dbd0a34970a91643feb13b9ddfb469bf5934e3c6f2b44f2500bd1840de",
+      "raw_rows": 1283,
+      "qualified_human_iv_total_cl_rows": 1281,
+      "qualified_non_n30_development_structures": 1280,
+      "endpoint": "CL_TOTAL_IV",
+      "unit": "mL/min/kg",
+      "qualification": "Source describes a human IV PK dataset; the CSV exposes human_CL_mL_min_kg. Used as separate total-IV development evidence, not hepatic CL evidence.",
+      "ingested_into_runtime_db": false,
+      "used_for_hepatic_cl_fit": false
+    },
+    {
+      "source": "TDC.Clearance_Hepatocyte_AZ",
+      "url": "https://tdcommons.ai/benchmark/admet_group/17clhepa/",
+      "dataset_size_reported": 1020,
+      "endpoint": "HEPATOCYTE_CLINT",
+      "unit": "uL.min-1.(10^6 cells)-1",
+      "qualification": "Public dataset/benchmark identified, but species and assay provenance require record-level resolution before qualifying as human development data.",
+      "qualified_human_rows_added": 0,
+      "ingested_into_runtime_db": false,
+      "reason_not_ingested": "Do not merge unresolved species or hepatocyte/microsome semantics into the human hepatic CL target."
+    }
+  ],
+  "existing_development_inventory": {
+    "non_n30_reference_compounds": 250,
+    "ppb_records": 226,
+    "hlm_clint_records": 163,
+    "frozen_n30_overlap": 0,
+    "note": "Existing PPB/HLM records were used only for development calibration; the final N=30 targets remained untouched."
+  },
+  "acquisition_conclusion": "Human IV total clearance evidence is now available for a separate total-CL development track. It does not close the current human hepatic-CL limitation because CL_TOTAL_IV and CL_H are distinct targets. Human hepatocyte data remain a specified acquisition requirement pending record-level species/context qualification."
+}
