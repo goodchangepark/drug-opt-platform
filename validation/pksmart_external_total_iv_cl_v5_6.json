@@ -1,0 +1,75 @@
+{
+  "artifact": "pksmart_external_total_iv_cl_v5_6",
+  "source": {
+    "name": "PKSmart External_test_315.csv",
+    "path": "/tmp/pksmart-external-test-315.csv",
+    "sha256": "03775a10ca3dda8722e7f4c8aa958f14670a74a79b5ec76503416c9df895cd2d",
+    "qc": {
+      "raw_rows": 315,
+      "skipped_rows": 13,
+      "unique_structures": 302,
+      "duplicate_groups": 0
+    },
+    "qualification": "Human IV total CL fields; separate PKSmart holdout file, not an independent-source cohort."
+  },
+  "training": {
+    "source": "PKSmart Human_PK_data.csv",
+    "development_n": 1280,
+    "model_selection_n": 1280,
+    "model": "extra_trees_descriptors",
+    "features": "descriptors"
+  },
+  "overlap_guard": {
+    "exact_or_morgan_overlap_excluded": 115,
+    "n30_overlap_excluded": 0
+  },
+  "evaluation_n": 187,
+  "metrics": {
+    "n": 187,
+    "afe": 2.160487808039303,
+    "aafe": 4.976145082396597,
+    "median_fold_error": 1.8994323772858681,
+    "within_1_5_fold_pct": 40.106951871657756,
+    "within_2_fold_pct": 54.01069518716578,
+    "within_3_fold_pct": 67.9144385026738,
+    "bias_log10": -0.032314128995581955,
+    "mae_log10": 0.41055363771046544
+  },
+  "ad": {
+    "IN_DOMAIN": {
+      "n": 93,
+      "afe": 1.8219707452091096,
+      "aafe": 3.7103433921462416,
+      "median_fold_error": 1.5595417794250854,
+      "within_1_5_fold_pct": 49.46236559139785,
+      "within_2_fold_pct": 64.51612903225806,
+      "within_3_fold_pct": 77.41935483870968,
+      "bias_log10": -0.0122062878310786,
+      "mae_log10": 0.31884004652230086
+    },
+    "BORDERLINE": {
+      "n": 45,
+      "afe": 2.8376992112982395,
+      "aafe": 6.586088005385285,
+      "median_fold_error": 2.6190313946692942,
+      "within_1_5_fold_pct": 33.33333333333333,
+      "within_2_fold_pct": 42.22222222222222,
+      "within_3_fold_pct": 57.77777777777777,
+      "bias_log10": 0.05286006889902602,
+      "mae_log10": 0.5090721533303502
+    },
+    "OOD": {
+      "n": 49,
+      "afe": 2.181050536540441,
+      "aafe": 5.900066014208679,
+      "median_fold_error": 2.4049920799134092,
+      "within_1_5_fold_pct": 28.57142857142857,
+      "within_2_fold_pct": 44.89795918367347,
+      "within_3_fold_pct": 59.183673469387756,
+      "bias_log10": -0.14869919294570788,
+      "mae_log10": 0.4941461025595366
+    }
+  },
+  "production_qualification": "NOT_SUFFICIENT_FOR_INDEPENDENT_EXTERNAL_VALIDATION",
+  "reason": "The holdout is published by the same PKSmart resource family; obtain a genuinely independent source before production qualification."
+}
