@@ -1,0 +1,30 @@
+{
+  "artifact": "global_developability_v1_closure_v6_4",
+  "baseline_artifact": "global_developability_v1_baseline.json",
+  "created_at": "2026-09-07",
+  "engine_version_change": false,
+  "existing_pk_candidates": {
+    "HUMAN_TOTAL_IV_CL": "RESEARCH_CANDIDATE",
+    "PPB_FU": "RESEARCH_CANDIDATE",
+    "VDSS": "DATA_LIMITED"
+  },
+  "global_status": "GLOBAL_DEVELOPABILITY_V1_BASELINE_READY_WITH_LIMITATIONS",
+  "logd74": {
+    "best_model": "none",
+    "qualified_experimental_n": 0,
+    "reason": "pH-specific candidate reuse/license unresolved; derived logD remains L1.",
+    "source_candidate_n": 1130,
+    "status": "DATA_LIMITED",
+    "validation_n": 0
+  },
+  "pka": {
+    "acid_n": 0,
+    "base_n": 0,
+    "best_model": "none",
+    "qualified_experimental_n": 0,
+    "reason": "No qualified experimental label set; rule estimate remains L1.",
+    "status": "DATA_LIMITED",
+    "validation_n": 0
+  },
+  "production": "UNCHANGED"
+}

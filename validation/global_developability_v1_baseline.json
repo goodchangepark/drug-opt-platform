@@ -1,0 +1,175 @@
+{
+  "artifact": "GLOBAL_DEVELOPABILITY_V1_BASELINE",
+  "baseline_hash": "e493304a19403ff72ffd812d5c50ed56bbe936d64cc5be0ea9b95b5654de5b6d",
+  "candidate_models": {
+    "HUMAN_TOTAL_IV_CL": "RESEARCH_CANDIDATE",
+    "LOGD_7_4": "DATA_LIMITED",
+    "PKA": "DATA_LIMITED",
+    "PPB_FU": "RESEARCH_CANDIDATE",
+    "VDSS": "DATA_LIMITED"
+  },
+  "created_at": "2026-09-07",
+  "endpoint_registry": {
+    "sha256": "b02a959f7515e60cc600453367f4c28c7533db832354627e63c81ef459883e9f",
+    "source": "backend/canonical_endpoints.py"
+  },
+  "evidence_warehouse": {
+    "fail_closed": true,
+    "schema": "canonical evidence/provenance contracts",
+    "source_family_separation": true
+  },
+  "known_limitations": [
+    "PPB/fu independent validation absent",
+    "human total IV CL independent validation absent",
+    "strict Vdss source diversity absent",
+    "pKa experimental data insufficient",
+    "logD7.4 licensed experimental data unavailable"
+  ],
+  "licensed_data_rebuild_trigger": [
+    "NEW_LICENSED_DATA",
+    "canonical qualification",
+    "dataset version increment",
+    "leakage-safe rebuild",
+    "candidate comparison",
+    "independent validation",
+    "production review"
+  ],
+  "model_status_matrix": [
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "SOLUBILITY_GENERIC",
+      "limitation": "validated core route",
+      "maturity": "PRODUCTION_STABLE",
+      "next_requirement": "none",
+      "production_model": "AqSolDB/production route",
+      "status": "PRODUCTION_STABLE"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "CACO2_PAPP_AB",
+      "limitation": "validated core route",
+      "maturity": "PRODUCTION_STABLE",
+      "next_requirement": "none",
+      "production_model": "TDC/OpenADMET route",
+      "status": "PRODUCTION_STABLE"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "HUMAN_PPB",
+      "limitation": "DrugBank/reference CV only",
+      "maturity": "RESEARCH_CANDIDATE",
+      "next_requirement": "independent human plasma fu",
+      "production_model": "existing PPB route",
+      "status": "INDEPENDENT_VALIDATION_REQUIRED"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "HLM_CLINT",
+      "limitation": "assay/context limitations",
+      "maturity": "PRODUCTION_STABLE",
+      "next_requirement": "independent context-rich validation",
+      "production_model": "existing HLM route",
+      "status": "PRODUCTION_STABLE_WITH_LIMITATIONS"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "RLM_CLINT",
+      "limitation": "species-specific route",
+      "maturity": "PRODUCTION_STABLE",
+      "next_requirement": "none",
+      "production_model": "existing RLM route",
+      "status": "PRODUCTION_STABLE_WITH_LIMITATIONS"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "MLM_CLINT",
+      "limitation": "species-specific route",
+      "maturity": "PRODUCTION_STABLE",
+      "next_requirement": "none",
+      "production_model": "existing MLM route",
+      "status": "PRODUCTION_STABLE_WITH_LIMITATIONS"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "PKA",
+      "limitation": "no qualified experimental dataset",
+      "maturity": "L1",
+      "next_requirement": "licensed macro/site pKa data",
+      "production_model": "ionization_smarts_rules_v1",
+      "status": "DATA_LIMITED"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "LOGD_7_4",
+      "limitation": "derived, not experimental ML",
+      "maturity": "L1",
+      "next_requirement": "licensed pH 7.4 logD data",
+      "production_model": "henderson_hasselbalch_logd_v1",
+      "status": "DATA_LIMITED"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "VDSS",
+      "limitation": "strict source-qualified N=50",
+      "maturity": "L3",
+      "next_requirement": "independent true Vss data",
+      "production_model": "mechanistic consensus",
+      "status": "DATA_LIMITED"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "limitation": "same-source validation only",
+      "maturity": "RESEARCH_CANDIDATE",
+      "next_requirement": "independent human IV total CL",
+      "production_model": "Random Forest + RDKit descriptors",
+      "status": "INDEPENDENT_VALIDATION_REQUIRED"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "QUANTITATIVE_CYP_2C19",
+      "limitation": "no validated checkpoint",
+      "maturity": "MODEL_UNAVAILABLE",
+      "next_requirement": "validated human quantitative dataset/model",
+      "production_model": "none",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "QUANTITATIVE_PGP",
+      "limitation": "no validated checkpoint",
+      "maturity": "MODEL_UNAVAILABLE",
+      "next_requirement": "validated quantitative transporter data/model",
+      "production_model": "none",
+      "status": "MODEL_UNAVAILABLE"
+    },
+    {
+      "ad": "endpoint-specific AD or explicit fail-closed status",
+      "endpoint": "QUANTITATIVE_BCRP",
+      "limitation": "no validated checkpoint",
+      "maturity": "MODEL_UNAVAILABLE",
+      "next_requirement": "validated quantitative transporter data/model",
+      "production_model": "none",
+      "status": "MODEL_UNAVAILABLE"
+    }
+  ],
+  "production_engine": {
+    "engine": "drugopt-prediction-engine-v1",
+    "historical_runs_modified": 0,
+    "status": "UNCHANGED"
+  },
+  "project_adapter_contract": [
+    "global_prediction",
+    "global_uncertainty",
+    "AD",
+    "model_version",
+    "model_status",
+    "residual-compatible output"
+  ],
+  "readiness": "GLOBAL_DEVELOPABILITY_V1_BASELINE_READY_WITH_LIMITATIONS",
+  "reference_library": {
+    "artifact": "REFERENCE_LIBRARY_V1",
+    "n": 1000,
+    "sha256": "80f612caaef2f09f8ade3339226965e362d8a47b053cf06536c9583592afb1b2"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "acid_n": 0,
+  "base_n": 0,
+  "canonical_unit": "pKa",
+  "created_at": "2026-09-07",
+  "dataset_hash": "502b67f243e61f626d2aff05140c7622551df3bbd2a3c6e4826cfbded12888a9",
+  "dataset_version": "pka_experimental_v1",
+  "endpoint": "PKA",
+  "endpoint_definition": "experimental acidic/basic dissociation constant; macro/micro/site semantics retained",
+  "independence": "NO_QUALIFIED_SOURCE_LINEAGE",
+  "qualified_n": 0,
+  "qualified_records": [],
+  "rejections": [
+    {
+      "count": "not accepted",
+      "detail": "Drug-OPT IonizationEngine estimates are not experimental labels.",
+      "reason": "MODELLED_OR_RULE_DERIVED"
+    },
+    {
+      "count": "not accepted",
+      "detail": "pKaSolver strict load failed and pKaLearn checkpoint/lineage is unresolved.",
+      "reason": "CHECKPOINT_OR_SEMANTICS_UNRESOLVED"
+    },
+    {
+      "count": "not accepted",
+      "detail": "No record-level source was available to distinguish macro/basic/acidic/site labels reproducibly.",
+      "reason": "MULTI_PKA_SEMANTICS_UNRESOLVED"
+    }
+  ],
+  "source_families": [
+    "ChEMBL",
+    "PubChem",
+    "pKaLearn",
+    "pKaSolver"
+  ],
+  "status": "DATA_LIMITED"
+}

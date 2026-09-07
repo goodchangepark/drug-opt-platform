@@ -1,0 +1,37 @@
+{
+  "acid_n": null,
+  "base_n": null,
+  "canonical_unit": "logD",
+  "created_at": "2026-09-07",
+  "dataset_hash": "b55c4e8d7c8fb2bd008a06354cee16a868111ef7dc9043bb6e74396035ea5dbe",
+  "dataset_version": "logd_7_4_experimental_v1",
+  "endpoint": "LOGD_7_4",
+  "endpoint_definition": "experimental octanol-water distribution coefficient at explicit pH 7.4",
+  "independence": "NO_QUALIFIED_SOURCE_LINEAGE",
+  "qualified_n": 0,
+  "qualified_records": [],
+  "rejections": [
+    {
+      "count": 1130,
+      "detail": "The discovered logD74 candidate dataset has pH-specific records but its reusable data license is unresolved.",
+      "reason": "LICENSE_OR_REUSE_UNRESOLVED"
+    },
+    {
+      "count": "all unrelated",
+      "detail": "cLogP/logP is never relabeled as experimental logD7.4.",
+      "reason": "LOGP_NOT_LOGD74"
+    },
+    {
+      "count": "all Drug-OPT derived outputs",
+      "detail": "Henderson-Hasselbalch outputs remain derived estimates only.",
+      "reason": "DERIVED_NOT_EXPERIMENTAL"
+    }
+  ],
+  "source_families": [
+    "ChEMBL",
+    "PubChem",
+    "logD74 curated dataset",
+    "OpenADMET-related sources"
+  ],
+  "status": "DATA_LIMITED"
+}
