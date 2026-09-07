@@ -1,0 +1,42 @@
+{
+  "artifact": "GLOBAL_OPTIMIZATION_LEDGER_V73",
+  "created_at": "2026-09-07T14:44:25.492952+00:00",
+  "experiments": [
+    {
+      "benchmark": "validation/hepatic_hybrid_benchmark_v73.json",
+      "canonical_contract": {
+        "ad_evaluation": "all eligible compounds retained; no AD-based exclusions",
+        "dataset": "clinical_pk_cohort.py assisted hepatic-IVIVE cohort",
+        "dataset_hash": "587828b37d24edfe6a880a580e3760059644cb1913f12fcc20ba6785bac2cdee",
+        "dataset_n": 30,
+        "eligibility": "positive observed hepatic CL, PPB, HLM Clint, valid structure",
+        "endpoint": "HUMAN_HEPATIC_CL",
+        "inputs": "observed PPB/fu and observed HLM Clint permitted only as assisted mechanistic inputs",
+        "inverse_transform": "10**(log10(prior)+residual)",
+        "metric": "pooled out-of-fold fold error",
+        "seed": 73,
+        "semantics": "human hepatic clearance; not total CL, CL/F, or renal CL",
+        "split": "deterministic 5-fold GroupKFold by Murcko scaffold after compound-name sort",
+        "target_aggregation": "one curated clinical value per compound",
+        "target_transform": "log10(CL) residual around well-stirred prior",
+        "unit": "mL/min/kg"
+      },
+      "decision": "RESEARCH_ONLY_NO_PRODUCTION_CHANGE",
+      "endpoint": "HUMAN_HEPATIC_CL",
+      "experiment_id": "V73-HEPATIC-MECHANISTIC-RESIDUAL-HYBRID",
+      "selected_research_candidate": "extra_trees_residual"
+    }
+  ],
+  "next_queue": [
+    "HUMAN_FU_PLASMA",
+    "HUMAN_HEPATIC_CL",
+    "HUMAN_VDSS",
+    "HUMAN_TOTAL_IV_CL",
+    "IV_HALF_LIFE",
+    "ORAL_AUC",
+    "ORAL_CMAX"
+  ],
+  "previous_ledger": "validation/global_optimization_ledger_v71.json",
+  "production_decision": "UNCHANGED",
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2"
+}

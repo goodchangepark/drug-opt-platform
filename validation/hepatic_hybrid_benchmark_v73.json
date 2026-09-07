@@ -1,0 +1,299 @@
+{
+  "artifact": "HEPATIC_HYBRID_BENCHMARK_V73",
+  "canonical_contract": {
+    "ad_evaluation": "all eligible compounds retained; no AD-based exclusions",
+    "dataset": "clinical_pk_cohort.py assisted hepatic-IVIVE cohort",
+    "dataset_hash": "587828b37d24edfe6a880a580e3760059644cb1913f12fcc20ba6785bac2cdee",
+    "dataset_n": 30,
+    "eligibility": "positive observed hepatic CL, PPB, HLM Clint, valid structure",
+    "endpoint": "HUMAN_HEPATIC_CL",
+    "inputs": "observed PPB/fu and observed HLM Clint permitted only as assisted mechanistic inputs",
+    "inverse_transform": "10**(log10(prior)+residual)",
+    "metric": "pooled out-of-fold fold error",
+    "seed": 73,
+    "semantics": "human hepatic clearance; not total CL, CL/F, or renal CL",
+    "split": "deterministic 5-fold GroupKFold by Murcko scaffold after compound-name sort",
+    "target_aggregation": "one curated clinical value per compound",
+    "target_transform": "log10(CL) residual around well-stirred prior",
+    "unit": "mL/min/kg"
+  },
+  "created_at": "2026-09-07T14:44:25.492952+00:00",
+  "decision": "RESEARCH_ONLY_NO_PRODUCTION_CHANGE",
+  "fold_provenance": [
+    {
+      "candidate": "ridge_residual",
+      "fold": 0,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "ridge_residual",
+      "fold": 1,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "ridge_residual",
+      "fold": 2,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "ridge_residual",
+      "fold": 3,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "ridge_residual",
+      "fold": 4,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "random_forest_residual",
+      "fold": 0,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "random_forest_residual",
+      "fold": 1,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "random_forest_residual",
+      "fold": 2,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "random_forest_residual",
+      "fold": 3,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "random_forest_residual",
+      "fold": 4,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "extra_trees_residual",
+      "fold": 0,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "extra_trees_residual",
+      "fold": 1,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "extra_trees_residual",
+      "fold": 2,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "extra_trees_residual",
+      "fold": 3,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    },
+    {
+      "candidate": "extra_trees_residual",
+      "fold": 4,
+      "target_fitting_scope": "train_fold_only",
+      "test_n": 6,
+      "train_n": 24
+    }
+  ],
+  "limitations": [
+    "Assisted benchmark, not a prediction-only chain.",
+    "N=30 and no independent validation cohort.",
+    "No candidate is eligible for production promotion from this artifact."
+  ],
+  "models": {
+    "extra_trees_residual": {
+      "by_extraction": {
+        "HIGH": {
+          "aafe": 1.4806711000463617,
+          "bias_log10": -0.08236874428036184,
+          "mae_log10": 0.1533830619573387,
+          "median_fold_error": 1.348838867083891,
+          "n": 4,
+          "within_2_fold_pct": 75.0,
+          "within_3_fold_pct": 100.0
+        },
+        "INTERMEDIATE": {
+          "aafe": 2.3983553641306417,
+          "bias_log10": -0.2650657165911989,
+          "mae_log10": 0.276999447979114,
+          "median_fold_error": 1.4971578558941987,
+          "n": 9,
+          "within_2_fold_pct": 66.66666666666666,
+          "within_3_fold_pct": 77.77777777777779
+        },
+        "LOW": {
+          "aafe": 4.582457559830588,
+          "bias_log10": 0.16837629080858194,
+          "mae_log10": 0.5598845976872376,
+          "median_fold_error": 4.601459944906699,
+          "n": 17,
+          "within_2_fold_pct": 35.294117647058826,
+          "within_3_fold_pct": 35.294117647058826
+        }
+      },
+      "pooled_oof": {
+        "aafe": 3.513655373149374,
+        "bias_log10": 0.00491101724345521,
+        "mae_log10": 0.420818848010814,
+        "median_fold_error": 2.0199993528712943,
+        "n": 30,
+        "within_2_fold_pct": 50.0,
+        "within_3_fold_pct": 56.666666666666664
+      }
+    },
+    "random_forest_residual": {
+      "by_extraction": {
+        "HIGH": {
+          "aafe": 1.4670626176835613,
+          "bias_log10": -0.10635188703377038,
+          "mae_log10": 0.15343371757468757,
+          "median_fold_error": 1.460655851052453,
+          "n": 4,
+          "within_2_fold_pct": 100.0,
+          "within_3_fold_pct": 100.0
+        },
+        "INTERMEDIATE": {
+          "aafe": 2.445452068777412,
+          "bias_log10": -0.2568641732404814,
+          "mae_log10": 0.2736147483632397,
+          "median_fold_error": 1.2853811215605462,
+          "n": 9,
+          "within_2_fold_pct": 66.66666666666666,
+          "within_3_fold_pct": 77.77777777777779
+        },
+        "LOW": {
+          "aafe": 4.5694154108349485,
+          "bias_log10": 0.20981938826837318,
+          "mae_log10": 0.561430930613095,
+          "median_fold_error": 3.498734683818742,
+          "n": 17,
+          "within_2_fold_pct": 29.411764705882355,
+          "within_3_fold_pct": 47.05882352941176
+        }
+      },
+      "pooled_oof": {
+        "aafe": 3.518579369130836,
+        "bias_log10": 0.027658149775430987,
+        "mae_log10": 0.4206864475330175,
+        "median_fold_error": 2.137581914382219,
+        "n": 30,
+        "within_2_fold_pct": 50.0,
+        "within_3_fold_pct": 63.33333333333333
+      }
+    },
+    "ridge_residual": {
+      "by_extraction": {
+        "HIGH": {
+          "aafe": 2.1483024320934736,
+          "bias_log10": -0.015867029325112303,
+          "mae_log10": 0.2927839119095952,
+          "median_fold_error": 1.9754013793341425,
+          "n": 4,
+          "within_2_fold_pct": 50.0,
+          "within_3_fold_pct": 75.0
+        },
+        "INTERMEDIATE": {
+          "aafe": 2.248040686700436,
+          "bias_log10": -0.27590882621281787,
+          "mae_log10": 0.27590882621281787,
+          "median_fold_error": 1.4489729677016285,
+          "n": 9,
+          "within_2_fold_pct": 66.66666666666666,
+          "within_3_fold_pct": 77.77777777777779
+        },
+        "LOW": {
+          "aafe": 3.8541776532625853,
+          "bias_log10": 0.16878777770436518,
+          "mae_log10": 0.4823881179039203,
+          "median_fold_error": 3.3684869450574735,
+          "n": 17,
+          "within_2_fold_pct": 41.17647058823529,
+          "within_3_fold_pct": 47.05882352941176
+        }
+      },
+      "pooled_oof": {
+        "aafe": 3.144886533804726,
+        "bias_log10": 0.010758155591946587,
+        "mae_log10": 0.39516376959734617,
+        "median_fold_error": 2.0055431781443795,
+        "n": 30,
+        "within_2_fold_pct": 50.0,
+        "within_3_fold_pct": 60.0
+      }
+    },
+    "well_stirred_observed_fu_hlm": {
+      "by_extraction": {
+        "HIGH": {
+          "aafe": 1.6060181632413733,
+          "bias_log10": -0.1715830249679115,
+          "mae_log10": 0.1864236864892807,
+          "median_fold_error": 1.605111359779756,
+          "n": 4,
+          "within_2_fold_pct": 75.0,
+          "within_3_fold_pct": 100.0
+        },
+        "INTERMEDIATE": {
+          "aafe": 3.971163804812671,
+          "bias_log10": -0.5342529680101302,
+          "mae_log10": 0.5346737731387508,
+          "median_fold_error": 3.7828947368421053,
+          "n": 9,
+          "within_2_fold_pct": 11.11111111111111,
+          "within_3_fold_pct": 33.33333333333333
+        },
+        "LOW": {
+          "aafe": 4.606059817357588,
+          "bias_log10": 0.012551038060016935,
+          "mae_log10": 0.5870171873039233,
+          "median_fold_error": 3.4060869565217393,
+          "n": 17,
+          "within_2_fold_pct": 23.52941176470588,
+          "within_3_fold_pct": 29.411764705882355
+        }
+      },
+      "pooled_oof": {
+        "aafe": 4.015585459711952,
+        "bias_log10": -0.17604137216475102,
+        "mae_log10": 0.5179016962790858,
+        "median_fold_error": 3.3176261467889905,
+        "n": 30,
+        "within_2_fold_pct": 26.666666666666668,
+        "within_3_fold_pct": 40.0
+      }
+    }
+  },
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2",
+  "selected_research_candidate": "extra_trees_residual",
+  "selection_rule": "retain only >=10% pooled AAFE improvement without >10% extraction-subgroup AAFE regression"
+}
