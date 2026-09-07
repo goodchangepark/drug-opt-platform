@@ -1,6 +1,6 @@
 {
   "artifact": "human_clearance_upgrade_v5_2",
-  "created_at": "2026-09-07T00:00:53.969370+00:00",
+  "created_at": "2026-09-07T00:03:14.097957+00:00",
   "architecture_version": "drugopt-clearance-architecture-v1",
   "engine_unchanged": true,
   "drugbank_compounds": 250,
@@ -1478,7 +1478,7 @@
       "Cmax_ng_mL": 905.12
     },
     "fold_error": {
-      "AUC": 0.898,
+      "AUC": 1.114,
       "Cmax": 2.197
     },
     "input_provenance": {

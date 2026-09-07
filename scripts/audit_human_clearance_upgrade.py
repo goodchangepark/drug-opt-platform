@@ -85,7 +85,7 @@ def main() -> None:
     sunvozertinib = {
         "observed": {"AUC_ng_h_mL": 8060.0, "Cmax_ng_mL": 412.0},
         "baseline_prediction": {"AUC_ng_h_mL": 7235.87, "Cmax_ng_mL": 905.12},
-        "fold_error": {"AUC": round(7235.87 / 8060.0, 3), "Cmax": round(905.12 / 412.0, 3)},
+        "fold_error": {"AUC": round(max(7235.87 / 8060.0, 8060.0 / 7235.87), 3), "Cmax": round(max(905.12 / 412.0, 412.0 / 905.12), 3)},
         "input_provenance": {"F": "MODEL_PREDICTED", "ka": "DERIVED_FROM_PERMEABILITY", "CL": "HEPATIC_IVIVE_APPARENT", "V": "PREDICTED_VD"},
         "sensitivity_policy": "LOCAL_NORMALIZED_SENSITIVITY_FROM_FROZEN_VALIDATION_ARTIFACT",
         "sensitivity": sensitivity.get("parameters", {}),
