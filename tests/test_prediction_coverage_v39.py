@@ -69,6 +69,9 @@ def test_persisted_pk_outputs_get_durable_snapshot_identity():
         assert len(snapshots) == 1
         assert snapshots[0].prediction_type == PREDICTION_MECHANISTIC
         assert snapshots[0].snapshot_json["source_type"] == PREDICTION_MECHANISTIC
+        assert snapshots[0].snapshot_json["engine_id"] == "drugopt-prediction-engine-v3@3.3.3"
+        assert snapshots[0].snapshot_json["engine_version"] == "3.3.3"
+        assert snapshots[0].snapshot_json["species"] == "RAT"
         assert db.get(ADMETPredictionRun, snapshots[0].prediction_run_id) is not None
 
 

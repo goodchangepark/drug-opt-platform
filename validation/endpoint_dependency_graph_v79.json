@@ -1,0 +1,70 @@
+{
+  "artifact": "ENDPOINT_DEPENDENCY_GRAPH_V79",
+  "edges": [
+    [
+      "HUMAN_FU_PLASMA",
+      "HUMAN_HEPATIC_CL"
+    ],
+    [
+      "HLM_CLINT",
+      "HUMAN_HEPATIC_CL"
+    ],
+    [
+      "RLM_CLINT",
+      "RAT_PK_CL_IV"
+    ],
+    [
+      "MLM_CLINT",
+      "MOUSE_PK_CL_IV"
+    ],
+    [
+      "HUMAN_HEPATIC_CL",
+      "HUMAN_TOTAL_IV_CL"
+    ],
+    [
+      "HUMAN_TOTAL_IV_CL",
+      "IV_HALF_LIFE"
+    ],
+    [
+      "HUMAN_VDSS",
+      "IV_HALF_LIFE"
+    ],
+    [
+      "PKA_ACID",
+      "LOGD_7_4"
+    ],
+    [
+      "PKA_BASE",
+      "LOGD_7_4"
+    ],
+    [
+      "LOGD_7_4",
+      "HUMAN_VDSS"
+    ],
+    [
+      "HUMAN_F",
+      "ORAL_AUC"
+    ],
+    [
+      "HUMAN_TOTAL_IV_CL",
+      "ORAL_AUC"
+    ],
+    [
+      "HUMAN_VDSS",
+      "ORAL_CMAX"
+    ],
+    [
+      "KA",
+      "ORAL_CMAX"
+    ]
+  ],
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "queue": [
+    "PERSIST_CURRENT_V333_SNAPSHOTS_PROJECTS_1_3_5_300",
+    "PK_TAB_SPECIES_CONTEXT_REGRESSION",
+    "IV_HALF_LIFE_FROZEN_OOF_UPSTREAM",
+    "CYP_TRANSPORTER_SEMANTIC_AUDIT",
+    "FULL_V333_RELEASE_VALIDATION"
+  ],
+  "routing_rule": "Retained research candidates requeue dependencies but never silently replace production routes; all downstream evaluations use frozen OOF upstream predictions."
+}

@@ -76,6 +76,22 @@ SPECIES_PHYSIOLOGY: Dict[str, Dict[str, float]] = {
         "default_bw_kg": 0.025,
         "default_rb": 1.0,
     },
+    "DOG": {
+        "qh_ml_min_kg": 30.90,
+        "liver_wt_g_kg": 32.9,
+        "mppgl_mg_g": 58.0,
+        "scaling_factor": 32.9 * 58.0,
+        "default_bw_kg": 10.0,
+        "default_rb": 1.0,
+    },
+    "MONKEY": {
+        "qh_ml_min_kg": 43.60,
+        "liver_wt_g_kg": 24.8,
+        "mppgl_mg_g": 32.0,
+        "scaling_factor": 24.8 * 32.0,
+        "default_bw_kg": 5.0,
+        "default_rb": 1.0,
+    },
 }
 
 # Physical Bounds for fu (fraction unbound)
@@ -289,7 +305,9 @@ def calculate_well_stirred_clearance(
     Every assumed parameter labeled with MODEL_INPUT_ASSUMPTION.
     """
     sp_key = str(species).upper()
-    phys = SPECIES_PHYSIOLOGY.get(sp_key, SPECIES_PHYSIOLOGY["HUMAN"])
+    if sp_key not in SPECIES_PHYSIOLOGY:
+        raise ValueError(f"Unsupported species physiology: {species!r}")
+    phys = SPECIES_PHYSIOLOGY[sp_key]
 
     qh = qh_ml_min_kg if qh_ml_min_kg is not None else phys["qh_ml_min_kg"]
     liver_wt = liver_wt_g_kg if liver_wt_g_kg is not None else phys["liver_wt_g_kg"]
@@ -626,7 +644,9 @@ def build_pk_parameter_set(
     multi-species IVIVE, and downstream uncertainty propagation.
     """
     sp_key = str(species).upper()
-    phys = SPECIES_PHYSIOLOGY.get(sp_key, SPECIES_PHYSIOLOGY["HUMAN"])
+    if sp_key not in SPECIES_PHYSIOLOGY:
+        raise ValueError(f"Unsupported species physiology: {species!r}")
+    phys = SPECIES_PHYSIOLOGY[sp_key]
     bw = body_weight_kg if body_weight_kg is not None else phys["default_bw_kg"]
     now_ts = datetime.now(timezone.utc).isoformat()
     assumptions: List[str] = []

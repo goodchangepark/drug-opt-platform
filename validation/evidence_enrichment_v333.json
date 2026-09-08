@@ -1,0 +1,3619 @@
+{
+  "artifact": "EVIDENCE_ENRICHMENT_V333",
+  "generated_at": "2026-09-08T09:45:54.825445+00:00",
+  "scope": {
+    "project_ids": [
+      1,
+      3,
+      5,
+      300
+    ],
+    "network_search_performed": false
+  },
+  "contract": {
+    "search_results_are_persisted": true,
+    "accepted_states": [
+      "AUTO_QUALIFIED_EXTERNAL",
+      "EXTERNAL_IMPORTED"
+    ],
+    "candidate_states": [
+      "EXTERNAL_CANDIDATE",
+      "RELATED_EXTERNAL",
+      "REVIEW_REQUIRED"
+    ],
+    "displayable_does_not_imply_learning_eligible": true
+  },
+  "summary": {
+    "compounds_with_evidence": 258,
+    "records": 3956,
+    "accepted": 2971,
+    "candidate_or_review": 985
+  },
+  "states": {
+    "AUTO_QUALIFIED_EXTERNAL": 2971,
+    "RELATED_EXTERNAL": 181,
+    "REVIEW_REQUIRED": 789,
+    "UNUSABLE": 15
+  },
+  "sources": {
+    "ChEMBL": 287,
+    "DrugBank / FDA NDA": 300,
+    "DrugBank_FDA_ChEMBL": 1790,
+    "Europe PMC": 471,
+    "FDA / Regulatory": 1102,
+    "PubChem BioAssay": 6
+  },
+  "species": {
+    "DOG": 12,
+    "HUMAN": 2051,
+    "MOUSE": 87,
+    "OTHER": 1,
+    "RAT": 59,
+    "UNSPECIFIED": 1746
+  },
+  "coverage": [
+    {
+      "endpoint": "ACTIVITY_EC50",
+      "species": "HUMAN",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_EC50",
+      "species": "MOUSE",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_EMAX",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_EMAX",
+      "species": "MOUSE",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_GI50",
+      "species": "HUMAN",
+      "accepted": 5,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_GI50",
+      "species": "MOUSE",
+      "accepted": 5,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_IC50",
+      "species": "HUMAN",
+      "accepted": 55,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_IC50",
+      "species": "MOUSE",
+      "accepted": 24,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_IC50",
+      "species": "UNSPECIFIED",
+      "accepted": 22,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 16,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_INHIBITION",
+      "species": "MOUSE",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 5,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_KD",
+      "species": "HUMAN",
+      "accepted": 87,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_KD",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_KI",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_SELECTIVITY_RATIO",
+      "species": "HUMAN",
+      "accepted": 0,
+      "candidate": 11,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_SELECTIVITY_RATIO",
+      "species": "UNSPECIFIED",
+      "accepted": 0,
+      "candidate": 25,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_TGI",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_TGI",
+      "species": "MOUSE",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "ACTIVITY_TGI",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "BCRP_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 27,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "BCRP_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 8,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CACO2_EFFLUX_RATIO",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CACO2_PAPP_AB",
+      "species": "HUMAN",
+      "accepted": 262,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP1A2_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 38,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP1A2_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP1A2_METABOLIC_CONTRIBUTION",
+      "species": "HUMAN",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP1A2_SUBSTRATE",
+      "species": "HUMAN",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP1A2_SUBSTRATE",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2B6_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 5,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2B6_SUBSTRATE",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C19_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 41,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C19_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C8_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 7,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C8_METABOLIC_CONTRIBUTION",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C8_SUBSTRATE",
+      "species": "UNSPECIFIED",
+      "accepted": 8,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C9_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 41,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C9_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "species": "HUMAN",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2D6_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 70,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2D6_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2D6_METABOLIC_CONTRIBUTION",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP2D6_SUBSTRATE",
+      "species": "HUMAN",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP3A4_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 262,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP3A4_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 25,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP3A4_METABOLIC_CONTRIBUTION",
+      "species": "HUMAN",
+      "accepted": 11,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP3A4_METABOLIC_CONTRIBUTION",
+      "species": "UNSPECIFIED",
+      "accepted": 167,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "species": "HUMAN",
+      "accepted": 7,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "species": "UNSPECIFIED",
+      "accepted": 26,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_MICROSOMAL_STABILITY_T_HALF",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_AUC0_T_IV",
+      "species": "DOG",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_AUC0_T_ORAL",
+      "species": "DOG",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_CL_IV",
+      "species": "DOG",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_CMAX_ORAL",
+      "species": "DOG",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_CMAX_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_F_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_F_ORAL",
+      "species": "DOG",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_F_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_F_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_TMAX_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_T_HALF_IV",
+      "species": "DOG",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_T_HALF_ORAL",
+      "species": "DOG",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_T_HALF_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PK_VSS_IV",
+      "species": "DOG",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "DOG_PPB",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "EXCRETION_FECAL",
+      "species": "HUMAN",
+      "accepted": 10,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "EXCRETION_FECAL",
+      "species": "UNSPECIFIED",
+      "accepted": 44,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "EXCRETION_URINARY",
+      "species": "HUMAN",
+      "accepted": 11,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "EXCRETION_URINARY",
+      "species": "UNSPECIFIED",
+      "accepted": 26,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HEPATOCYTE_CLINT",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HEPATOCYTE_CLINT",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HERG_LIABILITY",
+      "species": "HUMAN",
+      "accepted": 287,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HLM_CLINT",
+      "species": "HUMAN",
+      "accepted": 51,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HLM_CLINT",
+      "species": "UNSPECIFIED",
+      "accepted": 5,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_MICROSOMAL_PROTEIN_BINDING",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_MICROSOMAL_PROTEIN_BINDING",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_INF_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_ORAL",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY1",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY29",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_ORAL_DAY84",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 26,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC0_T_UNSPECIFIED_DAY82",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC_ORAL",
+      "species": "HUMAN",
+      "accepted": 10,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 6,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 29,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_AUC_UNSPECIFIED_DAY28",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CLF_ORAL_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CLF_ORAL_ORAL",
+      "species": "HUMAN",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CLF_ORAL_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 8,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CL_IV",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CL_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CL_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 7,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CL_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 21,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CL_UNSPECIFIED_DAY28",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_IV_DAY1",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_IV_DAY2",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_ORAL",
+      "species": "HUMAN",
+      "accepted": 21,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 20,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_ORAL_DAY1",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_ORAL_DAY29",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 11,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 69,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED_DAY17",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_CMAX_UNSPECIFIED_DAY21",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_DDI_RELATIVE_RATIO",
+      "species": "HUMAN",
+      "accepted": 0,
+      "candidate": 14,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_DDI_RELATIVE_RATIO",
+      "species": "UNSPECIFIED",
+      "accepted": 0,
+      "candidate": 128,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_F_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_F_ORAL",
+      "species": "HUMAN",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_F_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 11,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_F_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_F_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 11,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_TMAX_ORAL",
+      "species": "HUMAN",
+      "accepted": 6,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_TMAX_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 10,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 26,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_TMAX_UNSPECIFIED_DAY84",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_T_HALF_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_T_HALF_ORAL",
+      "species": "HUMAN",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_T_HALF_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 11,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_T_HALF_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 5,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_T_HALF_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 13,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VDF_ORAL_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VDF_ORAL_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VD_IV",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VD_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VD_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 50,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VD_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VSSF_ORAL_ORAL",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VSS_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PK_VSS_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PPB",
+      "species": "HUMAN",
+      "accepted": 306,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "HUMAN_PPB",
+      "species": "UNSPECIFIED",
+      "accepted": 15,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "LITERATURE_CITATION",
+      "species": "UNSPECIFIED",
+      "accepted": 0,
+      "candidate": 0,
+      "rejected_or_review": 471
+    },
+    {
+      "endpoint": "METABOLITE_OBSERVATION",
+      "species": "HUMAN",
+      "accepted": 12,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "METABOLITE_OBSERVATION",
+      "species": "UNSPECIFIED",
+      "accepted": 38,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MONKEY_PK_DDI_RELATIVE_RATIO",
+      "species": "HUMAN",
+      "accepted": 0,
+      "candidate": 1,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MONKEY_PK_F_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MONKEY_PK_TMAX_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MOUSE_PK_AUC0_T_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MOUSE_PK_AUC_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MOUSE_PK_CMAX_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "MOUSE_PK_CMAX_UNSPECIFIED",
+      "species": "HUMAN",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "PGP_INHIBITION",
+      "species": "HUMAN",
+      "accepted": 52,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "PGP_INHIBITION",
+      "species": "UNSPECIFIED",
+      "accepted": 43,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_AUC0_T_IV",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_AUC0_T_ORAL",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_AUC0_T_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_AUC_ORAL",
+      "species": "HUMAN",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_AUC_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_AUC_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_CL_IV",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_CL_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_CMAX_IV_DAY1",
+      "species": "UNSPECIFIED",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_CMAX_ORAL",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_CMAX_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 3,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_CMAX_UNSPECIFIED",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_DDI_RELATIVE_RATIO",
+      "species": "UNSPECIFIED",
+      "accepted": 0,
+      "candidate": 1,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_F_IV",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_F_ORAL",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_F_ORAL",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_TMAX_IV_DAY1",
+      "species": "UNSPECIFIED",
+      "accepted": 2,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_TMAX_ORAL",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_T_HALF_IV",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_T_HALF_ORAL",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "RAT_PK_VSS_IV",
+      "species": "RAT",
+      "accepted": 1,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "SOLUBILITY_GENERIC",
+      "species": "UNSPECIFIED",
+      "accepted": 4,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "SOLUBILITY_THERMODYNAMIC",
+      "species": "UNSPECIFIED",
+      "accepted": 275,
+      "candidate": 0,
+      "rejected_or_review": 0
+    },
+    {
+      "endpoint": "UNRESOLVED",
+      "species": "HUMAN",
+      "accepted": 0,
+      "candidate": 0,
+      "rejected_or_review": 207
+    },
+    {
+      "endpoint": "UNRESOLVED",
+      "species": "MOUSE",
+      "accepted": 0,
+      "candidate": 0,
+      "rejected_or_review": 50
+    },
+    {
+      "endpoint": "UNRESOLVED",
+      "species": "OTHER",
+      "accepted": 0,
+      "candidate": 0,
+      "rejected_or_review": 1
+    },
+    {
+      "endpoint": "UNRESOLVED",
+      "species": "RAT",
+      "accepted": 0,
+      "candidate": 0,
+      "rejected_or_review": 50
+    },
+    {
+      "endpoint": "UNRESOLVED",
+      "species": "UNSPECIFIED",
+      "accepted": 0,
+      "candidate": 0,
+      "rejected_or_review": 25
+    },
+    {
+      "endpoint": "UNSPECIFIED_PK_DDI_RELATIVE_RATIO",
+      "species": "UNSPECIFIED",
+      "accepted": 0,
+      "candidate": 1,
+      "rejected_or_review": 0
+    }
+  ],
+  "compounds": [
+    {
+      "compound_id": 1,
+      "project_id": 1,
+      "name": "Orforglipron",
+      "inchikey": "USUWIEBBBWHKNI-KHIFEHGGSA-N",
+      "records": 562,
+      "accepted": 372,
+      "candidate": 190
+    },
+    {
+      "compound_id": 10,
+      "project_id": 3,
+      "name": "Sunvozertinib",
+      "inchikey": "BTMKEDDEMKKSEF-QGZVFWFLSA-N",
+      "records": 376,
+      "accepted": 229,
+      "candidate": 147
+    },
+    {
+      "compound_id": 15,
+      "project_id": 3,
+      "name": "Zipalertinib",
+      "inchikey": "MKCYPWYURWOKST-INIZCTEOSA-N",
+      "records": 144,
+      "accepted": 34,
+      "candidate": 110
+    },
+    {
+      "compound_id": 16,
+      "project_id": 3,
+      "name": "Mobocertinib",
+      "inchikey": "AZSRSNUQCUDCGG-UHFFFAOYSA-N",
+      "records": 475,
+      "accepted": 422,
+      "candidate": 53
+    },
+    {
+      "compound_id": 17,
+      "project_id": 3,
+      "name": "Pruvonertinib",
+      "inchikey": "OEFWUILIMFIVSE-UHFFFAOYSA-N",
+      "records": 40,
+      "accepted": 30,
+      "candidate": 10
+    },
+    {
+      "compound_id": 18,
+      "project_id": 3,
+      "name": "Poziotinib",
+      "inchikey": "LPFWVDIFUFFKJU-UHFFFAOYSA-N",
+      "records": 209,
+      "accepted": 100,
+      "candidate": 109
+    },
+    {
+      "compound_id": 19,
+      "project_id": 3,
+      "name": "Silevertinib (BDTX-1535)",
+      "inchikey": "LMOVDLRMIRLIJF-TUVXKDNKSA-N",
+      "records": 2,
+      "accepted": 0,
+      "candidate": 2
+    },
+    {
+      "compound_id": 20,
+      "project_id": 3,
+      "name": "Furmonertinib (Alflutinib)",
+      "inchikey": "GHKOONMJXNWOIW-UHFFFAOYSA-N",
+      "records": 58,
+      "accepted": 0,
+      "candidate": 58
+    },
+    {
+      "compound_id": 315,
+      "project_id": 300,
+      "name": "Gefitinib",
+      "inchikey": "XGALLCVXEZPNRQ-UHFFFAOYSA-N",
+      "records": 14,
+      "accepted": 14,
+      "candidate": 0
+    },
+    {
+      "compound_id": 330,
+      "project_id": 300,
+      "name": "Imatinib",
+      "inchikey": "KTUFNOKKBVMGRW-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 331,
+      "project_id": 300,
+      "name": "Propranolol",
+      "inchikey": "AQHHHDLHHXJYJD-UHFFFAOYSA-N",
+      "records": 9,
+      "accepted": 9,
+      "candidate": 0
+    },
+    {
+      "compound_id": 332,
+      "project_id": 300,
+      "name": "Atorvastatin",
+      "inchikey": "XUKUURHRXDUEBC-UHFFFAOYSA-N",
+      "records": 9,
+      "accepted": 9,
+      "candidate": 0
+    },
+    {
+      "compound_id": 333,
+      "project_id": 300,
+      "name": "Midazolam",
+      "inchikey": "DDLIGBOFAVUZHB-UHFFFAOYSA-N",
+      "records": 9,
+      "accepted": 9,
+      "candidate": 0
+    },
+    {
+      "compound_id": 362,
+      "project_id": 300,
+      "name": "Verapamil",
+      "inchikey": "SGTNSNPWRIOYBX-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 363,
+      "project_id": 300,
+      "name": "Fluoxetine",
+      "inchikey": "RTHCYVBBDHJXIQ-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 364,
+      "project_id": 300,
+      "name": "Ketoconazole",
+      "inchikey": "XMAYWYJOQHXEEK-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 7,
+      "candidate": 1
+    },
+    {
+      "compound_id": 365,
+      "project_id": 300,
+      "name": "Sildenafil",
+      "inchikey": "BNRNXUUZRGQAQC-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 366,
+      "project_id": 300,
+      "name": "Quinidine",
+      "inchikey": "BCTATBUCUNZQFD-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 381,
+      "project_id": 300,
+      "name": "Dextromethorphan",
+      "inchikey": "MKXZASYAUGDDCJ-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 382,
+      "project_id": 300,
+      "name": "Amiodarone",
+      "inchikey": "IYIKLHRQXLHMJQ-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 383,
+      "project_id": 300,
+      "name": "Clarithromycin",
+      "inchikey": "WQKYHOIULZKNKE-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 384,
+      "project_id": 300,
+      "name": "Duloxetine",
+      "inchikey": "ZEUITGRIYCTCEM-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 385,
+      "project_id": 300,
+      "name": "Haloperidol",
+      "inchikey": "LNEPOXFFQSENCJ-UHFFFAOYSA-N",
+      "records": 8,
+      "accepted": 8,
+      "candidate": 0
+    },
+    {
+      "compound_id": 414,
+      "project_id": 300,
+      "name": "Paroxetine",
+      "inchikey": "AHOUBRCZNHFOSL-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 415,
+      "project_id": 300,
+      "name": "Metoprolol",
+      "inchikey": "IUBSYMUCCVWXPE-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 416,
+      "project_id": 300,
+      "name": "Terbinafine",
+      "inchikey": "DOMXUEMWDBAQBQ-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 417,
+      "project_id": 300,
+      "name": "Ritonavir",
+      "inchikey": "NCDNCNXCDXHOMX-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 418,
+      "project_id": 300,
+      "name": "Cimetidine",
+      "inchikey": "FLVUTKGOAPGTHW-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 433,
+      "project_id": 300,
+      "name": "Bupropion",
+      "inchikey": "SNPPWIUOZRMYNY-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 434,
+      "project_id": 300,
+      "name": "Carvedilol",
+      "inchikey": "OGHNVEJMJSYVRP-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 435,
+      "project_id": 300,
+      "name": "Clopidogrel",
+      "inchikey": "GKTWGGQPFAXNFI-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 436,
+      "project_id": 300,
+      "name": "Diltiazem",
+      "inchikey": "JMCHTAAQLPNISH-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 437,
+      "project_id": 300,
+      "name": "Erythromycin",
+      "inchikey": "ULGZDMOVFRHVEP-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 438,
+      "project_id": 300,
+      "name": "Flecainide",
+      "inchikey": "DJBNUMBKLMJRSA-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 439,
+      "project_id": 300,
+      "name": "Lansoprazole",
+      "inchikey": "MJIHNNLFOKEZEW-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 440,
+      "project_id": 300,
+      "name": "Nifedipine",
+      "inchikey": "HYIMSNHJOBLJNT-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 441,
+      "project_id": 300,
+      "name": "Omeprazole",
+      "inchikey": "SUBDBMMJDZJVOS-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 442,
+      "project_id": 300,
+      "name": "Simvastatin",
+      "inchikey": "RYMZZMVNJRMUDD-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 443,
+      "project_id": 300,
+      "name": "Celecoxib",
+      "inchikey": "RZEKVGVHFLEQIL-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 444,
+      "project_id": 300,
+      "name": "Diazepam",
+      "inchikey": "AAOVKJBEBIDNHE-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 445,
+      "project_id": 300,
+      "name": "Diclofenac",
+      "inchikey": "DCOPUUMXTXDBNB-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 446,
+      "project_id": 300,
+      "name": "Indomethacin",
+      "inchikey": "CGIGDMFJXJATDK-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 447,
+      "project_id": 300,
+      "name": "Warfarin",
+      "inchikey": "PJVWKTKQMONHTI-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 448,
+      "project_id": 300,
+      "name": "Atenolol",
+      "inchikey": "METKIMKYRPQLGS-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 449,
+      "project_id": 300,
+      "name": "Caffeine",
+      "inchikey": "RYYVLZVUVIJVGH-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 450,
+      "project_id": 300,
+      "name": "Ibuprofen",
+      "inchikey": "HEFNNWSXXWATRW-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 451,
+      "project_id": 300,
+      "name": "Lorcaserin",
+      "inchikey": "XQTLSBRROGQSAT-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 452,
+      "project_id": 300,
+      "name": "Rosuvastatin",
+      "inchikey": "BPRHUIZQVSMCRT-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 498,
+      "project_id": 300,
+      "name": "Amlodipine",
+      "inchikey": "HTIQEAQVCYTUBX-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 6,
+      "candidate": 0
+    },
+    {
+      "compound_id": 499,
+      "project_id": 300,
+      "name": "Losartan",
+      "inchikey": "QFRIGXOYKIIKBJ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 6,
+      "candidate": 0
+    },
+    {
+      "compound_id": 500,
+      "project_id": 300,
+      "name": "Metronidazole",
+      "inchikey": "VAOCPAMSLUNLGC-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 501,
+      "project_id": 300,
+      "name": "Montelukast",
+      "inchikey": "JQSMAMWZLIJAAZ-ITYLOYPMSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 502,
+      "project_id": 300,
+      "name": "Pantoprazole",
+      "inchikey": "KTASIVAXBUMETI-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 503,
+      "project_id": 300,
+      "name": "Raloxifene",
+      "inchikey": "GZUITABIAKMVPG-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 504,
+      "project_id": 300,
+      "name": "Tamoxifen",
+      "inchikey": "NKANXQFJJICGDU-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 505,
+      "project_id": 300,
+      "name": "Theophylline",
+      "inchikey": "ZFXYFBGIUFBOJW-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 506,
+      "project_id": 300,
+      "name": "Tolbutamide",
+      "inchikey": "JLRGJRBPOGGCBT-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 507,
+      "project_id": 300,
+      "name": "Trazodone",
+      "inchikey": "PHLBKPHSAVXXEF-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 532,
+      "project_id": 300,
+      "name": "Fluvoxamine",
+      "inchikey": "MBZURWWWNCFMKM-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 533,
+      "project_id": 300,
+      "name": "Ticlopidine",
+      "inchikey": "PHWBOXQYWZNQIN-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 534,
+      "project_id": 300,
+      "name": "Miconazole",
+      "inchikey": "JKXNMPGNJLQEEK-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 535,
+      "project_id": 300,
+      "name": "Ciprofloxacin",
+      "inchikey": "MYSWGUAQZAJSOK-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 536,
+      "project_id": 300,
+      "name": "Sulfaphenazole",
+      "inchikey": "CTMRCAADNHCNDZ-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 537,
+      "project_id": 300,
+      "name": "Voriconazole",
+      "inchikey": "CUYBPQYFMFFELQ-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 538,
+      "project_id": 300,
+      "name": "Rofecoxib",
+      "inchikey": "RZJQGNCSTQAWON-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 539,
+      "project_id": 300,
+      "name": "Fenofibrate",
+      "inchikey": "YMTINGFKWWXKFG-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 540,
+      "project_id": 300,
+      "name": "Glimepiride",
+      "inchikey": "YDDLPWWMBBEVDX-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 541,
+      "project_id": 300,
+      "name": "Zafirlukast",
+      "inchikey": "WDQHTWAKDVGCSP-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 7,
+      "candidate": 0
+    },
+    {
+      "compound_id": 542,
+      "project_id": 300,
+      "name": "Probenecid",
+      "inchikey": "DBABZHXKTCFAPX-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 543,
+      "project_id": 300,
+      "name": "Carbamazepine",
+      "inchikey": "FFGPTBGBLSHEPO-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 544,
+      "project_id": 300,
+      "name": "Clotrimazole",
+      "inchikey": "VNFPBHJOKIVQEB-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 545,
+      "project_id": 300,
+      "name": "Ranitidine",
+      "inchikey": "VMXUWOKSQNHOCA-UKTHLTGXSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 546,
+      "project_id": 300,
+      "name": "Phenytoin",
+      "inchikey": "CXOFVDLJLONNDW-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 571,
+      "project_id": 300,
+      "name": "Pravastatin",
+      "inchikey": "TUZYXOIXSAXUGO-AJNSDWNPSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 572,
+      "project_id": 300,
+      "name": "Itraconazole",
+      "inchikey": "XSIAZOWMBBEEPK-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 573,
+      "project_id": 300,
+      "name": "Fluconazole",
+      "inchikey": "RFHAOTPXVQNOHP-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 574,
+      "project_id": 300,
+      "name": "Alprazolam",
+      "inchikey": "VREFGVBLTWBCJP-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 575,
+      "project_id": 300,
+      "name": "Citalopram",
+      "inchikey": "PCRCGJPZTNKAJQ-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 576,
+      "project_id": 300,
+      "name": "Sertraline",
+      "inchikey": "VGKDLMBJGBXTGI-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 577,
+      "project_id": 300,
+      "name": "Loratadine",
+      "inchikey": "JCCNYMKQOSZNPW-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 578,
+      "project_id": 300,
+      "name": "Fexofenadine",
+      "inchikey": "RWTNPBWLLIMQHL-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 579,
+      "project_id": 300,
+      "name": "Lamotrigine",
+      "inchikey": "PYZRQGJRPPTADH-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 580,
+      "project_id": 300,
+      "name": "Levofloxacin",
+      "inchikey": "GSDSWSVVBLHKDQ-JTQLQIEISA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 581,
+      "project_id": 300,
+      "name": "Rivaroxaban",
+      "inchikey": "LLQOVDYCAJWUCM-OAHLLOKOSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 582,
+      "project_id": 300,
+      "name": "Apixaban",
+      "inchikey": "YZTQPDPGIQTDCK-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 583,
+      "project_id": 300,
+      "name": "Dabigatran etexilate",
+      "inchikey": "WBSABHBCPPRRPN-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 584,
+      "project_id": 300,
+      "name": "Donepezil",
+      "inchikey": "ADEBPBSSDYVVLD-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 585,
+      "project_id": 300,
+      "name": "Ezetimibe",
+      "inchikey": "OLNTVTPDXPETLC-DNVJHFABSA-N",
+      "records": 10,
+      "accepted": 10,
+      "candidate": 0
+    },
+    {
+      "compound_id": 594,
+      "project_id": 300,
+      "name": "Digoxin",
+      "inchikey": "QKBNCPJDZLTOHK-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 3,
+      "candidate": 1
+    },
+    {
+      "compound_id": 595,
+      "project_id": 300,
+      "name": "Sulfasalazine",
+      "inchikey": "NCEXYHBECQHGNR-UHFFFAOYSA-N",
+      "records": 3,
+      "accepted": 3,
+      "candidate": 0
+    },
+    {
+      "compound_id": 596,
+      "project_id": 300,
+      "name": "Loperamide",
+      "inchikey": "RDOIQAHITMMDAJ-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 597,
+      "project_id": 300,
+      "name": "Fluvastatin",
+      "inchikey": "MACGTPUEVKAKGX-OUKQBFOZSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 598,
+      "project_id": 300,
+      "name": "Pitavastatin",
+      "inchikey": "VGYFMXBACGZSIL-VAWYXSNFSA-N",
+      "records": 3,
+      "accepted": 3,
+      "candidate": 0
+    },
+    {
+      "compound_id": 599,
+      "project_id": 300,
+      "name": "Naproxen",
+      "inchikey": "CMWTZPSULFXXJA-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 600,
+      "project_id": 300,
+      "name": "Piroxicam",
+      "inchikey": "QYSPLQLAKJAUJT-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 601,
+      "project_id": 300,
+      "name": "Phenacetin",
+      "inchikey": "CPJSUEIXXCENMM-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 602,
+      "project_id": 300,
+      "name": "Tizanidine",
+      "inchikey": "XFYDIVBRZNQMJC-UHFFFAOYSA-N",
+      "records": 3,
+      "accepted": 3,
+      "candidate": 0
+    },
+    {
+      "compound_id": 603,
+      "project_id": 300,
+      "name": "Glyburide",
+      "inchikey": "NDYWCNJLKRSUNF-UHFFFAOYSA-N",
+      "records": 3,
+      "accepted": 3,
+      "candidate": 0
+    },
+    {
+      "compound_id": 604,
+      "project_id": 300,
+      "name": "Nicardipine",
+      "inchikey": "ZBBHBTPTTSWHBA-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 605,
+      "project_id": 300,
+      "name": "Terfenadine",
+      "inchikey": "GUGOEEXESWIERI-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 606,
+      "project_id": 300,
+      "name": "Astemizole",
+      "inchikey": "GXDALQBWZGODGZ-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 4,
+      "candidate": 0
+    },
+    {
+      "compound_id": 607,
+      "project_id": 300,
+      "name": "Metformin",
+      "inchikey": "XZWYZXLIPXDOLR-UHFFFAOYSA-N",
+      "records": 3,
+      "accepted": 2,
+      "candidate": 1
+    },
+    {
+      "compound_id": 608,
+      "project_id": 300,
+      "name": "Famotidine",
+      "inchikey": "UDHUIBZKJAHQHZ-UHFFFAOYSA-N",
+      "records": 3,
+      "accepted": 3,
+      "candidate": 0
+    },
+    {
+      "compound_id": 609,
+      "project_id": 300,
+      "name": "Prazosin",
+      "inchikey": "IENZQIKPVFGBNW-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 3,
+      "candidate": 1
+    },
+    {
+      "compound_id": 610,
+      "project_id": 300,
+      "name": "Topiramate",
+      "inchikey": "KJADKKWYZYXHBB-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 3,
+      "candidate": 1
+    },
+    {
+      "compound_id": 611,
+      "project_id": 300,
+      "name": "Clozapine",
+      "inchikey": "APOMSSAGEAOUGO-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 6,
+      "candidate": 0
+    },
+    {
+      "compound_id": 612,
+      "project_id": 300,
+      "name": "Ondansetron",
+      "inchikey": "VYCIASOURJZYFL-UHFFFAOYSA-N",
+      "records": 5,
+      "accepted": 5,
+      "candidate": 0
+    },
+    {
+      "compound_id": 613,
+      "project_id": 300,
+      "name": "Ketoprofen",
+      "inchikey": "DKYWVDODHFEZIM-UHFFFAOYSA-N",
+      "records": 4,
+      "accepted": 3,
+      "candidate": 1
+    },
+    {
+      "compound_id": 614,
+      "project_id": 300,
+      "name": "Osimertinib",
+      "inchikey": "DUYJMQONPNNFPI-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 615,
+      "project_id": 300,
+      "name": "Erlotinib",
+      "inchikey": "AAKJLRGGTJKAMG-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 616,
+      "project_id": 300,
+      "name": "Lapatinib",
+      "inchikey": "BCFGMOOMADDAQU-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 617,
+      "project_id": 300,
+      "name": "Afatinib",
+      "inchikey": "ULXXDDBFHOBEHA-ONEGZZNKSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 618,
+      "project_id": 300,
+      "name": "Bosutinib",
+      "inchikey": "CVKTVQGGUUVEDV-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 619,
+      "project_id": 300,
+      "name": "Dasatinib",
+      "inchikey": "ZJNRVTXELRYZHD-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 620,
+      "project_id": 300,
+      "name": "Nilotinib",
+      "inchikey": "UWNMFBWPVDVULZ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 621,
+      "project_id": 300,
+      "name": "Sorafenib",
+      "inchikey": "CIDIHIWQGCDKME-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 622,
+      "project_id": 300,
+      "name": "Sunitinib",
+      "inchikey": "WINHZLLDWRZWRT-ATVHPVEESA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 623,
+      "project_id": 300,
+      "name": "Regorafenib",
+      "inchikey": "FNHKPVJBJVTLMP-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 624,
+      "project_id": 300,
+      "name": "Telmisartan",
+      "inchikey": "PXXZDLYJCHDZMN-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 625,
+      "project_id": 300,
+      "name": "Valsartan",
+      "inchikey": "ACWBQPMHZXGDFX-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 626,
+      "project_id": 300,
+      "name": "Candesartan",
+      "inchikey": "CMQDSWPVVAROIE-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 627,
+      "project_id": 300,
+      "name": "Olmesartan",
+      "inchikey": "VTRAEEWXHOVJFV-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 628,
+      "project_id": 300,
+      "name": "Irbesartan",
+      "inchikey": "YOSHYTLCDANDAN-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 629,
+      "project_id": 300,
+      "name": "Spironolactone",
+      "inchikey": "LXMSZDCAJNLERA-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 630,
+      "project_id": 300,
+      "name": "Eplerenone",
+      "inchikey": "XUDXOJLNHOOXMF-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 631,
+      "project_id": 300,
+      "name": "Aliskiren",
+      "inchikey": "MFHGTAXGAWRRGX-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 632,
+      "project_id": 300,
+      "name": "Ivabradine",
+      "inchikey": "AOJYGXZKUBVOES-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 633,
+      "project_id": 300,
+      "name": "Doxazosin",
+      "inchikey": "RMOZWHGBBXXNPJ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 634,
+      "project_id": 300,
+      "name": "Aripiprazole",
+      "inchikey": "MJVBKTRBLIHLHN-UHFFFAOYSA-N",
+      "records": 7,
+      "accepted": 6,
+      "candidate": 1
+    },
+    {
+      "compound_id": 635,
+      "project_id": 300,
+      "name": "Quetiapine",
+      "inchikey": "URKOMYMAXPYINW-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 636,
+      "project_id": 300,
+      "name": "Olanzapine",
+      "inchikey": "CJTPRWMJLPBKCG-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 637,
+      "project_id": 300,
+      "name": "Risperidone",
+      "inchikey": "PLOGUXWMVNJOPF-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 638,
+      "project_id": 300,
+      "name": "Ziprasidone",
+      "inchikey": "MJSYDDSMPIYKNU-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 639,
+      "project_id": 300,
+      "name": "Venlafaxine",
+      "inchikey": "SOINMHIHEWDWAZ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 640,
+      "project_id": 300,
+      "name": "Escitalopram",
+      "inchikey": "WSEQXVZVJXJVFP-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 641,
+      "project_id": 300,
+      "name": "Buspirone",
+      "inchikey": "QWCRAEMEVRGPNT-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 642,
+      "project_id": 300,
+      "name": "Modafinil",
+      "inchikey": "YFGHCGITMMYXAQ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 643,
+      "project_id": 300,
+      "name": "Atomoxetine",
+      "inchikey": "VHGCDTVCOLNTBX-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 644,
+      "project_id": 300,
+      "name": "Sofosbuvir",
+      "inchikey": "TTZHDVOVKQGIBA-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 645,
+      "project_id": 300,
+      "name": "Ledipasvir",
+      "inchikey": "IQXPDCNEZCTKAP-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 646,
+      "project_id": 300,
+      "name": "Daclatasvir",
+      "inchikey": "FKRSSPOQAMALKA-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 647,
+      "project_id": 300,
+      "name": "Dolutegravir",
+      "inchikey": "LWFKVDPDPDFBSA-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 648,
+      "project_id": 300,
+      "name": "Raltegravir",
+      "inchikey": "SRGVHCMPKFMFQY-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 649,
+      "project_id": 300,
+      "name": "Maraviroc",
+      "inchikey": "WCXIDVAAMFYRAR-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 650,
+      "project_id": 300,
+      "name": "Tenofovir alafenamide",
+      "inchikey": "PFPKAIUEMOXCQE-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 651,
+      "project_id": 300,
+      "name": "Rilpivirine",
+      "inchikey": "QYSMEIFIQJXZPV-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 652,
+      "project_id": 300,
+      "name": "Baloxavir marboxil",
+      "inchikey": "RZVPBGBYGMDSBG-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 653,
+      "project_id": 300,
+      "name": "Remdesivir",
+      "inchikey": "RWWYLEGWBNMMLJ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 654,
+      "project_id": 300,
+      "name": "Tofacitinib",
+      "inchikey": "UJLAWZDWDVHWOW-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 655,
+      "project_id": 300,
+      "name": "Baricitinib",
+      "inchikey": "AVYNHSRDTRQPGB-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 656,
+      "project_id": 300,
+      "name": "Upadacitinib",
+      "inchikey": "ONPTVXCANZCBLE-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 657,
+      "project_id": 300,
+      "name": "Ruxolitinib",
+      "inchikey": "LDUUHDNPZSHYRX-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 658,
+      "project_id": 300,
+      "name": "Apremilast",
+      "inchikey": "JKTGWPGDMIVYNE-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 659,
+      "project_id": 300,
+      "name": "Empagliflozin",
+      "inchikey": "HSQXIZRQTGAINM-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 660,
+      "project_id": 300,
+      "name": "Dapagliflozin",
+      "inchikey": "JVHXJTBJCFBINQ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 661,
+      "project_id": 300,
+      "name": "Canagliflozin",
+      "inchikey": "APQGYNBEKJQSFZ-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 662,
+      "project_id": 300,
+      "name": "Linagliptin",
+      "inchikey": "BPRZPBJWYLGZDE-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 663,
+      "project_id": 300,
+      "name": "Saxagliptin",
+      "inchikey": "ZSIZNMZVSSSBHX-UHFFFAOYSA-N",
+      "records": 6,
+      "accepted": 5,
+      "candidate": 1
+    },
+    {
+      "compound_id": 664,
+      "project_id": 300,
+      "name": "Pazopanib",
+      "inchikey": "CUIHSIWYWATEQL-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 9,
+      "candidate": 3
+    },
+    {
+      "compound_id": 665,
+      "project_id": 300,
+      "name": "Axitinib",
+      "inchikey": "RITAVMQDGBJQJZ-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 666,
+      "project_id": 300,
+      "name": "Lenvatinib",
+      "inchikey": "WOSKHXYHFSIKNG-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 667,
+      "project_id": 300,
+      "name": "Cabozantinib",
+      "inchikey": "ONIQOQHATWINJY-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 668,
+      "project_id": 300,
+      "name": "Alectinib",
+      "inchikey": "KDGFLJKFZUIJMX-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 669,
+      "project_id": 300,
+      "name": "Brigatinib",
+      "inchikey": "AILRADAXUVEEIR-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 670,
+      "project_id": 300,
+      "name": "Lorlatinib",
+      "inchikey": "IIXWYSCJSQVBQM-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 671,
+      "project_id": 300,
+      "name": "Enzalutamide",
+      "inchikey": "WXCXUHSOUPDCQV-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 672,
+      "project_id": 300,
+      "name": "Abiraterone",
+      "inchikey": "WZFWAHASLGOYJD-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 673,
+      "project_id": 300,
+      "name": "Venetoclax",
+      "inchikey": "LQBVNQSMGBZMKD-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 674,
+      "project_id": 300,
+      "name": "Olaparib",
+      "inchikey": "FDLYAMZZIXQODN-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 675,
+      "project_id": 300,
+      "name": "Rucaparib",
+      "inchikey": "VNOHGSWOHFBURN-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 676,
+      "project_id": 300,
+      "name": "Niraparib",
+      "inchikey": "CLABXBFEJMGQQM-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 677,
+      "project_id": 300,
+      "name": "Talazoparib",
+      "inchikey": "JDUBGYFRJFOXQC-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 678,
+      "project_id": 300,
+      "name": "Palbociclib",
+      "inchikey": "AHJRHEGDXFFMBM-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 679,
+      "project_id": 300,
+      "name": "Ribociclib",
+      "inchikey": "RHXHGRAEPCAFML-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 680,
+      "project_id": 300,
+      "name": "Abemaciclib",
+      "inchikey": "UZWDCWONPYILKI-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 681,
+      "project_id": 300,
+      "name": "Ibrutinib",
+      "inchikey": "XYFPWWZEPKGCCK-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 682,
+      "project_id": 300,
+      "name": "Acalabrutinib",
+      "inchikey": "ZMHLLOSHNNKANA-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 683,
+      "project_id": 300,
+      "name": "Zanubrutinib",
+      "inchikey": "YCSHGIKWYRQBDL-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 684,
+      "project_id": 300,
+      "name": "Pirtobrutinib",
+      "inchikey": "IDBWWEGDLCFCTD-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 9,
+      "candidate": 3
+    },
+    {
+      "compound_id": 685,
+      "project_id": 300,
+      "name": "Trametinib",
+      "inchikey": "LIRYPHYGHXZJBZ-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 686,
+      "project_id": 300,
+      "name": "Cobimetinib",
+      "inchikey": "JFMWPOCYMYGEDM-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 687,
+      "project_id": 300,
+      "name": "Selumetinib",
+      "inchikey": "CYOHGALHFOKKQC-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 688,
+      "project_id": 300,
+      "name": "Dabrafenib",
+      "inchikey": "BFSMGDJOXZAERB-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 689,
+      "project_id": 300,
+      "name": "Encorafenib",
+      "inchikey": "HAWSJGVWKIXPLB-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 690,
+      "project_id": 300,
+      "name": "Larotrectinib",
+      "inchikey": "VWROAWUIKILZJB-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 691,
+      "project_id": 300,
+      "name": "Entrectinib",
+      "inchikey": "HAYYBYPASCDWEQ-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 692,
+      "project_id": 300,
+      "name": "Pemigatinib",
+      "inchikey": "SSJFTZNTYUTXBL-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 693,
+      "project_id": 300,
+      "name": "Futibatinib",
+      "inchikey": "ZSSBLCWIHDRDLO-UHFFFAOYSA-O",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 694,
+      "project_id": 300,
+      "name": "Capmatinib",
+      "inchikey": "SEOYULZUAWAMHN-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 695,
+      "project_id": 300,
+      "name": "Tepotinib",
+      "inchikey": "BJBMFVOPUKFWIW-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 696,
+      "project_id": 300,
+      "name": "Selpercatinib",
+      "inchikey": "WWZOQFJNTOUBFR-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 697,
+      "project_id": 300,
+      "name": "Pralsetinib",
+      "inchikey": "CVTPHVUECSKLFO-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 698,
+      "project_id": 300,
+      "name": "Sotorasib",
+      "inchikey": "NXQKSXLFSAEQCZ-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 699,
+      "project_id": 300,
+      "name": "Adagrasib",
+      "inchikey": "IDXCWZOBNMPRRG-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 700,
+      "project_id": 300,
+      "name": "Filgotinib",
+      "inchikey": "VQOXZBDYSJBXMA-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 701,
+      "project_id": 300,
+      "name": "Deucravacitinib",
+      "inchikey": "LUTYEGSFZSNCQB-UHFFFAOYSA-N",
+      "records": 10,
+      "accepted": 7,
+      "candidate": 3
+    },
+    {
+      "compound_id": 702,
+      "project_id": 300,
+      "name": "Fedratinib",
+      "inchikey": "CLEUQBIFJUAHOJ-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 9,
+      "candidate": 3
+    },
+    {
+      "compound_id": 703,
+      "project_id": 300,
+      "name": "Pacritinib",
+      "inchikey": "QDIMHKWNHMVDJB-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 704,
+      "project_id": 300,
+      "name": "Momelotinib",
+      "inchikey": "JROKWSCAWHLZEA-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 705,
+      "project_id": 300,
+      "name": "Ripretinib",
+      "inchikey": "YMRGAGUCUZDSRG-UHFFFAOYSA-O",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 706,
+      "project_id": 300,
+      "name": "Avapritinib",
+      "inchikey": "RGHBBXBSMNEQLN-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 707,
+      "project_id": 300,
+      "name": "Tazemetostat",
+      "inchikey": "ZGKMHAKPYGJQLQ-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 708,
+      "project_id": 300,
+      "name": "Belzutifan",
+      "inchikey": "AKFQCPLWJMDIFL-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 709,
+      "project_id": 300,
+      "name": "Mobocertinib",
+      "inchikey": "HNXRBBUGAWCNFV-UHFFFAOYSA-M",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 710,
+      "project_id": 300,
+      "name": "Asciminib",
+      "inchikey": "LFKOAJTYRMPDOQ-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 711,
+      "project_id": 300,
+      "name": "Mavacamten",
+      "inchikey": "SBMMPPZUXQEFIT-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 712,
+      "project_id": 300,
+      "name": "Infigratinib",
+      "inchikey": "UKBYTKPAULXFNY-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 713,
+      "project_id": 300,
+      "name": "Umbralisib",
+      "inchikey": "LQDYBJKUTAFDMW-UHFFFAOYSA-N",
+      "records": 11,
+      "accepted": 8,
+      "candidate": 3
+    },
+    {
+      "compound_id": 728,
+      "project_id": 300,
+      "name": "Enasidenib",
+      "inchikey": "WZLXUBBRKQPCDO-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 729,
+      "project_id": 300,
+      "name": "Ivosidenib",
+      "inchikey": "AQOAVQVYLCVVNW-LJQANCHMSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 730,
+      "project_id": 300,
+      "name": "Selinexor",
+      "inchikey": "LJKGKPPWPUFZLW-PLNGDYQASA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 731,
+      "project_id": 300,
+      "name": "Erdafitinib",
+      "inchikey": "PZXHQTLDDJTXDR-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 732,
+      "project_id": 300,
+      "name": "Quizartinib",
+      "inchikey": "VVUQNLHRWVXYSF-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 733,
+      "project_id": 300,
+      "name": "Gilteritinib",
+      "inchikey": "VBXNSGVWJVPJOD-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 734,
+      "project_id": 300,
+      "name": "Abrocitinib",
+      "inchikey": "WVOMLCCDWGSGPD-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 735,
+      "project_id": 300,
+      "name": "Binimetinib",
+      "inchikey": "HORYYYGPBJIKJH-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 736,
+      "project_id": 300,
+      "name": "Vemurafenib",
+      "inchikey": "GPXBXXGIAQBQNI-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 737,
+      "project_id": 300,
+      "name": "Tucatinib",
+      "inchikey": "CNZQKGLYWPVARP-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 738,
+      "project_id": 300,
+      "name": "Neratinib",
+      "inchikey": "VCMHNCIAPRBPKY-JXMROGBWSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 739,
+      "project_id": 300,
+      "name": "Pyrotinib",
+      "inchikey": "LKEYRKAOABXIJG-JXMROGBWSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 740,
+      "project_id": 300,
+      "name": "Alpelisib",
+      "inchikey": "QPWYAISDPGGCFP-JTQLQIEISA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 741,
+      "project_id": 300,
+      "name": "Copanlisib",
+      "inchikey": "PNZXUGRJSGFZMC-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 742,
+      "project_id": 300,
+      "name": "Duvelisib",
+      "inchikey": "YZEACZJWFFPQJW-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 743,
+      "project_id": 300,
+      "name": "Idelalisib",
+      "inchikey": "SOBAGRPBNGLCOB-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 744,
+      "project_id": 300,
+      "name": "Trilaciclib",
+      "inchikey": "GZDOPYZHLSZGJQ-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 745,
+      "project_id": 300,
+      "name": "Nirmatrelvir",
+      "inchikey": "FAIWHUZFTCXFSX-CKISJDIXSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 746,
+      "project_id": 300,
+      "name": "Molnupiravir",
+      "inchikey": "HTNPEHXGEKVIHG-QCNRFFRDSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 747,
+      "project_id": 300,
+      "name": "Letermovir",
+      "inchikey": "FBYXOBJDAIEDCY-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 748,
+      "project_id": 300,
+      "name": "Cabotegravir",
+      "inchikey": "HYDAIXSHRRRGAL-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 749,
+      "project_id": 300,
+      "name": "Etravirine",
+      "inchikey": "PYGWGZALEOIKDF-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 750,
+      "project_id": 300,
+      "name": "Efavirenz",
+      "inchikey": "LKYKNIFACZPUMD-ZDUSSCGKSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 751,
+      "project_id": 300,
+      "name": "Nevirapine",
+      "inchikey": "VUSTYZICTVILPL-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 752,
+      "project_id": 300,
+      "name": "Velpatasvir",
+      "inchikey": "UZDKFPDKZDASIM-OVBQHIIOSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 753,
+      "project_id": 300,
+      "name": "Pibrentasvir",
+      "inchikey": "ACJFSKLVIBXZKR-ZYADHFCISA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 754,
+      "project_id": 300,
+      "name": "Bedaquiline",
+      "inchikey": "VWPGAXRKXSNNQX-HKBQPEDESA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 755,
+      "project_id": 300,
+      "name": "Pretomanid",
+      "inchikey": "FARNJUVZGSRSTB-LBPRGKRZSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 756,
+      "project_id": 300,
+      "name": "Tedizolid",
+      "inchikey": "GGMYOXVTDWUMEW-ZDUSSCGKSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 757,
+      "project_id": 300,
+      "name": "Linezolid",
+      "inchikey": "TYZROVQLWOKYKF-ZDUSSCGKSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 758,
+      "project_id": 300,
+      "name": "Lefamulin",
+      "inchikey": "HMWGQUCDGRJXTI-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 759,
+      "project_id": 300,
+      "name": "Bosentan",
+      "inchikey": "VNRVABNHDIQPRA-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 760,
+      "project_id": 300,
+      "name": "Ambrisentan",
+      "inchikey": "BVDKIBGXYHUVPF-CYBMUJFWSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 761,
+      "project_id": 300,
+      "name": "Riociguat",
+      "inchikey": "CZSMFPRSDALXGM-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 762,
+      "project_id": 300,
+      "name": "Ranolazine",
+      "inchikey": "GNVZSHLLZVAVLD-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 763,
+      "project_id": 300,
+      "name": "Mexiletine",
+      "inchikey": "VLPIATFUUWWMKC-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 764,
+      "project_id": 300,
+      "name": "Propafenone",
+      "inchikey": "JWHAUXFOSRPERK-SFHVURJKSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 765,
+      "project_id": 300,
+      "name": "Dofetilide",
+      "inchikey": "UCVBQUGRYKDHKP-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 766,
+      "project_id": 300,
+      "name": "Lacosamide",
+      "inchikey": "BASYBJKWBBOMAE-ZDUSSCGKSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 767,
+      "project_id": 300,
+      "name": "Brivaracetam",
+      "inchikey": "MSYKRHVOOPPJKU-GKAPJAKFSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 768,
+      "project_id": 300,
+      "name": "Perampanel",
+      "inchikey": "IXIOAIHWQOGRCZ-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 769,
+      "project_id": 300,
+      "name": "Zonisamide",
+      "inchikey": "UBQNRHZMVUUOMG-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 770,
+      "project_id": 300,
+      "name": "Brexpiprazole",
+      "inchikey": "BOAYMRGERLOOMB-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 771,
+      "project_id": 300,
+      "name": "Cariprazine",
+      "inchikey": "FGCZPKJNZKJOEY-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 772,
+      "project_id": 300,
+      "name": "Lumateperone",
+      "inchikey": "CFDSVTTXSGOYOS-DEOSSOPVSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 773,
+      "project_id": 300,
+      "name": "Suvorexant",
+      "inchikey": "KULVAGYUHJQYGH-IBGZPJMESA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 774,
+      "project_id": 300,
+      "name": "Lemborexant",
+      "inchikey": "ZKJDNPIOYSNAOX-WBVHZDCISA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 775,
+      "project_id": 300,
+      "name": "Levetiracetam",
+      "inchikey": "HPHUVLMMVZITSG-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 776,
+      "project_id": 300,
+      "name": "Ropinirole",
+      "inchikey": "UHSKFQJFRQCDBE-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    },
+    {
+      "compound_id": 777,
+      "project_id": 300,
+      "name": "Pramipexole",
+      "inchikey": "FASDKYOPVNHBLU-UHFFFAOYSA-N",
+      "records": 12,
+      "accepted": 10,
+      "candidate": 2
+    }
+  ]
+}

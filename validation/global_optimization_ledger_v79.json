@@ -1,0 +1,80 @@
+{
+  "artifact": "GLOBAL_OPTIMIZATION_LEDGER_V79",
+  "continuation": {
+    "canonical_ppb": "validation/ppb_canonical_benchmark_v72.json",
+    "last_completed_experiment": "V78-PK-CORE-HYBRID-LADDERS",
+    "production_rollback": "drugopt-prediction-engine-v3@3.3.2",
+    "resume_command": ".venv/bin/python scripts/run_drugopt_v333_completion_campaign.py --run --max-tasks 1"
+  },
+  "created_at": "2026-09-08T13:49:49.861239+00:00",
+  "exact_next_action": "Generate bounded v3.3.3 current prediction snapshots with explicit species/context and no historical-run mutation.",
+  "experiments": [
+    {
+      "artifact": "validation/ppb_local_ladder_v75.json",
+      "baseline_aafe": 4.760840445074518,
+      "best_aafe": 4.685153156328465,
+      "best_within_2_fold_pct": 50.84033613445378,
+      "best_within_3_fold_pct": 65.33613445378151,
+      "decision": "REJECTED_MARGINAL_OR_SUBGROUP_REGRESSION",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "experiment_id": "V75-PPB-LOCAL-GLOBAL-LADDER"
+    },
+    {
+      "artifact": "validation/ppb_weighted_ladder_v76.json",
+      "baseline_aafe": 4.760840445074518,
+      "best_aafe": 4.71174945729575,
+      "best_within_2_fold_pct": 46.84931506849315,
+      "best_within_3_fold_pct": 65.75342465753425,
+      "decision": "REJECTED_NO_MEANINGFUL_ROBUST_GAIN",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "experiment_id": "V76-PPB-WEIGHTED-ROBUST-LADDER"
+    },
+    {
+      "artifact": "validation/microsomal_family_audit_v77.json",
+      "decision": "KEEP_EXISTING_PRODUCTION_ROUTING",
+      "endpoint": "HLM_RLM_MLM",
+      "experiment_id": "V77-MICROSOMAL-FAMILY-AUDIT",
+      "reason": "Descriptor/fingerprint/shared-head alternatives were inferior or diagnostic-only on consumed independent Biogen cohort."
+    },
+    {
+      "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+      "decision": "RETAIN_HEPATIC_RESEARCH_ONLY;_REJECT_OTHER_ROUTING",
+      "endpoint": "HUMAN_HEPATIC_CL+HUMAN_VDSS+HUMAN_TOTAL_IV_CL",
+      "experiment_id": "V78-PK-CORE-HYBRID-LADDERS",
+      "hepatic_aafe": 2.097108825628647,
+      "total_iv_cl_aafe": 7.341110193181601,
+      "vdss_aafe": 3.7057366603955706
+    },
+    {
+      "artifact": "validation/v333_species_pk_matrix.json",
+      "decision": "SPECIES_FAIL_CLOSED_MATRIX_PERSISTED",
+      "endpoint": "MULTI_SPECIES_PK",
+      "experiment_id": "V333-SPECIES-PK-MATRIX"
+    },
+    {
+      "artifact": "backend/ionization.py",
+      "decision": "MECHANISTIC_UPGRADE_L1",
+      "endpoint": "PKA_ACID+PKA_BASE+LOGD_7_4",
+      "experiment_id": "V333-IONIZATION-UNCERTAINTY",
+      "reason": "Microstate/site probabilities, explicit uncalibrated uncertainty, and experimental logD retention without prediction substitution."
+    }
+  ],
+  "next_queue": [
+    "PERSIST_CURRENT_V333_SNAPSHOTS_PROJECTS_1_3_5_300",
+    "PK_TAB_SPECIES_CONTEXT_REGRESSION",
+    "IV_HALF_LIFE_FROZEN_OOF_UPSTREAM",
+    "CYP_TRANSPORTER_SEMANTIC_AUDIT",
+    "FULL_V333_RELEASE_VALIDATION"
+  ],
+  "production_decision": "UNCHANGED_ENDPOINT_ROUTING",
+  "production_engine": "drugopt-prediction-engine-v3@3.3.3",
+  "rejected_strategies": [
+    "PPB descriptor+Morgan V74",
+    "PPB soft regime experts V74",
+    "PPB train-fold local residual V75 (marginal/subgroup regression)",
+    "PPB weighted/high-binding robust V76 (no robust gain)",
+    "HLM/RLM/MLM descriptor+FP/shared heads V77 (inferior/diagnostic-only)",
+    "VDss mechanistic/local/cluster residual V78",
+    "Total IV CL local/cluster/HistGradient V78"
+  ]
+}

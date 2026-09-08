@@ -1,0 +1,50 @@
+{
+  "artifact": "V333_DOWNSTREAM_PK_CONTEXT_AUDIT",
+  "generated_at": "2026-09-08T14:01:02.321921+00:00",
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "rows": [
+    {
+      "endpoint": "IV_HALF_LIFE",
+      "status": "MODEL_UNAVAILABLE",
+      "prediction_mode": "FULL_PREDICTION",
+      "experimental_validation_N": 0,
+      "reason": "Requires species/context-qualified upstream CL/Vd/F/ka and frozen OOF values; no generic structure-only value is emitted."
+    },
+    {
+      "endpoint": "ORAL_F",
+      "status": "CONTEXT_REQUIRED",
+      "prediction_mode": "FULL_PREDICTION",
+      "experimental_validation_N": 0,
+      "reason": "Requires species/context-qualified upstream CL/Vd/F/ka and frozen OOF values; no generic structure-only value is emitted."
+    },
+    {
+      "endpoint": "ORAL_KA",
+      "status": "CONTEXT_REQUIRED",
+      "prediction_mode": "FULL_PREDICTION",
+      "experimental_validation_N": 0,
+      "reason": "Requires species/context-qualified upstream CL/Vd/F/ka and frozen OOF values; no generic structure-only value is emitted."
+    },
+    {
+      "endpoint": "ORAL_AUC",
+      "status": "CONTEXT_REQUIRED",
+      "prediction_mode": "FULL_PREDICTION",
+      "experimental_validation_N": 0,
+      "reason": "Requires species/context-qualified upstream CL/Vd/F/ka and frozen OOF values; no generic structure-only value is emitted."
+    },
+    {
+      "endpoint": "ORAL_CMAX",
+      "status": "CONTEXT_REQUIRED",
+      "prediction_mode": "FULL_PREDICTION",
+      "experimental_validation_N": 0,
+      "reason": "Requires species/context-qualified upstream CL/Vd/F/ka and frozen OOF values; no generic structure-only value is emitted."
+    },
+    {
+      "endpoint": "ORAL_TMAX",
+      "status": "CONTEXT_REQUIRED",
+      "prediction_mode": "FULL_PREDICTION",
+      "experimental_validation_N": 0,
+      "reason": "Requires species/context-qualified upstream CL/Vd/F/ka and frozen OOF values; no generic structure-only value is emitted."
+    }
+  ],
+  "safety": "No experimental upstream target values were propagated into predictions."
+}

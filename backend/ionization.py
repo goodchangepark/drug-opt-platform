@@ -543,6 +543,62 @@ def analyze_ionization(
     # Find physiological profile at pH 7.4
     ph74_profile = next((p for p in ph_profiles if p["ph"] == 7.4), ph_profiles[-1])
 
+    # Keep observed logD separate from the mechanistic estimate.  Downstream
+    # prediction-only workflows must not silently consume the held-out
+    # experimental value, while assisted display/simulation can still retain
+    # the qualified observation and its provenance.
+    experimental_logd74 = None
+    for record in experimental_logd_records or []:
+        try:
+            record_ph = float(record.get("ph", 7.4))
+            record_value = float(record["value"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if abs(record_ph - 7.4) <= 0.2:
+            experimental_logd74 = {
+                "value": record_value,
+                "ph": record_ph,
+                "source": record.get("source", "User Entry"),
+                "evidence_type": "EXPERIMENTAL",
+            }
+            break
+
+    site_microstates_7_4 = [
+        {
+            "atom_index": center["atom_index"],
+            "motif_name": center["motif_name"],
+            "type": center["type"],
+            "estimated_pka": center["estimated_rule_pka"],
+            **calculate_monoprotic_fractions(center["estimated_rule_pka"], 7.4, center["type"]),
+        }
+        for center in all_centers
+    ]
+    if rep_pka is None:
+        pka_interval = None
+        logd_lower, logd_upper = ph74_profile["estimated_logd"] - 0.5, ph74_profile["estimated_logd"] + 0.5
+    elif rep_evidence_type == "EXPERIMENTAL":
+        supplied_uncertainty = float((experimental_pka_records or [{}])[0].get("uncertainty", 0.2))
+        pka_interval = [rep_pka - supplied_uncertainty, rep_pka + supplied_uncertainty]
+        candidates = [
+            estimate_logd_from_pka_and_clogp(clogp + clogp_delta, pka_value, 7.4, rep_type if rep_type in {"ACID", "BASE"} else "ACID")
+            for clogp_delta in (-0.5, 0.5) for pka_value in pka_interval
+        ]
+        logd_lower, logd_upper = min(candidates), max(candidates)
+    elif rep_type in {"ACID", "BASE"}:
+        primary = min(acid_centers, key=lambda c: c["estimated_rule_pka"]) if rep_type == "ACID" else max(base_centers, key=lambda c: c["estimated_rule_pka"])
+        pka_interval = [float(primary["typical_pka_range"][0]), float(primary["typical_pka_range"][1])]
+        candidates = [
+            estimate_logd_from_pka_and_clogp(clogp + clogp_delta, pka_value, 7.4, rep_type)
+            for clogp_delta in (-0.5, 0.5) for pka_value in pka_interval
+        ]
+        logd_lower, logd_upper = min(candidates), max(candidates)
+    else:
+        # Polyprotic and zwitterionic partitioning cannot be reduced to one
+        # Henderson-Hasselbalch center.  The broad interval makes that model
+        # inadequacy explicit instead of presenting spurious precision.
+        pka_interval = None
+        logd_lower, logd_upper = ph74_profile["estimated_logd"] - 1.5, ph74_profile["estimated_logd"] + 1.5
+
     # 7. Formulate Downstream ADME & PK Contextual Evidence
     admet_context = _formulate_admet_context(
         ionization_class=ionization_class,
@@ -598,6 +654,7 @@ def analyze_ionization(
             ],
             "macro_micro_distinct": True,
             "total_micro_centers": len(acid_centers) + len(base_centers),
+            "site_microstates_at_ph_7_4": site_microstates_7_4,
         },
         "ionizable_centers": all_centers,
         "primary_pka": rep_pka,
@@ -612,6 +669,13 @@ def analyze_ionization(
             "fraction_neutral": ph74_profile["fraction_neutral"],
             "fraction_ionized": ph74_profile["fraction_ionized"],
             "estimated_logd74": ph74_profile["estimated_logd"],
+            "experimental_logd74": experimental_logd74,
+            "mechanistic_uncertainty_interval": {
+                "lower": round(float(logd_lower), 3),
+                "upper": round(float(logd_upper), 3),
+                "basis": "functional-group pKa range plus ±0.5 cLogP; widened for polyprotic/zwitterionic states",
+                "calibrated": False,
+            },
             "logd74_evidence_type": "DERIVED_ESTIMATE",
             "logd74_label": "DERIVED logD ESTIMATE",
             "clogp_vs_logd_distinction": "cLogP represents neutral species octanol-water partition; logD7.4 accounts for Henderson-Hasselbalch ionization equilibria at pH 7.4 (do not substitute logP for logD).",
@@ -619,12 +683,17 @@ def analyze_ionization(
         "admet_context": admet_context,
         "model_provenance": {
             "engine": "ChemPlatform Deterministic Ionization & pH Governance Engine",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "standardizer": "CHEM_STANDARDIZER_V1",
             "rule_base": "Curated SMARTS Pattern Base (35+ motifs)",
             "conformal_status": "NOT_APPLICABLE_FOR_DETERMINISTIC_RULES",
             "evidence_hierarchy": "EXPERIMENTAL > PREDICTED_MODEL > RULE_ESTIMATE > DERIVED_ESTIMATE > MODEL_UNAVAILABLE",
             "limitations": "Simplified pH-dependent ionization estimate. Rule-based structural pKa estimates represent typical functional group values; macroscopic titration or experimental measurement is required for exact resonance-shifted or steric polyprotic micro-equilibria.",
+        },
+        "uncertainty": {
+            "primary_pka_interval": pka_interval,
+            "interval_type": "RULE_RANGE_NOT_CALIBRATED" if rep_evidence_type != "EXPERIMENTAL" else "SUPPLIED_EXPERIMENTAL_UNCERTAINTY",
+            "do_not_interpret_as_confidence": True,
         },
     }
 

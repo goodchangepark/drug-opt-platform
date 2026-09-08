@@ -1,0 +1,463 @@
+{
+  "artifact": "V333_SPECIES_PK_VALIDATION_MATRIX",
+  "created_at": "2026-09-08T13:42:29.650380+00:00",
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "species": {
+    "HUMAN": {
+      "fu_ppb": {
+        "status": "RESEARCH_CANDIDATE",
+        "model": "canonical Extra Trees log(fu)",
+        "validation_n": 476,
+        "performance": {
+          "aafe": 4.760840445074518,
+          "bias_log10": -0.005126789067290659,
+          "mae_log10": 0.42574425486772005,
+          "median_fold_error": 1.9911529417156462,
+          "n": 476,
+          "within_2_fold_pct": 50.42016806722689,
+          "within_3_fold_pct": 67.64705882352942
+        },
+        "prediction_modes": [
+          "FULL_PREDICTION"
+        ]
+      },
+      "microsomal_clint": {
+        "status": "PRODUCTION_STABLE",
+        "model": "OpenADMET CheMeleon HLM",
+        "validation_n": 3078,
+        "performance": {
+          "n": 3078,
+          "mae_log10": 0.6258748857682933,
+          "rmse_log10": 0.7616366431184638,
+          "r2": -0.49111984556659616,
+          "spearman": 0.370019922342007,
+          "aafe": 10.397938857980355,
+          "median_fold_error": 3.6848733791112878,
+          "within_2_fold_pct": 27.160493827160494,
+          "within_3_fold_pct": 42.39766081871345,
+          "bias_log10": 0.38980126087463174
+        },
+        "prediction_modes": [
+          "FULL_PREDICTION"
+        ]
+      },
+      "hepatic_cl": {
+        "status": "RESEARCH_CANDIDATE",
+        "model": "well-stirred + fu/Clint residual",
+        "validation_n": 30,
+        "performance": {
+          "n": 30,
+          "aafe": 2.097108825628647,
+          "median_fold_error": 1.4678023136349032,
+          "within_2_fold_pct": 73.33333333333333,
+          "within_3_fold_pct": 83.33333333333334,
+          "mae_log10": 0.24539265053064235,
+          "bias_log10": 0.009022903781202796
+        },
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "total_iv_cl": {
+        "status": "CURRENT_DATA_CEILING",
+        "model": "within-source Random Forest research",
+        "validation_n": 748,
+        "performance": {
+          "n": 748,
+          "aafe": 7.341110193181601,
+          "median_fold_error": 2.049914991905429,
+          "within_2_fold_pct": 48.663101604278076,
+          "within_3_fold_pct": 68.31550802139037,
+          "mae_log10": 0.4161498597763413,
+          "bias_log10": 0.0042876223327647555
+        },
+        "prediction_modes": [
+          "FULL_PREDICTION"
+        ]
+      },
+      "vdss": {
+        "status": "CURRENT_DATA_CEILING",
+        "model": "strict direct-structure research",
+        "validation_n": 50,
+        "performance": {
+          "n": 50,
+          "aafe": 3.7057366603955706,
+          "median_fold_error": 2.241225492072817,
+          "within_2_fold_pct": 44.0,
+          "within_3_fold_pct": 66.0,
+          "mae_log10": 0.4109555692490952,
+          "bias_log10": -0.00010203149561132551
+        },
+        "prediction_modes": [
+          "ASSISTED",
+          "FULL_PREDICTION"
+        ]
+      },
+      "half_life": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched predicted CL and Vdss",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "F": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation/regimen and absorption/first-pass inputs",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "ka": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation or qualified Tmax",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "AUC": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/F/CL and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "Cmax": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/formulation/F/CL/V/ka and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      }
+    },
+    "RAT": {
+      "fu_ppb": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified rat fu route",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "microsomal_clint": {
+        "status": "PRODUCTION_STABLE",
+        "model": "OpenADMET CheMeleon RLM",
+        "validation_n": 3045,
+        "performance": {
+          "n": 3045,
+          "mae_log10": 0.6263288457928062,
+          "rmse_log10": 0.7715967119220914,
+          "r2": -0.05770139842905753,
+          "spearman": 0.4248112144093652,
+          "aafe": 8.647681721693473,
+          "median_fold_error": 3.626702634645307,
+          "within_2_fold_pct": 29.16256157635468,
+          "within_3_fold_pct": 43.251231527093594,
+          "bias_log10": -0.34558010564988323
+        },
+        "prediction_modes": [
+          "FULL_PREDICTION"
+        ]
+      },
+      "hepatic_cl": {
+        "status": "MECHANISTIC_ONLY",
+        "model": "rat physiology well-stirred IVIVE",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "total_iv_cl": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified rat systemic-CL model",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "vdss": {
+        "status": "MECHANISTIC_ONLY",
+        "model": "ionization/fu distribution estimate",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "half_life": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched predicted CL and Vdss",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "F": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation/regimen and absorption/first-pass inputs",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "ka": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation or qualified Tmax",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "AUC": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/F/CL and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "Cmax": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/formulation/F/CL/V/ka and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      }
+    },
+    "MOUSE": {
+      "fu_ppb": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified mouse fu route",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "microsomal_clint": {
+        "status": "PRODUCTION_STABLE_NO_INDEPENDENT_VALIDATION",
+        "model": "OpenADMET CheMeleon MLM",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "FULL_PREDICTION"
+        ]
+      },
+      "hepatic_cl": {
+        "status": "MECHANISTIC_ONLY",
+        "model": "mouse physiology well-stirred IVIVE",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "total_iv_cl": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified mouse systemic-CL model",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "vdss": {
+        "status": "MECHANISTIC_ONLY",
+        "model": "ionization/fu distribution estimate",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "half_life": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched predicted CL and Vdss",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "F": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation/regimen and absorption/first-pass inputs",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "ka": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation or qualified Tmax",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "AUC": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/F/CL and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "Cmax": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/formulation/F/CL/V/ka and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      }
+    },
+    "DOG": {
+      "fu_ppb": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified dog fu route",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "microsomal_clint": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "DLM checkpoint unavailable",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "hepatic_cl": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "dog physiology well-stirred IVIVE",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "total_iv_cl": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified dog systemic-CL model",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "vdss": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched fu",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "half_life": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched predicted CL and Vdss",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "F": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation/regimen and absorption/first-pass inputs",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "ka": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation or qualified Tmax",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "AUC": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/F/CL and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "Cmax": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/formulation/F/CL/V/ka and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      }
+    },
+    "MONKEY": {
+      "fu_ppb": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified monkey fu route",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "microsomal_clint": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "CyLM checkpoint unavailable",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "hepatic_cl": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "monkey physiology well-stirred IVIVE",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "total_iv_cl": {
+        "status": "MODEL_UNAVAILABLE",
+        "model": "no qualified monkey systemic-CL model",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "vdss": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched fu",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": [
+          "ASSISTED"
+        ]
+      },
+      "half_life": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires species-matched predicted CL and Vdss",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "F": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation/regimen and absorption/first-pass inputs",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "ka": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires route/formulation or qualified Tmax",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "AUC": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/F/CL and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      },
+      "Cmax": {
+        "status": "CONTEXT_REQUIRED",
+        "model": "requires dose/route/formulation/F/CL/V/ka and regimen",
+        "validation_n": 0,
+        "performance": null,
+        "prediction_modes": []
+      }
+    }
+  },
+  "mode_contract": {
+    "ASSISTED": "one or more same-compound experimental upstream inputs; never called prediction-only validation",
+    "HYBRID": "mix of frozen predicted and explicitly supplied upstream inputs",
+    "FULL_PREDICTION": "all upstream values are model predictions or deterministic structure-derived inputs"
+  },
+  "invariants": [
+    "Metrics are reported per species, never pooled to hide an unsupported species.",
+    "Human fu is never substituted for another species.",
+    "Dog and monkey physiology is available, but physiology alone is not an endpoint model.",
+    "Context-dependent exposure endpoints remain unavailable without dose/route/formulation/regimen."
+  ]
+}

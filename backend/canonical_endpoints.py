@@ -210,25 +210,10 @@ REGISTRY: dict[str, CanonicalEndpoint] = {
     "LITERATURE_CITATION": _ep("LITERATURE_CITATION", "UNCLASSIFIED", "Literature reference", "bibliographic reference or publication mention", "qualitative", "", "MIXED", domain="literature", experimental_endpoint_aliases=("literature candidate", "citation", "pubmed")),
 }
 
-_SPECIES_ALIASES = {
-    "human": "HUMAN", "homo sapiens": "HUMAN", "patient": "HUMAN", "patients": "HUMAN",
-    "healthy volunteer": "HUMAN", "healthy volunteers": "HUMAN", "clinical": "HUMAN",
-    "rat": "RAT", "sd rat": "RAT", "sprague-dawley rat": "RAT", "sprague dawley rat": "RAT", "rattus norvegicus": "RAT",
-    "mouse": "MOUSE", "mus musculus": "MOUSE", "mice": "MOUSE",
-    "dog": "DOG", "beagle": "DOG", "canine": "DOG",
-    "monkey": "MONKEY", "cynomolgus": "MONKEY", "cynomolgus monkey": "MONKEY", "nonhuman primate": "MONKEY", "rhesus": "MONKEY",
-}
-
-
 def normalize_species(value: Any, context: Any = "") -> str:
-    text = f"{value or ''} {context or ''}".lower().replace("–", "-")
-    for alias, normalized in sorted(_SPECIES_ALIASES.items(), key=lambda item: -len(item[0])):
-        if alias in text:
-            return normalized
-    raw = str(value or "").strip().upper()
-    if raw in {"", "UNSPECIFIED", "UNKNOWN", "N/A", "NA", "NONE"}:
-        return "UNSPECIFIED"
-    return "OTHER"
+    from .species_registry import normalize_species_code
+
+    return normalize_species_code(value, context)
 
 
 def _context_text(context: Any) -> str:

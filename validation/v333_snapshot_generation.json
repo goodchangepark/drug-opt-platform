@@ -1,0 +1,40 @@
+{
+  "artifact": "V333_CURRENT_SNAPSHOT_GENERATION",
+  "generated_at": "2026-09-08T13:49:18.820112+00:00",
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "engine_version": "3.3.3",
+  "policy_hash": "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2",
+  "projects": [
+    1,
+    3,
+    5,
+    300
+  ],
+  "versions_examined": 1016,
+  "snapshots_before": 10471,
+  "admet_snapshots_created": 0,
+  "pk_snapshots_created": 0,
+  "snapshots_after": 10471,
+  "historical_runs_mutated": false,
+  "prediction_values_recomputed": false,
+  "on_demand_external_search": false,
+  "by_project": {
+    "1": {
+      "versions": 6,
+      "snapshots_created": 0
+    },
+    "3": {
+      "versions": 10,
+      "snapshots_created": 0
+    },
+    "5": {
+      "versions": 0,
+      "snapshots_created": 0
+    },
+    "300": {
+      "versions": 1000,
+      "snapshots_created": 0
+    }
+  },
+  "contract": "Current indexes point to persisted values; historical PredictionRuns and values remain immutable."
+}

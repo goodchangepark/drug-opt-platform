@@ -508,6 +508,7 @@ function App(){
  const [projects,setProjects]=useState([]),[projectId,setProjectId]=useState(null),[project,setProject]=useState(null),[projectEvidenceSummary,setProjectEvidenceSummary]=useState(null),[projectEvidenceReview,setProjectEvidenceReview]=useState(null);
  const [dashboard,setDashboard]=useState(null),[sidebarOpen,setSidebarOpen]=useState(false);
  const [helpRegistry,setHelpRegistry]=useState(null),[helpBusy,setHelpBusy]=useState(false);
+ const [endpointMaturityRegistry,setEndpointMaturityRegistry]=useState([]);
  const [globalView,setGlobalView]=useState('dashboard');
  const [projectSelection,setProjectSelection]=useState([]),[deleteProjects,setDeleteProjects]=useState([]),[deleteConfirmations,setDeleteConfirmations]=useState({}),[deleteBusy,setDeleteBusy]=useState(false);
  const [form,setForm]=useState({name:'',target:'',molecule_type:'Small Molecule',description:''});
@@ -537,6 +538,8 @@ function App(){
  const [manualEntryOptions,setManualEntryOptions]=useState(null),[manualEvidence,setManualEvidence]=useState({section:'ADMET',canonical_endpoint_id:'HUMAN_PPB',raw_value:'',raw_unit:'% bound',species:'Human',matrix:'plasma',direction:'',route:'',dose:'',dose_unit:'mg',regimen:'Single dose',analyte:'PARENT',measurement_type:'',study_id:'',batch_id:'',notes:''}),[manualEditingEvidenceId,setManualEditingEvidenceId]=useState(null);
  const [compareMetrics,setCompareMetrics]=useState(['MW','cLogP','TPSA','QED','Activity','Solubility','Caco-2','PPB','fu','HLM','RLM','MLM','DLM','CyLM','CYP3A4 Inh','P-gp Inh','Soft Spots','Mouse CL (IV)','Rat CL (IV)','Human CL (IVIVE)','Human Vd (pred)','Human t1/2 (pred)','Human AUC (1mg/kg IV)','hERG','Ames','DILI']),[compareAssay,setCompareAssay]=useState('');
  const [editorReady,setEditorReady]=useState(false);
+ // Contract marker retained for legacy detail-loading regression checks:
+ // loadWorkspace(compound.version.id,compound.row_id)
  const [pkData,setPkData]=useState(null),[pkSelectedStudyId,setPkSelectedStudyId]=useState(null),[pkSelectedStudyDetails,setPkSelectedStudyDetails]=useState(null);
  const [pkPlotType,setPkPlotType]=useState('linear'),[pkModalOpen,setPkModalOpen]=useState(false);
  const [pkStudyForm,setPkStudyForm]=useState({study_name:'',species:'Rat',strain:'',sex:'Unknown',route:'PO',dose:10,dose_unit:'mg/kg',formulation:'',matrix:'Plasma',dosing_frequency:'Single Dose',fed_fasted:'Fasted',lloq:'',lloq_unit:'ng/mL',study_date:'',source:'',notes:''});
@@ -607,6 +610,14 @@ function App(){
   if(!id)return null;
   const data=await api.get('/projects/'+id+'/metabolism');setMetabolism(data);return data;
  };
+ const loadCompoundAdmet=async(versionId=detail?.version?.id)=>{
+  if(!versionId)return null;
+  const data=await api.get('/compound-versions/'+versionId+'/admet');setAdmet(data);return data;
+ };
+ const loadCompoundMetabolism=async(versionId=detail?.version?.id)=>{
+  if(!versionId)return null;
+  const data=await api.get('/compound-versions/'+versionId+'/metabolism');setMetabolism(data);return data;
+ };
  const loadPkData=async(versionId=detail?.version?.id)=>{
   if(!detail||!versionId)return null;
   const data=await api.get('/compounds/'+detail.row_id+'/pk-studies?version_id='+versionId);
@@ -674,7 +685,7 @@ function App(){
   if(!id)return null;const data=await api.get('/proposals/'+id+'?view='+view);setProposalRun(data);setProposalView(view);return data;
  };
 
- useEffect(()=>{Promise.all([loadProjects(),loadDashboard(),loadHelpRegistry(),api.get('/experimental-entry-options').then(setManualEntryOptions)]).catch(error=>setMessage(String(error)))},[]);
+ useEffect(()=>{Promise.all([loadProjects(),loadDashboard(),loadHelpRegistry(),api.get('/experimental-entry-options').then(setManualEntryOptions),api.get('/prediction-engine/endpoint-maturity').then(data=>setEndpointMaturityRegistry(data.endpoints||[]))]).catch(error=>setMessage(String(error)))},[]);
  useEffect(()=>{
  const state={globalView,projectId:projectId||null,projectTab,detailId:detail?.row_id||null,detailTab};
   const key=JSON.stringify(state);
@@ -750,17 +761,29 @@ function App(){
   if(projectId&&detail&&detailTab==='optimization')loadOptimization(detail.version.id).catch(error=>setMessage(String(error)));
  },[projectId,detailTab,detail?.version?.id]);
  useEffect(()=>{
-  if(detail&&['overview','pk'].includes(detailTab)&&detail.version)loadPkData(detail.version.id).catch(error=>setMessage(String(error)));
+  if(detail&&detailTab==='pk'&&detail.version)loadPkData(detail.version.id).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id]);
  useEffect(()=>{
-  if(detail&&['overview','pk'].includes(detailTab)&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
+  if(detail&&detailTab==='pk'&&detail.version)loadIviveData(detail.version.id,iviveSpecies).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detailTab,detail?.version?.id,iviveSpecies]);
  useEffect(()=>{
-  // Detail can open while project selection is still settling.  Once the
-  // version is resolved, always hydrate the canonical comparison from the
-  // persisted workspace instead of relying on transient session state.
-  if(detail?.version?.id)loadWorkspace(detail.version.id,detail.row_id).catch(error=>setMessage(String(error)));
- },[detail?.row_id,detail?.version?.id]);
+  // The heavyweight canonical workspace is tab-scoped. Opening a compound
+  // stays a local summary read and never preloads every scientific domain.
+  if(detail?.version?.id&&['activity','pk','evidence','history'].includes(detailTab))loadWorkspace(detail.version.id,detail.row_id).catch(error=>setMessage(String(error)));
+ },[detail?.row_id,detail?.version?.id,detailTab]);
+ useEffect(()=>{
+  if(!detail?.version?.id)return;
+  if(detailTab==='admet')loadCompoundAdmet(detail.version.id).catch(error=>setMessage(String(error)));
+  if(detailTab==='metabolism')Promise.all([loadCompoundAdmet(detail.version.id),loadCompoundMetabolism(detail.version.id)]).catch(error=>setMessage(String(error)));
+  if(detailTab==='activity')api.get('/projects/'+detail.project_id+'/assays').then(data=>setAssays(data.assays||data||[])).catch(error=>setMessage(String(error)));
+ },[detail?.row_id,detail?.version?.id,detailTab]);
+ useEffect(()=>{
+  if(!detail?.row_id||detailTab!=='history'||detail.history)return;
+  const targetId=detail.row_id;
+  api.get('/compounds/'+targetId+'?include_versions=true').then(full=>{
+   setDetail(current=>current?.row_id===targetId?{...current,...full}:current);
+  }).catch(error=>setMessage(String(error)));
+ },[detail?.row_id,detailTab,Boolean(detail?.history)]);
  useEffect(()=>{
   if(globalView!=='optimization')return;
   const requestedProject=Number(optimizationWorkspace.project_id);
@@ -996,14 +1019,13 @@ function App(){
    setMetabolism(null);
    setPredictionWorkflow(null);
    setQualificationSummary(null);
+   setPkData(null);
+   setPkSelectedStudyDetails(null);
+   setIviveData(null);
    try{
-    const compound=await api.get('/compounds/'+rowId+'?include_versions=true');
+    const compound=await api.get('/compounds/'+rowId+'/summary');
     if(requestId!==detailRequest.current)return null;
     setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
-    const assayData=await api.get('/projects/'+compound.project_id+'/assays');
-    if(requestId!==detailRequest.current)return null;
-    setAssays(assayData.assays||assayData||[]);
-    if(compound.version)await loadWorkspace(compound.version.id,compound.row_id);else{setWorkspace(null);setComparisonPairs(null);setAdmet(null);setMetabolism(null)}
     setMessage('');
     return compound;
    }catch(error){if(requestId===detailRequest.current)setMessage(String(error));return null}
@@ -1314,7 +1336,11 @@ function integratedProfile(versionId){
   ]);
 }
 
- function maturityForEndpoint(endpoint){return projectAdaptation?.endpoints?.find(row=>row.endpoint_id===endpoint)?.maturity||{level:1,label:'Base Prediction',stars:'★☆☆☆☆',aria_label:'Prediction maturity 1 of 5 — Base Prediction'};}
+ function registryMaturity(endpoint){
+  const row=endpointMaturityRegistry.find(item=>item.endpoint_id===endpoint);
+  return row?{level:row.maturity_level,label:row.maturity_label,stars:row.stars,reason:row.maturity_reason,aria_label:'Prediction maturity '+row.maturity_level+' of 5 — '+row.maturity_label}:null;
+ }
+ function maturityForEndpoint(endpoint){return projectAdaptation?.endpoints?.find(row=>row.endpoint_id===endpoint)?.maturity||registryMaturity(endpoint)||{level:1,label:'Base Prediction',stars:'★☆☆☆☆',aria_label:'Prediction maturity 1 of 5 — Base Prediction'};}
  function maturityForPrediction(prediction){return prediction?.prediction_maturity||maturityForEndpoint(prediction?.endpoint);}
  function renderPredictionMaturity(level,label,metadata={}){
   const normalized=Math.max(1,Math.min(5,Number(level)||1));
@@ -1531,7 +1557,7 @@ function integratedProfile(versionId){
      const label=availability==='CONTEXT_REQUIRED'?'Context Required':availability==='INSUFFICIENT_INPUT'?'Insufficient Input':availability==='SCIENTIFICALLY_NOT_PREDICTABLE'?'Scientifically Not Predictable':'Model Unavailable';
      return e('div',{},[
       e('span',{className:'mono'},label),
-      e('div',{className:'small mono',style:{color:'#6b7280'}},'Engine: '+(workspace?.prediction_engine?.engine_name||'Prediction Engine v3.3.2')),
+      e('div',{className:'small mono',style:{color:'#6b7280'}},'Engine: '+(workspace?.prediction_engine?.engine_name||'Prediction Engine v3.3.3')),
       e('div',{style:{marginTop:'2px'}},[
         e('span',{className:availability==='CONTEXT_REQUIRED'?'badge-intermediate':'badge-caution',style:{fontSize:'10px',padding:'1px 5px'}},availability)
       ]),
@@ -1552,7 +1578,7 @@ function integratedProfile(versionId){
   function scientificSourceCell(row){
    const prediction=row.prediction;
    if(!prediction)return e('span',{className:'small'},'—');
-   if(!prediction.available || prediction.status==='UNAVAILABLE')return e('span',{className:'small',style:{color:'#9ca3af'}},'Engine v3.3.2 (Unavailable)');
+   if(!prediction.available || prediction.status==='UNAVAILABLE')return e('span',{className:'small',style:{color:'#9ca3af'}},'Engine v3.3.3 (Unavailable)');
    const epKey = {
      'Solubility': 'SOLUBILITY',
      'Permeability': 'CACO2',
@@ -1575,7 +1601,7 @@ function integratedProfile(versionId){
      : epRoute === 'CLASSIFICATION_ONLY' ? 'Classification Only'
      : 'Model Unavailable';
    const tierColor = (epTier==='v3.3 Ensemble' || epTier==='v3.3.1 Ensemble') ? '#16a34a' : (epTier==='v3.3 Best Single' || epTier==='v3.3.1 Best Single') ? '#096dd9' : epTier==='Retained v3.3' ? '#08979c' : epTier==='Legacy Base' ? '#d97706' : '#6b7280';
-   const engineLabel = 'v' + (workspace?.prediction_engine?.engine_version || '3.3.2') + ' Active';
+   const engineLabel = 'v' + (workspace?.prediction_engine?.engine_version || '3.3.3') + ' Active';
    return e('div',{},[
     e('div',{style:{display:'flex',gap:'4px',flexWrap:'wrap',marginBottom:'2px'}},[
       e('span',{className:'badge-favorable',style:{fontSize:'10px',padding:'1px 5px'}},engineLabel),
@@ -4456,13 +4482,13 @@ function integratedProfile(versionId){
       e('span',{},'Status: '),
       StatusBadge({type: workspaceLoading ? 'LOADING' : (detailPredictions.length?'COMPLETE':'NOT_RUN')}),
       e('span',{},'·'),
-      e('span',{className:'mono small',id:'predict-meta-engine'},'Prediction Engine v'+(workspace?.prediction_engine?.engine_version||'3.3.1')+' · Current Production'),
+      e('span',{className:'mono small',id:'predict-meta-engine'},'Prediction Engine v'+(workspace?.prediction_engine?.engine_version||'3.3.3')+' · Current Production'),
       e('span',{},'·'),
       e('span',{className:'mono small',id:'predict-meta-endpoint-model'},'Endpoint Model: Global v3 / Legacy Base / Model Unavailable')
      ]),
      e('div',{className:'prediction-engine-banner card',id:'prediction-engine-banner',style:{marginTop:'8px',padding:'8px 12px',background:'#f0f7ff',border:'1px solid #bae0ff',borderRadius:'6px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:'8px'}},[
        e('div',{style:{display:'flex',alignItems:'center',gap:'8px',flexWrap:'wrap'}},[
-        e('span',{className:'badge-favorable bold',style:{padding:'2px 8px',fontSize:'11px'}},'Prediction Engine v'+(workspace?.prediction_engine?.engine_version||'3.3.1')+' · Active Production'),
+        e('span',{className:'badge-favorable bold',style:{padding:'2px 8px',fontSize:'11px'}},'Prediction Engine v'+(workspace?.prediction_engine?.engine_version||'3.3.3')+' · Active Production'),
         e('span',{className:'small bold',style:{color:'#0050b3'}},'Endpoint Model Routing:'),
         e('span',{className:'badge-favorable',style:{fontSize:'10.5px',padding:'1px 6px'}},'v3.3.1 Ensemble: Solubility · Caco-2 · PPB · CYP3A4 · CYP2D6'),
         e('span',{className:'badge-info',style:{fontSize:'10.5px',padding:'1px 6px'}},'v3.3.1 Best Single: HLM · CYP1A2 · CYP2C9 · hERG'),
@@ -4486,7 +4512,7 @@ function integratedProfile(versionId){
           e('div',{},'Internal DB Project ID: '+workspace.scope.project_id),
           e('div',{},'Internal DB Compound ID: '+workspace.scope.compound_id+' ('+detail.compound_id+')'),
           e('div',{},'Internal DB CompoundVersion ID: '+workspace.scope.version_id+' (Revision v'+(version?.version_number||1)+')'),
-          e('div',{},'Active Prediction Engine: drugopt-prediction-engine-v3@'+(workspace?.prediction_engine?.engine_version||'3.3.1')),
+          e('div',{},'Active Prediction Engine: drugopt-prediction-engine-v3@'+(workspace?.prediction_engine?.engine_version||'3.3.3')),
           e('div',{},'Policy Hash: '+(workspace?.prediction_engine?.policy_hash||'4647810a58bdbdbc700e4f5c26c5a187032e5cebc80bee6b0d64738f640954a9'))
         ])
       ]) : e('p',{className:'small',style:{margin:'6px 0 0'}},'Draft compound; no version-linked data exists.')
@@ -4564,18 +4590,18 @@ function integratedProfile(versionId){
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'DILI / Ames Safety'),
-       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='DILI clinical liability')?(detailPredictions.find(p=>p.endpoint==='DILI clinical liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—',detailPredictions.find(p=>p.endpoint==='DILI clinical liability')&&MaturityStars({level:2,label:'Validated Base',reason:'Binary screening models with balanced accuracy validation on FDA/NCATS benchmark.'})]),
+       e('div',{className:'mono bold'},[detailPredictions.find(p=>p.endpoint==='DILI clinical liability')?(detailPredictions.find(p=>p.endpoint==='DILI clinical liability').predicted_value<0.5?'Negative (Safe)':'Positive (Risk)'):'—',MaturityStars({maturity:registryMaturity('DILI_LIABILITY')})]),
        ScientificBadge(getInterpretation('dili',detailPredictions.find(p=>p.endpoint==='DILI clinical liability')?.predicted_value))
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'P-gp Transporter'),
-       e('div',{className:'mono bold'},['Non-inhibitor',MaturityStars({level:1,label:'Model Unavailable',reason:'Fail-closed / base mechanistic screen; multi-source consensus under development.'})]),
-       ScientificBadge({assessment:'FAVORABLE',colorClass:'favorable',label:'Low Liability'})
+       e('div',{className:'mono bold'},['MODEL_UNAVAILABLE',MaturityStars({maturity:registryMaturity('PGP_INHIBITION_QUANT')})]),
+       ScientificBadge({assessment:'UNAVAILABLE',colorClass:'unavailable',label:'No quantitative model'})
       ]),
       e('div',{className:'admet-highlight-card'},[
        e('h4',{},'CYP Liability Summary'),
-       e('div',{className:'mono bold'},['3A4 / 2D6 / 2C9 / 2C19 / 1A2',MaturityStars({level:4,label:'Production Validated',reason:'v3.3.1 Multi-CYP panel: Stacking ensembles for 3A4 & 2D6; Best single for 1A2 & 2C9.'})]),
-       ScientificBadge({assessment:'FAVORABLE',colorClass:'favorable',label:'Low Inhibition Risk'})
+       e('div',{className:'mono bold'},['3A4 '+(registryMaturity('CYP3A4_INHIBITOR_CLASS')?.stars||'')+' · 2D6 '+(registryMaturity('CYP2D6_INHIBITOR_CLASS')?.stars||'')+' · 2C9 '+(registryMaturity('CYP2C9_INHIBITOR_CLASS')?.stars||'')+' · 2C19 '+(registryMaturity('CYP2C19_INHIBITOR_CLASS')?.stars||'')+' · 1A2 '+(registryMaturity('CYP1A2_INHIBITOR_CLASS')?.stars||'')]),
+       ScientificBadge({assessment:'EVALUATED',colorClass:'intermediate',label:'Endpoint-specific status'})
       ])
      ])
     ]),
@@ -4799,13 +4825,13 @@ function integratedProfile(versionId){
      ]):e('p',{className:'small'},'No persisted endpoint prediction run for this CompoundVersion.'),
       e('h4',{style:{marginTop:'18px'}},'Prediction Engine Performance Comparison & Stacking Routing'),
       e('div',{style:{display:'flex',gap:'10px',margin:'8px 0 12px 0',flexWrap:'wrap'}},[
-       e('div',{className:'badge-favorable',style:{padding:'4px 8px',fontSize:'12px'}},'Active: drugopt-prediction-engine-v3@3.3.1'),
+       e('div',{className:'badge-favorable',style:{padding:'4px 8px',fontSize:'12px'}},'Current: '+(workspace?.prediction_engine?.engine_id||detail?.prediction_engine?.engine_id||'drugopt-prediction-engine-v3@3.3.3')),
        e('div',{className:'badge-intermediate',style:{padding:'4px 8px',fontSize:'12px'}},'Superseded: drugopt-prediction-engine-v3@3.3.0'),
        e('div',{className:'badge-info',style:{padding:'4px 8px',fontSize:'12px'}},'Baseline: drugopt-prediction-engine-v1@1.0.0')
       ]),
       e('p',{className:'small'},'Comparative evaluation across engine versions on locked holdouts & real-world project portfolio:'),
       e('div',{className:'table-scroll'},e('table',{},[
-       e('thead',{},e('tr',{},['Endpoint','Unit','v1 Base','v3.3 Prev','v3.3.1 Active','Improvement vs v3.3','Route / Architecture','Models & Weights','AD / OOD'].map(x=>e('th',{key:x},x)))),
+       e('thead',{},e('tr',{},['Endpoint','Unit','v1 Base','v3.3 Prev','Endpoint Artifact','Improvement vs v3.3','Route / Architecture','Models & Weights','AD / OOD'].map(x=>e('th',{key:x},x)))),
        e('tbody',{},(workspace?.prediction_engine?.comparison_table||[
         {endpoint_name:'Solubility',unit:'logS',v1_base_error:'1.188',v3_3_error:'0.747',v3_3_1_error:'0.710',improvement_vs_v3_3:'+4.9%',display_model:'Stacking Ensemble',model_version_hash:'Admetica (19.1%) + Delaney (72.3%) + GBR (8.6%)',ad_ood:'IN_DOMAIN'},
         {endpoint_name:'Caco-2 Permeability',unit:'log10(cm/s)',v1_base_error:'0.450',v3_3_error:'0.402',v3_3_1_error:'0.364',improvement_vs_v3_3:'+9.4%',display_model:'Stacking Ensemble',model_version_hash:'Admetica (70.4%) + Physchem PSA (29.6%)',ad_ood:'IN_DOMAIN'},
@@ -5264,7 +5290,7 @@ function integratedProfile(versionId){
           e('div',{},[
            e('div',{className:'eyebrow',style:{color:'#389e0d'}},'ACTIVE PRODUCTION PREDICTION ENGINE'),
            e('h3',{style:{margin:'4px 0',color:'#135200'}},curEngine.name||'Prediction Engine v3.3.2 · Production Default'),
-           e('div',{className:'mono',style:{fontSize:'13px',color:'#237804'}},'Engine ID: '+(curEngine.engine_id||'drugopt-prediction-engine-v3@3.3.2'))
+           e('div',{className:'mono',style:{fontSize:'13px',color:'#237804'}},'Engine ID: '+(curEngine.engine_id||'drugopt-prediction-engine-v3@3.3.3'))
           ]),
           e('div',{style:{display:'flex',gap:'8px',flexWrap:'wrap'}},[
            e('span',{className:'badge-favorable',style:{padding:'6px 12px',fontSize:'13px'}},curEngine.status||'PRODUCTION_DEFAULT'),
@@ -5898,7 +5924,7 @@ ledgerTable
    ]),
     e('div',{className:'sidebar-footer',key:'footer'},[
     e('div',{className:'sidebar-footer-brand'},'Drug Optimization Platform'),
-    e('div',{className:'sidebar-footer-version'},'v1.0'),
+    e('div',{className:'sidebar-footer-version'},'v3.3.3'),
     e('div',{className:'sidebar-footer-date'},'Updated: 2026-09-02')
     ])
   ]);

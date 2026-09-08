@@ -1,6 +1,6 @@
 {
   "artifact": "OPTIMIZATION_CAMPAIGN_V74",
-  "production_engine": "drugopt-prediction-engine-v3@3.3.2",
+  "production_engine": "drugopt-prediction-engine-v3@3.3.3",
   "last_completed_endpoint": "HUMAN_FU_PLASMA",
   "last_completed_experiment": "V74-PPB-TRAIN-FOLD-SOFT-REGIME-EXPERTS",
   "current_best_candidate": "extra_trees_logfu (V72 canonical baseline)",

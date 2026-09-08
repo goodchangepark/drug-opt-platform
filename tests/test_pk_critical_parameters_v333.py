@@ -245,9 +245,9 @@ def test_engine_v3_3_3_candidate_policy_hash():
     assert candidate_hash == "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
     assert CANDIDATE_POLICY_HASH == candidate_hash
 
-    # Production baseline v3.3.2 remains active and unchanged
-    assert CURRENT_ENGINE_ID == "drugopt-prediction-engine-v3@3.3.2"
-    assert CURRENT_POLICY_HASH == "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
+    # v3.3.3 is the current release; its endpoint claims remain independently governed.
+    assert CURRENT_ENGINE_ID == "drugopt-prediction-engine-v3@3.3.3"
+    assert CURRENT_POLICY_HASH == candidate_hash
 
     # Historical v3.3.1 strictly preserved
     history = get_prediction_model_history()
@@ -258,7 +258,7 @@ def test_engine_v3_3_3_candidate_policy_hash():
     # Candidate v3.3.3 registered
     v333 = next((h for h in history if h["version"] == "v3.3.3"), None)
     assert v333 is not None
-    assert v333["production_status"] == "PRODUCTION_CANDIDATE"
+    assert v333["production_status"] == "PRODUCTION_DEFAULT"
     assert v333["reference_compound_N"] == 250
 
 

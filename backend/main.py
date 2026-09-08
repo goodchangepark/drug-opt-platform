@@ -100,6 +100,7 @@ from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, registe
 from .capabilities import build_capability_summary
 from .interpretation import get_interpretation_registry_summary, interpret_property
 from .scientific_interpretation import policy_report
+from .species_registry import species_registry_payload
 from .platform_info import (APP_VERSION, CURRENT_STAGE_LABEL, CURRENT_STAGE_STATUS,
                             CURRENT_STAGE_SUBSTATUS, GLOSSARY, LIMITATIONS, build_version,
                             latest_release_date, package_inventory, structure_modules,
@@ -141,7 +142,7 @@ from .prediction_engine_registry import (
     get_prediction_model_history,
     get_real_world_benchmark_summary,
 )
-from .external_experimental import cas_status, lookup as external_evidence_lookup, valid_cas
+from .external_experimental import valid_cas
 from .experimental_display import (COMPARABILITY_LABELS, NORMALIZATION_VERSION, contract_report, evidence_label,
                                    normalize_experimental)
 from .experimental_harvester import (DOCUMENT_PARSER_VERSION, HARVESTER_SEARCH_VERSION, QUALIFICATION_VERSION,
@@ -154,7 +155,7 @@ from .project_adaptation_strategy import fit_project_adaptation_strategy
 from .project_learning_curve import build_learning_curve
 from .project_learning import (ledger_out, project_learning_summary,
                                record_canonical_evidence_pair, record_external_evidence_pair, record_internal_measurement_pair)
-from .prediction_maturity import maturity_for_adapter
+from .prediction_maturity import get_endpoint_maturity, maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 from .endpoint_comparison import (build_endpoint_comparison, ensure_admet_prediction_snapshot_index,
                                   ensure_pk_prediction_snapshot_index, persist_pk_prediction_snapshots,
@@ -265,6 +266,12 @@ def get_interpretation_rules():
 @app.get("/api/interpretation/scientific-policy")
 def scientific_interpretation_policy():
     return policy_report()
+
+
+@app.get("/api/species-registry")
+def get_species_registry():
+    """Read-only canonical species identities for evidence and PK results."""
+    return species_registry_payload()
 
 
 @app.get("/api/model-strategy-registry")
@@ -1483,33 +1490,153 @@ def get_compound(row_id: int, include_versions: bool = Query(False), db: Session
     return result
 
 
-@app.get("/api/compounds/{row_id}/external-experimental/search")
-def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
-    """Explicit CAS-only public lookup; no write occurs during search."""
+@app.get("/api/compounds/{row_id}/summary")
+def get_compound_scientific_summary(row_id: int, db: Session = Depends(get_db)):
+    """Return the local, bounded payload needed to open a compound.
+
+    This endpoint deliberately excludes evidence rows, prediction history,
+    project-learning ledgers, and tab-specific calculations.  Those resources
+    have dedicated endpoints and are loaded only after the corresponding tab
+    is opened.  Molecular depiction is read from the persisted deterministic
+    SVG cache; compound navigation never invokes an external search or model
+    calculation.
+    """
     compound = db.get(Compound, row_id)
     if not compound:
         raise HTTPException(status_code=404, detail="Compound not found")
-    status = cas_status(compound.cas_number or "")
-    if status != "VALID":
-        return {"status": "DISABLED_NO_CAS" if status == "EMPTY" else "DISABLED_INVALID_CAS", "cas_status": status, "records": []}
-    current = next((v for v in compound.versions if v.version_number == compound.current_version), None)
-    if not current:
-        return {"status": "STRUCTURE_MISMATCH", "cas_status": status, "records": []}
-    result = external_evidence_lookup(compound.cas_number or "", current.inchikey)
-    assays = db.scalars(select(AssayDefinition).where(AssayDefinition.project_id == compound.project_id, AssayDefinition.active == True)).all()
-    result["project_assays"] = [{"id": assay.id, "name": assay.name, "measurement_type": assay.measurement_type, "target": assay.target, "species": assay.species, "cell_line": assay.cell_line, "unit": assay.unit} for assay in assays]
-    molecular_weight = (current.properties_json or {}).get("molecular_weight")
-    for row in result.get("records", []):
-        row["display"] = normalize_experimental(row.get("endpoint", ""), row.get("value"), row.get("unit", ""), species=row.get("species", ""), conditions=row.get("conditions", ""), measurement_type=row.get("assay_type", ""), target=row.get("target", ""), mw=molecular_weight)
-        row["drugopt_representation"] = row["display"]
-        if row.get("source") != "ChEMBL":
-            continue
-        matches = [assay for assay in assays if assay.measurement_type.upper() == str(row.get("endpoint", "")).upper() and assay.target and assay.target.lower() == str(row.get("target", "")).lower() and assay.unit.lower() == str(row.get("unit", "")).lower()]
-        row["mapping_status"] = "DIRECT_MATCH" if len(matches) == 1 else ("MANUAL_ASSAY_MAPPING_REQUIRED" if matches or assays else "EXTERNAL_EVIDENCE_ONLY")
-        row["compatible_assay_ids"] = [assay.id for assay in matches]
-    result["cas_status"] = status
-    result["compound_version_id"] = current.id
-    return result
+    current = db.scalar(
+        select(CompoundVersion).where(
+            CompoundVersion.compound_row_id == row_id,
+            CompoundVersion.version_number == compound.current_version,
+        )
+    )
+    identifiers = list(db.scalars(
+        select(CompoundIdentifier).where(CompoundIdentifier.compound_id == row_id)
+        .order_by(CompoundIdentifier.id)
+    ))
+    identifier_map = {row.identifier_type: row.identifier_value for row in identifiers}
+    properties = (current.properties_json or {}) if current else {}
+    if isinstance(properties, str):
+        try:
+            properties = json.loads(properties)
+        except (TypeError, ValueError, json.JSONDecodeError):
+            properties = {}
+    calculation = (current.calculation_json or {}) if current else {}
+    version_ids = list(db.scalars(
+        select(CompoundVersion.id).where(CompoundVersion.compound_row_id == row_id)
+    ))
+    evidence_count = 0
+    accepted_evidence_count = 0
+    historical_prediction_count = 0
+    snapshot_count = 0
+    if version_ids:
+        evidence_count = db.scalar(select(func.count(ExternalExperimentalEvidence.id)).where(
+            ExternalExperimentalEvidence.compound_version_id.in_(version_ids),
+            ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
+        )) or 0
+        accepted_evidence_count = db.scalar(select(func.count(ExternalExperimentalEvidence.id)).where(
+            ExternalExperimentalEvidence.compound_version_id.in_(version_ids),
+            ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
+            ExternalExperimentalEvidence.evidence_state.in_(("EXTERNAL_IMPORTED", "AUTO_QUALIFIED_EXTERNAL")),
+        )) or 0
+        historical_prediction_count = db.scalar(select(func.count(PredictionRun.id)).where(
+            PredictionRun.version_id.in_(version_ids)
+        )) or 0
+        snapshot_count = db.scalar(select(func.count(PredictionEndpointSnapshot.id)).where(
+            PredictionEndpointSnapshot.compound_version_id.in_(version_ids)
+        )) or 0
+    drugbank_id = identifier_map.get("DRUGBANK_ID") or properties.get("drugbank_id")
+    if not drugbank_id and "DRUGBANK" in compound.compound_id:
+        drugbank_id = compound.compound_id.replace("DRUGBANK-", "")
+    version_summary = None
+    if current:
+        version_summary = {
+            "id": current.id,
+            "version_number": current.version_number,
+            "canonical_smiles": current.canonical_smiles,
+            "isomeric_smiles": current.isomeric_smiles,
+            "inchi": current.inchi,
+            "inchikey": current.inchikey,
+            "change_note": current.change_note,
+            "properties": properties,
+            "rules": calculation.get("rules", {}),
+            "ionization": calculation.get("ionization", {}),
+            "assessment": current.assessment_json or {},
+            "alerts": current.alerts_json or [],
+            "svg": current.svg or "",
+            "highlighted_svg": current.highlighted_svg or "",
+            "provenance": calculation.get("provenance", {}),
+            "calculated": bool(current.properties_json),
+        }
+    return {
+        "row_id": compound.id,
+        "project_id": compound.project_id,
+        "compound_id": compound.compound_id,
+        "cas_number": compound.cas_number or None,
+        "name": compound.name,
+        "notes": compound.notes,
+        "current_version": compound.current_version,
+        "status": compound.status,
+        "created_at": compound.created_at.isoformat(),
+        "updated_at": compound.updated_at.isoformat(),
+        "drugbank_id": drugbank_id,
+        "chembl_id": identifier_map.get("CHEMBL_ID") or properties.get("chembl_id"),
+        "pubchem_cid": identifier_map.get("PUBCHEM_CID") or properties.get("pubchem_cid"),
+        "unii": identifier_map.get("UNII") or properties.get("unii"),
+        "verification_status": "VERIFIED" if current and current.inchikey else "REVIEW_REQUIRED",
+        "identifiers": [{
+            "id": row.id,
+            "type": row.identifier_type,
+            "value": row.identifier_value,
+            "source": row.source,
+            "source_record_id": row.source_record_id,
+            "chemical_form": row.chemical_form,
+            "verified_against_inchikey": row.verified_against_inchikey,
+            "verification_status": row.verification_status,
+            "verified_at": row.verified_at.isoformat() if row.verified_at else None,
+        } for row in identifiers],
+        "version": version_summary,
+        "versions": [{
+            "version_number": row.version_number,
+            "canonical_smiles": row.canonical_smiles,
+            "change_note": row.change_note,
+            "calculated": bool(row.properties_json),
+        } for row in db.scalars(
+            select(CompoundVersion).where(CompoundVersion.compound_row_id == row_id)
+            .order_by(CompoundVersion.version_number)
+        )],
+        "scientific_snapshot": {
+            "accepted_evidence_count": accepted_evidence_count,
+            "evidence_count": evidence_count,
+            "current_prediction_snapshot_count": snapshot_count,
+            "historical_prediction_count": historical_prediction_count,
+            "pk_available": accepted_evidence_count > 0,
+            "updated_at": compound.updated_at.isoformat(),
+        },
+        "prediction_count": snapshot_count,
+        "prediction_status": "PREDICTED" if snapshot_count else "PENDING",
+        "prediction_engine": get_current_production_engine_info(),
+        "payload_scope": "COMPOUND_CORE_SUMMARY",
+    }
+
+
+@app.get("/api/compounds/{row_id}/external-experimental/search")
+def search_external_experimental_data(row_id: int, db: Session = Depends(get_db)):
+    """Reject the legacy transient-search contract.
+
+    Public evidence search is mutating by design because every result must be
+    auditable and durable.  Clients must use the explicitly confirmed POST
+    harvest workflow, which persists candidates before returning them.
+    """
+    compound = db.get(Compound, row_id)
+    if not compound:
+        raise HTTPException(status_code=404, detail="Compound not found")
+    raise HTTPException(status_code=410, detail={
+        "status": "TRANSIENT_SEARCH_RETIRED",
+        "reason": "Search results must be persisted before display.",
+        "replacement": f"POST /api/compounds/{row_id}/experimental-harvest/preview",
+        "confirmation_required": True,
+    })
 
 
 def _external_candidate_key(identity, current, row: dict) -> str:
@@ -2861,10 +2988,11 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
     outputs = dict(prediction.outputs_json or {})
     # Old cached/legacy rows predate adaptation metadata. Expose the
     # canonical base maturity without mutating the frozen prediction.
-    maturity = outputs.get("prediction_maturity") or maturity_for_adapter(
-        status="BASE_ONLY", effective_n=0.0,
-        activation_decision="BASE_RETAINED", representative_series=False,
-    ).to_dict()
+    # Endpoint model maturity is registry-derived.  Project-adapter maturity
+    # is separate evidence and must never downgrade/upgrade the model stars.
+    registry_maturity = get_endpoint_maturity(prediction.model.endpoint_name)
+    project_maturity = outputs.get("prediction_maturity")
+    maturity = registry_maturity
     outputs["experimental_comparisons"] = comparisons
     if prediction.model.endpoint_name in MODEL_SPECS and MODEL_SPECS[prediction.model.endpoint_name].get("prediction_type") == "binary_classification":
         outputs["experimental_evidence"] = cyp_experimental_evidence(
@@ -2902,6 +3030,7 @@ def _admet_prediction_out(prediction: ADMETPrediction, measurements, endpoint_na
         "uncertainty": prediction.uncertainty, "model": _admet_model_out(prediction.model),
         "outputs": outputs, "experimental_comparisons": comparisons, "preferred_result": preferred,
         "prediction_maturity": maturity,
+        "project_adaptation_maturity": project_maturity,
         "prediction_maturity_level": maturity["level"],
         "prediction_maturity_label": maturity["label"],
         "adapter_version": outputs.get("prediction_maturity_adapter_version", ""),
@@ -2950,12 +3079,13 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
             if total > 0:
                 project_value = sum(weight * value for weight, value in weighted) / total
                 project_weights = dict(adapter.project_weights_json)
-        maturity = maturity_for_adapter(
+        project_maturity = maturity_for_adapter(
             status=adapter.status if adapter else "BASE_ONLY",
             effective_n=adapter.effective_n if adapter else 0.0,
             activation_decision=adapter.activation_decision if adapter else "BASE_RETAINED",
             representative_series=bool(adapter and adapter.effective_n >= 20),
         ).to_dict()
+        maturity = get_endpoint_maturity(endpoint_name)
         snapshot = {
             "compound_version_id": version_id, "project_id": project_id,
             "endpoint": endpoint_name, "base_prediction": base,
@@ -2965,7 +3095,11 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
             "project_weights": project_weights, "adapter_version": adapter.adapter_version if adapter else "",
             "effective_n": adapter.effective_n if adapter else 0.0,
             "training_compound_version_ids": adapter.training_compound_version_ids_json if adapter else [],
-            "maturity": maturity, "ood_applicability": rows[0].applicability_domain,
+            "maturity": maturity, "project_adaptation_maturity": project_maturity,
+            "ood_applicability": rows[0].applicability_domain,
+            "engine_id": CURRENT_ENGINE_ID,
+            "engine_version": CURRENT_ENGINE_VERSION,
+            "engine_policy_hash": CURRENT_POLICY_HASH,
             "engine_policy": ENGINE_V1_POLICY, "engine_hash": ENGINE_V1_HASH,
             "created_at": now.isoformat(), "experiment_known_at_prediction_time": bool(
                 db.scalar(select(ADMETMeasurement.id).where(
@@ -2982,6 +3116,7 @@ def _freeze_admet_prediction_snapshots(db: Session, project_id: int, version_id:
             row.outputs_json = dict(row.outputs_json or {}) | {
                 "prediction_snapshot": snapshot,
                 "prediction_maturity": maturity,
+                "project_adaptation_maturity": project_maturity,
                 "prediction_maturity_adapter_version": adapter.adapter_version if adapter else "",
                 "prediction_maturity_calculated_at": now.isoformat(),
             }
@@ -3017,7 +3152,12 @@ def _record_cached_admet_run(db: Session, version_id: int, predictions: list[ADM
         if endpoint in seen:
             continue
         seen.add(endpoint)
-        snapshot = (prediction.outputs_json or {}).get("prediction_snapshot") or {}
+        snapshot = dict((prediction.outputs_json or {}).get("prediction_snapshot") or {})
+        snapshot.update({
+            "engine_id": CURRENT_ENGINE_ID,
+            "engine_version": CURRENT_ENGINE_VERSION,
+            "engine_policy_hash": CURRENT_POLICY_HASH,
+        })
         db.add(PredictionEndpointSnapshot(
             prediction_run_id=run.id, project_id=db.get(CompoundVersion, version_id).compound.project_id,
             compound_version_id=version_id, endpoint_id=str(prediction.endpoint_id), endpoint_name=endpoint,
@@ -4685,6 +4825,29 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     project_learning_rows, project_learning_ledger_rows = project_learning_summary(db, project.id)
     pk_parameter_sets = db.scalars(select(PKParameterSet).where(PKParameterSet.version_id.in_(exact_version_ids)).order_by(PKParameterSet.created_at.desc())).all()
     pk_routes = [{"id": row.id, "species": row.species, "route": row.route, "cl_value": row.cl_value, "v_value": row.v_value, "f_predicted": row.f_predicted if pk_f_prediction_is_quantitative(row) else None, "f_experimental": row.f_experimental if str(row.route).upper() == "PO" else None, "ka_value": row.ka_value, "confidence": row.confidence, "f_prediction_status": "QUANTITATIVE" if pk_f_prediction_is_quantitative(row) else ("REFERENCE_ARM" if str(row.route).upper() == "IV" else "INSUFFICIENT_INPUT"), "f_input_status": "COMPLETE" if pk_f_prediction_is_quantitative(row) else "INSUFFICIENT"} for row in pk_parameter_sets]
+    # Accepted source-qualified PK observations are the authoritative experimental
+    # display values.  Attach them to the matching local route arm without
+    # replacing context or manufacturing values for missing parameters.
+    accepted_pk = db.scalars(select(ExternalExperimentalEvidence).where(
+        ExternalExperimentalEvidence.compound_version_id.in_(exact_version_ids),
+        ExternalExperimentalEvidence.accepted_at.is_not(None),
+        ExternalExperimentalEvidence.canonical_endpoint_id.in_(("HUMAN_PK_F_ORAL", "HUMAN_PK_VD_IV", "HUMAN_PK_CL_IV", "HUMAN_PK_CMAX_UNSPECIFIED")),
+    )).all()
+    for obs in accepted_pk:
+        endpoint = str(obs.canonical_endpoint_id)
+        try: value = float(obs.normalized_value if obs.normalized_value is not None else obs.raw_value)
+        except (TypeError, ValueError): continue
+        context = obs.assay_conditions_json if isinstance(obs.assay_conditions_json, dict) else {}
+        species = str(context.get("species") or "HUMAN").upper()
+        route = "PO" if endpoint == "HUMAN_PK_F_ORAL" else "IV"
+        target = next((r for r in pk_routes if str(r.get("species", "")).upper() == species and str(r.get("route", "")).upper() == route), None)
+        if target is None:
+            target = {"id": f"evidence-{obs.id}", "species": "Human" if species == "HUMAN" else species.title(), "route": route, "cl_value": None, "v_value": None, "f_predicted": None, "f_experimental": None, "ka_value": None, "confidence": "EXPERIMENTAL", "f_prediction_status": "EXPERIMENTAL", "f_input_status": "COMPLETE"}
+            pk_routes.append(target)
+        if endpoint == "HUMAN_PK_F_ORAL": target["f_experimental"] = value
+        elif endpoint == "HUMAN_PK_VD_IV": target["v_value"] = value
+        elif endpoint == "HUMAN_PK_CL_IV": target["cl_value"] = value
+        target.setdefault("experimental_observations", []).append({"endpoint": endpoint, "value": value, "unit": obs.normalized_unit or obs.raw_unit, "source": obs.source_database, "source_url": obs.source_url, "context": context})
     latest_workflow = next((row for row in audit_runs if row.stage == "prediction_workflow"), None)
     saved_steps = ((latest_workflow.outputs_json or {}).get("steps", {}) if latest_workflow else {})
     search_runs = db.scalars(select(ExperimentalSearchRun).where(

@@ -1,0 +1,512 @@
+{
+  "artifact": "PREDICTION_ENGINE_V3_3_3_RELEASE_MANIFEST",
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "release_version": "3.3.3",
+  "policy_hash": "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2",
+  "release_date": "2026-09-08",
+  "release_status": "PRODUCTION_DEFAULT",
+  "generated_at": "2026-09-08T14:04:55.409248+00:00",
+  "scientific_scope": "Engine/workflow release; endpoint artifact replacement remains endpoint-gated.",
+  "endpoint_inventory_artifact": "validation/v333_endpoint_inventory.json",
+  "endpoint_inventory_count": 50,
+  "endpoint_routes": [
+    {
+      "endpoint": "SOLUBILITY_GENERIC",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "endpoint_model": "Multi-Model Stacking Ensemble",
+      "endpoint_model_version": "v3.3.1-STACKING-solubility-723c3",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "logS"
+    },
+    {
+      "endpoint": "CACO2_PAPP_AB",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "endpoint_model": "Multi-Model Stacking Ensemble",
+      "endpoint_model_version": "v3.3.1-STACKING-caco2-704d4",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "log10(cm/s)"
+    },
+    {
+      "endpoint": "HUMAN_PPB",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "endpoint_model": "Multi-Model Stacking Ensemble",
+      "endpoint_model_version": "v3.3.1-STACKING-ppb-728e5",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "% bound"
+    },
+    {
+      "endpoint": "CYP3A4_INHIBITION",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "endpoint_model": "Multi-Model Stacking Ensemble",
+      "endpoint_model_version": "v3.3.1-STACKING-cyp3a4-882d1",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "pIC50"
+    },
+    {
+      "endpoint": "CYP2D6_INHIBITION",
+      "route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "endpoint_model": "Multi-Model Stacking Ensemble",
+      "endpoint_model_version": "v3.3.1-STACKING-cyp2d6-615f2",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "pIC50"
+    },
+    {
+      "endpoint": "HLM_CLINT",
+      "route": "V3_3_1_BEST_SINGLE",
+      "endpoint_model": "Drug-OPT Chemical Space Residual RF",
+      "endpoint_model_version": "v3.3.1-STACKING-hlm-100g7",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "log10(mL/min/kg)"
+    },
+    {
+      "endpoint": "CYP1A2_INHIBITION",
+      "route": "V3_3_1_BEST_SINGLE",
+      "endpoint_model": "Drug-OPT Calibrated Ridge Regressor",
+      "endpoint_model_version": "v3.3.1-STACKING-cyp1a2-100a0",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "pIC50"
+    },
+    {
+      "endpoint": "CYP2C9_INHIBITION",
+      "route": "V3_3_1_BEST_SINGLE",
+      "endpoint_model": "Drug-OPT Calibrated Ridge Regressor",
+      "endpoint_model_version": "v3.3.1-STACKING-cyp2c9-100b1",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "pIC50"
+    },
+    {
+      "endpoint": "HERG_LIABILITY",
+      "route": "V3_3_1_BEST_SINGLE",
+      "endpoint_model": "Physchem GBR Regressor",
+      "endpoint_model_version": "v3.3.1-STACKING-herg-100f6",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "pIC50"
+    },
+    {
+      "endpoint": "RLM_CLINT",
+      "route": "V3_3_1_BEST_SINGLE",
+      "endpoint_model": "Best Single Model (OpenADMET CheMeleon RLM intrinsic clearance)",
+      "endpoint_model_version": "v3.3.2-CHEMELEON-rlm-100j1",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "log10(mL/min/kg)"
+    },
+    {
+      "endpoint": "MLM_CLINT",
+      "route": "V3_3_1_BEST_SINGLE",
+      "endpoint_model": "Best Single Model (OpenADMET CheMeleon MLM intrinsic clearance)",
+      "endpoint_model_version": "v3.3.2-CHEMELEON-mlm-100k2",
+      "routing_status": "PRODUCTION_DEFAULT",
+      "unit": "log10(mL/min/kg)"
+    },
+    {
+      "endpoint": "VDSS",
+      "route": "RETAIN_V3_3",
+      "endpoint_model": "Tissue Partitioning Mechanistic Model (Retained v3.3)",
+      "endpoint_model_version": "v3.3-vdss-tissue-91c2",
+      "routing_status": "RETAINED_BASELINE",
+      "unit": "L/kg"
+    },
+    {
+      "endpoint": "MW",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Descriptors ExactMolWt",
+      "endpoint_model_version": "rdkit-exactmolwt-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "g/mol"
+    },
+    {
+      "endpoint": "CLOGP",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Crippen MolLogP",
+      "endpoint_model_version": "rdkit-crippen-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "log10(o/w)"
+    },
+    {
+      "endpoint": "TPSA",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Descriptors TPSA",
+      "endpoint_model_version": "rdkit-tpsa-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "\u00c5\u00b2"
+    },
+    {
+      "endpoint": "HBD",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Lipinski NumHDonors",
+      "endpoint_model_version": "rdkit-hbd-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "count"
+    },
+    {
+      "endpoint": "HBA",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Lipinski NumHAcceptors",
+      "endpoint_model_version": "rdkit-hba-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "count"
+    },
+    {
+      "endpoint": "ROTB",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Lipinski NumRotatableBonds",
+      "endpoint_model_version": "rdkit-rotb-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "count"
+    },
+    {
+      "endpoint": "FSP3",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Descriptors FractionCsp3",
+      "endpoint_model_version": "rdkit-fsp3-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "ratio"
+    },
+    {
+      "endpoint": "QED",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Descriptors QED",
+      "endpoint_model_version": "rdkit-qed-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "score (0-1)"
+    },
+    {
+      "endpoint": "FORMAL_CHARGE",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Chem GetFormalCharge",
+      "endpoint_model_version": "rdkit-charge-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "integer"
+    },
+    {
+      "endpoint": "HEAVY_ATOM_COUNT",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "RDKit Chem GetNumHeavyAtoms",
+      "endpoint_model_version": "rdkit-heavy-atoms-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "count"
+    },
+    {
+      "endpoint": "METABOLIC_SOFT_SPOTS",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "SyGMa Phase I/II Rule Engine",
+      "endpoint_model_version": "sygma-rules-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "atomic rank"
+    },
+    {
+      "endpoint": "METABOLITE_HYPOTHESES",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "SyGMa Reaction Transformer",
+      "endpoint_model_version": "sygma-transformer-v1",
+      "routing_status": "DETERMINISTIC_CALC",
+      "unit": "structures"
+    },
+    {
+      "endpoint": "PKA",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "Rule-Based Ionization Estimator",
+      "endpoint_model_version": "rule-pka-v1",
+      "routing_status": "RULE_ESTIMATE",
+      "unit": "pH"
+    },
+    {
+      "endpoint": "LOGD_7_4",
+      "route": "LEGACY_BASE_FALLBACK",
+      "endpoint_model": "Henderson-Hasselbalch Derived Calculation",
+      "endpoint_model_version": "hh-derived-logd74-v1",
+      "routing_status": "DERIVED_ESTIMATE",
+      "unit": "log10"
+    },
+    {
+      "endpoint": "HIA",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET HIA Binary Classifier",
+      "endpoint_model_version": "openadmet-hia-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "BBB_PENETRATION",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET BBB Binary Classifier",
+      "endpoint_model_version": "openadmet-bbb-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP1A2 Classifier",
+      "endpoint_model_version": "openadmet-cyp1a2-class-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP2C9 Classifier",
+      "endpoint_model_version": "openadmet-cyp2c9-class-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP2C19 Classifier",
+      "endpoint_model_version": "openadmet-cyp2c19-class-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP2D6 Classifier",
+      "endpoint_model_version": "openadmet-cyp2d6-class-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP3A4 Classifier",
+      "endpoint_model_version": "openadmet-cyp3a4-class-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP2C9 Substrate Model",
+      "endpoint_model_version": "openadmet-cyp2c9-sub-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP2D6_SUBSTRATE",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP2D6 Substrate Model",
+      "endpoint_model_version": "openadmet-cyp2d6-sub-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET CYP3A4 Substrate Model",
+      "endpoint_model_version": "openadmet-cyp3a4-sub-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "PGP_INHIBITION",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET P-gp Inhibitor Classifier",
+      "endpoint_model_version": "openadmet-pgp-inh-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "BCRP_INHIBITOR",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET BCRP Inhibitor Classifier",
+      "endpoint_model_version": "openadmet-bcrp-inh-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "HERG_CLASS",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "OpenADMET hERG Binary Classifier",
+      "endpoint_model_version": "openadmet-herg-class-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "AMES_MUTAGENICITY",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "Hansen Mutagenicity Consensus Classifier",
+      "endpoint_model_version": "hansen-ames-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "DILI_LIABILITY",
+      "route": "CLASSIFICATION_ONLY",
+      "endpoint_model": "FDA DILIst Binary Classifier",
+      "endpoint_model_version": "fda-dilist-v1",
+      "routing_status": "CLASSIFICATION_ONLY",
+      "unit": "probability (0-1)"
+    },
+    {
+      "endpoint": "CYP2C19_INHIBITION",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "pIC50"
+    },
+    {
+      "endpoint": "PGP_INHIBITION_QUANT",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "\u00b5M / pIC50"
+    },
+    {
+      "endpoint": "BCRP_INHIBITOR_QUANT",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "\u00b5M / pIC50"
+    },
+    {
+      "endpoint": "OATP1B1_INHIBITOR",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "\u00b5M"
+    },
+    {
+      "endpoint": "OATP1B3_INHIBITOR",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "\u00b5M"
+    },
+    {
+      "endpoint": "OCT1_INHIBITOR",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "\u00b5M"
+    },
+    {
+      "endpoint": "OCT2_INHIBITOR",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Fail-closed guardrail)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "\u00b5M"
+    },
+    {
+      "endpoint": "HUMAN_PK_CLF_ORAL",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Preclinical simulation only)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "L/h"
+    },
+    {
+      "endpoint": "HUMAN_PK_VDF_ORAL",
+      "route": "MODEL_UNAVAILABLE",
+      "endpoint_model": "None (Preclinical simulation only)",
+      "endpoint_model_version": "MODEL_UNAVAILABLE",
+      "routing_status": "MODEL_UNAVAILABLE",
+      "unit": "L"
+    }
+  ],
+  "changes_vs_v3_3_2": [
+    "Durable qualified evidence and accepted/candidate separation",
+    "Canonical endpoint-semantic comparison and pairability",
+    "Bounded reference-library and compound-core navigation",
+    "Persisted current prediction snapshot provenance",
+    "Explicit species registry and context-aware PK architecture"
+  ],
+  "improved_endpoint_routes": [],
+  "unchanged_endpoint_routes": [
+    "SOLUBILITY_GENERIC",
+    "CACO2_PAPP_AB",
+    "HUMAN_PPB",
+    "CYP3A4_INHIBITION",
+    "CYP2D6_INHIBITION",
+    "HLM_CLINT",
+    "CYP1A2_INHIBITION",
+    "CYP2C9_INHIBITION",
+    "HERG_LIABILITY",
+    "RLM_CLINT",
+    "MLM_CLINT",
+    "VDSS",
+    "MW",
+    "CLOGP",
+    "TPSA",
+    "HBD",
+    "HBA",
+    "ROTB",
+    "FSP3",
+    "QED",
+    "FORMAL_CHARGE",
+    "HEAVY_ATOM_COUNT",
+    "METABOLIC_SOFT_SPOTS",
+    "METABOLITE_HYPOTHESES",
+    "PKA",
+    "LOGD_7_4",
+    "HIA",
+    "BBB_PENETRATION",
+    "CYP1A2_INHIBITOR_CLASS",
+    "CYP2C9_INHIBITOR_CLASS",
+    "CYP2C19_INHIBITOR_CLASS",
+    "CYP2D6_INHIBITOR_CLASS",
+    "CYP3A4_INHIBITOR_CLASS",
+    "CYP2C9_SUBSTRATE",
+    "CYP2D6_SUBSTRATE",
+    "CYP3A4_SUBSTRATE",
+    "PGP_INHIBITION",
+    "BCRP_INHIBITOR",
+    "HERG_CLASS",
+    "AMES_MUTAGENICITY",
+    "DILI_LIABILITY",
+    "CYP2C19_INHIBITION",
+    "PGP_INHIBITION_QUANT",
+    "BCRP_INHIBITOR_QUANT",
+    "OATP1B1_INHIBITOR",
+    "OATP1B3_INHIBITOR",
+    "OCT1_INHIBITOR",
+    "OCT2_INHIBITOR",
+    "HUMAN_PK_CLF_ORAL",
+    "HUMAN_PK_VDF_ORAL"
+  ],
+  "research_only_candidates": [
+    {
+      "endpoint": "HUMAN_FU_PLASMA",
+      "artifact": "validation/ppb_canonical_benchmark_v72.json",
+      "status": "RESEARCH_BASELINE_RETAINED",
+      "rejected_in_v74": [
+        "descriptor_morgan_hybrid",
+        "soft_binding_regime_experts"
+      ]
+    }
+  ],
+  "model_unavailable_endpoints": [
+    "CYP2C19_INHIBITION",
+    "PGP_INHIBITION_QUANT",
+    "BCRP_INHIBITOR_QUANT",
+    "OATP1B1_INHIBITOR",
+    "OATP1B3_INHIBITOR",
+    "OCT1_INHIBITOR",
+    "OCT2_INHIBITOR"
+  ],
+  "rollback": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.2",
+    "policy_hash": "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce",
+    "artifacts_overwritten": false,
+    "historical_prediction_runs_mutated": false,
+    "procedure": "Select the preserved v3.3.2 registry/route manifest; do not rewrite PredictionRuns."
+  },
+  "completion_campaign": {
+    "artifact": "validation/v333_completion_campaign.json",
+    "status": "IN_PROGRESS",
+    "exact_next_action": "Run focused v3.3.3 tests, then persistent full pytest and DB/runtime/E2E acceptance gates."
+  },
+  "validation": {
+    "platform_baseline": "953 passed, 0 failed before v3.3.3 changes",
+    "v3_3_3_final_full_pytest": "964 passed, 0 failed (16m04s)",
+    "browser_e2e": "PASS: desktop shell, bounded Project 300 page/search smoke; full legacy fixture E2E not rerun because it mutates runtime DB",
+    "release_gate": "PASS_WITH_RESEARCH_ONLY_ENDPOINT_CANDIDATES"
+  }
+}

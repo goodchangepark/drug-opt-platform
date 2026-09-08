@@ -4,7 +4,7 @@ Authoritative Prediction Engine Registry & Historical Evolution Metadata.
 
 Centralizes:
 1. PREDICTION_MODEL_HISTORY: Immutable historical and current version metadata
-   for all engine releases (v1.0.0, v3.0.0, v3.1.0, v3.2.0, v3.3.0, v3.3.1).
+   for all engine releases through v3.3.3.
 2. CURRENT_PRODUCTION_ROUTING: Complete 50-endpoint routing registry covering
    all platform endpoints with strictly classified routes:
    - V3_3_1_WEIGHTED_ENSEMBLE
@@ -13,7 +13,7 @@ Centralizes:
    - LEGACY_BASE_FALLBACK
    - CLASSIFICATION_ONLY
    - MODEL_UNAVAILABLE
-3. PREDICTION_ENGINE_EVOLUTION: Ordered release lineage from v1.0 to v3.3.1.
+3. PREDICTION_ENGINE_EVOLUTION: Ordered release lineage from v1.0 to v3.3.3.
 """
 from __future__ import annotations
 
@@ -22,19 +22,23 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-CURRENT_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.2"
-CURRENT_ENGINE_VERSION = "3.3.2"
-CURRENT_ENGINE_NAME = "Prediction Engine v3.3.2 · Production Default"
+CURRENT_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.3"
+CURRENT_ENGINE_VERSION = "3.3.3"
+CURRENT_ENGINE_NAME = "Prediction Engine v3.3.3 · Production Default"
 CURRENT_ENGINE_STATUS = "PRODUCTION_DEFAULT"
-CURRENT_ENGINE_DECISION = "REPLACE_V3_3_1_CONFIRMED"
-CURRENT_POLICY_HASH = "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
-CURRENT_RELEASE_DATE = "2026-09-05"
+CURRENT_ENGINE_DECISION = "V3_3_3_RELEASE_ACTIVATED"
+CURRENT_POLICY_HASH = "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
+CURRENT_RELEASE_DATE = "2026-09-08"
+
+PREVIOUS_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.2"
+PREVIOUS_ENGINE_VERSION = "3.3.2"
+PREVIOUS_POLICY_HASH = "877ea28f4731a67ad635252023e6601e000eecdf34297abecae6e354d91b02ce"
 
 CANDIDATE_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.3"
 CANDIDATE_ENGINE_VERSION = "3.3.3"
 CANDIDATE_ENGINE_NAME = "Prediction Engine v3.3.3 · Production Candidate (DrugBank 250 & PK Critical Upgrade)"
-CANDIDATE_ENGINE_STATUS = "PRODUCTION_CANDIDATE"
-CANDIDATE_ENGINE_DECISION = "CANDIDATE_READY_FOR_EVALUATION"
+CANDIDATE_ENGINE_STATUS = "PROMOTED_CURRENT"
+CANDIDATE_ENGINE_DECISION = "V3_3_3_RELEASE_ACTIVATED"
 CANDIDATE_POLICY_HASH = "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
 CANDIDATE_RELEASE_DATE = "2026-09-06"
 
@@ -54,8 +58,8 @@ PREDICTION_ENGINE_EVOLUTION: List[Dict[str, Any]] = [
     {"version": "v3.2.0", "label": "v3.2 Clearance Expansion", "status": "SUPERSEDED", "engine_id": "global-prediction-engine-v3.2.0"},
     {"version": "v3.3.0", "label": "v3.3 Multi-Model Replacement", "status": "SUPERSEDED", "engine_id": "drugopt-prediction-engine-v3@3.3.0"},
     {"version": "v3.3.1", "label": "v3.3.1 Stacking Ensemble", "status": "PRESERVED_PRODUCTION_BASELINE", "engine_id": "drugopt-prediction-engine-v3@3.3.1"},
-    {"version": "v3.3.2", "label": "v3.3.2 Production Default (DrugBank 200 & Preclinical ML)", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
-    {"version": "v3.3.3", "label": "v3.3.3 Production Candidate (DrugBank 250 & PK Critical Upgrade)", "status": "PRODUCTION_CANDIDATE", "engine_id": CANDIDATE_ENGINE_ID},
+    {"version": "v3.3.2", "label": "v3.3.2 Preserved Production Baseline", "status": "SUPERSEDED_PRESERVED", "engine_id": PREVIOUS_ENGINE_ID},
+    {"version": "v3.3.3", "label": "v3.3.3 Production Default", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
 ]
 
 # 2. Complete Historical Version Metadata Registry
@@ -215,11 +219,11 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
     },
     {
         "version": "v3.3.2",
-        "engine_version": CURRENT_ENGINE_VERSION,
-        "engine_id": CURRENT_ENGINE_ID,
-        "release_date": CURRENT_RELEASE_DATE,
-        "production_status": CURRENT_ENGINE_STATUS,
-        "decision": CURRENT_ENGINE_DECISION,
+        "engine_version": PREVIOUS_ENGINE_VERSION,
+        "engine_id": PREVIOUS_ENGINE_ID,
+        "release_date": "2026-09-05",
+        "production_status": "SUPERSEDED_PRESERVED",
+        "decision": "SUPERSEDED_BY_V3_3_3",
         "reference_compound_N": 200,
         "evidence_N": 1490,
         "promoted_endpoints": [
@@ -247,16 +251,16 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
         ),
         "locked_test_summary": "Locked Final Test Cohort 7 (N=13: Deucravacitinib to Umbralisib) zero-leakage holdout evaluated with 100% data separation.",
         "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with zero regression and verified accuracy preservation.",
-        "policy_hash": CURRENT_POLICY_HASH,
+        "policy_hash": PREVIOUS_POLICY_HASH,
         "known_limitations": "Transporter quantitative kinetics (P-gp, BCRP, OATP) remain fail-closed MODEL_UNAVAILABLE. Vdss remains mechanistic consensus Level 3.",
     },
     {
         "version": "v3.3.3",
-        "engine_version": CANDIDATE_ENGINE_VERSION,
-        "engine_id": CANDIDATE_ENGINE_ID,
-        "release_date": CANDIDATE_RELEASE_DATE,
-        "production_status": CANDIDATE_ENGINE_STATUS,
-        "decision": CANDIDATE_ENGINE_DECISION,
+        "engine_version": CURRENT_ENGINE_VERSION,
+        "engine_id": CURRENT_ENGINE_ID,
+        "release_date": CURRENT_RELEASE_DATE,
+        "production_status": CURRENT_ENGINE_STATUS,
+        "decision": CURRENT_ENGINE_DECISION,
         "reference_compound_N": 250,
         "evidence_N": 3645,
         "promoted_endpoints": [
@@ -283,7 +287,7 @@ PREDICTION_MODEL_HISTORY: List[Dict[str, Any]] = [
         ),
         "locked_test_summary": "Locked Final Test Cohort 7 (N=13) and Cohort 8 (N=10) zero-leakage holdout evaluated with 100% data separation on DrugBank 250 catalog.",
         "real_project_validation": "15/15 compounds evaluated across GLP-1 (N=4), EGFR (N=7), AMYR (N=4) with 100% execution success and robust Monte Carlo uncertainty bands.",
-        "policy_hash": CANDIDATE_POLICY_HASH,
+        "policy_hash": CURRENT_POLICY_HASH,
         "known_limitations": "Transporter quantitative continuous kinetics remain fail-closed MODEL_UNAVAILABLE. pKa and logD7.4 remain Level 1 (★☆☆☆☆) rule/derived estimates. Vdss remains Level 3 (★★★☆☆) mechanistic consensus.",
     },
 ]
@@ -1009,11 +1013,14 @@ def get_current_production_engine_info() -> Dict[str, Any]:
     return {
         "engine_id": CURRENT_ENGINE_ID,
         "engine_version": CURRENT_ENGINE_VERSION,
+        "release_version": CURRENT_ENGINE_VERSION,
         "name": CURRENT_ENGINE_NAME,
         "status": CURRENT_ENGINE_STATUS,
         "decision": CURRENT_ENGINE_DECISION,
         "policy_hash": CURRENT_POLICY_HASH,
         "release_date": CURRENT_RELEASE_DATE,
+        "rollback_engine_id": PREVIOUS_ENGINE_ID,
+        "rollback_policy_hash": PREVIOUS_POLICY_HASH,
     }
 
 
@@ -1031,7 +1038,7 @@ def get_candidate_prediction_engine_info() -> Dict[str, Any]:
 
 
 def get_prediction_engine_evolution() -> List[Dict[str, Any]]:
-    """Returns ordered release lineage from v1.0 to v3.3.1."""
+    """Returns ordered release lineage from v1.0 to v3.3.3."""
     return list(PREDICTION_ENGINE_EVOLUTION)
 
 

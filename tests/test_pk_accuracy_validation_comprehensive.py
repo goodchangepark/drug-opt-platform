@@ -274,8 +274,8 @@ class TestUncertaintyCalibration:
 # ============================================================
 class TestPKEngineVersionSeparation:
     def test_prediction_engine_version_unchanged(self):
-        assert CURRENT_ENGINE_VERSION == "3.3.2"
-        assert CURRENT_ENGINE_ID == "drugopt-prediction-engine-v3@3.3.2"
+        assert CURRENT_ENGINE_VERSION == "3.3.3"
+        assert CURRENT_ENGINE_ID == "drugopt-prediction-engine-v3@3.3.3"
 
     def test_pk_engine_version_exists(self):
         rpt = Path("validation/pk_baseline_freeze_v3_3_4.json")

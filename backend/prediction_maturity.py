@@ -22,7 +22,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-ENGINE_VERSION = "3.3.2"
+from .prediction_engine_registry import CURRENT_ENGINE_VERSION
+
+ENGINE_VERSION = CURRENT_ENGINE_VERSION
 LAST_PROMOTED_AT = "2026-09-05T18:00:00+00:00"
 
 LEVEL_LABELS = {
@@ -1028,16 +1030,29 @@ ENDPOINT_ALIASES = {
     "caco2": "CACO2_PAPP_AB",
     "ppb": "HUMAN_PPB",
     "plasma_protein_binding": "HUMAN_PPB",
+    "plasma protein binding": "HUMAN_PPB",
     "hlm": "HLM_CLINT",
     "hlm_clint": "HLM_CLINT",
+    "hlm intrinsic clearance": "HLM_CLINT",
     "rlm": "RLM_CLINT",
+    "rlm intrinsic clearance": "RLM_CLINT",
     "mlm": "MLM_CLINT",
+    "mlm intrinsic clearance": "MLM_CLINT",
     "herg": "HERG_LIABILITY",
+    "herg liability": "HERG_LIABILITY",
     "cyp3a4": "CYP3A4_INHIBITION",
+    "cyp3a4 inhibitor": "CYP3A4_INHIBITOR_CLASS",
     "cyp2d6": "CYP2D6_INHIBITION",
+    "cyp2d6 inhibitor": "CYP2D6_INHIBITOR_CLASS",
     "cyp1a2": "CYP1A2_INHIBITION",
+    "cyp1a2 inhibitor": "CYP1A2_INHIBITOR_CLASS",
     "cyp2c9": "CYP2C9_INHIBITION",
+    "cyp2c9 inhibitor": "CYP2C9_INHIBITOR_CLASS",
     "cyp2c19": "CYP2C19_INHIBITION",
+    "cyp2c19 inhibitor": "CYP2C19_INHIBITOR_CLASS",
+    "p-gp inhibitor": "PGP_INHIBITION",
+    "ames mutagenicity": "AMES_MUTAGENICITY",
+    "dili clinical liability": "DILI_LIABILITY",
     "cl_oral": "HUMAN_PK_CLF_ORAL",
     "oral_cl": "HUMAN_PK_CLF_ORAL",
     "vd_oral": "HUMAN_PK_VDF_ORAL",

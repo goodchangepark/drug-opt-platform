@@ -140,6 +140,16 @@ def test_pk_readiness_foundation_consistency():
         assert meta["maturity_level"] == expected_lvl, f"{ep_id} expected level {expected_lvl}, got {meta['maturity_level']}"
 
 
+def test_runtime_model_names_resolve_to_registry_maturity_and_current_engine():
+    assert get_endpoint_maturity("Plasma protein binding")["level"] == 4
+    assert get_endpoint_maturity("HLM intrinsic clearance")["level"] == 4
+    assert get_endpoint_maturity("DILI clinical liability")["level"] == 2
+    assert get_endpoint_maturity("CYP2C19 inhibitor")["level"] == 2
+    assert get_endpoint_maturity("CYP2C19_INHIBITION")["is_unavailable"] is True
+    for endpoint in ("HUMAN_PPB", "HLM_CLINT", "DILI_LIABILITY", "PKA"):
+        assert get_endpoint_maturity(endpoint)["engine_version"] == "3.3.3"
+
+
 def test_v331_baseline_preserved_immutably():
     """Verify v3.3.1 baseline is preserved in history with exact policy hash."""
     history = get_prediction_model_history()

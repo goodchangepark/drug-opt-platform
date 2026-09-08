@@ -1,0 +1,158 @@
+{
+  "artifact": "MICROSOMAL_FAMILY_AUDIT_V77",
+  "created_at": "2026-09-08T10:12:03.437758+00:00",
+  "engine_release": "drugopt-prediction-engine-v3@3.3.3",
+  "canonical_contract": {
+    "dataset": "Biogen prospective public ADME set; canonical training overlap excluded",
+    "dataset_sha256": "2cfabc2667740c224487876c33b23124159ef43294e0f9e4d926cb6276c95a3b",
+    "training_sha256": "fc5309453c7584da4d89adffb87d2c0e2186dbb3aef35c83ced5fa4b16edb258",
+    "unit": "log10(mL/min/kg)",
+    "eligibility": "endpoint-specific non-null label and valid structure",
+    "selection_role": "CONSUMED_INDEPENDENT_DIAGNOSTIC_NOT_MODEL_SELECTION",
+    "species_isolation": true
+  },
+  "results": {
+    "HLM": {
+      "semantics": "HLM scaled intrinsic clearance; species heads are not interchangeable",
+      "training_n": 5086,
+      "independent_validation_n": 3078,
+      "models": {
+        "production_chemeleon": {
+          "n": 3078,
+          "mae_log10": 0.6258748857682933,
+          "rmse_log10": 0.7616366431184638,
+          "r2": -0.49111984556659616,
+          "spearman": 0.370019922342007,
+          "aafe": 10.397938857980355,
+          "median_fold_error": 3.6848733791112878,
+          "within_2_fold_pct": 27.160493827160494,
+          "within_3_fold_pct": 42.39766081871345,
+          "bias_log10": 0.38980126087463174
+        },
+        "extra_trees_descriptors": {
+          "n": 3078,
+          "mae_log10": 0.4813640114674613,
+          "rmse_log10": 0.595196108573023,
+          "r2": 0.08938026926830622,
+          "spearman": 0.35265607548153216,
+          "aafe": 4.644095067376746,
+          "median_fold_error": 2.582395492157073,
+          "within_2_fold_pct": 37.29694606887589,
+          "within_3_fold_pct": 56.4327485380117,
+          "bias_log10": -0.06384767099306689
+        },
+        "extra_trees_descriptor_morgan": {
+          "n": 3078,
+          "mae_log10": 0.5115058054043303,
+          "rmse_log10": 0.596155426127784,
+          "r2": 0.08644248967145096,
+          "spearman": 0.3369881750241414,
+          "aafe": 4.405320594776169,
+          "median_fold_error": 3.33321890015967,
+          "within_2_fold_pct": 27.64782326185835,
+          "within_3_fold_pct": 43.14489928525016,
+          "bias_log10": 0.01116362092660302
+        },
+        "hist_gradient_descriptors": {
+          "n": 3078,
+          "mae_log10": 0.49567349721488346,
+          "rmse_log10": 0.6061257615126133,
+          "r2": 0.05562958012663455,
+          "spearman": 0.3121596309230759,
+          "aafe": 4.802371919169469,
+          "median_fold_error": 2.7525844634901593,
+          "within_2_fold_pct": 33.75568551007147,
+          "within_3_fold_pct": 54.02858999350227,
+          "bias_log10": -0.019247855039811104
+        },
+        "shared_three_head_descriptor_morgan": {
+          "n": 3078,
+          "mae_log10": 0.537089671285708,
+          "rmse_log10": 0.6310254729338189,
+          "r2": -0.023553792674713803,
+          "spearman": 0.07038284686720847,
+          "aafe": 4.961675537284314,
+          "median_fold_error": 3.3834364506546577,
+          "within_2_fold_pct": 25.958414554905783,
+          "within_3_fold_pct": 43.404808317089014,
+          "bias_log10": -0.02962366076094973
+        }
+      }
+    },
+    "RLM": {
+      "semantics": "RLM scaled intrinsic clearance; species heads are not interchangeable",
+      "training_n": 670,
+      "independent_validation_n": 3045,
+      "models": {
+        "production_chemeleon": {
+          "n": 3045,
+          "mae_log10": 0.6263288457928062,
+          "rmse_log10": 0.7715967119220914,
+          "r2": -0.05770139842905753,
+          "spearman": 0.4248112144093652,
+          "aafe": 8.647681721693473,
+          "median_fold_error": 3.626702634645307,
+          "within_2_fold_pct": 29.16256157635468,
+          "within_3_fold_pct": 43.251231527093594,
+          "bias_log10": -0.34558010564988323
+        },
+        "extra_trees_descriptors": {
+          "n": 3045,
+          "mae_log10": 0.8003861163096072,
+          "rmse_log10": 0.9644451006434177,
+          "r2": -0.652484385392152,
+          "spearman": 0.39237475206464895,
+          "aafe": 14.962603318487378,
+          "median_fold_error": 5.28114674767684,
+          "within_2_fold_pct": 22.06896551724138,
+          "within_3_fold_pct": 33.727422003284076,
+          "bias_log10": -0.6662068515897578
+        },
+        "extra_trees_descriptor_morgan": {
+          "n": 3045,
+          "mae_log10": 0.7994245604204943,
+          "rmse_log10": 0.9512797600878592,
+          "r2": -0.6076772092025042,
+          "spearman": 0.20751078327134864,
+          "aafe": 13.545509597616999,
+          "median_fold_error": 5.034765336296087,
+          "within_2_fold_pct": 19.080459770114942,
+          "within_3_fold_pct": 30.9688013136289,
+          "bias_log10": -0.6032379811661027
+        },
+        "hist_gradient_descriptors": {
+          "n": 3045,
+          "mae_log10": 0.7493286907631574,
+          "rmse_log10": 0.904659187302514,
+          "r2": -0.4539595959397458,
+          "spearman": 0.293240728169256,
+          "aafe": 12.288606853029533,
+          "median_fold_error": 4.5515796239536135,
+          "within_2_fold_pct": 22.627257799671593,
+          "within_3_fold_pct": 35.467980295566505,
+          "bias_log10": -0.5474924425823771
+        },
+        "shared_three_head_descriptor_morgan": {
+          "n": 3045,
+          "mae_log10": 0.7987147487306673,
+          "rmse_log10": 0.9510633940749187,
+          "r2": -0.6069459686904155,
+          "spearman": 0.14982641353425655,
+          "aafe": 13.628673584511002,
+          "median_fold_error": 5.068478274774817,
+          "within_2_fold_pct": 19.60591133004926,
+          "within_3_fold_pct": 30.90311986863711,
+          "bias_log10": -0.5939028117613951
+        }
+      }
+    }
+  },
+  "MLM": {
+    "training_n": 5086,
+    "independent_validation_n": 0,
+    "status": "PRODUCTION_STABLE_NO_COMPATIBLE_INDEPENDENT_VALIDATION"
+  },
+  "decision": "KEEP_EXISTING_PRODUCTION_ROUTING",
+  "promotion": false,
+  "reason": "Candidates were inspected on an already-consumed independent cohort; a separate locked cohort is required for selection and promotion."
+}

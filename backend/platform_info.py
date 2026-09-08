@@ -601,8 +601,15 @@ PREDICTION_MODEL_HISTORY: list[dict[str, Any]] = [
 
 
 def prediction_model_history() -> list[dict[str, Any]]:
-    """Return the dedicated Prediction Model & Engine evolution history."""
-    return list(PREDICTION_MODEL_HISTORY)
+    """Return the authoritative engine registry history.
+
+    The local constant above is retained as a legacy documentation snapshot;
+    runtime callers always resolve current/historical metadata from the one
+    prediction-engine registry.
+    """
+    from .prediction_engine_registry import get_prediction_model_history
+
+    return get_prediction_model_history()
 
 
 def latest_release_date() -> str:

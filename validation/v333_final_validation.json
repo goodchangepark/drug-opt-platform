@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-09-08T14:52:27.544038+00:00",
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "pytest": {
+    "passed": 964,
+    "failed": 0,
+    "warnings": 56,
+    "runtime_seconds": 964.29
+  },
+  "db": {
+    "integrity_check": "ok",
+    "foreign_key_check": [],
+    "project300_compounds": 1000,
+    "project300_unique_inchikeys": 1000,
+    "prediction_runs_actual": 122,
+    "protected_projects_present": [
+      1,
+      3,
+      300
+    ],
+    "project5_preexisting_missing": true
+  }
+}

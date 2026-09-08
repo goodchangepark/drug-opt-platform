@@ -33,6 +33,7 @@ from .representative_experimental import REPRESENTATIVE_EXPERIMENTAL_VERSION, se
 from .scientific_interpretation import interpret_row, SCIENTIFIC_INTERPRETATION_VERSION, AGREEMENT_POLICY_VERSION
 from .endpoint_strategy_registry import get_endpoint_strategy
 from .prediction_maturity import get_endpoint_maturity
+from .prediction_engine_registry import CURRENT_ENGINE_ID, CURRENT_ENGINE_VERSION, CURRENT_POLICY_HASH
 from .clearance_architecture import (
     CLEARANCE_ARCHITECTURE_VERSION, CL_HEPATIC, CL_ORAL_APPARENT,
     TOTAL_CL_INCOMPLETE, renal_readiness,
@@ -335,7 +336,7 @@ def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int 
                 normalized_value, normalized_unit, snapshot_route = mapped.get("normalized_value", value), mapped.get("normalized_unit", unit), route
             absorption = (pset.provenance_json or {}).get("absorption_info") or {}
             input_status = "COMPLETE" if parameter != "F" or all(absorption.get(key) is not None for key in ("fa_value", "fg_value", "fh_value")) else "INSUFFICIENT"
-            snapshot = {"source": "IVIVE PK foundation", "source_type": source_type, "prediction_type": source_type, "species": species, "route": snapshot_route, "reference_route": "IV" if parameter == "F" else "", "dose": pset.dose_value, "dose_unit": pset.dose_unit, "v_type": pset.v_type, "provenance": pset.provenance_json or {}, "pk_parameter_set_id": pset.id, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "input_status": input_status, "fallback_status": "NONE" if input_status == "COMPLETE" else "INSUFFICIENT_INPUT", "assumptions": pset.assumptions_json or [], "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
+            snapshot = {"source": "IVIVE PK foundation", "source_type": source_type, "prediction_type": source_type, "species": species, "route": snapshot_route, "reference_route": "IV" if parameter == "F" else "", "dose": pset.dose_value, "dose_unit": pset.dose_unit, "v_type": pset.v_type, "provenance": pset.provenance_json or {}, "pk_parameter_set_id": pset.id, "engine_id": CURRENT_ENGINE_ID, "engine_version": CURRENT_ENGINE_VERSION, "engine_policy_hash": CURRENT_POLICY_HASH, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "input_status": input_status, "fallback_status": "NONE" if input_status == "COMPLETE" else "INSUFFICIENT_INPUT", "assumptions": pset.assumptions_json or [], "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
             db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=normalized_value, base_unit=normalized_unit, prediction_type=source_type, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=pset.created_at))
             existing.add((run.id, eid)); created += 1
     for sim in sims:
@@ -344,7 +345,7 @@ def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int 
             if value is None: continue
             eid = f"{species}_PK_{parameter}_{route}"
             if (run.id, eid) in existing: continue
-            snapshot = {"source": "Stage-5 PK simulation", "source_type": PREDICTION_MECHANISTIC, "prediction_type": PREDICTION_MECHANISTIC, "species": species, "route": route, "dose": sim.dose, "dose_unit": sim.dose_unit, "simulation_run_id": sim.id, "provenance": sim.provenance or {}, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
+            snapshot = {"source": "Stage-5 PK simulation", "source_type": PREDICTION_MECHANISTIC, "prediction_type": PREDICTION_MECHANISTIC, "species": species, "route": route, "dose": sim.dose, "dose_unit": sim.dose_unit, "simulation_run_id": sim.id, "provenance": sim.provenance or {}, "engine_id": CURRENT_ENGINE_ID, "engine_version": CURRENT_ENGINE_VERSION, "engine_policy_hash": CURRENT_POLICY_HASH, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
             db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=value, base_unit=unit, prediction_type=PREDICTION_MECHANISTIC, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=sim.created_at))
             existing.add((run.id, eid)); created += 1
     # SyGMa/SMARTCyp output is a ranked rule/derived hypothesis set, not a
@@ -357,7 +358,7 @@ def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int 
             ("METABOLITE_HYPOTHESES", len(met_run.metabolites), "hypotheses", "Metabolite hypotheses"),
         ):
             if (run.id, eid) in existing or value == 0: continue
-            snapshot = {"source": "SyGMa/SMARTCyp metabolism calculation", "source_type": PREDICTION_RULE, "prediction_type": PREDICTION_RULE, "metabolic_prediction_run_id": met_run.id, "provenance": {"engine_name": met_run.engine_name, "engine_version": met_run.engine_version}, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
+            snapshot = {"source": "SyGMa/SMARTCyp metabolism calculation", "source_type": PREDICTION_RULE, "prediction_type": PREDICTION_RULE, "metabolic_prediction_run_id": met_run.id, "provenance": {"engine_name": met_run.engine_name, "engine_version": met_run.engine_version}, "engine_id": CURRENT_ENGINE_ID, "engine_version": CURRENT_ENGINE_VERSION, "engine_policy_hash": CURRENT_POLICY_HASH, "canonical_endpoint_version": CANONICAL_ENDPOINT_VERSION, "comparison_unit_version": COMPARISON_UNIT_VERSION, "maturity": {"level": 1, "label": "Base Prediction", "stars": "★☆☆☆☆"}}
             db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=float(value), base_unit=unit, prediction_type=PREDICTION_RULE, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=met_run.completed_at or met_run.started_at))
             existing.add((run.id, eid)); created += 1
     db.flush()
