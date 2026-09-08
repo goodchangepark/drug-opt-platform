@@ -1,0 +1,44 @@
+{
+  "artifact": "PPB_REGIME_EXPERTS_V74",
+  "canonical_benchmark": "PPB_CANONICAL_BENCHMARK_V72",
+  "decision": "REJECT_NO_MEANINGFUL_IMPROVEMENT",
+  "global_baseline": {
+    "aafe": 4.8036851170066885,
+    "mae_log10": 0.4264245172387324,
+    "n": 476,
+    "within_2_fold_pct": 50.42016806722689,
+    "within_3_fold_pct": 67.85714285714286
+  },
+  "n": 476,
+  "production_engine": "drugopt-prediction-engine-v3@3.3.2",
+  "soft_regime_experts": {
+    "aafe": 4.885323963911456,
+    "mae_log10": 0.48151778506076937,
+    "n": 476,
+    "within_2_fold_pct": 38.02521008403361,
+    "within_3_fold_pct": 57.56302521008403
+  },
+  "subgroups": {
+    "fu_0_01_to_0_1": {
+      "aafe": 2.9589791988342156,
+      "mae_log10": 0.3665451952538098,
+      "n": 109,
+      "within_2_fold_pct": 51.37614678899083,
+      "within_3_fold_pct": 67.88990825688074
+    },
+    "fu_ge_0_1": {
+      "aafe": 4.360761206877154,
+      "mae_log10": 0.4679929257051546,
+      "n": 337,
+      "within_2_fold_pct": 37.0919881305638,
+      "within_3_fold_pct": 58.45697329376854
+    },
+    "fu_lt_0_01": {
+      "aafe": 17.776964914377416,
+      "mae_log10": 1.0511807814541287,
+      "n": 30,
+      "within_2_fold_pct": 0.0,
+      "within_3_fold_pct": 10.0
+    }
+  }
+}
