@@ -3,7 +3,7 @@
   "engine_id": "drugopt-prediction-engine-v3@3.3.3",
   "rollback_engine_id": "drugopt-prediction-engine-v3@3.3.2",
   "created_at": "2026-09-08T00:00:00+00:00",
-  "updated_at": "2026-09-08T14:57:30.423583+00:00",
+  "updated_at": "2026-09-08T14:58:40.060691+00:00",
   "phase": "NUMERICAL_OPTIMIZATION",
   "current_task": "ppb_strategy_ladder_v80",
   "completed_tasks": [
@@ -146,7 +146,7 @@
   ],
   "endpoint_campaign": {
     "last_completed_endpoint": "HUMAN_HEPATIC_CL",
-    "last_completed_experiment": "V78-PK-CORE-HYBRID-LADDERS",
+    "last_completed_experiment": "V80-PPB-SIMILARITY-KNN",
     "current_best_candidate": "mechanistic_fu_clint_residual (assisted research only)",
     "canonical_benchmark": "validation/ppb_canonical_benchmark_v72.json",
     "rejected_strategies": [
@@ -159,13 +159,13 @@
       "Total IV CL local/cluster/HistGradient V78"
     ],
     "dynamic_queue": [
-      "PPB_KNN_LOGFU_V80",
       "PPB_DESCRIPTOR_LOCAL_V80",
+      "PPB_GLOBAL_LOCAL_GATE_V80",
       "HEPATIC_CL_DEPENDENCY_REEVALUATION",
       "VDSS_HYBRID_REVIEW",
       "DOWNSTREAM_PK_CONTEXT_AUDIT"
     ],
-    "next_strategy": "Leakage-safe similarity-weighted kNN/local regression candidates (V80); do not rerun rejected V74-V76 families."
+    "next_strategy": "Descriptor-space local regression and global/local soft gate; avoid equivalent kNN failure."
   },
   "species_status": {
     "HUMAN": "AUDIT_PENDING",
@@ -176,7 +176,7 @@
   },
   "evidence_enrichment_state": "LOCAL_PERSISTENCE_AUDIT_PENDING",
   "snapshot_generation_state": "COMPLETE_INDEXED_PERSISTED_VALUES_NO_RECOMPUTATION",
-  "exact_next_action": "Evaluate train-fold similarity-weighted kNN log-fu and descriptor-space local regression on the frozen V72 benchmark; inverse-transform before scoring.",
+  "exact_next_action": "Evaluate descriptor-space local regression/global-local soft gate (V80) on frozen V72 benchmark; inverse-transform before scoring.",
   "exact_resume_command": ".venv/bin/python scripts/run_drugopt_v333_completion_campaign.py --run --max-tasks 1",
   "validation": {
     "full_pytest": {

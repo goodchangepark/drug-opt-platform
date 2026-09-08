@@ -7,7 +7,7 @@
     "resume_command": ".venv/bin/python scripts/run_drugopt_v333_completion_campaign.py --run --max-tasks 1"
   },
   "created_at": "2026-09-08T13:49:49.861239+00:00",
-  "exact_next_action": "Generate bounded v3.3.3 current prediction snapshots with explicit species/context and no historical-run mutation.",
+  "exact_next_action": "Evaluate descriptor-space local regression and global/local soft gate on frozen V72 benchmark; inverse-transform before scoring.",
   "experiments": [
     {
       "artifact": "validation/ppb_local_ladder_v75.json",
@@ -57,6 +57,15 @@
       "endpoint": "PKA_ACID+PKA_BASE+LOGD_7_4",
       "experiment_id": "V333-IONIZATION-UNCERTAINTY",
       "reason": "Microstate/site probabilities, explicit uncalibrated uncertainty, and experimental logD retention without prediction substitution."
+    },
+    {
+      "artifact": "validation/ppb_knn_v80.json",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "experiment_id": "V80-PPB-SIMILARITY-KNN",
+      "decision": "REJECTED_OVERALL_REGRESSION",
+      "aafe": 6.4939378654073625,
+      "within_2_fold_pct": 37.18487394957983,
+      "reason": "Similarity-weighted train-fold kNN was worse than canonical V72 baseline 4.760840445; high-binding errors remain dominant."
     }
   ],
   "next_queue": [
@@ -75,6 +84,8 @@
     "PPB weighted/high-binding robust V76 (no robust gain)",
     "HLM/RLM/MLM descriptor+FP/shared heads V77 (inferior/diagnostic-only)",
     "VDss mechanistic/local/cluster residual V78",
-    "Total IV CL local/cluster/HistGradient V78"
-  ]
+    "Total IV CL local/cluster/HistGradient V78",
+    "PPB similarity-weighted kNN V80"
+  ],
+  "updated_at": "2026-09-08T14:58:40.058786+00:00"
 }
