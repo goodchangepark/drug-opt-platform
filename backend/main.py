@@ -762,6 +762,8 @@ def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Project name is required")
     if values["molecule_type"] not in {"Small Molecule", "Peptide"}:
         raise HTTPException(status_code=400, detail="Molecule Type must be Small Molecule or Peptide")
+    if DATABASE_SETTINGS.environment not in {"test", "e2e"} and values.get("is_test_fixture"):
+        raise HTTPException(status_code=400, detail="Synthetic fixtures may only be created in isolated test/e2e environments")
     existing = db.scalar(select(Project).where(Project.name == values["name"]))
     if existing:
         raise HTTPException(status_code=409, detail=f"Project name '{values['name']}' already exists")
@@ -873,6 +875,8 @@ def update_project(project_id: int, payload: ProjectUpdate, db: Session = Depend
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     values = payload.model_dump(exclude_unset=True)
+    if DATABASE_SETTINGS.environment not in {"test", "e2e"} and values.get("is_test_fixture") is True:
+        raise HTTPException(status_code=400, detail="Synthetic fixture flags are not client-controlled in production")
     if values.get("molecule_type") not in {None, "Small Molecule", "Peptide"}:
         raise HTTPException(status_code=400, detail="Molecule Type must be Small Molecule or Peptide")
     for key, value in values.items():
@@ -1206,10 +1210,17 @@ def _store_calculation(db: Session, compound: Compound, version: CompoundVersion
         db.add(StructuralAlert(version_id=version.id, alert_set=alert["alert_set"], alert_name=alert["alert_name"],
                                reason=alert["reason"], matched_smiles=alert["matched_smiles"],
                                matched_atoms_json=alert["matched_atoms"]))
-    db.add(PredictionRun(version_id=version.id, stage="stage_1", model_name=f"{ENGINE} property pipeline",
-                         model_version=ENGINE_VERSION, inputs_hash=analysis["inputs_hash"],
-                         outputs_json=json.loads(json.dumps({"properties": analysis["properties"], "rules": analysis["rules"]})),
-                         provenance_json=analysis["provenance"], confidence="High"))
+    existing_stage1 = db.scalar(select(PredictionRun).where(
+        PredictionRun.version_id == version.id,
+        PredictionRun.stage == "stage_1",
+        PredictionRun.inputs_hash == analysis["inputs_hash"],
+        PredictionRun.model_version == ENGINE_VERSION,
+    ))
+    if existing_stage1 is None:
+        db.add(PredictionRun(version_id=version.id, stage="stage_1", model_name=f"{ENGINE} property pipeline",
+                             model_version=ENGINE_VERSION, inputs_hash=analysis["inputs_hash"],
+                             outputs_json=json.loads(json.dumps({"properties": analysis["properties"], "rules": analysis["rules"]})),
+                             provenance_json=analysis["provenance"], confidence="High"))
     compound.status = "CALCULATED"
 
 
@@ -1409,10 +1420,10 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
                 pass
 
         # 2. Build PK Parameter Foundations across species
-        profile = get_pk_foundation_profile(db, version.id, "Rat")
+        profile = get_pk_foundation_profile(db, version.id, "Rat", force_refresh=True)
         for sp in ["Mouse", "Dog", "Monkey", "Human"]:
             try:
-                get_pk_foundation_profile(db, version.id, sp)
+                get_pk_foundation_profile(db, version.id, sp, force_refresh=True)
             except Exception:
                 pass
 

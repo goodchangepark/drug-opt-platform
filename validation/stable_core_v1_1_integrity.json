@@ -1,0 +1,228 @@
+{
+  "contract": "StableCoreBusinessIntegrity/v1",
+  "database": "/home/xavier/chem/drug-opt-platform/drug_opt.db",
+  "sqlite_user_version": 5,
+  "integrity_check": "ok",
+  "foreign_key_check": [],
+  "projects": {
+    "1": "GLP-1 (small molecule)",
+    "3": "EGFR",
+    "5": "AMYR (small molecules)",
+    "300": "DrugBank",
+    "301": "HUAS Chat Session",
+    "302": "HUAS Chat Session e5273d3a",
+    "303": "HUAS Chat Session c1416d1c",
+    "304": "HUAS Chat Session f82ee11b",
+    "305": "HUAS Chat Session 9ef34dac",
+    "306": "HUAS Chat Session e71651fa",
+    "307": "HUAS Chat Session 145dac0b",
+    "308": "HUAS Chat Session 6faf20be",
+    "309": "HUAS Chat Session 2211a2a7",
+    "310": "HUAS Chat Session 9e97e50a",
+    "311": "HUAS Chat Session 717ca01d",
+    "312": "HUAS Chat Session 6bd0f273"
+  },
+  "project5_compound_ids": [
+    11,
+    12,
+    13,
+    14
+  ],
+  "project5_version_ids": [
+    14,
+    15,
+    16,
+    17
+  ],
+  "prediction_run_total": 175,
+  "historical_prediction_total": 175,
+  "prediction_run_identity_policy": {
+    "required_recovered_ids": [
+      64,
+      65,
+      66,
+      67,
+      68,
+      73,
+      74,
+      75,
+      127,
+      128,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+    ],
+    "legitimate_post_baseline_ids": [
+      167,
+      168
+    ],
+    "pre_stable_core_unintended_ids_preserved_for_provenance": [
+      169,
+      170
+    ],
+    "note": "Stable Core validates immutable identities rather than forcing a historical count. Runs 169/170 predate the final isolated-test gate and are retained pending provenance review."
+  },
+  "project300": {
+    "compound_count": 1000,
+    "unique_current_inchikey_count": 1000
+  },
+  "orforglipron_accepted_observations": [
+    [
+      "HUMAN_MICROSOMAL_STABILITY_PERCENT_REMAINING",
+      "HUMAN",
+      "100.2",
+      "%",
+      null,
+      "ACCEPTED",
+      "admet_measurements:1"
+    ],
+    [
+      "HUMAN_MICROSOMAL_STABILITY_PERCENT_REMAINING",
+      "HUMAN",
+      "100.2",
+      "%",
+      null,
+      "ACCEPTED",
+      "admet_measurements:2"
+    ],
+    [
+      "HUMAN_PK_CL_UNSPECIFIED",
+      "HUMAN",
+      "7.15",
+      "L/h",
+      "UNSPECIFIED",
+      "ACCEPTED",
+      "FDA-FOUNDAYO-LABEL-12.3-CL"
+    ],
+    [
+      "HUMAN_PK_CMAX_UNSPECIFIED",
+      "HUMAN",
+      "149.0",
+      "ng/mL",
+      "UNSPECIFIED",
+      "ACCEPTED",
+      "FDA-NDA220934-36MG-CMAXSS"
+    ],
+    [
+      "HUMAN_PK_F_ORAL",
+      "HUMAN",
+      "77.0",
+      "%",
+      "ORAL",
+      "ACCEPTED",
+      "FDA-FOUNDAYO-LABEL-12.3-F-0.8MG"
+    ],
+    [
+      "HUMAN_PK_VD_IV",
+      "HUMAN",
+      "285.0",
+      "L",
+      "IV",
+      "ACCEPTED",
+      "FDA-FOUNDAYO-LABEL-12.3-VDSS"
+    ],
+    [
+      "RAT_MICROSOMAL_STABILITY_PERCENT_REMAINING",
+      "RAT",
+      "99.9",
+      "%",
+      null,
+      "ACCEPTED",
+      "admet_measurements:3"
+    ]
+  ],
+  "representative_parity_samples": [
+    [
+      1,
+      1,
+      "ORFORGLIPRON",
+      "Orforglipron",
+      11,
+      "USUWIEBBBWHKNI-KHIFEHGGSA-N",
+      7,
+      0,
+      15
+    ],
+    [
+      3,
+      10,
+      "SUNVOZERTINIB",
+      "Sunvozertinib",
+      13,
+      "BTMKEDDEMKKSEF-QGZVFWFLSA-N",
+      0,
+      0,
+      33
+    ],
+    [
+      5,
+      11,
+      "COMPOUND-2026-09-01-02-33-35",
+      "Compound 2026-09-01-02-33-35",
+      14,
+      "QJZZSGNXZLAOQH-BHVANESWSA-N",
+      0,
+      0,
+      7
+    ],
+    [
+      300,
+      315,
+      "DRUGBANK-DB00317",
+      "Gefitinib",
+      321,
+      "XGALLCVXEZPNRQ-UHFFFAOYSA-N",
+      0,
+      0,
+      0
+    ]
+  ],
+  "current_prediction_snapshots": {
+    "total": 1438,
+    "current_v333": 0,
+    "duplicate_scientific_keys": [],
+    "invalid_v333_current": [],
+    "species_contradictions": [],
+    "legacy_unknown_provenance_current": 1026,
+    "selection_policy": "Only exact current engine_release rows are eligible for Current Prediction; UNKNOWN_PROVENANCE is excluded."
+  },
+  "safety_triggers": [
+    "stable_core_audit_current_prediction_replace",
+    "stable_core_audit_evidence_state",
+    "stable_core_audit_project_archive",
+    "stable_core_mirror_prediction_run_insert",
+    "stable_core_protect_historical_run_delete",
+    "stable_core_protect_historical_run_update",
+    "stable_core_protect_history_delete",
+    "stable_core_protect_history_update",
+    "stable_core_protect_real_compound_delete",
+    "stable_core_protect_real_project_delete"
+  ],
+  "checks": {
+    "required_protected_projects_present": true,
+    "project5_compounds_exact": true,
+    "project5_versions_exact": true,
+    "project5_runs_restored": true,
+    "later_runs_167_168_preserved": true,
+    "pre_stable_core_unintended_runs_preserved_for_provenance": true,
+    "history_identity_parity": true,
+    "recovered_identity_baseline_present": true,
+    "project300_compounds_1000": true,
+    "project300_unique_current_inchikeys_1000": true,
+    "orforglipron_four_accepted_pk": true,
+    "orforglipron_clearance_route_unspecified": true,
+    "required_safety_triggers": true,
+    "representative_all_protected_projects": true,
+    "current_prediction_scientific_key_unique": true,
+    "v333_invalid_current_snapshot_zero": true,
+    "v333_current_species_consistent": true
+  },
+  "status": "PASS"
+}

@@ -2466,7 +2466,7 @@ function integratedProfile(versionId){
    setLoading(true);
    try{
     const res=await api.get('/compound-versions/'+versionId+'/pk-foundation?species='+(s||species));
-    setFoundationData(res);
+    setFoundationData(res?.status === 'NOT_CALCULATED' ? null : res);
    }catch(err){console.error(err)}finally{setLoading(false)}
   };
 
@@ -2593,26 +2593,6 @@ function integratedProfile(versionId){
     setHistory(hist||[]);
     if(hist && hist.length > 0 && (!activeRun || activeRun.route !== route || activeRun.species !== species)){
      setActiveRun(hist[0]);
-    } else if((!hist || hist.length === 0) && prev?.cl_preview?.value != null && prev?.v_preview?.value != null){
-     const autoPayload = {
-      species,
-      route,
-      administration_type: route === 'IV' ? (adminType || 'IV_BOLUS') : 'EXTRAVASCULAR_1COMP',
-      dose: parseFloat(dose) || 1.0,
-      dose_unit: doseUnit || 'mg/kg',
-      infusion_duration_hours: (route === 'IV' && adminType === 'IV_INFUSION') ? parseFloat(infusionDur) : 0.0,
-      dosing_frequency: frequency || 'Single Dose',
-      dose_interval_hours: parseFloat(interval) || 24.0,
-      num_doses: frequency === 'Repeated Dosing' ? parseInt(numDoses, 10) : 1,
-      model_type: modelType || 'ONE_COMPARTMENT',
-      user_cl_override: userCl ? parseFloat(userCl) : null,
-      user_v_override: userV ? parseFloat(userV) : null,
-      user_f_override: (route !== 'IV' && userF) ? parseFloat(userF) : null,
-      user_ka_override: (route !== 'IV' && userKa) ? parseFloat(userKa) : null,
-     };
-     const autoRes = await api.post('/compound-versions/'+versionId+'/pk-simulation/run', autoPayload);
-     setActiveRun(autoRes);
-     setHistory([autoRes]);
     }
    }catch(err){
     console.error("Simulation load error:", err);

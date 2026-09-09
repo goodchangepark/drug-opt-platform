@@ -10,6 +10,7 @@ Verifies PRAGMA foreign_key_check, PRAGMA integrity_check, and orphan counts.
 """
 
 import json
+import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -67,6 +68,16 @@ def run_cleanup(manifest_path: str = "validation/test_fixture_cleanup_manifest.j
         chunk_size = 50
         for i in range(0, len(to_delete), chunk_size):
             chunk = to_delete[i:i + chunk_size]
+            # A production database copy used by isolated tests may contain
+            # historical fixture rows whose legacy flags were not set.  Only
+            # in TEST/E2E may the trusted manifest promote those positively
+            # classified rows to synthetic status for deletion.  Production
+            # callers remain fail-closed and cannot use this escape hatch.
+            if DATABASE_SETTINGS.environment in {"test", "e2e"} or os.environ.get("DRUGOPT_ENV", "").lower() in {"test", "e2e"}:
+                for fixture in db.scalars(select(Project).where(Project.id.in_(chunk))):
+                    fixture.is_test_fixture = True
+                    fixture.protection_policy = "SYNTHETIC_TEST"
+                db.flush()
             _delete_project_tree_rows(db, chunk)
             db.commit()
             print(f"  Deleted batch {i//chunk_size + 1}/{(len(to_delete) + chunk_size - 1)//chunk_size} ({len(chunk)} projects)")

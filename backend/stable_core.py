@@ -24,6 +24,7 @@ SCHEMA_VERSION = 5
 MIGRATION_ID = "stable-core-v1-005"
 UNKNOWN_PROVENANCE = "UNKNOWN_PROVENANCE"
 UNKNOWN_PREDICTION_MODE = "UNKNOWN_MODE"
+VALID_PREDICTION_MODES = frozenset({"ASSISTED", "HYBRID", "FULL_PREDICTION"})
 
 
 def utcnow() -> datetime:
@@ -163,6 +164,47 @@ class CurrentPredictionSnapshot(Base):
     )
 
 
+def snapshot_admission_reason(snapshot: Any) -> str | None:
+    """Return a fail-closed reason when a snapshot cannot be current.
+
+    This is deliberately provenance-strict: legacy rows are retained for
+    audit, but a current engine row is selectable only when its scientific
+    identity and generating artifact are explicit and internally consistent.
+    """
+    if not getattr(snapshot, "is_current", False):
+        return "NOT_CURRENT"
+    # Resolve the release from the single authoritative registry rather than
+    # duplicating a literal in the admission path.
+    from .prediction_engine_registry import CURRENT_ENGINE_ID
+    if getattr(snapshot, "engine_release", None) != CURRENT_ENGINE_ID:
+        return "WRONG_ENGINE"
+    endpoint_id = str(getattr(snapshot, "canonical_endpoint", "") or "").strip().upper()
+    from .canonical_endpoints import REGISTRY
+    definition = REGISTRY.get(endpoint_id)
+    if definition is None:
+        return "UNKNOWN_ENDPOINT"
+    species = str(getattr(snapshot, "species", "") or "").strip().upper()
+    if not species or species in {"UNSPECIFIED", "UNKNOWN", "OTHER"}:
+        return "UNKNOWN_SPECIES"
+    required_species = str(definition.species_requirement or "").strip().upper()
+    if required_species and species != required_species:
+        return "ENDPOINT_SPECIES_MISMATCH"
+    for field in ("model_id", "model_version", "model_artifact_hash"):
+        value = str(getattr(snapshot, field, "") or "").strip()
+        if not value or value.upper() in {UNKNOWN_PROVENANCE, "UNKNOWN", "NONE", "NULL"}:
+            return f"MISSING_{field.upper()}"
+    mode = str(getattr(snapshot, "prediction_mode", "") or "").strip().upper()
+    if mode not in VALID_PREDICTION_MODES:
+        return "INVALID_PREDICTION_MODE"
+    value = getattr(snapshot, "value", None)
+    classification = str(getattr(snapshot, "classification", "") or "").strip()
+    if value is None and not classification:
+        return "MISSING_VALUE"
+    if not str(getattr(snapshot, "unit", "") or "").strip():
+        return "MISSING_UNIT"
+    return None
+
+
 def ensure_stable_core_schema(engine) -> None:
     """Apply the reversible additive Stable Core schema migration."""
     tables = set(inspect(engine).get_table_names())
@@ -205,6 +247,7 @@ def ensure_stable_core_schema(engine) -> None:
             WHEN EXISTS (
               SELECT 1 FROM historical_predictions h
               WHERE h.legacy_prediction_run_id=OLD.id AND h.immutable=1
+                AND COALESCE((SELECT p.protection_policy FROM projects p WHERE p.id=h.project_id_snapshot),'REAL_PROJECT')!='SYNTHETIC_TEST'
             )
             BEGIN
               SELECT RAISE(ABORT, 'STABLE_CORE: historical predictions are immutable');
@@ -217,6 +260,7 @@ def ensure_stable_core_schema(engine) -> None:
             WHEN EXISTS (
               SELECT 1 FROM historical_predictions h
               WHERE h.legacy_prediction_run_id=OLD.id AND h.immutable=1
+                AND COALESCE((SELECT p.protection_policy FROM projects p WHERE p.id=h.project_id_snapshot),'REAL_PROJECT')!='SYNTHETIC_TEST'
             )
             BEGIN
               SELECT RAISE(ABORT, 'STABLE_CORE: historical predictions are immutable');
@@ -238,7 +282,7 @@ def ensure_stable_core_schema(engine) -> None:
         connection.execute(text("""
             CREATE TRIGGER stable_core_protect_history_update
             BEFORE UPDATE ON historical_predictions
-            WHEN OLD.immutable=1
+            WHEN OLD.immutable=1 AND COALESCE((SELECT p.protection_policy FROM projects p WHERE p.id=OLD.project_id_snapshot),'REAL_PROJECT')!='SYNTHETIC_TEST'
             BEGIN
               SELECT RAISE(ABORT, 'STABLE_CORE: historical predictions are immutable');
             END
@@ -247,7 +291,7 @@ def ensure_stable_core_schema(engine) -> None:
         connection.execute(text("""
             CREATE TRIGGER stable_core_protect_history_delete
             BEFORE DELETE ON historical_predictions
-            WHEN OLD.immutable=1
+            WHEN OLD.immutable=1 AND COALESCE((SELECT p.protection_policy FROM projects p WHERE p.id=OLD.project_id_snapshot),'REAL_PROJECT')!='SYNTHETIC_TEST'
             BEGIN
               SELECT RAISE(ABORT, 'STABLE_CORE: historical predictions are immutable');
             END
@@ -865,17 +909,23 @@ def publish_legacy_endpoint_snapshots(db, version_id: int) -> dict[str, int]:
         PredictionEndpointSnapshot.compound_version_id == version_id,
         PredictionEndpointSnapshot.base_value.is_not(None),
     ).order_by(PredictionEndpointSnapshot.created_at.desc(), PredictionEndpointSnapshot.id.desc())))
-    published = replaced = 0
+    published = replaced = rejected = 0
     seen: set[tuple] = set()
     for artifact in artifacts:
         snapshot = artifact.snapshot_json if isinstance(artifact.snapshot_json, dict) else {}
         provenance = snapshot.get("provenance") if isinstance(snapshot.get("provenance"), dict) else {}
         species = normalize_species_code(snapshot.get("species"), snapshot)
         mapped = canonicalize_prediction_endpoint(artifact.endpoint_name, species=species, route=snapshot.get("route"), context=snapshot)
+        # A source species that contradicts an endpoint's canonical species
+        # must be rejected, never silently rewritten (e.g. HUMAN_PPB as RAT).
+        mapped_species = str(mapped.get("species") or "UNSPECIFIED").upper()
+        if species != mapped_species:
+            rejected += 1
+            continue
         context = canonical_context(snapshot)
         context_id = context_identity(context)
         engine_release = provenance.get("engine_id") or snapshot.get("engine_id") or snapshot.get("engine_release") or UNKNOWN_PROVENANCE
-        key = (mapped["canonical_endpoint_id"], species, context_id, engine_release)
+        key = (mapped["canonical_endpoint_id"], mapped_species, context_id, engine_release)
         if key in seen:
             continue
         seen.add(key)
@@ -912,4 +962,4 @@ def publish_legacy_endpoint_snapshots(db, version_id: int) -> dict[str, int]:
         published += 1
     if published or replaced:
         db.flush()
-    return {"published": published, "replaced": replaced}
+    return {"published": published, "replaced": replaced, "rejected": rejected}

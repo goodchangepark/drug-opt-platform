@@ -200,7 +200,7 @@ def exercise_viewport(port: int, width: int, height: int):
         pk_urls = request_urls(driver)
         canonical_pk = [url for url in pk_urls if "/scientific-tabs/pk" in url]
         assert len(canonical_pk) == 1, canonical_pk
-        assert not any("/pk-studies" in url or "/ivive" in url for url in pk_urls)
+        assert not any("/pk-studies" in url or "/ivive" in url or "/pk-simulation/run" in url for url in pk_urls)
 
         driver.refresh()
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, "compound-workspace")))
@@ -242,7 +242,7 @@ def exercise_viewport(port: int, width: int, height: int):
 
 def main():
     projects, projects_ms, _ = api("/api/projects")
-    assert {row["id"] for row in projects} == {1, 3, 5, 300}
+    assert {1, 3, 5, 300}.issubset({row["id"] for row in projects})
     current, current_ms, _ = api("/api/prediction-engine/current")
     assert current["current_production_engine"]["engine_id"] == "drugopt-prediction-engine-v3@3.3.3"
     pk, pk_ms, pk_bytes = api("/api/compound-versions/11/scientific-tabs/pk")

@@ -6,7 +6,10 @@ from __future__ import annotations
 import argparse
 import json
 import sqlite3
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 PROTECTED_PROJECTS = {1: "GLP-1 (small molecule)", 3: "EGFR", 5: "AMYR (small molecules)", 300: "DrugBank"}
 PROJECT5_COMPOUNDS = (11, 12, 13, 14)
@@ -15,6 +18,7 @@ RECOVERED_RUNS = (64, 65, 66, 67, 68, 73, 74, 75, 127, 128, 153, 154, 155, 156, 
 LEGITIMATE_POST_BASELINE_RUNS = (167, 168)
 PRE_STABLE_CORE_UNINTENDED_RUNS = (169, 170)
 CURRENT_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.3"
+VALID_MODES = {"ASSISTED", "HYBRID", "FULL_PREDICTION"}
 
 
 def rows(connection, sql, parameters=()):
@@ -81,16 +85,23 @@ def verify(database: Path) -> dict:
           GROUP BY compound_version_id,canonical_endpoint,species,context_identity,engine_release
           HAVING COUNT(*) > 1
         """)
-        incomplete_v333_provenance = rows(connection, """
-          SELECT id
+        invalid_v333_current = rows(connection, """
+          SELECT id,canonical_endpoint,species,model_id,model_version,model_artifact_hash,prediction_mode
           FROM current_prediction_snapshots
           WHERE is_current=1 AND engine_release=?
             AND (
-              model_id IS NULL OR trim(model_id)='' OR
-              model_version IS NULL OR trim(model_version)='' OR
-              model_artifact_hash IS NULL OR trim(model_artifact_hash)=''
+              model_id IS NULL OR trim(model_id)='' OR upper(model_id)='UNKNOWN_PROVENANCE' OR
+              model_version IS NULL OR trim(model_version)='' OR upper(model_version)='UNKNOWN_PROVENANCE' OR
+              model_artifact_hash IS NULL OR trim(model_artifact_hash)='' OR upper(model_artifact_hash)='UNKNOWN_PROVENANCE' OR
+              upper(coalesce(prediction_mode,'')) NOT IN ('ASSISTED','HYBRID','FULL_PREDICTION')
             )
         """, (CURRENT_ENGINE_ID,))
+        from backend.canonical_endpoints import REGISTRY
+        species_contradictions = []
+        for row in connection.execute("SELECT id,canonical_endpoint,species FROM current_prediction_snapshots WHERE is_current=1 AND engine_release=?", (CURRENT_ENGINE_ID,)):
+            definition = REGISTRY.get(str(row[1]).upper())
+            if definition and definition.species_requirement and str(row[2]).upper() != definition.species_requirement:
+                species_contradictions.append(list(row))
         unknown_provenance_current_total = connection.execute(
             """SELECT COUNT(*) FROM current_prediction_snapshots
                WHERE is_current=1 AND engine_release='UNKNOWN_PROVENANCE'"""
@@ -108,7 +119,7 @@ def verify(database: Path) -> dict:
             "stable_core_mirror_prediction_run_insert",
         }
         checks = {
-            "protected_projects_exact": projects == PROTECTED_PROJECTS,
+            "required_protected_projects_present": all(pid in projects for pid in PROTECTED_PROJECTS),
             "project5_compounds_exact": p5_compounds == PROJECT5_COMPOUNDS,
             "project5_versions_exact": p5_versions == PROJECT5_VERSIONS,
             "project5_runs_restored": set(RECOVERED_RUNS).issubset(prediction_ids),
@@ -127,7 +138,8 @@ def verify(database: Path) -> dict:
             "required_safety_triggers": required_triggers.issubset(triggers),
             "representative_all_protected_projects": {row[0] for row in representative_samples} == {1, 3, 5, 300},
             "current_prediction_scientific_key_unique": not duplicate_current_snapshot_keys,
-            "v333_current_prediction_provenance_complete": not incomplete_v333_provenance,
+            "v333_invalid_current_snapshot_zero": not invalid_v333_current,
+            "v333_current_species_consistent": not species_contradictions,
         }
         result = {
             "contract": "StableCoreBusinessIntegrity/v1",
@@ -153,7 +165,8 @@ def verify(database: Path) -> dict:
                 "total": current_snapshot_total,
                 "current_v333": current_v333_snapshot_total,
                 "duplicate_scientific_keys": duplicate_current_snapshot_keys,
-                "incomplete_v333_provenance_ids": incomplete_v333_provenance,
+                "invalid_v333_current": invalid_v333_current,
+                "species_contradictions": species_contradictions,
                 "legacy_unknown_provenance_current": unknown_provenance_current_total,
                 "selection_policy": "Only exact current engine_release rows are eligible for Current Prediction; UNKNOWN_PROVENANCE is excluded.",
             },

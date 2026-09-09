@@ -1,14 +1,14 @@
 {
-  "contract": "StableCoreV1Manifest/v1",
+  "contract": "StableCoreV1Manifest/v1.1",
   "status": "PASS",
-  "architecture_version": "stable-core-v1",
+  "architecture_version": "stable-core-v1.1",
   "schema_user_version": 5,
   "latest_migration": "stable-core-v1-005",
   "generated_at": "2026-09-09T23:07:00+09:00",
   "prediction_engine": {
     "current_engine_id": "drugopt-prediction-engine-v3@3.3.3",
     "operational_status": "PRODUCTION_VALIDATED",
-    "decision": "STABLE_CORE_V1_VALIDATED",
+    "decision": "STABLE_CORE_V1_1_VALIDATED",
     "rollback_engine_id": "drugopt-prediction-engine-v3@3.3.2",
     "endpoint_model_versions_remain_distinct": true,
     "historical_engine_versions_preserved": true
@@ -62,11 +62,12 @@
       "candidate_and_accepted_are_distinct": true
     },
     "current_prediction_snapshots": {
-      "total": 1088,
-      "current_v333": 62,
+      "total": 1438,
+      "current_v333": 0,
       "duplicate_scientific_keys": 0,
       "incomplete_v333_provenance": 0,
       "legacy_unknown_provenance": 1026,
+      "quarantined_v333_legacy": 412,
       "unknown_provenance_eligible_as_v333_current": false
     },
     "historical_predictions": {
@@ -122,7 +123,8 @@
     "browser_e2e_artifact": "validation/stable_core_v1_browser_e2e.json",
     "browser_e2e_isolation_artifact": "validation/stable_core_v1_e2e_isolation.json",
     "full_isolated_pytest_artifact": "validation/stable_core_v1_pytest.json",
-    "full_isolated_pytest": "980 passed, 0 failed, 56 warnings in 898.35s",
+    "v1_1_integrity_artifact": "validation/stable_core_v1_1_integrity.json",
+    "full_isolated_pytest": "984 passed, 0 failed, 56 warnings in 808.04s",
     "browser_e2e": "PASS",
     "desktop_and_mobile": true,
     "integrity_check": "ok",
@@ -133,7 +135,7 @@
   "known_limitations": [
     "Legacy evidence and calculation tables remain as compatibility/artifact sources during the non-destructive transition.",
     "The 1026 legacy prediction snapshots with UNKNOWN_PROVENANCE are retained but cannot be selected as current v3.3.3 predictions.",
-    "Orforglipron has no persisted v3.3.3 CurrentPredictionSnapshot; the UI reports no current prediction instead of guessing provenance.",
+    "Orforglipron has no persisted eligible v3.3.3 CurrentPredictionSnapshot; the UI reports no current prediction instead of guessing provenance.",
     "PredictionRuns 169 and 170 predate the final isolation gate and are preserved immutably pending provenance review."
   ]
 }

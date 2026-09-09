@@ -161,8 +161,8 @@ def test_species_route_version_isolation(db_engine):
     add_pk_study(db, v1, species="Rat", route="IV", cl=25.0, vz=3.0)
     add_pk_study(db, v2, species="Mouse", route="PO", cl_f=100.0, vz_f=12.0)
 
-    prof1 = get_pk_foundation_profile(db, v1.id, "Rat")
-    prof2 = get_pk_foundation_profile(db, v2.id, "Mouse")
+    prof1 = get_pk_foundation_profile(db, v1.id, "Rat", force_refresh=True)
+    prof2 = get_pk_foundation_profile(db, v2.id, "Mouse", force_refresh=True)
 
     assert prof1["scope"]["compound_id"] == c1.id
     assert prof2["scope"]["compound_id"] == c2.id

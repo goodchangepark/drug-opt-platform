@@ -362,9 +362,11 @@ def persist_pk_prediction_snapshots(db, version_id: int, prediction_run_id: int 
             db.add(PredictionEndpointSnapshot(prediction_run_id=run.id, project_id=version.compound.project_id, compound_version_id=version_id, endpoint_id=eid, endpoint_name=eid, base_value=float(value), base_unit=unit, prediction_type=PREDICTION_RULE, maturity_level=1, maturity_label="Base Prediction", snapshot_json=snapshot, created_at=met_run.completed_at or met_run.started_at))
             existing.add((run.id, eid)); created += 1
     db.flush()
-    from .stable_core import publish_legacy_endpoint_snapshots
-    publication = publish_legacy_endpoint_snapshots(db, version_id)
-    return {"prediction_run_id": run.id, "created": created, "existing": len(existing) - created, "current_publication": publication}
+    # Comparison is a read/assembly operation.  CurrentPredictionSnapshot is
+    # published only by the validated prediction workflow, never as a side
+    # effect of opening a comparison view.
+    return {"prediction_run_id": run.id, "created": created, "existing": len(existing) - created,
+            "current_publication": {"published": 0, "replaced": 0, "rejected": 0}}
 
 
 def ensure_pk_prediction_snapshot_index(db) -> dict:
@@ -441,9 +443,10 @@ def ensure_admet_prediction_snapshot_index(db, version_id: int | None = None) ->
         existing.add((run_id, str(endpoint_id))); created += 1
     if created:
         db.flush()
-    from .stable_core import publish_legacy_endpoint_snapshots
-    publication = publish_legacy_endpoint_snapshots(db, version_id) if version_id is not None else {"published": 0, "replaced": 0}
-    return {"predictions_examined": len(predictions), "snapshots_created": created, "current_publication": publication}
+    # Legacy endpoint rows remain compatibility artifacts; they cannot become
+    # the authoritative current prediction through comparison.
+    return {"predictions_examined": len(predictions), "snapshots_created": created,
+            "current_publication": {"published": 0, "replaced": 0, "rejected": 0}}
 
 
 def requalify_persisted_evidence(db, version_id: int | None = None) -> dict:

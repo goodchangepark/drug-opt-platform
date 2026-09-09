@@ -859,7 +859,7 @@ def run_pk_simulation(
         route = "IV" if admin_type in {"IV_BOLUS", "IV_INFUSION"} else "PO"
 
     # 1. Fetch Stage 5A PK Foundation & Route Sets
-    foundation = get_pk_foundation_profile(db, version_id, species)
+    foundation = get_pk_foundation_profile(db, version_id, species, force_refresh=True)
     routes = foundation.get("route_parameter_sets", {})
     iv_set = routes.get("IV", {})
     route_set = routes.get(route, {})
@@ -1286,7 +1286,7 @@ def register_simulation_routes(app):
         db: Session = Depends(get_db),
     ):
         route_clean = route.strip().upper()
-        foundation = get_pk_foundation_profile(db, version_id, species)
+        foundation = get_pk_foundation_profile(db, version_id, species, force_refresh=True)
         routes = foundation.get("route_parameter_sets", {})
         iv_set = routes.get("IV", {})
         target_set = routes.get(route_clean, {})
@@ -1406,7 +1406,7 @@ def register_simulation_routes(app):
 
         species = request.species
         route = request.route.strip().upper()
-        foundation = get_pk_foundation_profile(db, version_id, species)
+        foundation = get_pk_foundation_profile(db, version_id, species, force_refresh=True)
         routes = foundation.get("route_parameter_sets", {})
         iv_set = routes.get("IV", {})
         dist = foundation.get("distribution", {})

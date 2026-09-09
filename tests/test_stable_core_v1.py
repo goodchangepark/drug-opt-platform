@@ -341,7 +341,7 @@ def test_current_engine_and_historical_engine_provenance_are_separate():
     current = client.get("/api/prediction-engine/current").json()["current_production_engine"]
     assert current["engine_id"] == "drugopt-prediction-engine-v3@3.3.3"
     assert current["status"] == "PRODUCTION_VALIDATED"
-    assert current["decision"] == "STABLE_CORE_V1_VALIDATED"
+    assert current["decision"] == "STABLE_CORE_V1_1_VALIDATED"
     history = client.get("/api/compound-versions/11/scientific-tabs/history").json()["records"]
     assert history
     assert any(row["engine_version"] != current["engine_id"] for row in history)
