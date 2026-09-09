@@ -2,6 +2,8 @@ import json
 import sqlite3
 from pathlib import Path
 
+from backend.database import DATABASE_SETTINGS
+
 
 def test_completion_board_has_exact_production_version_and_terminal_policy():
     data = json.loads(Path("validation/endpoint_completion_board.json").read_text())
@@ -16,7 +18,7 @@ def test_completion_board_has_exact_production_version_and_terminal_policy():
 
 
 def test_runtime_project300_has_identity_safe_1000_compounds():
-    con = sqlite3.connect("drug_opt.db")
+    con = sqlite3.connect(DATABASE_SETTINGS.sqlite_path)
     n = con.execute("select count(*) from compounds where project_id=300").fetchone()[0]
     keys = [x[0] for x in con.execute("select cv.inchikey from compound_versions cv join compounds c on c.id=cv.compound_row_id where c.project_id=300 and cv.inchikey is not null")]
     assert n == 1000

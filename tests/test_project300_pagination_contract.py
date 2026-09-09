@@ -45,6 +45,7 @@ def test_compound_open_uses_bounded_local_summary_and_lazy_tabs():
 
     js = (Path(__file__).resolve().parents[1] / "frontend/static/app.js").read_text(encoding="utf-8")
     assert "api.get('/compounds/'+rowId+'/summary')" in js
-    assert "['activity','pk','evidence','history'].includes(detailTab)" in js
+    assert "['properties','activity','admet','metabolism','pk','evidence','history'].includes(detailTab)" in js
+    assert "'/compound-versions/'+versionId+'/scientific-tabs/'+tab" in js
     assert "detailTab==='admet'" in js
     assert "detailTab==='metabolism'" in js

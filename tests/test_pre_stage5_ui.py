@@ -204,7 +204,9 @@ def test_dashboard_summary_is_project_isolated_and_uses_current_version_status(d
         "unit": "µM", "source": "Dashboard A only",
     }, db)
 
-    result = dashboard_summary(db)
+    # Direct service calls in test mode create explicitly synthetic fixtures;
+    # request them deliberately rather than weakening the production default.
+    result = dashboard_summary(db, include_test_fixtures=True)
     rows = {row["id"]: row for row in result["projects"]}
     assert result["totals"] == {"projects": 2, "compounds": 2}
     assert rows[project_a.id]["experimental_activity_count"] == 1
@@ -282,15 +284,18 @@ def test_global_sidebar_contains_only_six_top_level_workflow_items():
     assert "Where scientific functions live" in source
 
 
-def test_project_delete_ui_requires_typed_confirmation_and_manual_bulk_selection():
+def test_project_archive_ui_requires_typed_confirmation_and_preserves_history():
     source = (ROOT / "frontend/static/app.js").read_text()
     styles = (ROOT / "frontend/static/app.css").read_text()
     for phrase in (
-        "Delete Selected", "Delete Project…", "This action permanently deletes all project-linked data.",
-        "Type ", " to confirm", "Delete Project Permanently", "Delete Selected Projects Permanently",
+        "Delete Selected", "Delete Project…", "This action archives the selected project.",
+        "Type ", " to confirm", "Archive Project", "Archive Selected Projects",
+        "Scientific evidence and immutable prediction history are preserved.",
         "confirmation_name", "projectSelection", "experimental_activity_count", "prediction_count",
     ):
         assert phrase in source
+    assert "This action permanently deletes all project-linked data." not in source
+    assert "Delete Project Permanently" not in source
     assert "useState([]),[deleteProjects" in source
     assert "disabled:deleteBusy||!deleteNamesMatch" in source
     assert ".project-delete-modal" in styles and ".delete-count-grid" in styles

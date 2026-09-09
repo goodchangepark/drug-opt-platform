@@ -1,0 +1,30 @@
+{
+  "artifact": "stable_core_v1_performance",
+  "measured_at": "2026-09-09T17:17:00+09:00",
+  "runtime": "Xavier local drug-opt.service on 127.0.0.1:8765",
+  "method": "Seven sequential read-only HTTP GET requests per route; first sample reported as cold and median of the remaining six as warm",
+  "legacy_workspace_before": {
+    "latency_ms": "NOT_MEASURED",
+    "payload_bytes": "historically observed 5-11 MB class; exact comparable payload not safely benchmarked",
+    "reason": "The deprecated monolithic path was not reactivated solely to obtain a favorable comparison"
+  },
+  "measurements": {
+    "project300_first50": {"cold_ms": 50.127, "warm_median_ms": 36.492, "warm_min_ms": 34.320, "warm_max_ms": 39.456, "payload_bytes": 28424, "http_status": 200},
+    "project300_warfarin_search": {"cold_ms": 23.153, "warm_median_ms": 24.449, "warm_min_ms": 22.355, "warm_max_ms": 28.919, "payload_bytes": 1237, "http_status": 200},
+    "orforglipron_core_summary": {"cold_ms": 19.916, "warm_median_ms": 18.736, "warm_min_ms": 18.619, "warm_max_ms": 22.334, "payload_bytes": 75940, "http_status": 200},
+    "properties_tab": {"cold_ms": 10.699, "warm_median_ms": 11.622, "warm_min_ms": 9.856, "warm_max_ms": 13.054, "payload_bytes": 164, "http_status": 200},
+    "activity_tab": {"cold_ms": 12.409, "warm_median_ms": 11.846, "warm_min_ms": 11.134, "warm_max_ms": 12.543, "payload_bytes": 162, "http_status": 200},
+    "admet_tab": {"cold_ms": 11.069, "warm_median_ms": 10.806, "warm_min_ms": 10.339, "warm_max_ms": 12.185, "payload_bytes": 159, "http_status": 200},
+    "metabolism_tab": {"cold_ms": 11.443, "warm_median_ms": 10.847, "warm_min_ms": 10.631, "warm_max_ms": 11.691, "payload_bytes": 2399, "http_status": 200},
+    "pk_tab": {"cold_ms": 11.223, "warm_median_ms": 11.373, "warm_min_ms": 10.985, "warm_max_ms": 12.790, "payload_bytes": 4890, "http_status": 200},
+    "evidence_tab": {"cold_ms": 18.124, "warm_median_ms": 17.886, "warm_min_ms": 17.359, "warm_max_ms": 18.494, "payload_bytes": 22891, "http_status": 200},
+    "history_tab": {"cold_ms": 12.850, "warm_median_ms": 12.655, "warm_min_ms": 12.338, "warm_max_ms": 15.374, "payload_bytes": 4127, "http_status": 200}
+  },
+  "browser_e2e_reference": "validation/stable_core_v1_browser_e2e.json",
+  "result": "PASS",
+  "notes": [
+    "Compound open reads a bounded local summary and does not invoke web search or model calculation.",
+    "Each active scientific tab uses one canonical bounded endpoint.",
+    "Project 300 retains server pagination and server-side identifier search."
+  ]
+}

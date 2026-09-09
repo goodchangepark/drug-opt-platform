@@ -34,8 +34,10 @@ def test_five_drug_display_dedup_artifact_is_present():
     assert all(item["raw_source_records"] >= item["unique_scientific_observations"] for item in artifact["drugs"])
 
 
-def test_detail_load_uses_selected_compound_for_workspace_and_pair_data():
+def test_detail_load_uses_bounded_summary_and_canonical_scientific_tabs():
     js = (Path(__file__).parents[1] / "frontend/static/app.js").read_text()
-    assert "loadWorkspace(compound.version.id,compound.row_id)" in js
-    assert "prediction-experimental-comparisons" in js
+    executable_js = "\n".join(line for line in js.splitlines() if not line.lstrip().startswith("//"))
+    assert "loadWorkspace(compound.version.id,compound.row_id)" not in executable_js
+    assert "api.get('/compounds/'+rowId+'/summary')" in js
+    assert "'/compound-versions/'+versionId+'/scientific-tabs/'+tab" in js
     assert "Activate Project Adapter" in js and "confirm_activation:true" in js

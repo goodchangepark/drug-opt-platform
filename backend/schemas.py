@@ -30,6 +30,9 @@ class ProjectOut(ProjectCreate):
     created_at: datetime
     updated_at: datetime
     compound_count: int = 0
+    lifecycle_status: str = "ACTIVE"
+    protection_policy: str = "REAL_PROJECT"
+    archived_at: Optional[datetime] = None
 
 
 class CompoundCreate(BaseModel):

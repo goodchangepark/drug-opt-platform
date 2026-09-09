@@ -2,6 +2,7 @@ import sqlite3
 import pytest
 from fastapi.testclient import TestClient
 from backend.main import app
+from backend.database import DATABASE_SETTINGS
 from backend.prediction_maturity import get_maturity_statistics, get_endpoint_maturity_registry
 
 client = TestClient(app)
@@ -34,7 +35,7 @@ def test_prediction_engine_current_baseline():
     data = resp.json()
     assert data["current_production_engine"]["engine_id"] == "drugopt-prediction-engine-v3@3.3.3"
     assert data["current_production_engine"]["release_version"] == "3.3.3"
-    assert data["current_production_engine"]["status"] == "PRODUCTION_DEFAULT"
+    assert data["current_production_engine"]["status"] == "PRODUCTION_VALIDATED"
     assert data["current_production_engine"]["policy_hash"] == "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
     assert data["current_production_engine"]["rollback_engine_id"] == "drugopt-prediction-engine-v3@3.3.2"
     assert data["endpoint_maturity"]["total_endpoints"] == 50
@@ -48,7 +49,7 @@ def test_prediction_engine_current_baseline():
 
 def test_reference_project_identity_hydration():
     """Verify the 250 DrugBank rows retain identifiers within the 1000-row reference project."""
-    conn = sqlite3.connect("drug_opt.db")
+    conn = sqlite3.connect(DATABASE_SETTINGS.sqlite_path)
     c = conn.cursor()
     c.execute("SELECT id, name, cas_number FROM compounds WHERE project_id = 300")
     db_rows = c.fetchall()
@@ -72,11 +73,13 @@ def test_reference_project_identity_hydration():
 
 def test_historical_prediction_runs_protected():
     """Verify frozen historical runs retain provenance without stale counts."""
-    conn = sqlite3.connect("drug_opt.db")
+    conn = sqlite3.connect(DATABASE_SETTINGS.sqlite_path)
     c = conn.cursor()
     c.execute("SELECT count(*), count(model_version), count(stage) FROM prediction_runs WHERE id <= 128")
     hist_count, version_count, stage_count = c.fetchone()
-    assert hist_count > 0
+    required_recovered = {64, 65, 66, 67, 68, 73, 74, 75, 127, 128}
+    c.execute("SELECT id FROM prediction_runs WHERE id IN (64,65,66,67,68,73,74,75,127,128)")
+    assert {row[0] for row in c.fetchall()} == required_recovered
     assert version_count == hist_count
     assert stage_count == hist_count
     c.execute("SELECT count(*) FROM prediction_runs WHERE id <= 128 AND model_version = '3.3.3'")
@@ -85,7 +88,7 @@ def test_historical_prediction_runs_protected():
 
 def test_all_compounds_in_projects_1_3_5_have_v331_runs():
     """Verify active protected compounds retain immutable historical provenance."""
-    conn = sqlite3.connect("drug_opt.db")
+    conn = sqlite3.connect(DATABASE_SETTINGS.sqlite_path)
     c = conn.cursor()
     c.execute("""
         SELECT c.project_id, c.id, c.compound_id, cv.id as version_id

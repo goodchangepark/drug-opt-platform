@@ -1,0 +1,18 @@
+{
+  "recovery": "stable-core-v1-project5",
+  "source_backup": "/home/xavier/chem/drug-opt-platform/backups/drugopt_pre_cas_test_cleanup_20260906.db",
+  "source_sha256": "787f9459149b8ec4cbff301cb9d97f340dfeb99a934a142c83a021a2973bbfd9",
+  "pre_recovery_backup": "/home/xavier/.local/share/drug-opt/backups/drug_opt_stable_core_v1_pre_project5_recovery_20260909T063342+0900.db",
+  "pre_recovery_backup_sha256": "cba48f67d734f15da819c49e555f6bdca7cf2e973ffc57a36f1d243031bae845",
+  "project": {"id": 5, "name": "AMYR (small molecules)", "lifecycle_status": "ACTIVE", "protection_policy": "PROTECTED_REAL_PROJECT"},
+  "compound_ids": [11, 12, 13, 14],
+  "compound_version_ids": [14, 15, 16, 17],
+  "historical_prediction_run_ids": [64,65,66,67,68,73,74,75,127,128,153,154,155,156,157,158,159,160,161,162],
+  "immutable_history_ids": [64,65,66,67,68,73,74,75,127,128,153,154,155,156,157,158,159,160,161,162],
+  "later_run_ids_preserved": [167, 168],
+  "prediction_run_total": 142,
+  "derived_cache_rows_recovered": 0,
+  "derived_cache_policy": "ADMET, endpoint, PK, IVIVE and property-calculation cache rows were not blindly copied; CompoundVersion and immutable PredictionRun provenance are authoritative.",
+  "integrity_check": "ok",
+  "foreign_key_check": []
+}

@@ -51,7 +51,7 @@ from .production_qualification import (
     get_qualification_api_response,
     get_qualification_endpoint_response,
 )
-from .database import Base, SessionLocal, engine, get_db
+from .database import Base, DATABASE_SETTINGS, SessionLocal, engine, get_db
 from .metabolic_soft_spot import (ENGINE_LICENSE as METABOLISM_LICENSE,
                                   ENGINE_NAME as METABOLISM_ENGINE,
                                   ENGINE_SOURCE as METABOLISM_SOURCE,
@@ -97,6 +97,8 @@ from contextlib import asynccontextmanager
 from .schemas import CompoundCreate, CompoundUpdate, ProjectCreate, ProjectOut, ProjectUpdate
 from .translational import PKTranslationalSnapshot, ensure_translational_schema, register_translational_routes
 from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, register_human_pk_routes
+from .stable_core import CurrentPredictionSnapshot, ExperimentalObservation, HistoricalPrediction, ScientificMutationAudit
+from .scientific_core_service import build_scientific_endpoint_rows
 from .capabilities import build_capability_summary
 from .interpretation import get_interpretation_registry_summary, interpret_property
 from .scientific_interpretation import policy_report
@@ -158,18 +160,16 @@ from .project_learning import (ledger_out, project_learning_summary,
 from .prediction_maturity import get_endpoint_maturity, maturity_for_adapter
 from .prediction_experimental_comparison import generate_pairs, performance_summary
 from .endpoint_comparison import (build_endpoint_comparison, ensure_admet_prediction_snapshot_index,
-                                  ensure_pk_prediction_snapshot_index, persist_pk_prediction_snapshots,
-                                  requalify_persisted_evidence, pk_f_prediction_is_quantitative)
+                                  persist_pk_prediction_snapshots, pk_f_prediction_is_quantitative)
 from .qualification_contract import (QUALIFICATION_VERSION as QUALIFICATION_CONTRACT_VERSION,
                                      aggregate_qualification, qualification_contract_report,
                                      qualify_record, ENDPOINT_QUALIFIED, CONTEXT_QUALIFIED,
                                      PREDICTION_PAIRABLE, DIRECTLY_COMPARABLE,
                                      CONDITIONALLY_COMPARABLE, RELATED_SAME_GROUP, IMPORTABLE,
                                      ADAPTATION_ELIGIBLE)
-from .experimental_refinement import reprocess_all_persisted_evidence, REFINEMENT_POLICY_VERSION
-from .canonical_endpoints import (CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION,
-                                  normalize_experimental_observation, registry_report,
-                                  reindex_persisted_evidence)
+from .experimental_refinement import REFINEMENT_POLICY_VERSION
+from .canonical_endpoints import (CANONICAL_ENDPOINT_VERSION, COMPARISON_UNIT_VERSION, REGISTRY,
+                                  normalize_experimental_observation, registry_report)
 
 
 CURRENT_STAGE = "5B-4"
@@ -208,18 +208,9 @@ async def lifespan(app_instance: FastAPI):
         ensure_translational_schema(engine)
         ensure_human_pk_schema(engine)
         ensure_qualification_schema(engine)
-        # Re-index derived endpoint/unit metadata for already persisted public
-        # evidence. This never re-searches sources or changes raw provenance.
-        with SessionLocal() as canonical_db:
-            reindex_persisted_evidence(canonical_db)
-            requalify_persisted_evidence(canonical_db)
-            reprocess_all_persisted_evidence(canonical_db)
-            # IVIVE, Stage-5 simulation, and persisted metabolism outputs
-            # predate the canonical snapshot index.  Index existing values
-            # without re-running or changing any calculation.
-            ensure_pk_prediction_snapshot_index(canonical_db)
-            ensure_admet_prediction_snapshot_index(canonical_db)
-            canonical_db.commit()
+        # Scientific migrations and legacy indexing are controlled maintenance
+        # operations.  Application startup must be read-only with respect to
+        # evidence, qualification, and prediction provenance.
         # Initialize PyTorch/Chemprop once before concurrent request workers can
         # observe a partially imported native extension on ARM64.
         model_files_available("Solubility")
@@ -252,7 +243,11 @@ def health():
         "engine": current_engine["name"],
         "engine_id": current_engine["engine_id"],
         "engine_version": current_engine["engine_version"],
-        "superseded_engine": f"{ENGINE_V3_POLICY_ID}@{ENGINE_V3_POLICY_VERSION}",
+        "release_status": current_engine["status"],
+        "rollback_engine": current_engine["rollback_engine_id"],
+        # Backward-compatible key, now sourced from the same authoritative
+        # rollback metadata instead of the stale v3.3.0 policy module.
+        "superseded_engine": current_engine["rollback_engine_id"],
         "legacy_engine": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
         "decision": current_engine["decision"],
     }
@@ -449,7 +444,7 @@ def resolve_cas_endpoint(payload: dict, db: Session = Depends(get_db)):
 
 @app.get("/api/projects")
 def list_projects(db: Session = Depends(get_db), include_test_fixtures: bool = False):
-    query = select(Project)
+    query = select(Project).where(Project.lifecycle_status == "ACTIVE")
     if not include_test_fixtures:
         query = query.where(Project.is_test_fixture.is_(False))
     return [_project_out(db, project) for project in db.scalars(query.order_by(Project.created_at.desc()))]
@@ -464,7 +459,7 @@ def _workflow_status(covered: int, total: int):
 @app.get("/api/dashboard")
 def dashboard_summary(db: Session = Depends(get_db), include_test_fixtures: bool = False):
     """Small read-only workspace summary for the main and project dashboards."""
-    query = select(Project)
+    query = select(Project).where(Project.lifecycle_status == "ACTIVE")
     if not include_test_fixtures:
         query = query.where(Project.is_test_fixture.is_(False))
     projects = db.scalars(query.order_by(Project.created_at.desc())).all()
@@ -472,7 +467,10 @@ def dashboard_summary(db: Session = Depends(get_db), include_test_fixtures: bool
     total_compounds = 0
     for project in projects:
         compounds = db.scalars(
-            select(Compound).where(Compound.project_id == project.id).order_by(Compound.compound_id)
+            select(Compound).where(
+                Compound.project_id == project.id,
+                Compound.status != "ARCHIVED",
+            ).order_by(Compound.compound_id)
         ).all()
         total_compounds += len(compounds)
         compound_ids = [row.id for row in compounds]
@@ -652,6 +650,69 @@ def get_current_prediction_engine_status():
     }
 
 
+@app.get("/api/compound-versions/{version_id}/scientific-rows")
+def get_stable_core_scientific_rows(version_id: int, category: str | None = None, db: Session = Depends(get_db)):
+    if not db.get(CompoundVersion, version_id):
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    return build_scientific_endpoint_rows(db, version_id, category=category)
+
+
+@app.get("/api/compound-versions/{version_id}/scientific-tabs/{tab}")
+def get_stable_core_scientific_tab(
+    version_id: int,
+    tab: str,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+):
+    version = db.get(CompoundVersion, version_id)
+    if not version:
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    normalized = tab.strip().upper()
+    if normalized == "EVIDENCE":
+        query = select(ExperimentalObservation).where(ExperimentalObservation.compound_version_id == version_id)
+        total = db.scalar(select(func.count()).select_from(query.subquery())) or 0
+        records = list(db.scalars(query.order_by(ExperimentalObservation.id.desc()).offset((page - 1) * page_size).limit(page_size)))
+        return {
+            "contract": "ScientificEvidenceTab/stable-core-v1", "compound_version_id": version_id,
+            "pagination": {"page": page, "page_size": page_size, "total": total},
+            "records": [{
+                "id": row.id, "canonical_endpoint": row.canonical_endpoint, "species": row.species,
+                "context": row.context_json, "value": row.numeric_value, "display_value": row.value_text,
+                "unit": row.unit, "qualifier": row.qualifier, "source": row.source,
+                "source_url": row.source_url, "curation_status": row.curation_status,
+                "legacy_source": {"type": row.legacy_record_type, "id": row.legacy_record_id},
+            } for row in records],
+        }
+    if normalized == "HISTORY":
+        query = select(HistoricalPrediction).where(HistoricalPrediction.compound_version_id_snapshot == version_id)
+        total = db.scalar(select(func.count()).select_from(query.subquery())) or 0
+        records = list(db.scalars(query.order_by(HistoricalPrediction.predicted_at.desc()).offset((page - 1) * page_size).limit(page_size)))
+        return {
+            "contract": "HistoricalPredictionTab/stable-core-v1", "compound_version_id": version_id,
+            "pagination": {"page": page, "page_size": page_size, "total": total},
+            "records": [{
+                "id": row.id, "legacy_prediction_run_id": row.legacy_prediction_run_id,
+                "stage": row.stage, "model_id": row.model_id, "model_version": row.model_version,
+                "engine_version": row.engine_version, "predicted_at": row.predicted_at.isoformat(),
+                "prediction_mode": row.prediction_mode, "immutable": row.immutable,
+            } for row in records],
+        }
+    categories = {
+        "PROPERTIES": {"PROPERTIES"},
+        "ACTIVITY": {"ACTIVITY"},
+        "ADMET": {"ADMET", "TOXICITY"},
+        "METABOLISM": {"METABOLISM"},
+        "PK": {"PK"},
+    }.get(normalized)
+    if not categories:
+        raise HTTPException(status_code=404, detail="Unknown scientific tab")
+    payload = build_scientific_endpoint_rows(db, version_id)
+    payload["category"] = normalized
+    payload["rows"] = [row for row in payload["rows"] if row["category"].upper() in categories]
+    return payload
+
+
 @app.get("/api/prediction-engine/endpoint-maturity")
 def get_endpoint_maturity_api():
     """Authoritative API endpoint for dynamic 50-endpoint maturity and taxonomy."""
@@ -704,6 +765,11 @@ def create_project(payload: ProjectCreate, db: Session = Depends(get_db)):
     existing = db.scalar(select(Project).where(Project.name == values["name"]))
     if existing:
         raise HTTPException(status_code=409, detail=f"Project name '{values['name']}' already exists")
+    if DATABASE_SETTINGS.environment in {"test", "e2e"}:
+        values["is_test_fixture"] = True
+        values["protection_policy"] = "SYNTHETIC_TEST"
+    else:
+        values["protection_policy"] = "SYNTHETIC_TEST" if values.get("is_test_fixture") else "REAL_PROJECT"
     project = Project(**values)
     db.add(project)
     try:
@@ -728,7 +794,10 @@ def get_project(project_id: int, db: Session = Depends(get_db), page: int = Quer
     # and identifiers on initial open.  Other small projects retain legacy
     # behaviour for compatibility.
     if project_id == 300:
-        base = select(Compound).where(Compound.project_id == project_id)
+        base = select(Compound).where(
+            Compound.project_id == project_id,
+            Compound.status != "ARCHIVED",
+        )
         term = search.strip()
         if term:
             like = f"%{term}%"
@@ -759,7 +828,10 @@ def get_project(project_id: int, db: Session = Depends(get_db), page: int = Quer
         data = _project_out(db, project).model_dump()
         data.update({"compounds": rows, "pagination": {"page": page, "page_size": page_size, "total": total, "total_pages": (total + page_size - 1) // page_size}, "search": term, "list_mode": "PAGINATED_SUMMARY"})
         return data
-    compounds = db.scalars(select(Compound).where(Compound.project_id == project_id).order_by(Compound.compound_id)).all()
+    compounds = db.scalars(select(Compound).where(
+        Compound.project_id == project_id,
+        Compound.status != "ARCHIVED",
+    ).order_by(Compound.compound_id)).all()
     data = _project_out(db, project).model_dump()
     rows = []
     endpoint_names = {row.id: row.name for row in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))}
@@ -815,6 +887,17 @@ def update_project(project_id: int, payload: ProjectUpdate, db: Session = Depend
 
 def _delete_project_tree_rows(db: Session, project_ids: list[int]):
     """Delete complete project trees inside the caller's open transaction."""
+    target_projects = list(db.scalars(select(Project).where(Project.id.in_(project_ids))))
+    unsafe = [
+        row.id for row in target_projects
+        if row.protection_policy != "SYNTHETIC_TEST"
+        and not (DATABASE_SETTINGS.environment in {"test", "e2e"} and row.is_test_fixture)
+    ]
+    if unsafe:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Stable Core blocks hard deletion of real projects {unsafe}; archive them instead",
+        )
     compound_ids = list(db.scalars(select(Compound.id).where(Compound.project_id.in_(project_ids))))
     version_ids = list(db.scalars(
         select(CompoundVersion.id).where(CompoundVersion.compound_row_id.in_(compound_ids))
@@ -954,7 +1037,42 @@ def _confirmed_project_delete(db: Session, confirmations: list[dict]):
         conf_name = item.get("confirmation_name")
         if conf_name is not None and str(conf_name).strip() != names[project_id].strip():
             raise HTTPException(status_code=400, detail=f"Confirmation name does not match project {project_id}")
+    hard_delete_requested = any(bool(item.get("hard_delete")) for item in confirmations)
+    real_projects = [row for row in projects if row.protection_policy != "SYNTHETIC_TEST"]
+    if real_projects:
+        if hard_delete_requested:
+            db.add_all([ScientificMutationAudit(
+                actor="API_USER", process="backend.main._confirmed_project_delete", operation="DELETE_ATTEMPT",
+                object_type="Project", object_id=str(row.id), project_id_snapshot=row.id,
+                before_identity_json={"id": row.id, "name": row.name, "protection_policy": row.protection_policy},
+                reason="Hard deletion requested for a real project", outcome="BLOCKED",
+            ) for row in real_projects])
+            db.commit()
+            raise HTTPException(status_code=403, detail="Real projects cannot be hard-deleted; archive them instead")
+        now = utcnow()
+        for row in projects:
+            before = {"id": row.id, "name": row.name, "lifecycle_status": row.lifecycle_status}
+            row.lifecycle_status = "ARCHIVED"
+            row.archived_at = now
+            row.updated_at = now
+            db.add(ScientificMutationAudit(
+                actor="API_USER", process="backend.main._confirmed_project_delete", operation="ARCHIVE",
+                object_type="Project", object_id=str(row.id), project_id_snapshot=row.id,
+                before_identity_json=before,
+                after_identity_json={"id": row.id, "name": row.name, "lifecycle_status": "ARCHIVED"},
+                reason="Ordinary project removal uses archive semantics", outcome="COMMITTED",
+            ))
+        db.commit()
+        return {"archived_project_ids": project_ids, "archived_project_names": [names[row_id] for row_id in project_ids]}
     try:
+        for row in projects:
+            db.add(ScientificMutationAudit(
+                actor="TEST_OR_ADMIN", process="backend.main._confirmed_project_delete", operation="HARD_DELETE",
+                object_type="Project", object_id=str(row.id), project_id_snapshot=row.id,
+                before_identity_json={"id": row.id, "name": row.name, "protection_policy": row.protection_policy},
+                reason="Verified synthetic test fixture cleanup", outcome="COMMITTED",
+            ))
+        db.flush()
         _delete_project_tree_rows(db, project_ids)
         db.commit()
     except HTTPException:
@@ -1527,23 +1645,31 @@ def get_compound_scientific_summary(row_id: int, db: Session = Depends(get_db)):
     ))
     evidence_count = 0
     accepted_evidence_count = 0
+    accepted_pk_evidence_count = 0
     historical_prediction_count = 0
     snapshot_count = 0
     if version_ids:
-        evidence_count = db.scalar(select(func.count(ExternalExperimentalEvidence.id)).where(
-            ExternalExperimentalEvidence.compound_version_id.in_(version_ids),
-            ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
+        evidence_count = db.scalar(select(func.count(ExperimentalObservation.id)).where(
+            ExperimentalObservation.compound_version_id.in_(version_ids),
+            ExperimentalObservation.curation_status != "REJECTED",
         )) or 0
-        accepted_evidence_count = db.scalar(select(func.count(ExternalExperimentalEvidence.id)).where(
-            ExternalExperimentalEvidence.compound_version_id.in_(version_ids),
-            ExternalExperimentalEvidence.lifecycle_status == "ACTIVE",
-            ExternalExperimentalEvidence.evidence_state.in_(("EXTERNAL_IMPORTED", "AUTO_QUALIFIED_EXTERNAL")),
+        accepted_evidence_count = db.scalar(select(func.count(ExperimentalObservation.id)).where(
+            ExperimentalObservation.compound_version_id.in_(version_ids),
+            ExperimentalObservation.curation_status == "ACCEPTED",
         )) or 0
-        historical_prediction_count = db.scalar(select(func.count(PredictionRun.id)).where(
-            PredictionRun.version_id.in_(version_ids)
+        pk_endpoints = [endpoint_id for endpoint_id, definition in REGISTRY.items() if definition.section == "PK"]
+        accepted_pk_evidence_count = db.scalar(select(func.count(ExperimentalObservation.id)).where(
+            ExperimentalObservation.compound_version_id.in_(version_ids),
+            ExperimentalObservation.curation_status == "ACCEPTED",
+            ExperimentalObservation.canonical_endpoint.in_(pk_endpoints),
         )) or 0
-        snapshot_count = db.scalar(select(func.count(PredictionEndpointSnapshot.id)).where(
-            PredictionEndpointSnapshot.compound_version_id.in_(version_ids)
+        historical_prediction_count = db.scalar(select(func.count(HistoricalPrediction.id)).where(
+            HistoricalPrediction.compound_version_id_snapshot.in_(version_ids)
+        )) or 0
+        snapshot_count = db.scalar(select(func.count(CurrentPredictionSnapshot.id)).where(
+            CurrentPredictionSnapshot.compound_version_id.in_(version_ids),
+            CurrentPredictionSnapshot.is_current.is_(True),
+            CurrentPredictionSnapshot.engine_release == CURRENT_ENGINE_ID,
         )) or 0
     drugbank_id = identifier_map.get("DRUGBANK_ID") or properties.get("drugbank_id")
     if not drugbank_id and "DRUGBANK" in compound.compound_id:
@@ -1607,10 +1733,11 @@ def get_compound_scientific_summary(row_id: int, db: Session = Depends(get_db)):
         )],
         "scientific_snapshot": {
             "accepted_evidence_count": accepted_evidence_count,
+            "accepted_pk_evidence_count": accepted_pk_evidence_count,
             "evidence_count": evidence_count,
             "current_prediction_snapshot_count": snapshot_count,
             "historical_prediction_count": historical_prediction_count,
-            "pk_available": accepted_evidence_count > 0,
+            "pk_available": accepted_pk_evidence_count > 0,
             "updated_at": compound.updated_at.isoformat(),
         },
         "prediction_count": snapshot_count,
@@ -2484,15 +2611,14 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
         except HTTPException: db.rollback(); raise
         except ChemistryError as exc: db.rollback(); raise HTTPException(status_code=400, detail=str(exc))
     else:
-        # Metadata edits invalidate cached prediction outputs for the current
-        # compound versions; the next explicit Predict run rebuilds them.
+        # Metadata edits may invalidate mutable calculation caches, but an
+        # immutable PredictionRun is scientific history and is never removed.
         version_ids = [v.id for v in compound.versions]
         if version_ids:
             db.execute(delete(ADMETPrediction).where(ADMETPrediction.version_id.in_(version_ids)))
             db.execute(delete(ADMETPredictionRun).where(ADMETPredictionRun.version_id.in_(version_ids)))
             db.execute(delete(ActivityPrediction).where(ActivityPrediction.version_id.in_(version_ids)))
             db.execute(delete(MetabolicPredictionRun).where(MetabolicPredictionRun.version_id.in_(version_ids)))
-            db.execute(delete(PredictionRun).where(PredictionRun.version_id.in_(version_ids)))
         db.commit()
     db.refresh(compound); return compound_out(compound)
 
@@ -2501,6 +2627,20 @@ def update_compound(row_id: int, payload: CompoundUpdate, db: Session = Depends(
 def delete_compound(row_id: int, db: Session = Depends(get_db)):
     compound = db.get(Compound, row_id)
     if not compound: raise HTTPException(status_code=404, detail="Compound not found")
+    project = db.get(Project, compound.project_id)
+    if not project or project.protection_policy != "SYNTHETIC_TEST":
+        before = {"id": compound.id, "status": compound.status, "project_id": compound.project_id}
+        compound.status = "ARCHIVED"
+        compound.updated_at = utcnow()
+        db.add(ScientificMutationAudit(
+            actor="API_USER", process="backend.main.delete_compound", operation="ARCHIVE",
+            object_type="Compound", object_id=str(compound.id), project_id_snapshot=compound.project_id,
+            before_identity_json=before,
+            after_identity_json={"id": compound.id, "status": "ARCHIVED", "project_id": compound.project_id},
+            reason="Ordinary compound removal uses archive semantics", outcome="COMMITTED",
+        ))
+        db.commit()
+        return
     v_ids = [v.id for v in compound.versions]
     db.execute(delete(PKParameterSet).where((PKParameterSet.compound_row_id == row_id) | (PKParameterSet.version_id.in_(v_ids))))
     db.execute(delete(PKSimulationRun).where((PKSimulationRun.compound_row_id == row_id) | (PKSimulationRun.version_id.in_(v_ids))))
@@ -4831,7 +4971,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
     accepted_pk = db.scalars(select(ExternalExperimentalEvidence).where(
         ExternalExperimentalEvidence.compound_version_id.in_(exact_version_ids),
         ExternalExperimentalEvidence.accepted_at.is_not(None),
-        ExternalExperimentalEvidence.canonical_endpoint_id.in_(("HUMAN_PK_F_ORAL", "HUMAN_PK_VD_IV", "HUMAN_PK_CL_IV", "HUMAN_PK_CMAX_UNSPECIFIED")),
+        ExternalExperimentalEvidence.canonical_endpoint_id.in_(("HUMAN_PK_F_ORAL", "HUMAN_PK_VD_IV", "HUMAN_PK_CL_IV", "HUMAN_PK_CL_UNSPECIFIED", "HUMAN_PK_CMAX_UNSPECIFIED")),
     )).all()
     for obs in accepted_pk:
         endpoint = str(obs.canonical_endpoint_id)
@@ -4846,7 +4986,7 @@ def get_compound_version_workspace(version_id: int, db: Session = Depends(get_db
             pk_routes.append(target)
         if endpoint == "HUMAN_PK_F_ORAL": target["f_experimental"] = value
         elif endpoint == "HUMAN_PK_VD_IV": target["v_value"] = value
-        elif endpoint == "HUMAN_PK_CL_IV": target["cl_value"] = value
+        elif endpoint in {"HUMAN_PK_CL_IV", "HUMAN_PK_CL_UNSPECIFIED"}: target["cl_value"] = value
         target.setdefault("experimental_observations", []).append({"endpoint": endpoint, "value": value, "unit": obs.normalized_unit or obs.raw_unit, "source": obs.source_database, "source_url": obs.source_url, "context": context})
     latest_workflow = next((row for row in audit_runs if row.stage == "prediction_workflow"), None)
     saved_steps = ((latest_workflow.outputs_json or {}).get("steps", {}) if latest_workflow else {})

@@ -14,7 +14,7 @@ import sqlite3
 import sys
 from pathlib import Path
 from sqlalchemy import select, text
-from backend.database import SessionLocal, engine
+from backend.database import DATABASE_SETTINGS, SessionLocal, engine
 from backend.models import Project, Compound, CompoundVersion, ExternalExperimentalEvidence, ensure_ui_schema
 from backend.main import _delete_project_tree_rows
 from backend.stabilization import classify_project
@@ -100,7 +100,10 @@ def run_cleanup(manifest_path: str = "validation/test_fixture_cleanup_manifest.j
         db.close()
 
     # Raw sqlite checks
-    conn = sqlite3.connect("drug_opt.db")
+    # Use the same explicitly configured database as the ORM session.  A
+    # relative repository-root path bypassed TEST/E2E isolation and was the
+    # original production-data escape hatch caught by Stable Core's guard.
+    conn = sqlite3.connect(DATABASE_SETTINGS.sqlite_path)
     cur = conn.cursor()
 
     cur.execute("PRAGMA foreign_key_check;")

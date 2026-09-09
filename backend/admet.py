@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from fastapi import Depends, HTTPException
 from fastapi.responses import PlainTextResponse
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, select, text
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, event, inspect, select, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -268,6 +268,13 @@ class ADMETMeasurement(Base):
     endpoint = relationship("ADMETEndpoint", back_populates="measurements")
     version = relationship("CompoundVersion")
     assay_definition = relationship("ADMETAssayDefinition")
+
+
+@event.listens_for(ADMETMeasurement, "after_insert")
+@event.listens_for(ADMETMeasurement, "after_update")
+def _publish_admet_measurement_to_stable_core(mapper, connection, target) -> None:
+    from .stable_core import sync_admet_measurement_observation
+    sync_admet_measurement_observation(connection, target)
 
 
 class ADMETModelRegistry(Base):

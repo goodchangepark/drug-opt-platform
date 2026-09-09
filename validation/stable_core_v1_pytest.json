@@ -1,0 +1,31 @@
+{
+  "contract": "StableCoreIsolatedPytest/v1",
+  "executed_at": "2026-09-09T23:03:00+09:00",
+  "command": ".venv/bin/python scripts/run_isolated_pytest.py -q",
+  "persistent_unit": "drugopt-stable-core-final3-pytest-20260909.service",
+  "production_database": "/home/xavier/chem/drug-opt-platform/drug_opt.db",
+  "test_database": "/tmp/drugopt-pytest-wrapper-n6pito93/drugopt-test.db",
+  "physical_paths_distinct": true,
+  "production_logical_fingerprint_before": "c25176b8528046599876fd0c0f49c529817be2f414c1388fd6185990262b178f",
+  "production_logical_fingerprint_after": "c25176b8528046599876fd0c0f49c529817be2f414c1388fd6185990262b178f",
+  "production_unchanged": true,
+  "pytest_exit_code": 0,
+  "passed": 980,
+  "failed": 0,
+  "errors": 0,
+  "warnings": 56,
+  "runtime_seconds": 898.35,
+  "runtime_display": "14m58s",
+  "failure_triage": [
+    {
+      "test": "tests/test_fixture_lifecycle_v331.py::test_test4_idempotent_cleanup_maintains_protected_projects",
+      "first_full_run_result": "FAILED",
+      "root_cause": "backend.cleanup_test_fixtures reopened relative drug_opt.db for raw integrity checks, bypassing the configured isolated database",
+      "safety_behavior": "Stable Core direct-sqlite guard blocked production access before mutation",
+      "fix": "raw verification now uses DATABASE_SETTINGS.sqlite_path and the protected-project assertion includes Project 5",
+      "focused_rerun": "1 passed",
+      "final_full_rerun": "980 passed, 0 failed"
+    }
+  ],
+  "status": "PASS"
+}

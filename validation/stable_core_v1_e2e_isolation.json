@@ -1,0 +1,15 @@
+{
+  "contract": "StableCoreIsolatedE2E/v1",
+  "executed_at": "2026-09-09T23:06:00+09:00",
+  "production_database": "/home/xavier/chem/drug-opt-platform/drug_opt.db",
+  "e2e_database": "/tmp/drugopt-e2e-1_dw07me/drugopt-e2e.db",
+  "physical_paths_distinct": true,
+  "production_logical_fingerprint_before": "c25176b8528046599876fd0c0f49c529817be2f414c1388fd6185990262b178f",
+  "production_logical_fingerprint_after": "c25176b8528046599876fd0c0f49c529817be2f414c1388fd6185990262b178f",
+  "production_unchanged": true,
+  "e2e_exit_code": 0,
+  "browser_result_artifact": "validation/stable_core_v1_browser_e2e.json",
+  "desktop": "PASS",
+  "mobile": "PASS",
+  "status": "PASS"
+}

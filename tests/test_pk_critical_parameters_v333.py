@@ -202,7 +202,8 @@ def test_drugbank_250_catalog_and_database_integrity():
     assert len(set(smiles_list)) == 250, "SMILES must be unique"
 
     # Verify SQLite database Project 300
-    db_path = Path(__file__).resolve().parent.parent / "drug_opt.db"
+    from backend.database import DATABASE_SETTINGS
+    db_path = DATABASE_SETTINGS.sqlite_path
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
 
@@ -258,7 +259,7 @@ def test_engine_v3_3_3_candidate_policy_hash():
     # Candidate v3.3.3 registered
     v333 = next((h for h in history if h["version"] == "v3.3.3"), None)
     assert v333 is not None
-    assert v333["production_status"] == "PRODUCTION_DEFAULT"
+    assert v333["production_status"] == "PRODUCTION_VALIDATED"
     assert v333["reference_compound_N"] == 250
 
 

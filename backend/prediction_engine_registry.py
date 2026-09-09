@@ -25,8 +25,8 @@ from typing import Any, Dict, List, Optional
 CURRENT_ENGINE_ID = "drugopt-prediction-engine-v3@3.3.3"
 CURRENT_ENGINE_VERSION = "3.3.3"
 CURRENT_ENGINE_NAME = "Prediction Engine v3.3.3 · Production Default"
-CURRENT_ENGINE_STATUS = "PRODUCTION_DEFAULT"
-CURRENT_ENGINE_DECISION = "V3_3_3_RELEASE_ACTIVATED"
+CURRENT_ENGINE_STATUS = "PRODUCTION_VALIDATED"
+CURRENT_ENGINE_DECISION = "STABLE_CORE_V1_VALIDATED"
 CURRENT_POLICY_HASH = "2ba75ad8813cafd84173369dfbda8abd4190789c16f52f90a905750e620e43d2"
 CURRENT_RELEASE_DATE = "2026-09-08"
 
@@ -59,7 +59,7 @@ PREDICTION_ENGINE_EVOLUTION: List[Dict[str, Any]] = [
     {"version": "v3.3.0", "label": "v3.3 Multi-Model Replacement", "status": "SUPERSEDED", "engine_id": "drugopt-prediction-engine-v3@3.3.0"},
     {"version": "v3.3.1", "label": "v3.3.1 Stacking Ensemble", "status": "PRESERVED_PRODUCTION_BASELINE", "engine_id": "drugopt-prediction-engine-v3@3.3.1"},
     {"version": "v3.3.2", "label": "v3.3.2 Preserved Production Baseline", "status": "SUPERSEDED_PRESERVED", "engine_id": PREVIOUS_ENGINE_ID},
-    {"version": "v3.3.3", "label": "v3.3.3 Production Default", "status": "CURRENT_PRODUCTION_DEFAULT", "engine_id": CURRENT_ENGINE_ID},
+    {"version": "v3.3.3", "label": "v3.3.3 Production Default", "status": CURRENT_ENGINE_STATUS, "engine_id": CURRENT_ENGINE_ID},
 ]
 
 # 2. Complete Historical Version Metadata Registry

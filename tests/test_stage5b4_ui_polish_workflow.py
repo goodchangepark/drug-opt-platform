@@ -167,7 +167,8 @@ def test_test_project_cleanup_audit_file():
 
 def test_database_integrity_and_fk_check():
     import sqlite3
-    con = sqlite3.connect(ROOT / "drug_opt.db")
+    from backend.database import DATABASE_SETTINGS
+    con = sqlite3.connect(DATABASE_SETTINGS.sqlite_path)
     
     integrity = con.execute("PRAGMA integrity_check;").fetchall()
     assert integrity == [("ok",)], f"Integrity check failed: {integrity}"

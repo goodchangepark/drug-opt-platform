@@ -147,7 +147,7 @@ def test_test4_idempotent_cleanup_maintains_protected_projects():
     """Cleanup is idempotent and never deletes protected rows present in the DB."""
     result = run_cleanup()
     assert result["status"] == "SUCCESS"
-    assert {1, 3, 300}.issubset(set(result["remaining_ids"]))
+    assert {1, 3, 5, 300}.issubset(set(result["remaining_ids"]))
     result2 = run_cleanup()
     assert result2["status"] == "SUCCESS"
     assert result2["deleted_count"] == 0

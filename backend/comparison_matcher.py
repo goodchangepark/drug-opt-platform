@@ -88,7 +88,7 @@ class ScientificComparisonPair:
     prediction_source_type: str = "MODEL"
     prediction_source_label: str = "Model Prediction"
     prediction_model_id: str = ""
-    prediction_engine_version: str = "3.3.2"
+    prediction_engine_version: str = "UNKNOWN_PROVENANCE"
     prediction_ad_status: str = "IN_DOMAIN"
     prediction_uncertainty: Optional[float] = None
     maturity_level: int = 1
@@ -273,7 +273,7 @@ class ComparisonPairMatcher:
         pair.prediction_source_type = pred_record.get("source_type", "MODEL")
         pair.prediction_source_label = pred_record.get("source_label", "Model Prediction")
         pair.prediction_model_id = pred_record.get("model_id", "")
-        pair.prediction_engine_version = pred_record.get("engine_version", "3.3.2")
+        pair.prediction_engine_version = pred_record.get("engine_version") or "UNKNOWN_PROVENANCE"
         pair.prediction_ad_status = pred_record.get("ad_status", "IN_DOMAIN")
         pair.prediction_uncertainty = pred_record.get("uncertainty")
 

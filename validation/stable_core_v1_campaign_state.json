@@ -1,0 +1,70 @@
+{
+  "contract": "StableCoreV1CampaignState/v1",
+  "architecture_version": "stable-core-v1",
+  "status": "COMPLETE",
+  "updated_at": "2026-09-09T23:07:00+09:00",
+  "current_schema_version": 5,
+  "applied_migrations": [
+    "stable-core-v1-001",
+    "stable-core-v1-002",
+    "stable-core-v1-003",
+    "stable-core-v1-004",
+    "stable-core-v1-005"
+  ],
+  "completed_phases": {
+    "A_database_isolation": "COMPLETE",
+    "B_project_lifecycle_safety": "COMPLETE",
+    "C_immutable_history": "COMPLETE",
+    "D_mutation_audit": "COMPLETE",
+    "E_canonical_scientific_key_and_endpoint_registry": "COMPLETE",
+    "F_canonical_experimental_observations": "COMPLETE",
+    "G_current_prediction_authority": "COMPLETE",
+    "H_comparison_authority": "COMPLETE",
+    "I_model_and_maturity_authority": "COMPLETE",
+    "J_pk_architecture_consolidation": "COMPLETE",
+    "K_compound_and_tab_performance": "COMPLETE",
+    "L_legacy_compatibility_adapters": "COMPLETE",
+    "M_test_architecture_isolation": "COMPLETE",
+    "N_project5_and_history_recovery": "COMPLETE",
+    "O_migration_parity_and_release_validation": "COMPLETE"
+  },
+  "production_fingerprint": "c25176b8528046599876fd0c0f49c529817be2f414c1388fd6185990262b178f",
+  "test_database_configuration": {
+    "environment": "TEST",
+    "unique_temporary_database": true,
+    "production_realpath_and_inode_fail_closed": true,
+    "direct_sqlite_access_fail_closed": true
+  },
+  "e2e_database_configuration": {
+    "environment": "E2E",
+    "unique_temporary_database": true,
+    "production_fingerprint_unchanged": true
+  },
+  "legacy_adapters_converted": [
+    "test fixture cleanup entry point",
+    "legacy evidence writers",
+    "legacy current-prediction artifact readers",
+    "frontend scientific endpoint rows",
+    "frontend current-engine and maturity display"
+  ],
+  "remaining_legacy_adapters": [
+    "legacy evidence and calculation tables retained non-destructively as compatibility/artifact sources",
+    "deprecated monolithic workspace remains for compatibility but is not called on compound open"
+  ],
+  "project5_recovery_status": "COMPLETE",
+  "historical_recovery_status": "20 specified PredictionRuns recovered and immutable; runs 167/168 preserved; runs 169/170 preserved pending provenance review",
+  "tests_completed": {
+    "isolated_full_pytest": "980 passed, 0 failed, 56 warnings in 898.35s",
+    "production_fingerprint_unchanged": true,
+    "isolated_browser_e2e": "PASS",
+    "business_integrity": "PASS"
+  },
+  "operational_release": {
+    "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+    "status": "PRODUCTION_VALIDATED",
+    "decision": "STABLE_CORE_V1_VALIDATED",
+    "rollback_engine": "drugopt-prediction-engine-v3@3.3.2"
+  },
+  "next_exact_action": "STOP. Perform the user-requested fresh whole-system review in a future session; do not resume model optimization or Gemini from this campaign.",
+  "exact_resume_command": "No Stable Core reconstruction action remains. Review validation/stable_core_v1_manifest.json before any future development."
+}

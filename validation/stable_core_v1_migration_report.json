@@ -1,0 +1,32 @@
+{
+  "migration_id": "stable-core-v1-005",
+  "database": "/home/xavier/chem/drug-opt-platform/drug_opt.db",
+  "verified_backup": "/home/xavier/.local/share/drug-opt/backups/drug_opt_stable_core_v1_pre_v005_20260909T122500+0900.db",
+  "verified_backup_sha256": "61595f8de5b033416ba1148b1ea5a24d461f2f91a35c8b6d5bc6787fe8851b41",
+  "migrated": {
+    "historical_predictions": 0,
+    "experimental_observations": 0,
+    "current_predictions": 0
+  },
+  "normalized": {
+    "corrected_orforglipron_clearance": 1,
+    "migrated_admet_measurements": 0,
+    "accepted_deterministically_qualified_observations": 0
+  },
+  "provenance_corrections": {
+    "current_prediction_modes_corrected": 0,
+    "historical_prediction_modes_corrected": 0
+  },
+  "evidence_acceptance": {
+    "legacy_autoqualified_observations_demoted": 0
+  },
+  "source_semantics": {
+    "orforglipron_clearance_verified": 1,
+    "missing_source_record": 0
+  },
+  "rollback": {
+    "requires_service_stopped": true,
+    "procedure": "Replace the migrated database with the verified byte-for-byte backup, then restart the existing service.",
+    "warning": "Rollback discards all post-migration transactions and therefore requires an explicit recovery decision."
+  }
+}

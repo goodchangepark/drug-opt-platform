@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from sqlalchemy import Boolean, JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, inspect, text
+from sqlalchemy import Boolean, JSON, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint, event, inspect, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -21,10 +21,36 @@ class Project(Base):
     mechanism_modality: Mapped[str] = mapped_column(String(300), default="")
     description: Mapped[str] = mapped_column(Text, default="")
     is_test_fixture: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+    lifecycle_status: Mapped[str] = mapped_column(String(30), default="ACTIVE", index=True)
+    protection_policy: Mapped[str] = mapped_column(String(40), default="REAL_PROJECT", index=True)
+    archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
-    compounds: Mapped[list["Compound"]] = relationship(back_populates="project", cascade="all, delete-orphan")
+    # Real projects are protected by the database trigger and normal API
+    # lifecycle is ARCHIVE.  Verified synthetic fixtures may still be hard
+    # deleted in isolated TEST/E2E databases; let the FK's ON DELETE CASCADE
+    # perform that disposal without ORM attempts to null a non-nullable FK.
+    compounds: Mapped[list["Compound"]] = relationship(
+        back_populates="project", cascade="save-update, merge", passive_deletes=True,
+    )
+
+
+@event.listens_for(Project, "before_insert")
+def _classify_new_project(mapper, connection, target: Project) -> None:
+    # Pytest/E2E use physically isolated databases.  Every project created in
+    # those environments is disposable by definition, while copied production
+    # rows retain their persisted protection policy because this hook only runs
+    # for INSERTs.
+    from .database import DATABASE_SETTINGS
+
+    if DATABASE_SETTINGS.environment in {"test", "e2e"}:
+        target.is_test_fixture = True
+        target.protection_policy = "SYNTHETIC_TEST"
+    elif target.is_test_fixture:
+        target.protection_policy = "SYNTHETIC_TEST"
+    elif not target.protection_policy:
+        target.protection_policy = "REAL_PROJECT"
 
 
 class Compound(Base):
@@ -144,6 +170,17 @@ class ExternalExperimentalEvidence(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
 
+@event.listens_for(ExternalExperimentalEvidence, "after_insert")
+@event.listens_for(ExternalExperimentalEvidence, "after_update")
+def _publish_external_evidence_to_stable_core(mapper, connection, target) -> None:
+    # Stable Core may not yet exist while a brand-new legacy database is being
+    # bootstrapped.  Once the additive migration exists, every writer is
+    # published through the canonical observation contract automatically.
+    from .stable_core import sync_external_observation
+
+    sync_external_observation(connection, target)
+
+
 class EvidenceImportBatch(Base):
     """Auditable explicit acceptance operation for external candidates."""
     __tablename__ = "evidence_import_batches"
@@ -179,7 +216,7 @@ class CompoundVersion(Base):
     compound: Mapped[Compound] = relationship(back_populates="versions")
     property_runs: Mapped[list["PropertyCalculation"]] = relationship(back_populates="version", cascade="all, delete-orphan")
     structural_alerts: Mapped[list["StructuralAlert"]] = relationship(back_populates="version", cascade="all, delete-orphan")
-    prediction_runs: Mapped[list["PredictionRun"]] = relationship(back_populates="version", cascade="all, delete-orphan")
+    prediction_runs: Mapped[list["PredictionRun"]] = relationship(back_populates="version", cascade="save-update, merge")
     __table_args__ = (UniqueConstraint("compound_row_id", "version_number", name="uq_compound_version"),)
 
 

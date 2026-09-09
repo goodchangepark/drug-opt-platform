@@ -37,7 +37,9 @@ def test_shared_maturity_component_uses_five_inline_svg_stars():
     css = (Path(__file__).parents[1] / "frontend/static/app.css").read_text()
     assert "renderPredictionMaturity" in js
     assert "[...Array(5)]" in js and "e('svg'" in js
-    assert "normalized=Math.max(1,Math.min(5,Number(level)||1))" in js
+    assert "normalized=Math.max(1,Math.min(5,numeric))" in js
+    assert "UNKNOWN_MATURITY" in js
+    assert "Number(level)||1" not in js
     assert "#F5B700" in css and "min-width: 88px" in css
 
 

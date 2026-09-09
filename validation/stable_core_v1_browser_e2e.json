@@ -1,0 +1,48 @@
+{
+  "contract": "StableCoreBrowserE2E/v1",
+  "environment": "E2E_ISOLATED_DATABASE",
+  "base_url": "http://127.0.0.1:8876",
+  "api_ms": {
+    "projects": 34.563,
+    "current_engine": 13.111,
+    "orforglipron_pk": 44.758
+  },
+  "orforglipron_pk_payload_bytes": 4890,
+  "viewports": [
+    {
+      "viewport": "1440x900",
+      "initial_project_ui_ms": 2780.454,
+      "initial_rows": 50,
+      "pagination_page2_rows": 50,
+      "pk_contract_rows": 4,
+      "canonical_tab_requests": {
+        "PROPERTIES": 1,
+        "ACTIVITY": 1,
+        "ADMET": 1,
+        "METABOLISM": 1
+      },
+      "workspace_requests": 0,
+      "external_search_requests_on_open": 0,
+      "reload_persistence": "PASS",
+      "browser_console_severe": "NOT_AVAILABLE_FROM_REMOTE_DRIVER"
+    },
+    {
+      "viewport": "390x844",
+      "initial_project_ui_ms": 3457.304,
+      "initial_rows": 50,
+      "pagination_page2_rows": 50,
+      "pk_contract_rows": 4,
+      "canonical_tab_requests": {
+        "PROPERTIES": 1,
+        "ACTIVITY": 1,
+        "ADMET": 1,
+        "METABOLISM": 1
+      },
+      "workspace_requests": 0,
+      "external_search_requests_on_open": 0,
+      "reload_persistence": "PASS",
+      "browser_console_severe": "NOT_AVAILABLE_FROM_REMOTE_DRIVER"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text
+from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, event
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -77,6 +77,13 @@ class ActivityMeasurement(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     assay: Mapped[AssayDefinition] = relationship(back_populates="measurements")
+
+
+@event.listens_for(ActivityMeasurement, "after_insert")
+@event.listens_for(ActivityMeasurement, "after_update")
+def _publish_activity_measurement_to_stable_core(mapper, connection, target) -> None:
+    from .stable_core import sync_activity_measurement_observation
+    sync_activity_measurement_observation(connection, target)
 
 
 class QSARModel(Base):
