@@ -1715,6 +1715,16 @@ function integratedProfile(versionId){
    ])),
    e('p',{className:'small'},'Experimental = — means no accepted observation for this exact scientific key. Prediction = — means no persisted current snapshot; no value is calculated on page open.')
   ]);
+  // Stable Core is the only scientific authority.  Absence of canonical rows
+  // is explicit; legacy workspace payloads must never reconstruct endpoint,
+  // species, pairability, provenance, or maturity in the browser.
+  return e('section',{className:'card routed-evidence-section',key:'stable-core-empty-'+section},[
+   e('div',{className:'eyebrow'},section),
+   e('h3',{},title),
+   e('div',{className:'empty-state'},scientificTabLoading?'Loading canonical scientific data…':'NO_DATA · NO_ACCEPTED_EXPERIMENT · NO_CURRENT_PREDICTION')
+  ]);
+  /* Legacy rendering below is retained as unreachable source compatibility
+     while old exports are migrated. It is not a runtime scientific fallback. */
   const canonical=workspace?.endpoint_comparison||{};
   const scientificRows=(canonical.scientific_rows||[]).filter(row=>row.section===section);
   if(!scientificRows.length)return null;

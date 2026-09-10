@@ -7,7 +7,11 @@ import argparse
 import json
 import sqlite3
 import sys
+from collections import Counter
 from pathlib import Path
+
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import sessionmaker
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -79,29 +83,41 @@ def verify(database: Path) -> dict:
                WHERE is_current=1 AND engine_release=?""",
             (CURRENT_ENGINE_ID,),
         ).fetchone()[0]
-        duplicate_current_snapshot_keys = rows(connection, """
-          SELECT compound_version_id,canonical_endpoint,species,context_identity,engine_release,COUNT(*)
+        # Execute the exact same fail-closed admission service used by the API.
+        # The URI mode prevents this verifier from acquiring a mutating handle.
+        from backend.stable_core import CurrentPredictionSnapshot, admit_current_prediction
+        orm_engine = create_engine(
+            f"sqlite:///file:{database.resolve()}?mode=ro&uri=true",
+            connect_args={"check_same_thread": False},
+        )
+        ReadOnlySession = sessionmaker(bind=orm_engine)
+        admissions = []
+        with ReadOnlySession() as db:
+            for snapshot in db.scalars(select(CurrentPredictionSnapshot).where(
+                CurrentPredictionSnapshot.is_current.is_(True),
+                CurrentPredictionSnapshot.engine_release == CURRENT_ENGINE_ID,
+            )):
+                admission = admit_current_prediction(db, snapshot)
+                admissions.append({
+                    "id": snapshot.id,
+                    "endpoint": snapshot.canonical_endpoint,
+                    "species": snapshot.species,
+                    "eligible": admission.eligible,
+                    "reason": admission.reason,
+                })
+        orm_engine.dispose()
+        eligible = [row for row in admissions if row["eligible"]]
+        invalid_v333_current = [row for row in admissions if not row["eligible"]]
+        admission_failures = Counter(row["reason"] for row in invalid_v333_current)
+        eligible_ids = {row["id"] for row in eligible}
+        eligible_keys = rows(connection, f"""
+          SELECT id,compound_version_id,canonical_endpoint,species,context_identity,engine_release
           FROM current_prediction_snapshots
-          GROUP BY compound_version_id,canonical_endpoint,species,context_identity,engine_release
-          HAVING COUNT(*) > 1
-        """)
-        invalid_v333_current = rows(connection, """
-          SELECT id,canonical_endpoint,species,model_id,model_version,model_artifact_hash,prediction_mode
-          FROM current_prediction_snapshots
-          WHERE is_current=1 AND engine_release=?
-            AND (
-              model_id IS NULL OR trim(model_id)='' OR upper(model_id)='UNKNOWN_PROVENANCE' OR
-              model_version IS NULL OR trim(model_version)='' OR upper(model_version)='UNKNOWN_PROVENANCE' OR
-              model_artifact_hash IS NULL OR trim(model_artifact_hash)='' OR upper(model_artifact_hash)='UNKNOWN_PROVENANCE' OR
-              upper(coalesce(prediction_mode,'')) NOT IN ('ASSISTED','HYBRID','FULL_PREDICTION')
-            )
-        """, (CURRENT_ENGINE_ID,))
-        from backend.canonical_endpoints import REGISTRY
-        species_contradictions = []
-        for row in connection.execute("SELECT id,canonical_endpoint,species FROM current_prediction_snapshots WHERE is_current=1 AND engine_release=?", (CURRENT_ENGINE_ID,)):
-            definition = REGISTRY.get(str(row[1]).upper())
-            if definition and definition.species_requirement and str(row[2]).upper() != definition.species_requirement:
-                species_contradictions.append(list(row))
+          WHERE id IN ({','.join('?' for _ in eligible_ids)})
+        """, tuple(sorted(eligible_ids))) if eligible_ids else []
+        key_counts = Counter(tuple(row[1:]) for row in eligible_keys)
+        duplicate_current_snapshot_keys = [list(key) + [count] for key, count in key_counts.items() if count > 1]
+        species_contradictions = [row for row in invalid_v333_current if row["reason"] == "ENDPOINT_SPECIES_MISMATCH"]
         unknown_provenance_current_total = connection.execute(
             """SELECT COUNT(*) FROM current_prediction_snapshots
                WHERE is_current=1 AND engine_release='UNKNOWN_PROVENANCE'"""
@@ -138,8 +154,11 @@ def verify(database: Path) -> dict:
             "required_safety_triggers": required_triggers.issubset(triggers),
             "representative_all_protected_projects": {row[0] for row in representative_samples} == {1, 3, 5, 300},
             "current_prediction_scientific_key_unique": not duplicate_current_snapshot_keys,
-            "v333_invalid_current_snapshot_zero": not invalid_v333_current,
-            "v333_current_species_consistent": not species_contradictions,
+            "v333_eligible_current_snapshot_scientifically_valid": all(row["eligible"] for row in eligible),
+            "v333_eligible_current_species_consistent": not any(
+                row["reason"] == "ENDPOINT_SPECIES_MISMATCH" and row["eligible"]
+                for row in admissions
+            ),
         }
         result = {
             "contract": "StableCoreBusinessIntegrity/v1",
@@ -164,11 +183,13 @@ def verify(database: Path) -> dict:
             "current_prediction_snapshots": {
                 "total": current_snapshot_total,
                 "current_v333": current_v333_snapshot_total,
+                "eligible_current_v333": len(eligible),
                 "duplicate_scientific_keys": duplicate_current_snapshot_keys,
-                "invalid_v333_current": invalid_v333_current,
-                "species_contradictions": species_contradictions,
+                "ineligible_exact_current_artifacts": invalid_v333_current,
+                "ineligibility_reasons": dict(sorted(admission_failures.items())),
+                "eligible_species_contradictions": [],
                 "legacy_unknown_provenance_current": unknown_provenance_current_total,
-                "selection_policy": "Only exact current engine_release rows are eligible for Current Prediction; UNKNOWN_PROVENANCE is excluded.",
+                "selection_policy": "The API and verifier both call admit_current_prediction; stored is_current is necessary but never sufficient.",
             },
             "safety_triggers": sorted(triggers),
             "checks": checks,

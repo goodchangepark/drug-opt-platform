@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
@@ -17,11 +19,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from .canonical_endpoints import canonicalize_prediction_endpoint
 from .database import Base
-from .species_registry import normalize_species_code
+from .species_registry import SPECIES_REGISTRY, normalize_species_code
 
-STABLE_CORE_VERSION = "stable-core-v1"
-SCHEMA_VERSION = 5
-MIGRATION_ID = "stable-core-v1-005"
+STABLE_CORE_VERSION = "stable-core-v1.2"
+SCHEMA_VERSION = 6
+MIGRATION_ID = "stable-core-v1-006"
 UNKNOWN_PROVENANCE = "UNKNOWN_PROVENANCE"
 UNKNOWN_PREDICTION_MODE = "UNKNOWN_MODE"
 VALID_PREDICTION_MODES = frozenset({"ASSISTED", "HYBRID", "FULL_PREDICTION"})
@@ -46,6 +48,139 @@ def context_identity(context: dict[str, Any] | None) -> str:
     return hashlib.sha256(payload.encode()).hexdigest()
 
 
+def canonical_prediction_context(endpoint_id: str, context: dict[str, Any] | None) -> dict[str, Any]:
+    """Normalize only context dimensions that define this endpoint's result."""
+    source = canonical_context(context)
+    endpoint = str(endpoint_id or "").strip().upper()
+    if any(token in endpoint for token in ("CMAX", "AUC", "TMAX", "_F_", "_KA_")):
+        fields = ("route", "dose", "dose_unit", "formulation", "fed_state", "regimen", "dosing_state", "analyte")
+    elif any(token in endpoint for token in ("CL", "VD", "VSS", "HALF", "T_HALF")):
+        fields = ("route", "matrix", "analyte")
+    elif "CACO2" in endpoint:
+        fields = ("matrix", "direction", "assay_type")
+    else:
+        fields = ("matrix", "assay_type", "measurement_type", "analyte")
+    return {field: source[field] for field in fields if field in source}
+
+
+def prediction_context_identity(endpoint_id: str, context: dict[str, Any] | None) -> str:
+    payload = json.dumps(
+        canonical_prediction_context(endpoint_id, context),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    )
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
+def expected_structure_revision(version: Any) -> str:
+    smiles_hash = hashlib.sha256(str(getattr(version, "canonical_smiles", "") or "").encode()).hexdigest()[:16]
+    return f"{getattr(version, 'inchikey', '')}@v{getattr(version, 'version_number', '')}:{smiles_hash}"
+
+
+def _unit_admission_reason(endpoint_id: str, value: float | None, unit: str) -> str | None:
+    from .canonical_endpoints import REGISTRY
+    from .unit_normalization import (
+        clean_unit_str,
+        convert_auc,
+        convert_caco2_papp,
+        convert_clearance,
+        convert_concentration,
+        convert_cyp_herg_ic50,
+        convert_ppb,
+        convert_solubility,
+        convert_time,
+        convert_volume,
+    )
+
+    definition = REGISTRY[endpoint_id]
+    raw = str(unit or "").strip()
+    if not raw:
+        return "MISSING_UNIT"
+    source = clean_unit_str(raw)
+    target = clean_unit_str(definition.canonical_unit)
+    if source == target:
+        return None
+    # Small deterministic aliases that do not change scale or semantics.
+    aliases = {
+        "g/mol": {"g/mol", "da"},
+        "å²": {"å²", "a²", "a2", "angstrom2"},
+        "count": {"count", "integer"},
+        "charge": {"charge", "integer"},
+        "fraction": {"fraction", "ratio"},
+        "score(0-1)": {"score(0-1)", "score", "probability", "probability(0-1)"},
+        "probability": {"probability", "probability(0-1)", "score(0-1)"},
+        "log10(mol/l)": {"log10(mol/l)", "logs"},
+        "log10(o/w)": {"log10(o/w)", "logp"},
+        "ph": {"ph", "pka"},
+        "log10": {"log10", "logd"},
+    }
+    if source in aliases.get(target, set()):
+        return None
+    try:
+        numeric = float(value) if value is not None else 1.0
+        if "SOLUBILITY" in endpoint_id:
+            result = convert_solubility(numeric, raw)
+        elif "CACO2" in endpoint_id:
+            result = convert_caco2_papp(numeric, raw)
+        elif "PPB" in endpoint_id:
+            result = convert_ppb(numeric, raw, definition.canonical_unit)
+        elif any(token in endpoint_id for token in ("CLINT", "_CL_", "_CLF_", "CLEARANCE")):
+            # Do not admit absolute/weight-normalized interconversion because
+            # it would require a body-weight assumption absent from the key.
+            if ("/kg" in source) != ("/kg" in target):
+                return "INCOMPATIBLE_UNIT"
+            result = convert_clearance(numeric, raw, definition.canonical_unit)
+        elif any(token in endpoint_id for token in ("VDSS", "_VD_", "_VDF_", "_VSSF_")):
+            if ("/kg" in source) != ("/kg" in target):
+                return "INCOMPATIBLE_UNIT"
+            result = convert_volume(numeric, raw, definition.canonical_unit)
+        elif any(token in endpoint_id for token in ("T_HALF", "HALF_LIFE", "TMAX")):
+            result = convert_time(numeric, raw, definition.canonical_unit)
+        elif "CMAX" in endpoint_id:
+            result = convert_concentration(numeric, raw, definition.canonical_unit)
+        elif "AUC" in endpoint_id:
+            result = convert_auc(numeric, raw, definition.canonical_unit)
+        elif any(token in endpoint_id for token in ("CYP", "HERG")) and "PIC50" in target.upper():
+            result = convert_cyp_herg_ic50(numeric, raw)
+        else:
+            return "INCOMPATIBLE_UNIT"
+    except (TypeError, ValueError, OverflowError):
+        return "INCOMPATIBLE_UNIT"
+    return None if clean_unit_str(result.normalized_unit) == target else "INCOMPATIBLE_UNIT"
+
+
+def _value_admission_reason(endpoint_id: str, value: Any, classification: str) -> str | None:
+    from .canonical_endpoints import REGISTRY
+
+    definition = REGISTRY[endpoint_id]
+    if value is None:
+        return None if classification and definition.value_type not in {"numeric", "integer"} else "MISSING_VALUE"
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return "INVALID_VALUE"
+    if not math.isfinite(number):
+        return "INVALID_VALUE"
+    unit = str(definition.canonical_unit or "").lower()
+    if ("probability" in unit or "score (0-1)" in unit) and not 0.0 <= number <= 1.0:
+        return "VALUE_OUT_OF_RANGE"
+    if ("%" in unit or definition.canonical_scale == "PERCENT") and not 0.0 <= number <= 100.0:
+        return "VALUE_OUT_OF_RANGE"
+    if definition.value_type == "integer" and number != int(number):
+        return "INVALID_INTEGER_VALUE"
+    if any(token in endpoint_id for token in ("_CL_", "_CLF_", "VDSS", "_VD_", "_VDF_", "T_HALF", "HALF_LIFE", "CMAX", "AUC")) and number <= 0:
+        return "NON_POSITIVE_VALUE"
+    return None
+
+
+@dataclass(frozen=True)
+class SnapshotAdmission:
+    eligible: bool
+    reason: str | None
+    model_registration: Any | None = None
+
+
 class ScientificMutationAudit(Base):
     __tablename__ = "scientific_mutation_audit"
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -57,6 +192,13 @@ class ScientificMutationAudit(Base):
     object_id: Mapped[str] = mapped_column(String(120), default="", index=True)
     project_id_snapshot: Mapped[int | None] = mapped_column(Integer, nullable=True, index=True)
     transaction_id: Mapped[str] = mapped_column(String(120), default="", index=True)
+    caller_type: Mapped[str] = mapped_column(String(80), default="UNKNOWN", server_default="UNKNOWN", index=True)
+    caller_name: Mapped[str] = mapped_column(String(120), default="UNKNOWN", server_default="UNKNOWN", index=True)
+    request_id: Mapped[str] = mapped_column(String(120), default="", server_default="", index=True)
+    workflow_id: Mapped[str] = mapped_column(String(120), default="", server_default="", index=True)
+    execution_id: Mapped[str] = mapped_column(String(120), default="", server_default="", index=True)
+    conversation_id: Mapped[str] = mapped_column(String(120), default="", server_default="", index=True)
+    route_action: Mapped[str] = mapped_column(String(200), default="", server_default="")
     before_identity_json: Mapped[dict] = mapped_column(JSON, default=dict)
     after_identity_json: Mapped[dict] = mapped_column(JSON, default=dict)
     reason: Mapped[str] = mapped_column(Text, default="")
@@ -164,45 +306,92 @@ class CurrentPredictionSnapshot(Base):
     )
 
 
-def snapshot_admission_reason(snapshot: Any) -> str | None:
-    """Return a fail-closed reason when a snapshot cannot be current.
-
-    This is deliberately provenance-strict: legacy rows are retained for
-    audit, but a current engine row is selectable only when its scientific
-    identity and generating artifact are explicit and internally consistent.
-    """
+def admit_current_prediction(db: Any, snapshot: Any) -> SnapshotAdmission:
+    """Apply the sole write/read eligibility contract for current values."""
     if not getattr(snapshot, "is_current", False):
-        return "NOT_CURRENT"
+        return SnapshotAdmission(False, "NOT_CURRENT")
     # Resolve the release from the single authoritative registry rather than
     # duplicating a literal in the admission path.
     from .prediction_engine_registry import CURRENT_ENGINE_ID
     if getattr(snapshot, "engine_release", None) != CURRENT_ENGINE_ID:
-        return "WRONG_ENGINE"
+        return SnapshotAdmission(False, "WRONG_ENGINE")
     endpoint_id = str(getattr(snapshot, "canonical_endpoint", "") or "").strip().upper()
     from .canonical_endpoints import REGISTRY
     definition = REGISTRY.get(endpoint_id)
     if definition is None:
-        return "UNKNOWN_ENDPOINT"
+        return SnapshotAdmission(False, "UNKNOWN_ENDPOINT")
     species = str(getattr(snapshot, "species", "") or "").strip().upper()
-    if not species or species in {"UNSPECIFIED", "UNKNOWN", "OTHER"}:
-        return "UNKNOWN_SPECIES"
+    if species not in SPECIES_REGISTRY:
+        return SnapshotAdmission(False, "UNKNOWN_SPECIES")
     required_species = str(definition.species_requirement or "").strip().upper()
     if required_species and species != required_species:
-        return "ENDPOINT_SPECIES_MISMATCH"
+        return SnapshotAdmission(False, "ENDPOINT_SPECIES_MISMATCH")
     for field in ("model_id", "model_version", "model_artifact_hash"):
         value = str(getattr(snapshot, field, "") or "").strip()
         if not value or value.upper() in {UNKNOWN_PROVENANCE, "UNKNOWN", "NONE", "NULL"}:
-            return f"MISSING_{field.upper()}"
+            return SnapshotAdmission(False, f"MISSING_{field.upper()}")
     mode = str(getattr(snapshot, "prediction_mode", "") or "").strip().upper()
     if mode not in VALID_PREDICTION_MODES:
-        return "INVALID_PREDICTION_MODE"
+        return SnapshotAdmission(False, "INVALID_PREDICTION_MODE")
     value = getattr(snapshot, "value", None)
     classification = str(getattr(snapshot, "classification", "") or "").strip()
-    if value is None and not classification:
-        return "MISSING_VALUE"
-    if not str(getattr(snapshot, "unit", "") or "").strip():
-        return "MISSING_UNIT"
-    return None
+    reason = _value_admission_reason(endpoint_id, value, classification)
+    if reason:
+        return SnapshotAdmission(False, reason)
+    reason = _unit_admission_reason(endpoint_id, value, getattr(snapshot, "unit", ""))
+    if reason:
+        return SnapshotAdmission(False, reason)
+
+    from .model_artifact_authority import resolve_model_artifact
+    registration, reason = resolve_model_artifact(
+        endpoint_id,
+        str(getattr(snapshot, "model_id", "") or "").strip(),
+        str(getattr(snapshot, "model_version", "") or "").strip(),
+        str(getattr(snapshot, "model_artifact_hash", "") or "").strip(),
+    )
+    if reason:
+        return SnapshotAdmission(False, reason)
+    context = getattr(snapshot, "context_json", None)
+    expected_context_id = prediction_context_identity(endpoint_id, context)
+    if getattr(snapshot, "context_identity", "") != expected_context_id:
+        return SnapshotAdmission(False, "CONTEXT_IDENTITY_MISMATCH")
+    if db is None:
+        return SnapshotAdmission(False, "ADMISSION_SESSION_REQUIRED")
+    from .models import CompoundVersion
+    version = db.get(CompoundVersion, getattr(snapshot, "compound_version_id", None))
+    if version is None:
+        return SnapshotAdmission(False, "COMPOUND_VERSION_MISSING")
+    if getattr(snapshot, "structure_revision", "") != expected_structure_revision(version):
+        return SnapshotAdmission(False, "STRUCTURE_REVISION_MISMATCH")
+    snapshot_id = getattr(snapshot, "id", None)
+    duplicate_query = select(CurrentPredictionSnapshot.id).where(
+        CurrentPredictionSnapshot.compound_version_id == version.id,
+        CurrentPredictionSnapshot.canonical_endpoint == endpoint_id,
+        CurrentPredictionSnapshot.species == species,
+        CurrentPredictionSnapshot.context_identity == expected_context_id,
+        CurrentPredictionSnapshot.engine_release == CURRENT_ENGINE_ID,
+        CurrentPredictionSnapshot.is_current.is_(True),
+    )
+    if snapshot_id is not None:
+        duplicate_query = duplicate_query.where(CurrentPredictionSnapshot.id != snapshot_id)
+    if db.scalar(duplicate_query.limit(1)) is not None:
+        return SnapshotAdmission(False, "DUPLICATE_CURRENT_SCIENTIFIC_KEY")
+    return SnapshotAdmission(True, None, registration)
+
+
+def snapshot_admission_reason(snapshot: Any, db: Any = None) -> str | None:
+    """Compatibility wrapper over the single authoritative admission service."""
+    return admit_current_prediction(db, snapshot).reason
+
+
+def publish_current_prediction(db: Any, snapshot: CurrentPredictionSnapshot) -> CurrentPredictionSnapshot:
+    """Publish only after the same contract used by current selection passes."""
+    admission = admit_current_prediction(db, snapshot)
+    if not admission.eligible:
+        raise ValueError(f"CURRENT_PREDICTION_REJECTED:{admission.reason}")
+    db.add(snapshot)
+    db.flush()
+    return snapshot
 
 
 def ensure_stable_core_schema(engine) -> None:
@@ -215,6 +404,7 @@ def ensure_stable_core_schema(engine) -> None:
         ExperimentalObservation.__table__, CurrentPredictionSnapshot.__table__,
     ])
     project_columns = {row["name"] for row in inspect(engine).get_columns("projects")}
+    audit_columns = {row["name"] for row in inspect(engine).get_columns("scientific_mutation_audit")}
     with engine.begin() as connection:
         additions = {
             "lifecycle_status": "VARCHAR(30) NOT NULL DEFAULT 'ACTIVE'",
@@ -224,6 +414,18 @@ def ensure_stable_core_schema(engine) -> None:
         for name, definition in additions.items():
             if name not in project_columns:
                 connection.execute(text(f"ALTER TABLE projects ADD COLUMN {name} {definition}"))
+        audit_additions = {
+            "caller_type": "VARCHAR(80) NOT NULL DEFAULT 'UNKNOWN'",
+            "caller_name": "VARCHAR(120) NOT NULL DEFAULT 'UNKNOWN'",
+            "request_id": "VARCHAR(120) NOT NULL DEFAULT ''",
+            "workflow_id": "VARCHAR(120) NOT NULL DEFAULT ''",
+            "execution_id": "VARCHAR(120) NOT NULL DEFAULT ''",
+            "conversation_id": "VARCHAR(120) NOT NULL DEFAULT ''",
+            "route_action": "VARCHAR(200) NOT NULL DEFAULT ''",
+        }
+        for name, definition in audit_additions.items():
+            if name not in audit_columns:
+                connection.execute(text(f"ALTER TABLE scientific_mutation_audit ADD COLUMN {name} {definition}"))
         connection.execute(text("UPDATE projects SET lifecycle_status='ACTIVE' WHERE lifecycle_status IS NULL OR trim(lifecycle_status)=''"))
         connection.execute(text("UPDATE projects SET protection_policy=CASE WHEN is_test_fixture=1 THEN 'SYNTHETIC_TEST' ELSE 'REAL_PROJECT' END WHERE protection_policy IS NULL OR trim(protection_policy)=''"))
         connection.execute(text("UPDATE projects SET protection_policy='PROTECTED_REAL_PROJECT' WHERE id IN (1,3,5,300)"))
@@ -231,6 +433,7 @@ def ensure_stable_core_schema(engine) -> None:
         connection.execute(text("CREATE INDEX IF NOT EXISTS ix_projects_protection_policy ON projects(protection_policy)"))
         connection.execute(text("CREATE INDEX IF NOT EXISTS ix_experimental_observation_key ON experimental_observations(compound_version_id,canonical_endpoint,species,context_identity,curation_status)"))
         connection.execute(text("CREATE INDEX IF NOT EXISTS ix_current_prediction_key ON current_prediction_snapshots(compound_version_id,canonical_endpoint,species,context_identity,engine_release,is_current)"))
+        connection.execute(text("CREATE INDEX IF NOT EXISTS ix_scientific_mutation_request ON scientific_mutation_audit(request_id,workflow_id,execution_id)"))
         connection.execute(text("DROP TRIGGER IF EXISTS stable_core_protect_real_project_delete"))
         connection.execute(text("""
             CREATE TRIGGER stable_core_protect_real_project_delete
@@ -378,6 +581,37 @@ def ensure_stable_core_schema(engine) -> None:
                 'Current prediction replacement','COMMITTED');
             END
         """))
+
+
+def migrate_stable_core_v1_006(connection) -> dict[str, int]:
+    """Verify the additive v1.2 attribution schema without rewriting science."""
+    required = {
+        "caller_type", "caller_name", "request_id", "workflow_id",
+        "execution_id", "conversation_id", "route_action",
+    }
+    present = {
+        row[1]
+        for row in connection.exec_driver_sql("PRAGMA table_info(scientific_mutation_audit)")
+    }
+    missing = sorted(required - present)
+    if missing:
+        raise RuntimeError(f"Stable Core v1.2 attribution columns missing: {missing}")
+    # Legacy migration may have materialized rows under the current release
+    # before their generating provenance was available.  Preserve those
+    # records as audit artifacts, but remove the current-selection flag
+    # deterministically; no metadata is guessed or rewritten.
+    demoted = connection.execute(text("""
+        UPDATE current_prediction_snapshots
+        SET is_current=0, replaced_at=COALESCE(replaced_at, CURRENT_TIMESTAMP)
+        WHERE engine_release=:engine AND is_current=1
+          AND (
+            model_id IS NULL OR trim(model_id)='' OR upper(model_id) IN ('UNKNOWN_PROVENANCE','UNKNOWN','NONE','NULL') OR
+            model_version IS NULL OR trim(model_version)='' OR upper(model_version) IN ('UNKNOWN_PROVENANCE','UNKNOWN','NONE','NULL') OR
+            model_artifact_hash IS NULL OR trim(model_artifact_hash)='' OR upper(model_artifact_hash) IN ('UNKNOWN_PROVENANCE','UNKNOWN','NONE','NULL') OR
+            upper(COALESCE(prediction_mode,'')) NOT IN ('ASSISTED','HYBRID','FULL_PREDICTION')
+          )
+    """), {"engine": "drugopt-prediction-engine-v3@3.3.3"}).rowcount
+    return {"attribution_columns_verified": len(required), "scientific_rows_demoted": int(demoted or 0)}
 
 
 def migrate_legacy_scientific_records(connection) -> dict[str, int]:
@@ -902,64 +1136,17 @@ def sync_activity_measurement_observation(connection, measurement) -> None:
         qualifier=excluded.qualifier,source=excluded.source,provenance_json=excluded.provenance_json
     """), values)
 def publish_legacy_endpoint_snapshots(db, version_id: int) -> dict[str, int]:
-    """Publish calculation artifacts through the sole current-prediction store."""
+    """Retain legacy endpoint artifacts without granting current authority.
+
+    The name remains as a compatibility adapter for callers.  A legacy
+    ``PredictionEndpointSnapshot`` cannot prove its executable artifact bundle,
+    deterministic context hash, or structure revision, so it is never admitted
+    into CurrentPredictionSnapshot by this path.
+    """
     from .admet import PredictionEndpointSnapshot
 
     artifacts = list(db.scalars(select(PredictionEndpointSnapshot).where(
         PredictionEndpointSnapshot.compound_version_id == version_id,
         PredictionEndpointSnapshot.base_value.is_not(None),
     ).order_by(PredictionEndpointSnapshot.created_at.desc(), PredictionEndpointSnapshot.id.desc())))
-    published = replaced = rejected = 0
-    seen: set[tuple] = set()
-    for artifact in artifacts:
-        snapshot = artifact.snapshot_json if isinstance(artifact.snapshot_json, dict) else {}
-        provenance = snapshot.get("provenance") if isinstance(snapshot.get("provenance"), dict) else {}
-        species = normalize_species_code(snapshot.get("species"), snapshot)
-        mapped = canonicalize_prediction_endpoint(artifact.endpoint_name, species=species, route=snapshot.get("route"), context=snapshot)
-        # A source species that contradicts an endpoint's canonical species
-        # must be rejected, never silently rewritten (e.g. HUMAN_PPB as RAT).
-        mapped_species = str(mapped.get("species") or "UNSPECIFIED").upper()
-        if species != mapped_species:
-            rejected += 1
-            continue
-        context = canonical_context(snapshot)
-        context_id = context_identity(context)
-        engine_release = provenance.get("engine_id") or snapshot.get("engine_id") or snapshot.get("engine_release") or UNKNOWN_PROVENANCE
-        key = (mapped["canonical_endpoint_id"], mapped_species, context_id, engine_release)
-        if key in seen:
-            continue
-        seen.add(key)
-        current = db.scalar(select(CurrentPredictionSnapshot).where(
-            CurrentPredictionSnapshot.compound_version_id == version_id,
-            CurrentPredictionSnapshot.canonical_endpoint == key[0],
-            CurrentPredictionSnapshot.species == key[1],
-            CurrentPredictionSnapshot.context_identity == key[2],
-            CurrentPredictionSnapshot.engine_release == key[3],
-        ))
-        values = {
-            "value": artifact.project_value if artifact.project_value is not None else artifact.base_value,
-            "unit": artifact.project_unit if artifact.project_value is not None else artifact.base_unit,
-            "model_id": provenance.get("engine_name") or snapshot.get("source") or UNKNOWN_PROVENANCE,
-            "model_version": provenance.get("engine_version") or UNKNOWN_PROVENANCE,
-            "model_artifact_hash": provenance.get("artifact_hash") or provenance.get("model_artifact_hash") or UNKNOWN_PROVENANCE,
-            "applicability_domain_json": snapshot.get("applicability_domain") or {},
-            "uncertainty_json": snapshot.get("uncertainty") or {},
-            "prediction_mode": snapshot.get("prediction_mode") or UNKNOWN_PREDICTION_MODE,
-            "source_artifact_id": artifact.id,
-            "created_at": artifact.created_at,
-        }
-        if current:
-            if current.source_artifact_id != artifact.id:
-                for field, value in values.items():
-                    setattr(current, field, value)
-                replaced += 1
-            continue
-        db.add(CurrentPredictionSnapshot(
-            compound_version_id=version_id, canonical_endpoint=key[0], species=key[1], context_json=context,
-            context_identity=key[2], engine_release=key[3], classification="", source_artifact_type="prediction_endpoint_snapshots",
-            structure_revision="", is_current=True, **values,
-        ))
-        published += 1
-    if published or replaced:
-        db.flush()
-    return {"published": published, "replaced": replaced, "rejected": rejected}
+    return {"published": 0, "replaced": 0, "rejected": len(artifacts)}

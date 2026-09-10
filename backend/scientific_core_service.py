@@ -11,7 +11,13 @@ from sqlalchemy import select
 from .canonical_endpoints import REGISTRY
 from .prediction_engine_registry import CURRENT_ENGINE_ID, get_current_production_routing
 from .prediction_maturity import ENDPOINT_MATURITY_REGISTRY, get_endpoint_maturity
-from .stable_core import CurrentPredictionSnapshot, ExperimentalObservation, UNKNOWN_PROVENANCE, snapshot_admission_reason
+from .stable_core import (
+    CurrentPredictionSnapshot,
+    ExperimentalObservation,
+    UNKNOWN_PROVENANCE,
+    admit_current_prediction,
+    canonical_prediction_context,
+)
 from .unit_normalization import (
     clean_unit_str,
     convert_auc,
@@ -27,16 +33,7 @@ MISSING_CONTEXT_VALUES = {"", "UNKNOWN", "UNSPECIFIED", "NOT_REPORTED", "NONE", 
 
 
 def _relevant_context(endpoint: str, context: dict | None) -> dict:
-    source = context if isinstance(context, dict) else {}
-    if any(token in endpoint.upper() for token in CONTEXTUAL_EXPOSURE_TOKENS):
-        fields = ("route", "dose", "dose_unit", "formulation", "fed_state", "regimen", "dosing_state", "analyte")
-    elif any(token in endpoint.upper() for token in ("CL", "VD", "VSS", "HALF", "T_HALF")):
-        fields = ("route", "matrix", "analyte")
-    elif "CACO2" in endpoint.upper():
-        fields = ("matrix", "direction", "assay_type")
-    else:
-        fields = ("matrix", "assay_type", "measurement_type", "analyte")
-    return {field: source[field] for field in fields if source.get(field) not in (None, "")}
+    return canonical_prediction_context(endpoint, context)
 
 
 def _compatible_context(endpoint: str, experimental: dict, prediction: dict) -> tuple[bool, str]:
@@ -130,13 +127,13 @@ def compare_scientific_pair(experimental: ExperimentalObservation, prediction: C
     }
 
 
-def model_authority(endpoint: str, prediction: CurrentPredictionSnapshot | None = None) -> dict:
+def model_authority(db, endpoint: str, prediction: CurrentPredictionSnapshot | None = None) -> dict:
     route = next((row for row in get_current_production_routing() if row.get("endpoint_id") == endpoint), None)
-    maturity = get_endpoint_maturity(endpoint) if endpoint in ENDPOINT_MATURITY_REGISTRY else {
+    unknown_maturity = {
         "level": 0,
         "label": "Unknown maturity",
         "stars": "",
-        "reason": "No validated endpoint-model maturity record exists for this scientific endpoint.",
+        "reason": "No admitted current model artifact is selected for this scientific row.",
         "model_route": "MODEL_UNAVAILABLE",
         "engine_version": UNKNOWN_PROVENANCE,
         "validation_n": 0,
@@ -146,28 +143,17 @@ def model_authority(endpoint: str, prediction: CurrentPredictionSnapshot | None 
         "is_unavailable": True,
         "ad_status": "UNKNOWN",
     }
+    maturity = unknown_maturity
     if prediction is not None:
-        # Maturity is about the artifact that produced this value, not merely
-        # the endpoint's historical registry claim.  Any incomplete or
-        # mismatched lineage is rendered as unknown rather than inheriting an
-        # L4/L5 endpoint default.
-        provenance_reason = snapshot_admission_reason(prediction)
-        route_hash = str((route or {}).get("model_version_hash") or "").strip()
-        artifact_hash = str(prediction.model_artifact_hash or "").strip()
-        if provenance_reason or (route_hash and artifact_hash != route_hash):
+        admission = admit_current_prediction(db, prediction)
+        if admission.eligible and endpoint in ENDPOINT_MATURITY_REGISTRY:
+            maturity = get_endpoint_maturity(endpoint)
             maturity = {
-                "level": 0,
-                "label": "Unknown maturity",
-                "stars": "",
-                "reason": "Selected prediction artifact is not linked to validated registry provenance.",
-                "model_route": "UNKNOWN_PROVENANCE",
-                "engine_version": prediction.engine_release or UNKNOWN_PROVENANCE,
-                "validation_n": 0,
-                "locked_test_n": 0,
-                "real_world_n": 0,
-                "is_mechanistic": False,
-                "is_unavailable": True,
-                "ad_status": "UNKNOWN",
+                **maturity,
+                "artifact_hash": prediction.model_artifact_hash,
+                "model_id": prediction.model_id,
+                "model_version": prediction.model_version,
+                "validation_artifact": admission.model_registration.validation_artifact,
             }
     return {
         "route": route or {"endpoint_id": endpoint, "status": "MODEL_UNAVAILABLE"},
@@ -194,7 +180,7 @@ def build_scientific_endpoint_rows(db, version_id: int, *, category: str | None 
         # Revalidate persisted flags and provenance at read time.  A legacy
         # publisher or migration cannot make malformed data current merely by
         # leaving is_current=true.
-        if snapshot_admission_reason(row) is not None:
+        if not admit_current_prediction(db, row).eligible:
             continue
         relevant = _relevant_context(row.canonical_endpoint, row.context_json)
         grouped_predictions[(row.canonical_endpoint, row.species, tuple(sorted(relevant.items())))].append(row)
@@ -223,7 +209,7 @@ def build_scientific_endpoint_rows(db, version_id: int, *, category: str | None 
                 "reason": "NO_CURRENT_PREDICTION" if experimental else "NO_ACCEPTED_EXPERIMENT",
             }
         )
-        authority = model_authority(endpoint_id, prediction)
+        authority = model_authority(db, endpoint_id, prediction)
         rows.append({
             "canonical_endpoint": endpoint_id,
             "display_name": definition.display_name if definition else endpoint_id,

@@ -41,6 +41,7 @@ from backend.stable_core import (  # noqa: E402
     migrate_stable_core_v1_003,
     migrate_stable_core_v1_004,
     migrate_stable_core_v1_005,
+    migrate_stable_core_v1_006,
 )
 
 ensure_stable_core_schema(_test_engine)
@@ -74,6 +75,7 @@ with _test_engine.begin() as _connection:
     migrate_stable_core_v1_003(_connection)
     migrate_stable_core_v1_004(_connection)
     migrate_stable_core_v1_005(_connection)
+    migrate_stable_core_v1_006(_connection)
 ensure_stable_core_schema(_test_engine)
 
 

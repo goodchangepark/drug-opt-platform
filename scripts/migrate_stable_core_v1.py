@@ -28,6 +28,7 @@ from backend.stable_core import (
     migrate_stable_core_v1_003,
     migrate_stable_core_v1_004,
     migrate_stable_core_v1_005,
+    migrate_stable_core_v1_006,
 )
 
 PRODUCTION_DB = (ROOT / "drug_opt.db").resolve()
@@ -67,6 +68,7 @@ def main() -> int:
         provenance_corrections = migrate_stable_core_v1_003(connection)
         evidence_acceptance = migrate_stable_core_v1_004(connection)
         source_semantics = migrate_stable_core_v1_005(connection)
+        attribution_schema = migrate_stable_core_v1_006(connection)
         connection.exec_driver_sql(f"PRAGMA user_version={SCHEMA_VERSION}")
     # Reinstall the immutable-history barriers immediately after the tightly
     # scoped provenance correction transaction.
@@ -81,6 +83,7 @@ def main() -> int:
         "provenance_corrections": provenance_corrections,
         "evidence_acceptance": evidence_acceptance,
         "source_semantics": source_semantics,
+        "attribution_schema": attribution_schema,
         "rollback": {
             "requires_service_stopped": True,
             "procedure": "Replace the migrated database with the verified byte-for-byte backup, then restart the existing service.",

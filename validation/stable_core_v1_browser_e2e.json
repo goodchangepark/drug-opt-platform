@@ -1,17 +1,17 @@
 {
   "contract": "StableCoreBrowserE2E/v1",
   "environment": "E2E_ISOLATED_DATABASE",
-  "base_url": "http://127.0.0.1:8876",
+  "base_url": "http://127.0.0.1:8878",
   "api_ms": {
-    "projects": 34.563,
-    "current_engine": 13.111,
-    "orforglipron_pk": 44.758
+    "projects": 57.0,
+    "current_engine": 13.61,
+    "orforglipron_pk": 35.684
   },
-  "orforglipron_pk_payload_bytes": 4890,
+  "orforglipron_pk_payload_bytes": 4854,
   "viewports": [
     {
       "viewport": "1440x900",
-      "initial_project_ui_ms": 2780.454,
+      "initial_project_ui_ms": 2874.899,
       "initial_rows": 50,
       "pagination_page2_rows": 50,
       "pk_contract_rows": 4,
@@ -28,7 +28,7 @@
     },
     {
       "viewport": "390x844",
-      "initial_project_ui_ms": 3457.304,
+      "initial_project_ui_ms": 3253.386,
       "initial_rows": 50,
       "pagination_page2_rows": 50,
       "pk_contract_rows": 4,
@@ -44,5 +44,6 @@
       "browser_console_severe": "NOT_AVAILABLE_FROM_REMOTE_DRIVER"
     }
   ],
+  "scientific_fingerprint_unchanged": true,
   "status": "PASS"
 }

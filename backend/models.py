@@ -47,10 +47,22 @@ def _classify_new_project(mapper, connection, target: Project) -> None:
     if DATABASE_SETTINGS.environment in {"test", "e2e"}:
         target.is_test_fixture = True
         target.protection_policy = "SYNTHETIC_TEST"
-    elif target.is_test_fixture:
-        target.protection_policy = "SYNTHETIC_TEST"
-    elif not target.protection_policy:
-        target.protection_policy = "REAL_PROJECT"
+    else:
+        # Fixture identity is server-owned and cannot be forged by an ORM
+        # caller in production/development.
+        target.is_test_fixture = False
+        if target.protection_policy != "PROTECTED_REAL_PROJECT":
+            target.protection_policy = "REAL_PROJECT"
+
+
+@event.listens_for(Project, "before_update")
+def _protect_project_classification(mapper, connection, target: Project) -> None:
+    from .database import DATABASE_SETTINGS
+
+    if DATABASE_SETTINGS.environment not in {"test", "e2e"}:
+        target.is_test_fixture = False
+        if target.protection_policy not in {"REAL_PROJECT", "PROTECTED_REAL_PROJECT"}:
+            target.protection_policy = "REAL_PROJECT"
 
 
 class Compound(Base):

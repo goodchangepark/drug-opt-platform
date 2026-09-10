@@ -1579,7 +1579,7 @@ def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat"
 
     # Passive GETs are strictly read-only. Calculation/persistence is
     # available only to explicit workflow callers using force_refresh=True.
-    if not force_refresh and not all(r in cached_by_route for r in ["IV", "PO", "SC", "IP"]):
+    if not force_refresh and not cached_by_route:
         return {
             "scope": {"project_id": compound.project_id, "compound_id": compound.id, "version_id": version.id, "species": species_clean},
             "status": "NOT_CALCULATED",
@@ -1588,9 +1588,11 @@ def get_pk_foundation_profile(db: Session, version_id: int, species: str = "Rat"
             "route_parameter_sets": {},
         }
 
-    if not force_refresh and all(r in cached_by_route for r in ["IV", "PO", "SC", "IP"]):
+    if not force_refresh and cached_by_route:
         routes_assembled = {}
         for r in ["IV", "PO", "SC", "IP"]:
+            if r not in cached_by_route:
+                continue
             pset = cached_by_route[r]
             routes_assembled[r] = {
                 "id": pset.id,

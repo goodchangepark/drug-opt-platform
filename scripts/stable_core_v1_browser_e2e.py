@@ -20,11 +20,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from production_db_fingerprint import fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE_URL = os.environ["DRUGOPT_E2E_BASE_URL"].rstrip("/")
 CHROMEDRIVER = "/snap/bin/chromium.chromedriver"
 RESULT = ROOT / "validation/stable_core_v1_browser_e2e.json"
+E2E_DATABASE = Path(os.environ.get("DRUGOPT_DATABASE_URL", "").replace("sqlite:///", ""))
 
 
 class DriverService:
@@ -241,6 +243,7 @@ def exercise_viewport(port: int, width: int, height: int):
 
 
 def main():
+    e2e_before = fingerprint(E2E_DATABASE) if E2E_DATABASE.exists() else None
     projects, projects_ms, _ = api("/api/projects")
     assert {1, 3, 5, 300}.issubset({row["id"] for row in projects})
     current, current_ms, _ = api("/api/prediction-engine/current")
@@ -257,8 +260,12 @@ def main():
         "api_ms": {"projects": projects_ms, "current_engine": current_ms, "orforglipron_pk": pk_ms},
         "orforglipron_pk_payload_bytes": pk_bytes,
         "viewports": viewports,
+        "scientific_fingerprint_unchanged": (
+            e2e_before is not None and e2e_before["logical_fingerprint"] == fingerprint(E2E_DATABASE)["logical_fingerprint"]
+        ),
         "status": "PASS",
     }
+    assert result["scientific_fingerprint_unchanged"], "PK/browser navigation mutated the E2E scientific database"
     RESULT.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(result, indent=2))
 

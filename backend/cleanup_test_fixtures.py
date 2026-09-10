@@ -137,7 +137,7 @@ def run_cleanup(manifest_path: str = "validation/test_fixture_cleanup_manifest.j
         ("pairs without project", "SELECT count(*) FROM prediction_experimental_pairs WHERE project_id NOT IN (SELECT id FROM projects)"),
         ("search_runs without project", "SELECT count(*) FROM experimental_search_runs WHERE project_id NOT IN (SELECT id FROM projects)"),
         ("pk_studies without project", "SELECT count(*) FROM pk_studies WHERE project_id NOT IN (SELECT id FROM projects)"),
-        ("qualification_freezes without project", "SELECT count(*) FROM qualification_prediction_freezes WHERE project_id NOT IN ('1', '3', '5', '300')"),
+        ("qualification_freezes without project", "SELECT count(*) FROM qualification_prediction_freezes WHERE project_id NOT IN (SELECT CAST(id AS TEXT) FROM projects)"),
     ]
 
     for label, q in orphan_queries:

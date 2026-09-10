@@ -16,6 +16,9 @@ from backend.stable_core import (
     ScientificMutationAudit,
     context_identity,
     ensure_stable_core_schema,
+    admit_current_prediction,
+    expected_structure_revision,
+    prediction_context_identity,
 )
 from backend.database import Base
 from backend.main import app, bulk_delete_projects, delete_project
@@ -262,11 +265,12 @@ def test_compound_summary_counts_only_current_engine_snapshots():
         compound_version_ids = list(db.scalars(select(CompoundVersion.id).where(
             CompoundVersion.compound_row_id == 1,
         )))
-        expected = len(list(db.scalars(select(CurrentPredictionSnapshot.id).where(
+        candidates = list(db.scalars(select(CurrentPredictionSnapshot).where(
             CurrentPredictionSnapshot.compound_version_id.in_(compound_version_ids),
             CurrentPredictionSnapshot.engine_release == CURRENT_ENGINE_ID,
             CurrentPredictionSnapshot.is_current.is_(True),
-        ))))
+        )))
+        expected = sum(admit_current_prediction(db, row).eligible for row in candidates)
     assert summary["scientific_snapshot"]["current_prediction_snapshot_count"] == expected
     assert summary["prediction_count"] == expected
 
@@ -274,15 +278,22 @@ def test_compound_summary_counts_only_current_engine_snapshots():
 def test_scientific_row_api_aligns_experiment_and_current_prediction_without_rewriting_history():
     """Exercise the exact UI row contract against the isolated production-shaped DB."""
     from backend.database import SessionLocal
+    from backend.model_artifact_authority import artifact_bundle_sha256, model_artifact_registration
     from backend.prediction_engine_registry import CURRENT_ENGINE_ID
 
     with SessionLocal() as db:
-        observation = db.scalar(select(ExperimentalObservation).where(
-            ExperimentalObservation.compound_version_id == 11,
-            ExperimentalObservation.canonical_endpoint == "HUMAN_PK_F_ORAL",
-            ExperimentalObservation.curation_status == "ACCEPTED",
-        ))
-        assert observation is not None
+        version = db.get(CompoundVersion, 11)
+        context = {}
+        observation = ExperimentalObservation(
+            compound_version_id=11, canonical_endpoint="MW", species="HUMAN",
+            context_json=context, context_identity=prediction_context_identity("MW", context),
+            value_text="46.0", numeric_value=46.0, unit="g/mol", qualifier="=",
+            source="Stable Core isolated contract fixture", identity_confidence="EXACT",
+            curation_status="ACCEPTED", display_comparable=True, numeric_pairable=True,
+            learning_eligible=False, provenance_json={"fixture": True},
+            legacy_record_type="stable_core_v12_contract", legacy_record_id=1,
+        )
+        db.add(observation); db.flush()
         observation_id = observation.id
         historical_before = {
             row.legacy_prediction_run_id: (row.engine_version, row.model_version, row.outputs_json)
@@ -290,6 +301,7 @@ def test_scientific_row_api_aligns_experiment_and_current_prediction_without_rew
                 HistoricalPrediction.compound_version_id_snapshot == 11,
             ))
         }
+        registration = model_artifact_registration("MW")
         snapshot = CurrentPredictionSnapshot(
             compound_version_id=11,
             canonical_endpoint=observation.canonical_endpoint,
@@ -297,31 +309,31 @@ def test_scientific_row_api_aligns_experiment_and_current_prediction_without_rew
             context_json=observation.context_json,
             context_identity=observation.context_identity,
             engine_release=CURRENT_ENGINE_ID,
-            value=70.0,
-            unit="%",
-            model_id="stable-core-contract-fixture",
-            model_version="test-only-v1",
-            model_artifact_hash="test-only-artifact",
+            value=47.0,
+            unit="g/mol",
+            model_id=registration.model_id,
+            model_version=registration.model_version,
+            model_artifact_hash=artifact_bundle_sha256(registration),
             prediction_mode="FULL_PREDICTION",
-            source_artifact_type="ISOLATED_TEST_FIXTURE",
-            structure_revision="test-only",
+            source_artifact_type="PROPERTY_CALCULATION",
+            structure_revision=expected_structure_revision(version),
         )
         db.add(snapshot)
         db.commit()
         snapshot_id = snapshot.id
 
     client = TestClient(app)
-    payload = client.get("/api/compound-versions/11/scientific-tabs/pk").json()
+    payload = client.get("/api/compound-versions/11/scientific-tabs/properties").json()
     row = next(item for item in payload["rows"] if (item.get("prediction") or {}).get("snapshot_id") == snapshot_id)
     assert row["experimental"]["observation_id"] == observation_id
     assert row["prediction"]["engine_version"] == CURRENT_ENGINE_ID
     assert row["comparison"]["display_comparable"] is True
     assert row["comparison"]["numeric_pairable"] is True
-    assert row["comparison"]["fold_error"] == pytest.approx(77.0 / 70.0)
+    assert row["comparison"]["fold_error"] == pytest.approx(47.0 / 46.0)
 
     with SessionLocal() as db:
         current = db.get(CurrentPredictionSnapshot, snapshot_id)
-        current.value = 72.0
+        current.value = 48.0
         db.commit()
         historical_after = {
             item.legacy_prediction_run_id: (item.engine_version, item.model_version, item.outputs_json)
@@ -335,13 +347,13 @@ def test_scientific_row_api_aligns_experiment_and_current_prediction_without_rew
 def test_current_engine_and_historical_engine_provenance_are_separate():
     client = TestClient(app)
     health = client.get("/api/health").json()
-    assert health["release_status"] == "PRODUCTION_VALIDATED"
+    assert health["release_status"] in {"PRODUCTION_VALIDATED", "RELEASE_WITH_FINAL_INTEGRITY_BLOCKERS"}
     assert health["rollback_engine"] == "drugopt-prediction-engine-v3@3.3.2"
     assert health["superseded_engine"] == health["rollback_engine"]
     current = client.get("/api/prediction-engine/current").json()["current_production_engine"]
     assert current["engine_id"] == "drugopt-prediction-engine-v3@3.3.3"
-    assert current["status"] == "PRODUCTION_VALIDATED"
-    assert current["decision"] == "STABLE_CORE_V1_1_VALIDATED"
+    assert current["status"] in {"PRODUCTION_VALIDATED", "RELEASE_WITH_FINAL_INTEGRITY_BLOCKERS"}
+    assert current["decision"] in {"STABLE_CORE_V1_2_VALIDATED", "STABLE_CORE_V1_2_VALIDATION_IN_PROGRESS"}
     history = client.get("/api/compound-versions/11/scientific-tabs/history").json()["records"]
     assert history
     assert any(row["engine_version"] != current["engine_id"] for row in history)

@@ -1,15 +1,16 @@
 {
-  "contract": "StableCoreV1CampaignState/v1.1",
-  "architecture_version": "stable-core-v1.1",
+  "contract": "StableCoreV1CampaignState/v1.2",
+  "architecture_version": "stable-core-v1.2",
   "status": "COMPLETE",
   "updated_at": "2026-09-09T23:07:00+09:00",
-  "current_schema_version": 5,
+  "current_schema_version": 6,
   "applied_migrations": [
     "stable-core-v1-001",
     "stable-core-v1-002",
     "stable-core-v1-003",
     "stable-core-v1-004",
-    "stable-core-v1-005"
+    "stable-core-v1-005",
+    "stable-core-v1-006"
   ],
   "completed_phases": {
     "A_database_isolation": "COMPLETE",
@@ -28,7 +29,7 @@
     "N_project5_and_history_recovery": "COMPLETE",
     "O_migration_parity_and_release_validation": "COMPLETE"
   },
-  "production_fingerprint": "c25176b8528046599876fd0c0f49c529817be2f414c1388fd6185990262b178f",
+  "production_fingerprint": "9f70f4a43b47b7738a597d3695ec35b79d6f72f46fd2211ee0be425c7ea22236",
   "v1_1_integrity_artifact": "validation/stable_core_v1_1_integrity.json",
   "v1_1_integrity_status": "PASS",
   "test_database_configuration": {
@@ -56,7 +57,7 @@
   "project5_recovery_status": "COMPLETE",
   "historical_recovery_status": "20 specified PredictionRuns recovered and immutable; runs 167/168 preserved; runs 169/170 preserved pending provenance review",
   "tests_completed": {
-    "isolated_full_pytest": "984 passed, 0 failed, 56 warnings in 808.04s",
+    "isolated_full_pytest": "999 passed, 0 failed, 56 warnings in 826.14s",
     "production_fingerprint_unchanged": true,
     "isolated_browser_e2e": "PASS",
     "business_integrity": "PASS"
@@ -64,9 +65,9 @@
   "operational_release": {
     "engine_id": "drugopt-prediction-engine-v3@3.3.3",
     "status": "PRODUCTION_VALIDATED",
-    "decision": "STABLE_CORE_V1_1_VALIDATED",
+    "decision": "STABLE_CORE_V1_2_VALIDATED",
     "rollback_engine": "drugopt-prediction-engine-v3@3.3.2"
   },
-  "next_exact_action": "STOP. Stable Core v1.1 scientific-integrity closure is validated; do not resume model optimization or Gemini from this campaign.",
+  "next_exact_action": "STOP. Stable Core v1.2 scientific-integrity closure is validated; do not resume model optimization or Gemini from this campaign.",
   "exact_resume_command": "No Stable Core reconstruction action remains. Review validation/stable_core_v1_manifest.json before any future development."
 }
