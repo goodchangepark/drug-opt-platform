@@ -167,8 +167,12 @@ def test_two_compound_comparison_api_expanded_fields():
             assert cmpd["cLogP"] is not None
             assert cmpd["sources"]["DLM"] == "MODEL_UNAVAILABLE"
             assert cmpd["sources"]["CyLM"] == "MODEL_UNAVAILABLE"
-            assert cmpd["Rat CL (IV)"] is not None
-            assert cmpd["Human CL (IVIVE)"] is not None
+            # PK foundation and simulation rows are calculation artifacts,
+            # not admitted CurrentPredictionSnapshots. Compare must not expose
+            # them as current merely because the workflow calculated them.
+            assert cmpd["Rat CL (IV)"] is None
+            assert cmpd["Human CL (IVIVE)"] is None
+            assert "Rat CL (IV)" not in cmpd["prediction_snapshot_ids"]
     finally:
         with SessionLocal() as db:
             p_del = db.get(Project, proj_id)

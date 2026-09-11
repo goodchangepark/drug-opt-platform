@@ -1,0 +1,13 @@
+{
+  "contract": "Phase0CanonicalPredictionDisplayE2E/v1",
+  "environment": "E2E_ISOLATED_DATABASE",
+  "compound": "Sunvozertinib",
+  "compound_version_id": 13,
+  "endpoint": "RLM_CLINT",
+  "snapshot_id": 2250,
+  "value": 1.9175231456756592,
+  "individual_display": "PASS",
+  "reload_persistence": "PASS",
+  "compare_snapshot_parity": "PASS",
+  "legacy_only_prediction_hidden": "PASS"
+}

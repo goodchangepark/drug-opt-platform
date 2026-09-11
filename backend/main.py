@@ -43,6 +43,7 @@ from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
                         DataProvenance)
 from .endpoint_contracts import get_endpoint_contract
 from .endpoint_strategy_registry import get_registry_api_response
+from .current_prediction_publisher import publish_cached_admet_current_predictions
 from .prediction_engine_v1_policy import policy_api_response
 from .production_qualification import (
     ensure_qualification_schema,
@@ -1446,11 +1447,25 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         ).order_by(PredictionRun.created_at.desc()))
         if existing_workflow:
             saved = dict(existing_workflow.outputs_json or {})
+            current_publication = publish_cached_admet_current_predictions(db, version)
+            db.commit()
             saved["prediction_run_id"] = existing_workflow.id
             saved["request_fingerprint"] = request_fingerprint
             saved["reused_existing_run"] = True
             saved["engine_id"] = (existing_workflow.provenance_json or {}).get("engine_id", ENGINE_V3_POLICY_ID)
             saved["endpoint_routing"] = (existing_workflow.provenance_json or {}).get("endpoint_routing", {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()})
+            saved["current_publication"] = current_publication
+            saved["publication_status"] = (
+                "CALCULATED_AND_PUBLISHED"
+                if any(row["status"] == "CALCULATED_AND_PUBLISHED" for row in current_publication)
+                else "CALCULATED_BUT_NOT_ELIGIBLE"
+            )
+            published_count = sum(row["status"] == "CALCULATED_AND_PUBLISHED" for row in current_publication)
+            saved["message"] = (
+                f"{published_count} canonical current predictions published from verified cached model artifacts."
+                if published_count else
+                "Calculations exist, but no result passed Stable Core current-prediction admission."
+            )
             return saved
     steps = {
         "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
@@ -1480,7 +1495,8 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         auxiliary_prediction_run_id = result.get("run_id")
         steps["admet"] = {"status": "COMPLETE" if result["status"] in {"COMPLETE", "CACHED"} else result["status"],
                           "message": result.get("message", ""), "endpoints": result.get("endpoint_statuses", []),
-                          "consensus_count": len(result.get("consensus_predictions", []))}
+                          "consensus_count": len(result.get("consensus_predictions", [])),
+                          "current_publication": result.get("current_publication", [])}
         if result["status"] in {"COMPLETE", "CACHED"}:
             completed_endpoints.extend(["Solubility", "Caco-2 Permeability", "Plasma Protein Binding", "HLM Clearance", "RLM Clearance", "MLM Clearance", "hERG Liability", "DILI Liability", "Ames Mutagenicity"])
         else:
@@ -1608,7 +1624,22 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
         "endpoint_routing": {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()},
         "v3_predictions": v3_endpoint_predictions,
+        "current_publication": steps.get("admet", {}).get("current_publication", []),
+        "publication_status": (
+            "CALCULATED_AND_PUBLISHED"
+            if any(row.get("status") == "CALCULATED_AND_PUBLISHED" for row in steps.get("admet", {}).get("current_publication", []))
+            else "CALCULATED_BUT_NOT_ELIGIBLE"
+        ),
     }
+    published_count = sum(
+        row.get("status") == "CALCULATED_AND_PUBLISHED"
+        for row in workflow_output["current_publication"]
+    )
+    workflow_output["message"] = (
+        f"{published_count} canonical current predictions published with verified model provenance."
+        if published_count else
+        "Prediction calculations completed, but no result passed Stable Core current-prediction admission."
+    )
     workflow_run = PredictionRun(
         version_id=version.id,
         stage="prediction_workflow",
@@ -2834,101 +2865,66 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
         activity = db.scalar(activity_query.order_by(ActivityMeasurement.created_at.desc()))
         comparison_row["Activity"] = activity.normalized_value_nm if activity else None
         comparison_row["sources"]["Activity"] = "Experimental" if activity else "Not measured"
-        endpoint_map = {
-            "HLM intrinsic clearance": "HLM", "RLM intrinsic clearance": "RLM", "MLM intrinsic clearance": "MLM",
-            "Plasma protein binding": "PPB", "Solubility": "Solubility", "Permeability": "Caco-2",
-            "CYP1A2 inhibitor": "CYP1A2 Inh", "CYP2C9 inhibitor": "CYP2C9 Inh", "CYP2C19 inhibitor": "CYP2C19 Inh",
-            "CYP2D6 inhibitor": "CYP2D6 Inh", "CYP3A4 inhibitor": "CYP3A4 Inh",
-            "CYP2C9 substrate": "CYP2C9 Sub", "CYP2D6 substrate": "CYP2D6 Sub", "CYP3A4 substrate": "CYP3A4 Sub",
-            "P-gp inhibitor": "P-gp Inh",
-            "hERG liability": "hERG", "Ames mutagenicity": "Ames", "DILI clinical liability": "DILI",
+        # Stable Core is the sole scientific comparison authority.  Legacy
+        # ADMET/PK artifacts may still exist, but changing them alone cannot
+        # alter this response or surface an unadmitted prediction.
+        scientific_payload = build_scientific_endpoint_rows(db, version.id)
+        scientific_rows = scientific_payload["rows"]
+        comparison_row["scientific_rows"] = scientific_rows
+        comparison_row["prediction_snapshot_ids"] = {}
+        comparison_row["prediction_metadata"] = {}
+        endpoint_labels = {
+            "SOLUBILITY_GENERIC": "Solubility", "CACO2_PAPP_AB": "Caco-2", "HUMAN_PPB": "PPB",
+            "HLM_CLINT": "HLM", "RLM_CLINT": "RLM", "MLM_CLINT": "MLM",
+            "CYP1A2_INHIBITOR_CLASS": "CYP1A2 Inh", "CYP2C9_INHIBITOR_CLASS": "CYP2C9 Inh",
+            "CYP2C19_INHIBITOR_CLASS": "CYP2C19 Inh", "CYP2D6_INHIBITOR_CLASS": "CYP2D6 Inh",
+            "CYP3A4_INHIBITOR_CLASS": "CYP3A4 Inh", "CYP2C9_SUBSTRATE": "CYP2C9 Sub",
+            "CYP2D6_SUBSTRATE": "CYP2D6 Sub", "CYP3A4_SUBSTRATE": "CYP3A4 Sub",
+            "PGP_INHIBITION": "P-gp Inh", "HERG_CLASS": "hERG",
+            "AMES_MUTAGENICITY": "Ames", "DILI_LIABILITY": "DILI",
+            "METABOLIC_SOFT_SPOTS": "Soft Spots", "RAT_PK_CL_IV": "Rat CL (IV)",
+            "RAT_PK_VD_IV": "Rat Vd", "RAT_PK_F_ORAL": "Rat F (%)",
+            "DOG_PK_CL_IV": "Dog CL (IV)", "MONKEY_PK_CL_IV": "Monkey CL (IV)",
+            "HUMAN_PK_CL_IV": "Human CL (IVIVE)", "HUMAN_PK_VD_IV": "Human Vd (pred)",
         }
-        experimental = db.scalars(select(ADMETMeasurement).where(ADMETMeasurement.version_id == version.id)).all()
-        endpoint_names = {item.id: item.name for item in db.scalars(select(ADMETEndpoint).where(ADMETEndpoint.project_id == project_id))}
-        for endpoint_name, label in endpoint_map.items():
-            endpoint_experimental = [row for row in experimental if endpoint_names.get(row.endpoint_id) == endpoint_name]
-            prediction = db.scalar(
-                select(ADMETPrediction).join(ADMETModelRegistry)
-                .where(ADMETPrediction.version_id == version.id, ADMETModelRegistry.endpoint_name == endpoint_name)
-                .order_by(ADMETPrediction.created_at.desc())
-            )
-            if not prediction:
-                first = endpoint_experimental[0] if endpoint_experimental else None
-                comparison_row[label] = (
-                    first.qualitative_value or (first.mean_value if first.mean_value is not None else first.value)
-                ) if first else None
-                comparison_row["sources"][label] = "Experimental" if first else "Not measured"
+        labels = set(endpoint_labels.values()) | {
+            "DLM", "CyLM", "Mouse CL (IV)", "Mouse Vd", "Mouse t1/2", "Rat t1/2",
+            "Human t1/2 (pred)", "Human AUC (1mg/kg IV)", "Human Cmax (1mg/kg IV)",
+        }
+        for label in labels:
+            comparison_row[label] = None
+            comparison_row["sources"][label] = "Not measured"
+        for scientific_row in scientific_rows:
+            label = endpoint_labels.get(scientific_row["canonical_endpoint"])
+            if not label:
                 continue
-            matches = comparison_for_prediction(endpoint_name, prediction.predicted_value, experimental, endpoint_names)
-            comparison_row[label] = matches[0]["experimental_normalized"] if matches else prediction.predicted_value
-            comparison_row["sources"][label] = "Experimental" if matches else "Predicted"
+            experimental_value = scientific_row.get("experimental")
+            prediction_value = scientific_row.get("prediction")
+            if experimental_value is not None:
+                comparison_row[label] = experimental_value.get("value")
+                comparison_row["sources"][label] = "Experimental"
+            elif prediction_value is not None:
+                comparison_row[label] = prediction_value.get("value")
+                comparison_row["sources"][label] = "Predicted"
+            if prediction_value is not None:
+                comparison_row["prediction_snapshot_ids"][label] = prediction_value["snapshot_id"]
+                comparison_row["prediction_metadata"][label] = {
+                    **prediction_value,
+                    "canonical_endpoint": scientific_row["canonical_endpoint"],
+                    "species": scientific_row["species"],
+                    "context": scientific_row["context"],
+                    "maturity": scientific_row["maturity"],
+                }
 
-        # Explicit Dog and Monkey metabolism entries
-        comparison_row["DLM"] = None
-        comparison_row["sources"]["DLM"] = "MODEL_UNAVAILABLE"
-        comparison_row["CyLM"] = None
-        comparison_row["sources"]["CyLM"] = "MODEL_UNAVAILABLE"
-
-        # Derived fraction unbound (fu)
         ppb_val = comparison_row.get("PPB")
-        if ppb_val is not None and isinstance(ppb_val, (int, float)):
+        if isinstance(ppb_val, (int, float)):
             comparison_row["fu"] = round((100.0 - float(ppb_val)) / 100.0, 4)
-            comparison_row["sources"]["fu"] = "Calculated (1 - PPB)"
+            comparison_row["sources"]["fu"] = "Calculated from canonical PPB (1 - PPB)"
         else:
             comparison_row["fu"] = None
             comparison_row["sources"]["fu"] = "Not calculated"
-
-        # Soft Spots
-        spots = list(db.scalars(select(MetabolicSoftSpot).where(MetabolicSoftSpot.version_id == version.id)).all())
-        comparison_row["Soft Spots"] = len(spots) if spots else 0
-        comparison_row["sources"]["Soft Spots"] = "Predicted (SyGMa)" if spots else "Not calculated"
-
-        # Multi-species PK assembly (Normalized 1 mg/kg single dose standard)
-        pk_prof = get_multi_species_pk_profile(db, version.id)
-        sp_map = pk_prof.get("species_profiles", {})
-
-        # Mouse
-        m_prof = sp_map.get("Mouse", {})
-        comparison_row["Mouse CL (IV)"] = m_prof.get("cl", {}).get("value")
-        comparison_row["sources"]["Mouse CL (IV)"] = m_prof.get("cl", {}).get("source", "UNAVAILABLE")
-        comparison_row["Mouse Vd"] = m_prof.get("v", {}).get("value")
-        comparison_row["sources"]["Mouse Vd"] = m_prof.get("v", {}).get("source", "UNAVAILABLE")
-        comparison_row["Mouse t1/2"] = m_prof.get("t_half_hours")
-        comparison_row["sources"]["Mouse t1/2"] = "Calculated" if m_prof.get("t_half_hours") else "UNAVAILABLE"
-
-        # Rat
-        r_prof = sp_map.get("Rat", {})
-        comparison_row["Rat CL (IV)"] = r_prof.get("cl", {}).get("value")
-        comparison_row["sources"]["Rat CL (IV)"] = r_prof.get("cl", {}).get("source", "UNAVAILABLE")
-        comparison_row["Rat Vd"] = r_prof.get("v", {}).get("value")
-        comparison_row["sources"]["Rat Vd"] = r_prof.get("v", {}).get("source", "UNAVAILABLE")
-        comparison_row["Rat t1/2"] = r_prof.get("t_half_hours")
-        comparison_row["sources"]["Rat t1/2"] = "Calculated" if r_prof.get("t_half_hours") else "UNAVAILABLE"
-        comparison_row["Rat F (%)"] = r_prof.get("f_pct")
-        comparison_row["sources"]["Rat F (%)"] = r_prof.get("f_source", "UNAVAILABLE")
-
-        # Dog
-        d_prof = sp_map.get("Dog", {})
-        comparison_row["Dog CL (IV)"] = d_prof.get("cl", {}).get("value")
-        comparison_row["sources"]["Dog CL (IV)"] = d_prof.get("cl", {}).get("source", "MODEL_UNAVAILABLE")
-
-        # Monkey
-        cy_prof = sp_map.get("Monkey", {})
-        comparison_row["Monkey CL (IV)"] = cy_prof.get("cl", {}).get("value")
-        comparison_row["sources"]["Monkey CL (IV)"] = cy_prof.get("cl", {}).get("source", "MODEL_UNAVAILABLE")
-
-        # Human
-        h_prof = sp_map.get("Human", {})
-        comparison_row["Human CL (IVIVE)"] = h_prof.get("cl", {}).get("value")
-        comparison_row["sources"]["Human CL (IVIVE)"] = h_prof.get("cl", {}).get("source", "UNAVAILABLE")
-        comparison_row["Human Vd (pred)"] = h_prof.get("v", {}).get("value")
-        comparison_row["sources"]["Human Vd (pred)"] = h_prof.get("v", {}).get("source", "UNAVAILABLE")
-        comparison_row["Human t1/2 (pred)"] = h_prof.get("t_half_hours")
-        comparison_row["sources"]["Human t1/2 (pred)"] = "Calculated" if h_prof.get("t_half_hours") else "UNAVAILABLE"
-        comparison_row["Human AUC (1mg/kg IV)"] = h_prof.get("normalized_1mpk_iv", {}).get("auc_ng_h_ml")
-        comparison_row["sources"]["Human AUC (1mg/kg IV)"] = "Normalized 1 mg/kg IV" if h_prof.get("normalized_1mpk_iv", {}).get("auc_ng_h_ml") else "UNAVAILABLE"
-        comparison_row["Human Cmax (1mg/kg IV)"] = h_prof.get("normalized_1mpk_iv", {}).get("cmax_ng_ml")
-        comparison_row["sources"]["Human Cmax (1mg/kg IV)"] = "Normalized 1 mg/kg IV" if h_prof.get("normalized_1mpk_iv", {}).get("cmax_ng_ml") else "UNAVAILABLE"
+        comparison_row["sources"]["DLM"] = "MODEL_UNAVAILABLE"
+        comparison_row["sources"]["CyLM"] = "MODEL_UNAVAILABLE"
 
         rows.append(comparison_row)
     if len(rows) < 2: raise HTTPException(status_code=400, detail="At least two selected compounds must belong to the project")
@@ -4534,6 +4530,7 @@ def _run_admet_predictions_legacy(
     consensuses = _store_consensus_predictions(db, version, compound.project_id, list(selected_predictions.values()))
     _freeze_admet_prediction_snapshots(db, compound.project_id, row_id, selected_predictions)
     ensure_admet_prediction_snapshot_index(db, row_id)
+    current_publication = publish_cached_admet_current_predictions(db, version)
     db.commit()
     db.refresh(run)
     endpoint_names = {endpoint.id: endpoint.name for endpoint in db.scalars(
@@ -4547,6 +4544,7 @@ def _run_admet_predictions_legacy(
         "models_available": len(available_models), "cache_hit": False, "predictions": predictions,
         "consensus_predictions": [_consensus_out(row) for row in consensuses],
         "endpoint_statuses": endpoint_statuses + inactive_statuses, "unavailable": unavailable,
+        "current_publication": current_publication,
         "legacy_fallback": True, "fallback_reason": fallback_reason,
     }
 
@@ -4633,6 +4631,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
                 db, version, compound.project_id, list(legacy_cached.values())
             )
             cached_run = _record_cached_admet_run(db, row_id, list(legacy_cached.values()))
+            current_publication = publish_cached_admet_current_predictions(db, version)
             db.commit()
             return {
                 "type": "Predicted", "run_id": cached_run.id,
@@ -4647,6 +4646,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
                     {"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True}
                     for model in legacy_compat_models
                 ] + inactive_statuses,
+                "current_publication": current_publication,
             }
         return _run_admet_predictions_legacy(
             row_id, db, version, compound, legacy_compat_models, legacy_cached, measurements,
@@ -4677,6 +4677,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         consensuses = _store_consensus_predictions(db, version, compound.project_id, all_cached_preds)
         cached_run = _record_cached_admet_run(db, row_id, list(cached.values()))
         ensure_admet_prediction_snapshot_index(db, row_id)
+        current_publication = publish_cached_admet_current_predictions(db, version)
         db.commit()
         predictions = [_admet_prediction_out(cached[model.id], measurements, endpoint_names) for model in available_models]
         return {
@@ -4689,6 +4690,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
                 {"endpoint": model.endpoint_name, "model_id": model.id, "status": "COMPLETE", "cache_hit": True}
                 for model in available_models
             ] + inactive_statuses,
+            "current_publication": current_publication,
         }
 
     # ── Run canonical orchestrator (CORE + SHADOW) ──────────────────────────
@@ -4752,6 +4754,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         prediction.outputs_json = dict(prediction.outputs_json or {}) | {"prediction_maturity": maturity,
             "prediction_maturity_adapter_version": adapter.adapter_version if adapter else "",
             "prediction_maturity_calculated_at": datetime.now(timezone.utc).isoformat()}
+    current_publication = publish_cached_admet_current_predictions(db, version)
     db.commit()
 
     # Refresh endpoint names after potential additions
@@ -4774,6 +4777,7 @@ def run_admet_predictions(row_id: int, db: Session = Depends(get_db)):
         "predictions": predictions,
         "consensus_predictions": [_consensus_out(row) for row in consensuses],
         "endpoint_statuses": orch_result.endpoint_statuses + inactive_statuses,
+        "current_publication": current_publication,
         "unavailable": orch_result.unavailable,
         "orchestrator": ORCHESTRATOR_VERSION,
         "shadow_models_executed": sum(

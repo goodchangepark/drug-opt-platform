@@ -73,6 +73,60 @@ _ARTIFACT_PATHS: dict[str, tuple[str, ...]] = {
     "DILI_LIABILITY": tuple(f"models/admet_ai/classification/model_{index}.pt" for index in range(5)),
 }
 
+# Runtime model identities below are the exact installed implementations
+# executed by ``PredictionOrchestrator``.  The older release-routing table has
+# presentation labels such as "OpenADMET ... Classifier" for several Admetica
+# checkpoints.  A current snapshot must name the executable implementation,
+# not that historical presentation label.
+_RUNTIME_MODEL_IDENTITIES: dict[str, tuple[str, str, str]] = {
+    "RLM_CLINT": (
+        "OpenADMET CheMeleon RLM intrinsic clearance",
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+        "V3_3_2_BEST_SINGLE",
+    ),
+    "MLM_CLINT": (
+        "OpenADMET CheMeleon MLM intrinsic clearance",
+        "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+        "V3_3_2_BEST_SINGLE",
+    ),
+    **{
+        f"CYP{isoform}_INHIBITOR_CLASS": (
+            f"Admetica Chemprop CYP{isoform} inhibitor",
+            "admetica-d4f7056-cyp-chemprop-v2.1",
+            "CLASSIFICATION_ONLY",
+        )
+        for isoform in ("1A2", "2C9", "2C19", "2D6", "3A4")
+    },
+    **{
+        f"CYP{isoform}_SUBSTRATE": (
+            f"Admetica Chemprop CYP{isoform} substrate",
+            "admetica-d4f7056-cyp-chemprop-v2.1",
+            "CLASSIFICATION_ONLY",
+        )
+        for isoform in ("2C9", "2D6", "3A4")
+    },
+    "PGP_INHIBITION": (
+        "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+        "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+        "CLASSIFICATION_ONLY",
+    ),
+    "HERG_CLASS": (
+        "Admetica Chemprop human hERG blocker liability",
+        "admetica-d4f7056-herg-chemprop-v2.1",
+        "CLASSIFICATION_ONLY",
+    ),
+    "AMES_MUTAGENICITY": (
+        "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+        "CLASSIFICATION_ONLY",
+    ),
+    "DILI_LIABILITY": (
+        "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+        "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+        "CLASSIFICATION_ONLY",
+    ),
+}
+
 VALIDATION_ARTIFACT = "validation/model_maturity_ui_audit.json"
 
 
@@ -90,11 +144,12 @@ def model_artifact_registration(endpoint_id: str) -> ModelArtifactRegistration |
     paths = _ARTIFACT_PATHS.get(endpoint)
     if not route or route.get("route") == ROUTE_MODEL_UNAVAILABLE or not paths:
         return None
+    runtime_identity = _RUNTIME_MODEL_IDENTITIES.get(endpoint)
     return ModelArtifactRegistration(
         endpoint_id=endpoint,
-        model_id=str(route.get("model_or_ensemble") or "").strip(),
-        model_version=str(route.get("model_version_hash") or "").strip(),
-        model_route=str(route.get("route") or "").strip(),
+        model_id=(runtime_identity[0] if runtime_identity else str(route.get("model_or_ensemble") or "").strip()),
+        model_version=(runtime_identity[1] if runtime_identity else str(route.get("model_version_hash") or "").strip()),
+        model_route=(runtime_identity[2] if runtime_identity else str(route.get("route") or "").strip()),
         artifact_paths=paths,
         validation_artifact=VALIDATION_ARTIFACT,
     )

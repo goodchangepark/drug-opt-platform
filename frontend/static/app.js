@@ -1122,7 +1122,15 @@ function App(){
  const runPrediction=async versionId=>{
   if(!versionId)return;
   setAdmetBusy(true);
-  try{const result=await api.post('/admet/predict/'+versionId,{});await Promise.all([loadCompoundAdmet(versionId),loadScientificTab(detailTab,versionId)]);setMessage(result.message)}
+  try{
+   const result=await api.post('/admet/predict/'+versionId,{});
+   await Promise.all([loadCompoundAdmet(versionId),loadScientificTab(detailTab,versionId)]);
+   const publication=result.current_publication||[],published=publication.filter(row=>row.status==='CALCULATED_AND_PUBLISHED');
+   const rejected=publication.filter(row=>row.status==='CALCULATED_BUT_NOT_ELIGIBLE');
+   setMessage(published.length
+    ? published.length+' canonical current prediction'+(published.length===1?'':'s')+' published'+(rejected.length?' · '+rejected.length+' calculated result'+(rejected.length===1?'':'s')+' retained as ineligible with provenance reasons':'')
+    : (rejected.length?'Predictions calculated but none qualified for Current Prediction: '+rejected.map(row=>row.endpoint+' '+row.reason).join(' · '):(result.message||'No qualified current prediction was published')));
+  }
   catch(error){setMessage(String(error))}finally{setAdmetBusy(false)}
  };
  const runMetabolism=async versionId=>{
@@ -4452,7 +4460,7 @@ function integratedProfile(versionId){
     setPredictionWorkflow(res);
     await openDetail(detail.row_id);
     await Promise.all([loadProject(projectId),loadProjects(),loadDashboard()]);
-    setMessage(res.message||'Prediction completed');
+    setMessage(res.message||(res.publication_status==='CALCULATED_AND_PUBLISHED'?'Canonical current predictions published':'Prediction completed without an eligible current snapshot'));
    }catch(err){
     setPredictionWorkflow(current=>({...current,status:'FAILED'}));
     setMessage(String(err));
@@ -5078,7 +5086,7 @@ function integratedProfile(versionId){
      e('tbody',{},metrics.map(metric=>e('tr',{key:metric},[
       e('th',{scope:'row'},[e('div',{className:'comparison-metric-title'},metric),e('small',{className:'comparison-criteria'},metricCriteria[metric]||'Evidence shown below')]),
       ...(comparison.compounds||[]).map(compound=>e('td',{key:compound.row_id,className:cellClass(metric,compound[metric])},[
-       e('span',{className:'mono'},[compound[metric]??'—',maturityEndpoint[metric]&&compound.sources?.[metric]==='Predicted'?' ':null,maturityEndpoint[metric]&&compound.sources?.[metric]==='Predicted'?MaturityStars({maturity:maturityForEndpoint(maturityEndpoint[metric])}):null]),
+       e('span',{className:'mono'},[compound[metric]??'—',compound.prediction_metadata?.[metric]?.maturity?' ':null,compound.prediction_metadata?.[metric]?.maturity?MaturityStars({maturity:compound.prediction_metadata[metric].maturity}):null]),
        e('div',{className:'comparison-source'},StatusBadge({type:compound.sources?.[metric]||'Not measured'}))
       ]))
      ])))
