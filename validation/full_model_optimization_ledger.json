@@ -1,0 +1,2798 @@
+{
+  "artifact": "FULL_MODEL_OPTIMIZATION_LEDGER_V1",
+  "created_at": "2026-09-11T06:01:47.984849+00:00",
+  "endpoint_results": [
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "g/mol",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "MW",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Deterministic exact molecular weight calculated from atomic composition (RDKit).",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "log10(o/w)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CLOGP",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Wildman-Crippen atom-contribution octanol/water partition coefficient (RDKit).",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00c5\u00b2",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "TPSA",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Polar surface area computed from standard polar fragment topological sums (Ertl et al.).",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "count",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HBD",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Exact count of Lipinski hydrogen bond donors (OH and NH groups).",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "count",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HBA",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Exact count of Lipinski hydrogen bond acceptors (O and N atoms).",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "count",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "ROTB",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Exact count of rotatable non-ring single bonds (RDKit).",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "ratio",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "FSP3",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Fraction of sp3 hybridized carbons over total carbon count.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "score (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "QED",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Bickerton et al. desirability metric aggregating 8 physicochemical properties.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "integer",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "FORMAL_CHARGE",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Net molecular electrical charge from formal valence state.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "count",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HEAVY_ATOM_COUNT",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Exact count of non-hydrogen constituent atoms.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "Deterministic implementation; no correctness regression identified.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "pH",
+      "decision": "MECHANISTIC_ONLY",
+      "endpoint": "PKA",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Empirical ionization constant estimation based on acid/base substructure matching.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified independent quantitative labels justify an ML maturity claim; preserve explicit rule/mechanistic semantics.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/stage4e3e_pka_logd_final_decisions.json",
+          "sha256": "86bd6de7e4262ebae8b9cd05e64c7db92be089dfaab163c67e9b7c42728f998f"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "log10",
+      "decision": "MECHANISTIC_ONLY",
+      "endpoint": "LOGD_7_4",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Derived from Henderson-Hasselbalch ionization fraction and cLogP at pH 7.4.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified independent quantitative labels justify an ML maturity claim; preserve explicit rule/mechanistic semantics.",
+      "species": [
+        "SPECIES_INDEPENDENT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/stage4e3e_pka_logd_final_decisions.json",
+          "sha256": "86bd6de7e4262ebae8b9cd05e64c7db92be089dfaab163c67e9b7c42728f998f"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "candidate_experiments": [],
+      "canonical_unit": "logS",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "SOLUBILITY_GENERIC",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Multi-model stacking ensemble (ESOL Delaney + ADMETica + RDKit GBR), 4.86% error reduction vs v3.3 base, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 35,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "candidate_experiments": [],
+      "canonical_unit": "log10(cm/s)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CACO2_PAPP_AB",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Multi-model stacking ensemble (ADMETica + PhysChem flux), 9.43% error reduction on normalized log10(cm/s) scale, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 31,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HIA",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Gradient-boosted binary classifier, benchmarked and validated on TDC human intestinal absorption dataset.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": "Chemical-space GroupKFold only; no independent source-family validation",
+      "baseline_metrics": {
+        "aafe": 4.760840445074518,
+        "bias_log10": -0.005126789067290659,
+        "mae_log10": 0.42574425486772005,
+        "median_fold_error": 1.9911529417156462,
+        "n": 476,
+        "within_2_fold_pct": 50.42016806722689,
+        "within_3_fold_pct": 67.64705882352942
+      },
+      "baseline_model": "extra_trees_logfu",
+      "best_candidate": "extra_trees_logfu (V72 canonical baseline)",
+      "best_metrics": {
+        "aafe": 4.760840445074518,
+        "bias_log10": -0.005126789067290659,
+        "mae_log10": 0.42574425486772005,
+        "median_fold_error": 1.9911529417156462,
+        "n": 476,
+        "within_2_fold_pct": 50.42016806722689,
+        "within_3_fold_pct": 67.64705882352942
+      },
+      "candidate_experiments": [
+        {
+          "artifact": "validation/ppb_local_ladder_v75.json",
+          "baseline_aafe": 4.760840445074518,
+          "best_aafe": 4.685153156328465,
+          "best_within_2_fold_pct": 50.84033613445378,
+          "best_within_3_fold_pct": 65.33613445378151,
+          "decision": "REJECTED_MARGINAL_OR_SUBGROUP_REGRESSION",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "experiment_id": "V75-PPB-LOCAL-GLOBAL-LADDER"
+        },
+        {
+          "artifact": "validation/ppb_weighted_ladder_v76.json",
+          "baseline_aafe": 4.760840445074518,
+          "best_aafe": 4.71174945729575,
+          "best_within_2_fold_pct": 46.84931506849315,
+          "best_within_3_fold_pct": 65.75342465753425,
+          "decision": "REJECTED_NO_MEANINGFUL_ROBUST_GAIN",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "experiment_id": "V76-PPB-WEIGHTED-ROBUST-LADDER"
+        },
+        {
+          "aafe": 6.4939378654073625,
+          "artifact": "validation/ppb_knn_v80.json",
+          "decision": "REJECTED_OVERALL_REGRESSION",
+          "endpoint": "HUMAN_FU_PLASMA",
+          "experiment_id": "V80-PPB-SIMILARITY-KNN",
+          "reason": "Similarity-weighted train-fold kNN was worse than canonical V72 baseline 4.760840445; high-binding errors remain dominant.",
+          "within_2_fold_pct": 37.18487394957983
+        }
+      ],
+      "canonical_benchmark": {
+        "artifact": "validation/ppb_canonical_benchmark_v72.json",
+        "sha256": "3d063f8841c556143bc4ff9230d40b73d3c50cc425b01396108b276c87960697"
+      },
+      "canonical_semantics": "human plasma fraction unbound; not historical percent-bound benchmark",
+      "canonical_unit": "fraction unbound",
+      "decision": "CURRENT_DATA_CEILING",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "maturity": "RESEARCH_CV_ONLY",
+      "next_evidence_needed": "Independent source-diverse human fu cohort with expanded fu<0.01 coverage.",
+      "promotion": false,
+      "qualified_n": 476,
+      "reason": "V74/V75/V76/V80 descriptor+FP, regime, local/global, robust and kNN families did not deliver a robust same-contract gain; fu<0.01 remains dominant (N=30).",
+      "rejected_families": [
+        "PPB descriptor+Morgan V74",
+        "PPB soft regime experts V74",
+        "PPB train-fold local residual V75 (marginal/subgroup regression)",
+        "PPB weighted/high-binding robust V76 (no robust gain)",
+        "HLM/RLM/MLM descriptor+FP/shared heads V77 (inferior/diagnostic-only)",
+        "VDss mechanistic/local/cluster residual V78",
+        "Total IV CL local/cluster/HistGradient V78",
+        "PPB similarity-weighted kNN V80"
+      ],
+      "species": [
+        "HUMAN"
+      ],
+      "subgroup_metrics": {
+        "fu_0_01_to_0_1": {
+          "aafe": 4.106211339805678,
+          "bias_log10": 0.4010082234073257,
+          "mae_log10": 0.46677845379429134,
+          "median_fold_error": 2.387570153237737,
+          "n": 109,
+          "within_2_fold_pct": 42.201834862385326,
+          "within_3_fold_pct": 57.798165137614674
+        },
+        "fu_ge_0_1": {
+          "aafe": 2.8021960221954165,
+          "bias_log10": -0.24977701663145466,
+          "mae_log10": 0.3375394872287408,
+          "median_fold_error": 1.8549294041391473,
+          "n": 337,
+          "within_2_fold_pct": 57.566765578635014,
+          "within_3_fold_pct": 76.55786350148368
+        },
+        "fu_lt_0_01": {
+          "aafe": 29.1414318778932,
+          "bias_log10": 1.2674868885790451,
+          "mae_log10": 1.2674868885790451,
+          "median_fold_error": 17.16495778966561,
+          "n": 30,
+          "within_2_fold_pct": 0.0,
+          "within_3_fold_pct": 3.3333333333333335
+        }
+      },
+      "supporting_evidence": [
+        {
+          "artifact": "validation/ppb_canonical_benchmark_v72.json",
+          "sha256": "3d063f8841c556143bc4ff9230d40b73d3c50cc425b01396108b276c87960697"
+        },
+        {
+          "artifact": "validation/global_optimization_ledger_v79.json",
+          "sha256": "13f41da61a1c79040d67f2bae04cbb445ca0f79f3cb961f564f78c4df3a242fc"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "BBB_PENETRATION",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Machine learning binary classifier, benchmarked and validated on TDC blood-brain barrier penetration dataset.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": "See candidate subgroup and AD metrics in locked artifact",
+      "best_candidate": "direct_structure",
+      "best_metrics": {
+        "aafe": 3.7057366603955706,
+        "bias_log10": -0.00010203149561132551,
+        "mae_log10": 0.4109555692490952,
+        "median_fold_error": 2.241225492072817,
+        "n": 50,
+        "within_2_fold_pct": 44.0,
+        "within_3_fold_pct": 66.0
+      },
+      "candidate_experiments": {
+        "cluster_residual": {
+          "aafe": 4.951112611891608,
+          "bias_log10": -0.08372834498704677,
+          "mae_log10": 0.5577496521822187,
+          "median_fold_error": 3.1189301885527136,
+          "n": 50,
+          "within_2_fold_pct": 20.0,
+          "within_3_fold_pct": 48.0
+        },
+        "direct_physchem_fu": {
+          "aafe": 3.8638642584220717,
+          "bias_log10": 0.005688821256748247,
+          "mae_log10": 0.4257675386195732,
+          "median_fold_error": 2.5454224962471086,
+          "n": 50,
+          "within_2_fold_pct": 44.0,
+          "within_3_fold_pct": 64.0
+        },
+        "direct_structure": {
+          "aafe": 3.7057366603955706,
+          "bias_log10": -0.00010203149561132551,
+          "mae_log10": 0.4109555692490952,
+          "median_fold_error": 2.241225492072817,
+          "n": 50,
+          "within_2_fold_pct": 44.0,
+          "within_3_fold_pct": 66.0
+        },
+        "local_residual": {
+          "aafe": 5.097640174768643,
+          "bias_log10": -0.004489220512038854,
+          "mae_log10": 0.5325859591834697,
+          "median_fold_error": 3.110513383097875,
+          "n": 50,
+          "within_2_fold_pct": 28.000000000000004,
+          "within_3_fold_pct": 48.0
+        },
+        "mechanistic_prior": {
+          "aafe": 13.79743485916771,
+          "bias_log10": -0.7632106386773907,
+          "mae_log10": 0.7997012588357396,
+          "median_fold_error": 4.801050497863763,
+          "n": 50,
+          "within_2_fold_pct": 22.0,
+          "within_3_fold_pct": 36.0
+        },
+        "mechanistic_residual": {
+          "aafe": 5.006140724433348,
+          "bias_log10": -0.03562972904172224,
+          "mae_log10": 0.5141062669035725,
+          "median_fold_error": 2.937071799510171,
+          "n": 50,
+          "within_2_fold_pct": 34.0,
+          "within_3_fold_pct": 52.0
+        }
+      },
+      "canonical_benchmark": {
+        "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+        "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+      },
+      "canonical_contract": {
+        "ambiguous_n": 735,
+        "endpoint": "HUMAN_VDSS",
+        "hybrid_complete_case_n": 50,
+        "mode": "ASSISTED_FU",
+        "qualified_n": 50,
+        "rejected_n": 15,
+        "species": "HUMAN",
+        "split": "Murcko scaffold GroupKFold",
+        "strict_semantics": "true Vss/Vdss only; Vz and Vd/F excluded",
+        "unit": "L/kg"
+      },
+      "decision": "CURRENT_DATA_CEILING",
+      "endpoint": "VDSS",
+      "maturity": "RESEARCH_ONLY",
+      "promotion": false,
+      "qualified_n": 50,
+      "reason": "RESEARCH_ONLY_SINGLE_SOURCE; Only one source family; No independent strict true-Vss cohort; fu-assisted benchmark",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+          "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_BEST_SINGLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_BEST_SINGLE",
+      "candidate_experiments": [],
+      "canonical_unit": "log10(mL/min/kg)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HLM_CLINT",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Best single calibrated model (Log10 Clearance scale), 47.27% error reduction vs OpenADMET baseline, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 31,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/microsomal_family_audit_v77.json",
+          "sha256": "a96c8f51eaa4440c994f77386ab6cea40ea6c9abad1ea387242112f37087b8dc"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_2_BEST_SINGLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_2_BEST_SINGLE",
+      "candidate_experiments": [],
+      "canonical_unit": "log10(mL/min/kg)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "RLM_CLINT",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Best single neural network model (OpenADMET CheMeleon RLM intrinsic clearance), 9.6% error reduction vs v3.3 base, locked holdout N=13.",
+      "production_status": "PRODUCTION_VALIDATED",
+      "promotion": false,
+      "qualified_n": 25,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "RAT"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/microsomal_family_audit_v77.json",
+          "sha256": "a96c8f51eaa4440c994f77386ab6cea40ea6c9abad1ea387242112f37087b8dc"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_2_BEST_SINGLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_2_BEST_SINGLE",
+      "candidate_experiments": [],
+      "canonical_unit": "log10(mL/min/kg)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "MLM_CLINT",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Best single neural network model (OpenADMET CheMeleon MLM intrinsic clearance), 6.2% error reduction vs v3.3 base, locked holdout N=13.",
+      "production_status": "PRODUCTION_VALIDATED",
+      "promotion": false,
+      "qualified_n": 25,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "MOUSE"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/microsomal_family_audit_v77.json",
+          "sha256": "a96c8f51eaa4440c994f77386ab6cea40ea6c9abad1ea387242112f37087b8dc"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN_WITH_GUARD",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_BEST_SINGLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_BEST_SINGLE",
+      "candidate_experiments": [],
+      "canonical_unit": "pIC50",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP1A2_INHIBITION",
+      "locked_n": 5,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Best single calibrated model (Calibrated pIC50), 19.3% error reduction vs v1 baseline, locked holdout N=5.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 12,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Standard TDC binary classifier for CYP1A2 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN_WITH_GUARD",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_BEST_SINGLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_BEST_SINGLE",
+      "candidate_experiments": [],
+      "canonical_unit": "pIC50",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2C9_INHIBITION",
+      "locked_n": 5,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Best single calibrated model (Calibrated pIC50), 23.2% error reduction vs v3.3 baseline, locked holdout N=5.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 11,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Standard TDC binary classifier for CYP2C9 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "pIC50",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "CYP2C19_INHIBITION",
+      "locked_n": 5,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Continuous pIC50 regression lacks sufficient high-quality training pairs to surpass promotion criteria; binary classifier available.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 12,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Standard TDC binary classifier for CYP2C19 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN_WITH_GUARD",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "candidate_experiments": [],
+      "canonical_unit": "pIC50",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2D6_INHIBITION",
+      "locked_n": 5,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Multi-model stacking ensemble (Drug-OPT Calibrated Residual Stacking + CheMeleon), 27.4% error reduction on pIC50, locked holdout N=5.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 25,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Standard TDC binary classifier for CYP2D6 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN_WITH_GUARD",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "candidate_experiments": [],
+      "canonical_unit": "pIC50",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP3A4_INHIBITION",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Multi-model stacking ensemble (Drug-OPT Calibrated Residual Stacking + CheMeleon), 35.7% error reduction on pIC50, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 32,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Standard TDC binary classifier for CYP3A4 inhibition liability.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Machine learning substrate probability model, validated on public substrate annotations.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP2D6_SUBSTRATE",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Machine learning substrate probability model, validated on public substrate annotations.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Machine learning substrate probability model, validated on public substrate annotations.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00b5M / pIC50",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "PGP_INHIBITION_QUANT",
+      "locked_n": 0,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Standardized continuous transport IC50 datasets lack sufficient holdout stability; binary classification available.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "PGP_INHIBITION",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Binary classifier for P-glycoprotein efflux inhibition, validated on TDC benchmark.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00b5M / pIC50",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "BCRP_INHIBITOR_QUANT",
+      "locked_n": 0,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Lack of standardized continuous efflux IC50 datasets; binary classifier available.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "BCRP_INHIBITOR",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Binary classifier for BCRP efflux transport inhibition, validated on TDC benchmark.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Metadata validation exists, but no registered executable artifact is available to Stable Core current admission.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00b5M",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "OATP1B1_INHIBITOR",
+      "locked_n": 0,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00b5M",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "OATP1B3_INHIBITOR",
+      "locked_n": 0,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00b5M",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "OCT1_INHIBITOR",
+      "locked_n": 0,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "NOT_APPLICABLE",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "MODEL_UNAVAILABLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "MODEL_UNAVAILABLE",
+      "candidate_experiments": [],
+      "canonical_unit": "\u00b5M",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "OCT2_INHIBITOR",
+      "locked_n": 0,
+      "maturity": "Model Unavailable",
+      "metric": "Model Unavailable: Fail-closed. Transporter continuous inhibition model not yet validated against locked holdout.",
+      "production_status": "MODEL_UNAVAILABLE",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "No qualified executable quantitative artifact; fail closed rather than derive a number from classification.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_BEST_SINGLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_BEST_SINGLE",
+      "candidate_experiments": [],
+      "canonical_unit": "pIC50",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HERG_LIABILITY",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Best single calibrated model (Continuous pIC50), 24.7% error reduction vs v3.3 baseline, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 44,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HERG_CLASS",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Binary liability screen for hERG channel blockage, benchmarked on TDC dataset.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 20,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "MODEL_UNAVAILABLE",
+      "endpoint": "AMES_MUTAGENICITY",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: Hansen et al. bacterial mutagenicity binary classifier, benchmarked on external Ames validation set.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 25,
+      "reason": "Installed bacterial Ames classifier cannot enter the current HUMAN-only species contract; do not publish it as a human endpoint.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "CLASSIFICATION_ONLY",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "CLASSIFICATION_ONLY",
+      "candidate_experiments": [],
+      "canonical_unit": "probability (0-1)",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "DILI_LIABILITY",
+      "locked_n": 0,
+      "maturity": "Validated Base",
+      "metric": "Validated Base: FDA DILIrank-derived binary hepatotoxicity screen, validated on clinical liver injury database.",
+      "production_status": "BASELINE_CLASSIFICATION",
+      "promotion": false,
+      "qualified_n": 25,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "atomic rank",
+      "decision": "MECHANISTIC_ONLY",
+      "endpoint": "METABOLIC_SOFT_SPOTS",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Semi-empirical SMARTCyp/SyGMa chemical vulnerability mapping.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "No qualified independent quantitative labels justify an ML maturity claim; preserve explicit rule/mechanistic semantics.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "LEGACY_BASE_FALLBACK",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "LEGACY_BASE_FALLBACK",
+      "candidate_experiments": [],
+      "canonical_unit": "structures",
+      "decision": "MECHANISTIC_ONLY",
+      "endpoint": "METABOLITE_HYPOTHESES",
+      "locked_n": 18,
+      "maturity": "Base / Rule Estimate",
+      "metric": "Base / Rule Estimate: Rule-based Phase I/II metabolic transformation tree generation.",
+      "production_status": "DETERMINISTIC_PROPERTY",
+      "promotion": false,
+      "qualified_n": 150,
+      "reason": "No qualified independent quantitative labels justify an ML maturity claim; preserve explicit rule/mechanistic semantics.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "ad_ood": "See candidate subgroup and AD metrics in locked artifact",
+      "baseline_metrics": {
+        "aafe": 4.015585459711952,
+        "bias_log10": -0.17604137216475102,
+        "mae_log10": 0.5179016962790858,
+        "median_fold_error": 3.3176261467889905,
+        "n": 30,
+        "within_2_fold_pct": 26.666666666666668,
+        "within_3_fold_pct": 40.0
+      },
+      "best_candidate": "mechanistic_fu_clint_residual",
+      "best_metrics": {
+        "aafe": 2.097108825628647,
+        "bias_log10": 0.009022903781202796,
+        "mae_log10": 0.24539265053064235,
+        "median_fold_error": 1.4678023136349032,
+        "n": 30,
+        "within_2_fold_pct": 73.33333333333333,
+        "within_3_fold_pct": 83.33333333333334
+      },
+      "candidate_experiments": {
+        "clint_only": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 1.506248789702553,
+              "bias_log10": -0.1034465639930731,
+              "mae_log10": 0.17268360601618243,
+              "median_fold_error": 1.3708333382027345,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "OOD": {
+              "aafe": 3.1671033702426397,
+              "bias_log10": 0.01043207110242895,
+              "mae_log10": 0.31381001888126375,
+              "median_fold_error": 1.7294205025008824,
+              "n": 26,
+              "within_2_fold_pct": 69.23076923076923,
+              "within_3_fold_pct": 76.92307692307693
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.347318309930869,
+              "bias_log10": -0.12440024824639848,
+              "mae_log10": 0.12440024824639848,
+              "median_fold_error": 1.3024821275464518,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 1.70596270578793,
+              "bias_log10": -0.22052406306562153,
+              "mae_log10": 0.22530837491820424,
+              "median_fold_error": 1.782956476203607,
+              "n": 9,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "LOW": {
+              "aafe": 3.9780438349002347,
+              "bias_log10": 0.13763324430982635,
+              "mae_log10": 0.3720246204545972,
+              "median_fold_error": 1.7808474044582943,
+              "n": 17,
+              "within_2_fold_pct": 52.94117647058824,
+              "within_3_fold_pct": 64.70588235294117
+            }
+          },
+          "pooled_oof": {
+            "aafe": 2.945656092837295,
+            "bias_log10": -0.004751746910304651,
+            "mae_log10": 0.2949931638325862,
+            "median_fold_error": 1.6664351797146502,
+            "n": 30,
+            "within_2_fold_pct": 73.33333333333333,
+            "within_3_fold_pct": 80.0
+          }
+        },
+        "fu_clint": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 1.45952973320092,
+              "bias_log10": -0.06074234897159585,
+              "mae_log10": 0.160545717073036,
+              "median_fold_error": 1.442303113061145,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "OOD": {
+              "aafe": 2.9389578210338554,
+              "bias_log10": 0.02294736693889115,
+              "mae_log10": 0.326722276251946,
+              "median_fold_error": 1.873444550219068,
+              "n": 26,
+              "within_2_fold_pct": 53.84615384615385,
+              "within_3_fold_pct": 84.61538461538461
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.7853082279715908,
+              "bias_log10": -0.2363810562586633,
+              "mae_log10": 0.2363810562586633,
+              "median_fold_error": 1.7875042400562142,
+              "n": 4,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 1.6560863571894573,
+              "bias_log10": -0.21048918638580147,
+              "mae_log10": 0.2116784947863857,
+              "median_fold_error": 1.703575445564228,
+              "n": 9,
+              "within_2_fold_pct": 88.88888888888889,
+              "within_3_fold_pct": 100.0
+            },
+            "LOW": {
+              "aafe": 3.541471303123085,
+              "bias_log10": 0.18785817923715606,
+              "mae_log10": 0.36978419839591853,
+              "median_fold_error": 2.4148984144094494,
+              "n": 17,
+              "within_2_fold_pct": 47.05882352941176,
+              "within_3_fold_pct": 76.47058823529412
+            }
+          },
+          "pooled_oof": {
+            "aafe": 2.74170074265613,
+            "bias_log10": 0.011788738150826225,
+            "mae_log10": 0.304565401694758,
+            "median_fold_error": 1.7600848079983904,
+            "n": 30,
+            "within_2_fold_pct": 60.0,
+            "within_3_fold_pct": 86.66666666666667
+          }
+        },
+        "fu_only": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 2.9180207435865753,
+              "bias_log10": -0.20371503446024247,
+              "mae_log10": 0.4209557682856796,
+              "median_fold_error": 2.893395955187887,
+              "n": 4,
+              "within_2_fold_pct": 25.0,
+              "within_3_fold_pct": 50.0
+            },
+            "OOD": {
+              "aafe": 6.9285009024643704,
+              "bias_log10": 0.055488707539680965,
+              "mae_log10": 0.6407156758746406,
+              "median_fold_error": 4.534034953061232,
+              "n": 26,
+              "within_2_fold_pct": 15.384615384615385,
+              "within_3_fold_pct": 30.76923076923077
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 4.993615924502912,
+              "bias_log10": -0.6979156473409216,
+              "mae_log10": 0.6979156473409216,
+              "median_fold_error": 5.019274235384824,
+              "n": 4,
+              "within_2_fold_pct": 0.0,
+              "within_3_fold_pct": 0.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 3.803700001106154,
+              "bias_log10": -0.5599241015113338,
+              "mae_log10": 0.5599241015113338,
+              "median_fold_error": 3.709593777174026,
+              "n": 9,
+              "within_2_fold_pct": 0.0,
+              "within_3_fold_pct": 22.22222222222222
+            },
+            "LOW": {
+              "aafe": 8.094431925320762,
+              "bias_log10": 0.497577985950378,
+              "mae_log10": 0.6183206554657459,
+              "median_fold_error": 3.6631301770252613,
+              "n": 17,
+              "within_2_fold_pct": 29.411764705882355,
+              "within_3_fold_pct": 47.05882352941176
+            }
+          },
+          "pooled_oof": {
+            "aafe": 6.3937702146139985,
+            "bias_log10": 0.02092820860635784,
+            "mae_log10": 0.6114143548627792,
+            "median_fold_error": 4.069482863616207,
+            "n": 30,
+            "within_2_fold_pct": 16.666666666666664,
+            "within_3_fold_pct": 33.33333333333333
+          }
+        },
+        "mechanistic_clint_residual": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 1.7559512054764965,
+              "bias_log10": 0.14340104340037474,
+              "mae_log10": 0.19980126454168085,
+              "median_fold_error": 1.386043998721223,
+              "n": 4,
+              "within_2_fold_pct": 75.0,
+              "within_3_fold_pct": 75.0
+            },
+            "OOD": {
+              "aafe": 3.4973845227920513,
+              "bias_log10": -0.02477184207320248,
+              "mae_log10": 0.44024389065000236,
+              "median_fold_error": 2.49816467263109,
+              "n": 26,
+              "within_2_fold_pct": 34.61538461538461,
+              "within_3_fold_pct": 65.38461538461539
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 2.7684433363268908,
+              "bias_log10": 0.38986823136225457,
+              "mae_log10": 0.38986823136225457,
+              "median_fold_error": 2.1960068742638845,
+              "n": 4,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 75.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 2.0086120945448886,
+              "bias_log10": -0.18310077668837593,
+              "mae_log10": 0.26141350169452,
+              "median_fold_error": 1.9537057335377912,
+              "n": 9,
+              "within_2_fold_pct": 55.55555555555556,
+              "within_3_fold_pct": 88.88888888888889
+            },
+            "LOW": {
+              "aafe": 4.04732471872281,
+              "bias_log10": 0.0010570790849764704,
+              "mae_log10": 0.4901971631980638,
+              "median_fold_error": 2.7123528527611853,
+              "n": 17,
+              "within_2_fold_pct": 29.411764705882355,
+              "within_3_fold_pct": 52.94117647058824
+            }
+          },
+          "pooled_oof": {
+            "aafe": 3.265193413816644,
+            "bias_log10": -0.0023487906767255097,
+            "mae_log10": 0.4081848738355595,
+            "median_fold_error": 2.4111555750041935,
+            "n": 30,
+            "within_2_fold_pct": 40.0,
+            "within_3_fold_pct": 66.66666666666666
+          }
+        },
+        "mechanistic_cluster_residual": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 1.3942063939194582,
+              "bias_log10": 0.07406435079054448,
+              "mae_log10": 0.13498025772420524,
+              "median_fold_error": 1.3018492893559293,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "OOD": {
+              "aafe": 3.878543951450251,
+              "bias_log10": 0.04311820946811885,
+              "mae_log10": 0.4515649054979719,
+              "median_fold_error": 2.696402052255494,
+              "n": 26,
+              "within_2_fold_pct": 42.30769230769231,
+              "within_3_fold_pct": 57.692307692307686
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.938465607401295,
+              "bias_log10": 0.26642228489002673,
+              "mae_log10": 0.26642228489002673,
+              "median_fold_error": 1.7713561442830041,
+              "n": 4,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 2.0178497145376983,
+              "bias_log10": -0.24649853943055305,
+              "mae_log10": 0.24649853943055305,
+              "median_fold_error": 1.4309402305937098,
+              "n": 9,
+              "within_2_fold_pct": 66.66666666666666,
+              "within_3_fold_pct": 77.77777777777779
+            },
+            "LOW": {
+              "aafe": 4.7355563795846995,
+              "bias_log10": 0.1511840332145964,
+              "mae_log10": 0.5292019164358238,
+              "median_fold_error": 3.4252222515093584,
+              "n": 17,
+              "within_2_fold_pct": 41.17647058823529,
+              "within_3_fold_pct": 47.05882352941176
+            }
+          },
+          "pooled_oof": {
+            "aafe": 3.547298943779479,
+            "bias_log10": 0.04724436164444226,
+            "mae_log10": 0.4093536191281364,
+            "median_fold_error": 2.0352603589349934,
+            "n": 30,
+            "within_2_fold_pct": 50.0,
+            "within_3_fold_pct": 63.33333333333333
+          }
+        },
+        "mechanistic_fu_clint_residual": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 1.4058900189244998,
+              "bias_log10": 0.11063917206000097,
+              "mae_log10": 0.13732198986414423,
+              "median_fold_error": 1.4158746936967948,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "OOD": {
+              "aafe": 2.2034501805062083,
+              "bias_log10": -0.006610368261689233,
+              "mae_log10": 0.2620189060177959,
+              "median_fold_error": 1.4678023136349032,
+              "n": 26,
+              "within_2_fold_pct": 69.23076923076923,
+              "within_3_fold_pct": 80.76923076923077
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.1228489985244992,
+              "bias_log10": -0.0004047281083753851,
+              "mae_log10": 0.049029145062900514,
+              "median_fold_error": 1.1196141713381567,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 1.4660966556337216,
+              "bias_log10": -0.12274128047890424,
+              "mae_log10": 0.14483275909962315,
+              "median_fold_error": 1.2572210785841447,
+              "n": 9,
+              "within_2_fold_pct": 88.88888888888889,
+              "within_3_fold_pct": 100.0
+            },
+            "LOW": {
+              "aafe": 2.6604116984739954,
+              "bias_log10": 0.08099867942233668,
+              "mae_log10": 0.344833417868886,
+              "median_fold_error": 1.7941109468363725,
+              "n": 17,
+              "within_2_fold_pct": 58.82352941176471,
+              "within_3_fold_pct": 70.58823529411765
+            }
+          },
+          "pooled_oof": {
+            "aafe": 2.097108825628647,
+            "bias_log10": 0.009022903781202796,
+            "mae_log10": 0.24539265053064235,
+            "median_fold_error": 1.4678023136349032,
+            "n": 30,
+            "within_2_fold_pct": 73.33333333333333,
+            "within_3_fold_pct": 83.33333333333334
+          }
+        },
+        "mechanistic_fu_residual": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 1.5436339564853545,
+              "bias_log10": -0.006644343825017954,
+              "mae_log10": 0.1822970132171483,
+              "median_fold_error": 1.558299327569424,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "OOD": {
+              "aafe": 2.448340920419849,
+              "bias_log10": 0.01631898310664752,
+              "mae_log10": 0.3134155812108651,
+              "median_fold_error": 1.898099655663958,
+              "n": 26,
+              "within_2_fold_pct": 61.53846153846154,
+              "within_3_fold_pct": 84.61538461538461
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.4593592375912026,
+              "bias_log10": -0.16205549314479153,
+              "mae_log10": 0.16205549314479153,
+              "median_fold_error": 1.4545473813532963,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 1.9440524613075252,
+              "bias_log10": -0.27176090442180545,
+              "mae_log10": 0.27176090442180545,
+              "median_fold_error": 1.9086423848719507,
+              "n": 9,
+              "within_2_fold_pct": 66.66666666666666,
+              "within_3_fold_pct": 88.88888888888889
+            },
+            "LOW": {
+              "aafe": 2.7351465091014684,
+              "bias_log10": 0.20539919399106937,
+              "mae_log10": 0.34023076776327477,
+              "median_fold_error": 1.887556926455965,
+              "n": 17,
+              "within_2_fold_pct": 58.82352941176471,
+              "within_3_fold_pct": 82.35294117647058
+            }
+          },
+          "pooled_oof": {
+            "aafe": 2.3277133252285833,
+            "bias_log10": 0.013257206182425459,
+            "mae_log10": 0.29593310547836954,
+            "median_fold_error": 1.837359746821624,
+            "n": 30,
+            "within_2_fold_pct": 66.66666666666666,
+            "within_3_fold_pct": 86.66666666666667
+          }
+        },
+        "mechanistic_local_residual": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 3.8883535806081606,
+              "bias_log10": 0.1309598479435849,
+              "mae_log10": 0.3872510484466335,
+              "median_fold_error": 2.0009479591606927,
+              "n": 4,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 75.0
+            },
+            "OOD": {
+              "aafe": 4.4665168376946776,
+              "bias_log10": 0.025369239895638926,
+              "mae_log10": 0.49581719067324753,
+              "median_fold_error": 3.2434843128056947,
+              "n": 26,
+              "within_2_fold_pct": 38.46153846153847,
+              "within_3_fold_pct": 46.15384615384615
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.897721526315798,
+              "bias_log10": 0.006796437761680013,
+              "mae_log10": 0.25275153581467436,
+              "median_fold_error": 1.8208925683932806,
+              "n": 4,
+              "within_2_fold_pct": 75.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 2.816939689957782,
+              "bias_log10": -0.2902529309751384,
+              "mae_log10": 0.32831052457487964,
+              "median_fold_error": 1.4834030622163885,
+              "n": 9,
+              "within_2_fold_pct": 55.55555555555556,
+              "within_3_fold_pct": 66.66666666666666
+            },
+            "LOW": {
+              "aafe": 5.808206399271238,
+              "bias_log10": 0.22167825039943986,
+              "mae_log10": 0.6161441345210799,
+              "median_fold_error": 3.890154262172534,
+              "n": 17,
+              "within_2_fold_pct": 23.52941176470588,
+              "within_3_fold_pct": 29.411764705882355
+            }
+          },
+          "pooled_oof": {
+            "aafe": 4.389428403416477,
+            "bias_log10": 0.039447987635365056,
+            "mae_log10": 0.4813417050430323,
+            "median_fold_error": 3.043064265342907,
+            "n": 30,
+            "within_2_fold_pct": 40.0,
+            "within_3_fold_pct": 50.0
+          }
+        },
+        "mechanistic_structure_residual": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 2.2668979921603505,
+              "bias_log10": 0.11377390381264685,
+              "mae_log10": 0.2993423508844757,
+              "median_fold_error": 1.5581587694732182,
+              "n": 4,
+              "within_2_fold_pct": 75.0,
+              "within_3_fold_pct": 75.0
+            },
+            "OOD": {
+              "aafe": 3.8117326860314416,
+              "bias_log10": -0.015947499903502523,
+              "mae_log10": 0.4519058140532278,
+              "median_fold_error": 2.2926298021979754,
+              "n": 26,
+              "within_2_fold_pct": 50.0,
+              "within_3_fold_pct": 53.84615384615385
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.4351706781514453,
+              "bias_log10": -0.004123756128226463,
+              "mae_log10": 0.15487520377497688,
+              "median_fold_error": 1.4174054352564354,
+              "n": 4,
+              "within_2_fold_pct": 100.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 2.4419763427360595,
+              "bias_log10": -0.24034054845408287,
+              "mae_log10": 0.29620237205656186,
+              "median_fold_error": 1.4419860065117365,
+              "n": 9,
+              "within_2_fold_pct": 66.66666666666666,
+              "within_3_fold_pct": 77.77777777777779
+            },
+            "LOW": {
+              "aafe": 4.73259835342521,
+              "bias_log10": 0.13058944578583373,
+              "mae_log10": 0.56832931795958,
+              "median_fold_error": 4.509288423183229,
+              "n": 17,
+              "within_2_fold_pct": 35.294117647058826,
+              "within_3_fold_pct": 35.294117647058826
+            }
+          },
+          "pooled_oof": {
+            "aafe": 3.6057547268486294,
+            "bias_log10": 0.0013486872586507233,
+            "mae_log10": 0.43156401896406077,
+            "median_fold_error": 1.842904385747365,
+            "n": 30,
+            "within_2_fold_pct": 53.333333333333336,
+            "within_3_fold_pct": 56.666666666666664
+          }
+        },
+        "structure_direct": {
+          "by_ad": {
+            "BORDERLINE": {
+              "aafe": 2.30200500481065,
+              "bias_log10": -0.13195204649473652,
+              "mae_log10": 0.3239574499768709,
+              "median_fold_error": 2.2175974902966358,
+              "n": 4,
+              "within_2_fold_pct": 25.0,
+              "within_3_fold_pct": 75.0
+            },
+            "OOD": {
+              "aafe": 5.984447609237707,
+              "bias_log10": 0.029150764282329586,
+              "mae_log10": 0.5922975929061183,
+              "median_fold_error": 3.8580776279524063,
+              "n": 26,
+              "within_2_fold_pct": 23.076923076923077,
+              "within_3_fold_pct": 42.30769230769231
+            }
+          },
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 4.847422589507515,
+              "bias_log10": -0.6509675610722718,
+              "mae_log10": 0.6509675610722718,
+              "median_fold_error": 4.977589282779734,
+              "n": 4,
+              "within_2_fold_pct": 0.0,
+              "within_3_fold_pct": 25.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 3.7047663184361,
+              "bias_log10": -0.5201893506553353,
+              "mae_log10": 0.5201893506553353,
+              "median_fold_error": 2.800265651410024,
+              "n": 9,
+              "within_2_fold_pct": 11.11111111111111,
+              "within_3_fold_pct": 55.55555555555556
+            },
+            "LOW": {
+              "aafe": 6.592415919733414,
+              "bias_log10": 0.44209918150286637,
+              "mae_log10": 0.5535289891340854,
+              "median_fold_error": 4.164348888791466,
+              "n": 17,
+              "within_2_fold_pct": 35.294117647058826,
+              "within_3_fold_pct": 47.05882352941176
+            }
+          },
+          "pooled_oof": {
+            "aafe": 5.493455261980766,
+            "bias_log10": 0.007670389512054129,
+            "mae_log10": 0.5565189071822185,
+            "median_fold_error": 3.517523743933757,
+            "n": 30,
+            "within_2_fold_pct": 23.333333333333332,
+            "within_3_fold_pct": 46.666666666666664
+          }
+        },
+        "well_stirred": {
+          "by_ad": {},
+          "by_extraction": {
+            "HIGH": {
+              "aafe": 1.6060181632413733,
+              "bias_log10": -0.1715830249679115,
+              "mae_log10": 0.1864236864892807,
+              "median_fold_error": 1.605111359779756,
+              "n": 4,
+              "within_2_fold_pct": 75.0,
+              "within_3_fold_pct": 100.0
+            },
+            "INTERMEDIATE": {
+              "aafe": 3.971163804812671,
+              "bias_log10": -0.5342529680101302,
+              "mae_log10": 0.5346737731387508,
+              "median_fold_error": 3.7828947368421053,
+              "n": 9,
+              "within_2_fold_pct": 11.11111111111111,
+              "within_3_fold_pct": 33.33333333333333
+            },
+            "LOW": {
+              "aafe": 4.606059817357588,
+              "bias_log10": 0.012551038060016935,
+              "mae_log10": 0.5870171873039233,
+              "median_fold_error": 3.4060869565217393,
+              "n": 17,
+              "within_2_fold_pct": 23.52941176470588,
+              "within_3_fold_pct": 29.411764705882355
+            }
+          },
+          "pooled_oof": {
+            "aafe": 4.015585459711952,
+            "bias_log10": -0.17604137216475102,
+            "mae_log10": 0.5179016962790858,
+            "median_fold_error": 3.3176261467889905,
+            "n": 30,
+            "within_2_fold_pct": 26.666666666666668,
+            "within_3_fold_pct": 40.0
+          }
+        }
+      },
+      "canonical_benchmark": {
+        "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+        "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+      },
+      "canonical_contract": {
+        "dataset": "curated N=30 clinical hepatic-clearance cohort",
+        "dataset_hash": "48b76a58829bdcd3bf26768c4585989f813b7d69b435479942fad72ef3d0e07e",
+        "endpoint": "HUMAN_HEPATIC_CL",
+        "inputs": "observed fu and HLM Clint",
+        "mode": "ASSISTED",
+        "species": "HUMAN",
+        "split": "5-fold Murcko scaffold GroupKFold",
+        "unit": "mL/min/kg"
+      },
+      "decision": "CURRENT_DATA_CEILING",
+      "endpoint": "HUMAN_HEPATIC_CL",
+      "maturity": "RESEARCH_ONLY",
+      "promotion": false,
+      "qualified_n": 30,
+      "reason": "Target is reached only in ASSISTED mode with observed fu and Clint (N=30); no FULL_PREDICTION or independent qualification, so production promotion is prohibited.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+          "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+        }
+      ]
+    },
+    {
+      "ad_ood": "See candidate subgroup and AD metrics in locked artifact",
+      "best_candidate": "random_forest",
+      "best_metrics": {
+        "aafe": 7.341110193181601,
+        "bias_log10": 0.0042876223327647555,
+        "mae_log10": 0.4161498597763413,
+        "median_fold_error": 2.049914991905429,
+        "n": 748,
+        "within_2_fold_pct": 48.663101604278076,
+        "within_3_fold_pct": 68.31550802139037
+      },
+      "candidate_experiments": {
+        "cluster_residual": {
+          "aafe": 8.45396689839897,
+          "bias_log10": 0.0014115510004515147,
+          "mae_log10": 0.42532205972388765,
+          "median_fold_error": 2.008287289174201,
+          "n": 748,
+          "within_2_fold_pct": 49.86631016042781,
+          "within_3_fold_pct": 68.04812834224599
+        },
+        "extra_trees_v61": {
+          "aafe": 7.61263031358981,
+          "bias_log10": 0.007395910034745037,
+          "mae_log10": 0.417726200989187,
+          "median_fold_error": 2.014192316613041,
+          "n": 748,
+          "within_2_fold_pct": 48.79679144385027,
+          "within_3_fold_pct": 68.04812834224599
+        },
+        "fingerprint_knn": {
+          "aafe": 9.310186458235723,
+          "bias_log10": 0.020539288573049194,
+          "mae_log10": 0.4064259173370842,
+          "median_fold_error": 1.971639661136567,
+          "n": 748,
+          "within_2_fold_pct": 50.93582887700535,
+          "within_3_fold_pct": 68.44919786096256
+        },
+        "hist_gradient": {
+          "aafe": 7.933670282171065,
+          "bias_log10": 0.01632586461655321,
+          "mae_log10": 0.4330171535097329,
+          "median_fold_error": 2.1034440510000247,
+          "n": 748,
+          "within_2_fold_pct": 46.12299465240642,
+          "within_3_fold_pct": 66.44385026737967
+        },
+        "local_residual": {
+          "aafe": 8.629120228966071,
+          "bias_log10": 0.018278168788066994,
+          "mae_log10": 0.41738878975379057,
+          "median_fold_error": 1.9666468744708268,
+          "n": 748,
+          "within_2_fold_pct": 50.80213903743316,
+          "within_3_fold_pct": 66.97860962566845
+        },
+        "random_forest": {
+          "aafe": 7.341110193181601,
+          "bias_log10": 0.0042876223327647555,
+          "mae_log10": 0.4161498597763413,
+          "median_fold_error": 2.049914991905429,
+          "n": 748,
+          "within_2_fold_pct": 48.663101604278076,
+          "within_3_fold_pct": 68.31550802139037
+        }
+      },
+      "canonical_benchmark": {
+        "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+        "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+      },
+      "canonical_contract": {
+        "dataset": "PKSmart compact endpoint markers",
+        "dataset_n": 748,
+        "endpoint": "HUMAN_TOTAL_IV_CL",
+        "locked_stress_cohort_used_for_selection": false,
+        "role": "WITHIN_SOURCE_RESEARCH_ONLY",
+        "route": "IV",
+        "species": "HUMAN",
+        "split": "Murcko scaffold GroupKFold",
+        "unit": "mL/min/kg"
+      },
+      "decision": "CURRENT_DATA_CEILING",
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "maturity": "RESEARCH_ONLY",
+      "promotion": false,
+      "qualified_n": 748,
+      "reason": "RESEARCH_ONLY_NO_INDEPENDENT_SOURCE; Compact source markers lack record-level IV context; No independent source-family validation",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+          "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+        }
+      ]
+    },
+    {
+      "ad_ood": "depends on CL/VDss",
+      "baseline_model": "assisted PK equations",
+      "best_candidate": "none",
+      "candidate_experiments": [],
+      "canonical_unit": "human IV half-life from predicted total CL + VDss",
+      "decision": "CURRENT_DATA_CEILING",
+      "endpoint": "IV_HALF_LIFE",
+      "maturity": "CURRENT_DATA_CEILING",
+      "metric": "AAFE",
+      "next_evidence_needed": "Requeue after species-matched CL/Vdss/F/ka snapshots; context is required and no generic value is emitted.",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "v5.6 IV half-life research; CL/VDss external qualification required",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": "none",
+      "baseline_model": "mechanistic context route",
+      "best_candidate": "none",
+      "candidate_experiments": [],
+      "canonical_unit": "context-aware absolute bioavailability",
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "HUMAN_F",
+      "maturity": "CURRENT_DATA_CEILING",
+      "metric": "absolute F error",
+      "next_evidence_needed": "Revisit after new qualified labels or a validated upstream dependency; keep fail-closed semantics.",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "v5.4 evidence closure",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": null,
+      "baseline_model": null,
+      "best_candidate": null,
+      "candidate_experiments": [],
+      "canonical_unit": null,
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "HUMAN_PK_CLF_ORAL",
+      "maturity": "MODEL_UNAVAILABLE",
+      "metric": null,
+      "next_evidence_needed": null,
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "Dose/route/formulation/regimen context is required; no generic structure-only value is scientifically eligible.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": null,
+      "baseline_model": null,
+      "best_candidate": null,
+      "candidate_experiments": [],
+      "canonical_unit": null,
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "HUMAN_PK_VDF_ORAL",
+      "maturity": "MODEL_UNAVAILABLE",
+      "metric": null,
+      "next_evidence_needed": null,
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "Dose/route/formulation/regimen context is required; no generic structure-only value is scientifically eligible.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": "none",
+      "baseline_model": "none",
+      "best_candidate": "none",
+      "candidate_experiments": [],
+      "canonical_unit": "context-aware absorption rate constant",
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "KA",
+      "maturity": "CURRENT_DATA_CEILING",
+      "metric": "endpoint-specific",
+      "next_evidence_needed": "Revisit after new qualified labels or a validated upstream dependency; keep fail-closed semantics.",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "v5.2 PK context resolver",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": "upstream dependent",
+      "baseline_model": "frozen oral PK route",
+      "best_candidate": "none",
+      "candidate_experiments": [],
+      "canonical_unit": "human oral AUC with explicit F/route/context",
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "ORAL_AUC",
+      "maturity": "CURRENT_DATA_CEILING",
+      "metric": "AAFE",
+      "next_evidence_needed": "Requeue after species-matched CL/Vdss/F/ka snapshots; context is required and no generic value is emitted.",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "v5.3 PK benchmark; independent CL/F/ka/Vd evidence absent",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": "upstream dependent",
+      "baseline_model": "frozen oral PK route",
+      "best_candidate": "none",
+      "candidate_experiments": [],
+      "canonical_unit": "human oral Cmax with explicit F/ka/route/context",
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "ORAL_CMAX",
+      "maturity": "CURRENT_DATA_CEILING",
+      "metric": "AAFE",
+      "next_evidence_needed": "Requeue after species-matched CL/Vdss/F/ka snapshots; context is required and no generic value is emitted.",
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "v5.3 PK benchmark; independent F/ka/context evidence absent",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": null,
+      "baseline_model": null,
+      "best_candidate": null,
+      "candidate_experiments": [],
+      "canonical_unit": null,
+      "decision": "CONTEXT_REQUIRED",
+      "endpoint": "TMAX",
+      "maturity": "MODEL_UNAVAILABLE",
+      "metric": null,
+      "next_evidence_needed": null,
+      "promotion": false,
+      "qualified_n": 0,
+      "reason": "Dose/route/formulation/regimen context is required; no generic structure-only value is scientifically eligible.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "ad_ood": {
+        "ad": "IN_DOMAIN",
+        "ood": "NOT_REPORTED_SEPARATELY"
+      },
+      "baseline_model": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "baseline_model_version": "3.3.2",
+      "best_candidate": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "candidate_experiments": [],
+      "canonical_unit": "% bound",
+      "decision": "RETAIN_EXISTING_MODEL",
+      "endpoint": "HUMAN_PPB",
+      "locked_n": 13,
+      "maturity": "Production Validated",
+      "metric": "Production Validated: Multi-model stacking ensemble (ADMETica + PhysChem + Descriptor GBR), 12.72% error reduction on % bound, locked holdout N=13.",
+      "production_status": "PRODUCTION_DEFAULT",
+      "promotion": false,
+      "qualified_n": 50,
+      "reason": "Existing qualified route retained; no materially stronger independent benchmark is available for a safe replacement.",
+      "species": [
+        "HUMAN"
+      ],
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    }
+  ],
+  "engine_baseline": "drugopt-prediction-engine-v3@3.3.3",
+  "policy": {
+    "no_classifier_to_quantitative_conversion": true,
+    "no_repeated_rejected_hypotheses": true,
+    "no_validation_leakage": true,
+    "promotion_requires_independent_qualification": true,
+    "same_contract_only": true
+  },
+  "terminal_counts": {
+    "CONTEXT_REQUIRED": 7,
+    "CURRENT_DATA_CEILING": 5,
+    "MECHANISTIC_ONLY": 4,
+    "MODEL_UNAVAILABLE": 9,
+    "PROMOTED": 0,
+    "RETAIN_EXISTING_MODEL": 34
+  },
+  "updated_at": "2026-09-11T06:04:44.755711+00:00"
+}

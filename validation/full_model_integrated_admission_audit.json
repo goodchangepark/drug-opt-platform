@@ -1,0 +1,1091 @@
+{
+  "artifact": "FULL_MODEL_INTEGRATED_ADMISSION_AUDIT_V1",
+  "created_at": "2026-09-11T06:05:58.328560+00:00",
+  "engine": "drugopt-prediction-engine-v3@3.3.3",
+  "rows": [
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "MW",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Descriptors ExactMolWt",
+      "registered_model_version": "rdkit-exactmolwt-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_exactmolwt": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "CLOGP",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Crippen MolLogP",
+      "registered_model_version": "rdkit-crippen-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_crippen_logp": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "TPSA",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Descriptors TPSA",
+      "registered_model_version": "rdkit-tpsa-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_tpsa": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "HBD",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Lipinski NumHDonors",
+      "registered_model_version": "rdkit-hbd-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_hbd": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "HBA",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Lipinski NumHAcceptors",
+      "registered_model_version": "rdkit-hba-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_hba": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "ROTB",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Lipinski NumRotatableBonds",
+      "registered_model_version": "rdkit-rotb-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_rotb": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "FSP3",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Descriptors FractionCsp3",
+      "registered_model_version": "rdkit-fsp3-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_fsp3": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "QED",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Descriptors QED",
+      "registered_model_version": "rdkit-qed-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_qed": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "FORMAL_CHARGE",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Chem GetFormalCharge",
+      "registered_model_version": "rdkit-charge-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_charge": 1.0
+      }
+    },
+    {
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "endpoint": "HEAVY_ATOM_COUNT",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/chemistry.py"
+      ],
+      "registered_model_id": "RDKit Chem GetNumHeavyAtoms",
+      "registered_model_version": "rdkit-heavy-atoms-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rdkit_heavy_atoms": 1.0
+      }
+    },
+    {
+      "artifact_hash": "73331076242f7dd854c15eca03b5cf794767bc97ff9944763d3e18506f12bbc8",
+      "endpoint": "PKA",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/ionization.py"
+      ],
+      "registered_model_id": "Rule-Based Ionization Estimator",
+      "registered_model_version": "rule-pka-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "MECHANISTIC_ONLY",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "rule_pka_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "73331076242f7dd854c15eca03b5cf794767bc97ff9944763d3e18506f12bbc8",
+      "endpoint": "LOGD_7_4",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "backend/ionization.py"
+      ],
+      "registered_model_id": "Henderson-Hasselbalch Derived Calculation",
+      "registered_model_version": "hh-derived-logd74-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "MECHANISTIC_ONLY",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "hh_logd_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "56af15b1377dba275b76a192f2c05467b742c7a7c9556c716f40bd145b0e543d",
+      "endpoint": "SOLUBILITY_GENERIC",
+      "ensemble_bundle_complete": false,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registered_artifacts": [
+        "models/admetica/solubility/model_v2_1.pt"
+      ],
+      "registered_model_id": "Multi-Model Stacking Ensemble",
+      "registered_model_version": "v3.3.1-STACKING-solubility-723c3",
+      "registry_status": "INCOMPLETE_WEIGHTED_ENSEMBLE_BUNDLE",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "admetica_solubility": 0.191,
+        "esol_delaney_v1": 0.723,
+        "rdkit_gbr_solubility_v1": 0.086
+      }
+    },
+    {
+      "artifact_hash": "36b496f63acf547bf52697351578adbd295e43f050f524038115f8d5e910d779",
+      "endpoint": "CACO2_PAPP_AB",
+      "ensemble_bundle_complete": false,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registered_artifacts": [
+        "models/admetica/caco2/model_v2_1.pt"
+      ],
+      "registered_model_id": "Multi-Model Stacking Ensemble",
+      "registered_model_version": "v3.3.1-STACKING-caco2-704d4",
+      "registry_status": "INCOMPLETE_WEIGHTED_ENSEMBLE_BUNDLE",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "admetica_caco2": 0.704,
+        "physchem_caco2_v1": 0.296
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HIA",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "openadmet_hia_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HUMAN_FU_PLASMA",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CURRENT_DATA_CEILING",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "BBB_PENETRATION",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "openadmet_bbb_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "VDSS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "RETAIN_V3_3",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CURRENT_DATA_CEILING",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "tissue_composition_vdss_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "701e6533d9aa70740b2fa8203cf9373fb3fdc09d15c3173829f978c5bed235ad",
+      "endpoint": "HLM_CLINT",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_BEST_SINGLE",
+      "registered_artifacts": [
+        "models/openadmet/microsomal_clearance/model.pth"
+      ],
+      "registered_model_id": "Drug-OPT Chemical Space Residual RF",
+      "registered_model_version": "v3.3.1-STACKING-hlm-100g7",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "drugopt_hlm_chemical_space_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "701e6533d9aa70740b2fa8203cf9373fb3fdc09d15c3173829f978c5bed235ad",
+      "endpoint": "RLM_CLINT",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "V3_3_1_BEST_SINGLE",
+      "registered_artifacts": [
+        "models/openadmet/microsomal_clearance/model.pth"
+      ],
+      "registered_model_id": "OpenADMET CheMeleon RLM intrinsic clearance",
+      "registered_model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_chemeleon_rlm_clint": 1.0
+      }
+    },
+    {
+      "artifact_hash": "701e6533d9aa70740b2fa8203cf9373fb3fdc09d15c3173829f978c5bed235ad",
+      "endpoint": "MLM_CLINT",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "V3_3_1_BEST_SINGLE",
+      "registered_artifacts": [
+        "models/openadmet/microsomal_clearance/model.pth"
+      ],
+      "registered_model_id": "OpenADMET CheMeleon MLM intrinsic clearance",
+      "registered_model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_chemeleon_mlm_clint": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "CYP1A2_INHIBITION",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_BEST_SINGLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "drugopt_calibrated_cyp1a2_pic50": 1.0
+      }
+    },
+    {
+      "artifact_hash": "31f93fb95e9e9920447e39f33ea65463860a216fede68ac69e686ea44f90c5e6",
+      "endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp1a2-inhibitor/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP1A2 inhibitor",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp1a2_class_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "CYP2C9_INHIBITION",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_BEST_SINGLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "drugopt_calibrated_cyp2c9_pic50": 1.0
+      }
+    },
+    {
+      "artifact_hash": "6d66ac838b0089d72766b310298c3583b7b7d2777c0408d80c3a680ef4bac09b",
+      "endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp2c9-inhibitor/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP2C9 inhibitor",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp2c9_class_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "CYP2C19_INHIBITION",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": "0481b828774c9e10c61eae1fbfbbadaebe17466df8bf345e13d0f4471c5e6a10",
+      "endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp2c19-inhibitor/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP2C19 inhibitor",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp2c19_class_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "CYP2D6_INHIBITION",
+      "ensemble_bundle_complete": false,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "INCOMPLETE_WEIGHTED_ENSEMBLE_BUNDLE",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "drugopt_calibrated_cyp2d6_pic50": 0.615,
+        "openadmet_chemeleon_cyp2d6_pic50": 0.385
+      }
+    },
+    {
+      "artifact_hash": "ffdf67675c0c50766cbcce731cb4667fd33145545eb8667546434ca9cc442ad6",
+      "endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp2d6-inhibitor/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP2D6 inhibitor",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp2d6_class_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "CYP3A4_INHIBITION",
+      "ensemble_bundle_complete": false,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "INCOMPLETE_WEIGHTED_ENSEMBLE_BUNDLE",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "drugopt_calibrated_cyp3a4_pic50": 0.882,
+        "openadmet_chemeleon_cyp3a4_pic50": 0.118
+      }
+    },
+    {
+      "artifact_hash": "471e830ed4cadff53c0a5abb75bc41f8cea173e316d9a3dbdfdb82073275cf50",
+      "endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp3a4-inhibitor/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP3A4 inhibitor",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp3a4_class_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "d65c8282df5a5821dc5ece6f8078cd59c1a5a08a3bb1757ab6c9dc164c0cc9a9",
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp2c9-substrate/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP2C9 substrate",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp2c9_sub_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "af15319d08b4752ea77b844c81fa6d963af0daa9d7ae9875c2da2f51d1f4266a",
+      "endpoint": "CYP2D6_SUBSTRATE",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp2d6-substrate/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP2D6 substrate",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp2d6_sub_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "1ffb29df78644bb41dab9178a808741b68c3d6d833eac213ffcc8b98d40e5aab",
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/cyp/cyp3a4-substrate/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop CYP3A4 substrate",
+      "registered_model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_cyp3a4_sub_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "PGP_INHIBITION_QUANT",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": "7e95b1bd33f24788f358a9e00e06d3bd227091d88873a672e2c967eb3842618c",
+      "endpoint": "PGP_INHIBITION",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/transporter/pgp-inhibitor/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+      "registered_model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_pgp_inh_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "BCRP_INHIBITOR_QUANT",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "BCRP_INHIBITOR",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "openadmet_bcrp_inh_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "OATP1B1_INHIBITOR",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "OATP1B3_INHIBITOR",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "OCT1_INHIBITOR",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "OCT2_INHIBITOR",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HERG_LIABILITY",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_BEST_SINGLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {
+        "physchem_gbr_herg_pic50_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "a94ae451202b7de949caeec18cc62034d117cce56b40a31d1e041a0edebc69ce",
+      "endpoint": "HERG_CLASS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admetica/safety/herg/model_v2_1.pt"
+      ],
+      "registered_model_id": "Admetica Chemprop human hERG blocker liability",
+      "registered_model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "openadmet_herg_class_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "42ff2035cb4065dad2cc2120fb3d50fe08e36dfb3ea7e07d6e244850b59e64bc",
+      "endpoint": "AMES_MUTAGENICITY",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admet_ai/classification/model_0.pt",
+        "models/admet_ai/classification/model_1.pt",
+        "models/admet_ai/classification/model_2.pt",
+        "models/admet_ai/classification/model_3.pt",
+        "models/admet_ai/classification/model_4.pt"
+      ],
+      "registered_model_id": "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+      "registered_model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "MODEL_UNAVAILABLE",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "hansen_ames_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "42ff2035cb4065dad2cc2120fb3d50fe08e36dfb3ea7e07d6e244850b59e64bc",
+      "endpoint": "DILI_LIABILITY",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "CANONICAL_PUBLISHER_CONNECTED",
+      "production_route": "CLASSIFICATION_ONLY",
+      "registered_artifacts": [
+        "models/admet_ai/classification/model_0.pt",
+        "models/admet_ai/classification/model_1.pt",
+        "models/admet_ai/classification/model_2.pt",
+        "models/admet_ai/classification/model_3.pt",
+        "models/admet_ai/classification/model_4.pt"
+      ],
+      "registered_model_id": "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+      "registered_model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": true,
+      "validation_error": null,
+      "weighted_components": {
+        "fda_dilist_v1": 1.0
+      }
+    },
+    {
+      "artifact_hash": "4adc93982fb4bf4a8a5717d5e9060c030650a73013da6bbc88c65bf0435b79dd",
+      "endpoint": "METABOLIC_SOFT_SPOTS",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "models/sygma/phase1.txt",
+        "models/sygma/phase2.txt"
+      ],
+      "registered_model_id": "SyGMa Phase I/II Rule Engine",
+      "registered_model_version": "sygma-rules-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "MECHANISTIC_ONLY",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "sygma_rules": 1.0
+      }
+    },
+    {
+      "artifact_hash": "4adc93982fb4bf4a8a5717d5e9060c030650a73013da6bbc88c65bf0435b79dd",
+      "endpoint": "METABOLITE_HYPOTHESES",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "LEGACY_BASE_FALLBACK",
+      "registered_artifacts": [
+        "models/sygma/phase1.txt",
+        "models/sygma/phase2.txt"
+      ],
+      "registered_model_id": "SyGMa Reaction Transformer",
+      "registered_model_version": "sygma-transformer-v1",
+      "registry_status": "VERIFIED",
+      "scientific_decision": "MECHANISTIC_ONLY",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "sygma_transformer": 1.0
+      }
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HUMAN_HEPATIC_CL",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CURRENT_DATA_CEILING",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CURRENT_DATA_CEILING",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "IV_HALF_LIFE",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CURRENT_DATA_CEILING",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HUMAN_F",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HUMAN_PK_CLF_ORAL",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "HUMAN_PK_VDF_ORAL",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "MODEL_UNAVAILABLE",
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "KA",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "ORAL_AUC",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "ORAL_CMAX",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": null,
+      "endpoint": "TMAX",
+      "ensemble_bundle_complete": true,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": null,
+      "registered_artifacts": [],
+      "registered_model_id": null,
+      "registered_model_version": null,
+      "registry_status": "UNQUALIFIED",
+      "scientific_decision": "CONTEXT_REQUIRED",
+      "stable_core_publishable_now": false,
+      "validation_error": "MODEL_NOT_REGISTERED",
+      "weighted_components": {}
+    },
+    {
+      "artifact_hash": "9d5a0845dd37fc2f24031311a45dec768884c499fd00e3901e9aeb478cf9a826",
+      "endpoint": "HUMAN_PPB",
+      "ensemble_bundle_complete": false,
+      "on_demand_producer_status": "NOT_CONNECTED_TO_ON_DEMAND_PUBLISHER",
+      "production_route": "V3_3_1_WEIGHTED_ENSEMBLE",
+      "registered_artifacts": [
+        "models/admetica/ppbr/model_v2_1.pt"
+      ],
+      "registered_model_id": "Multi-Model Stacking Ensemble",
+      "registered_model_version": "v3.3.1-STACKING-ppb-728e5",
+      "registry_status": "INCOMPLETE_WEIGHTED_ENSEMBLE_BUNDLE",
+      "scientific_decision": "RETAIN_EXISTING_MODEL",
+      "stable_core_publishable_now": false,
+      "validation_error": null,
+      "weighted_components": {
+        "admetica_ppbr": 0.728,
+        "descriptor_gbr_ppb_v1": 0.048,
+        "physchem_human_ppb_v1": 0.223
+      }
+    }
+  ],
+  "scientific_interpretation": [
+    "A RETAIN_EXISTING_MODEL decision preserves the prior validated route; it does not claim that the on-demand producer currently emits that route.",
+    "Only endpoints with an exact runtime producer plus verified artifact registration can create Stable Core CurrentPredictionSnapshots.",
+    "Missing canonical publication remains blank/MODEL_UNAVAILABLE and is safer than substituting a base-model or legacy value for an advertised ensemble.",
+    "No v3.4.0 candidate is justified because this campaign promoted no new endpoint model."
+  ],
+  "scope": "filesystem, endpoint registry, immutable artifacts, on-demand publisher; no runtime DB access",
+  "summary": {
+    "canonical_on_demand_publishable": [
+      "RLM_CLINT",
+      "MLM_CLINT",
+      "CYP1A2_INHIBITOR_CLASS",
+      "CYP2C9_INHIBITOR_CLASS",
+      "CYP2C19_INHIBITOR_CLASS",
+      "CYP2D6_INHIBITOR_CLASS",
+      "CYP3A4_INHIBITOR_CLASS",
+      "CYP2C9_SUBSTRATE",
+      "CYP2D6_SUBSTRATE",
+      "CYP3A4_SUBSTRATE",
+      "PGP_INHIBITION",
+      "HERG_CLASS",
+      "DILI_LIABILITY"
+    ],
+    "canonical_on_demand_publishable_count": 13,
+    "endpoint_count": 59,
+    "engine_decision": "RETAIN_V3_3_3",
+    "incomplete_weighted_ensemble_bundle_count": 5,
+    "incomplete_weighted_ensemble_bundles": [
+      "SOLUBILITY_GENERIC",
+      "CACO2_PAPP_AB",
+      "CYP2D6_INHIBITION",
+      "CYP3A4_INHIBITION",
+      "HUMAN_PPB"
+    ],
+    "new_models_promoted": 0
+  }
+}

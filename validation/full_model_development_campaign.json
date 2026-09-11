@@ -1,0 +1,1132 @@
+{
+  "accepted_models": [],
+  "campaign": "DRUGOPT_FULL_MODEL_DEVELOPMENT_V1",
+  "campaign_version": 1,
+  "completed_endpoints": [
+    "MW",
+    "CLOGP",
+    "TPSA",
+    "HBD",
+    "HBA",
+    "ROTB",
+    "FSP3",
+    "QED",
+    "FORMAL_CHARGE",
+    "HEAVY_ATOM_COUNT",
+    "PKA",
+    "LOGD_7_4",
+    "SOLUBILITY_GENERIC",
+    "CACO2_PAPP_AB",
+    "HIA",
+    "HUMAN_FU_PLASMA",
+    "BBB_PENETRATION",
+    "VDSS",
+    "HLM_CLINT",
+    "RLM_CLINT",
+    "MLM_CLINT",
+    "CYP1A2_INHIBITION",
+    "CYP1A2_INHIBITOR_CLASS",
+    "CYP2C9_INHIBITION",
+    "CYP2C9_INHIBITOR_CLASS",
+    "CYP2C19_INHIBITION",
+    "CYP2C19_INHIBITOR_CLASS",
+    "CYP2D6_INHIBITION",
+    "CYP2D6_INHIBITOR_CLASS",
+    "CYP3A4_INHIBITION",
+    "CYP3A4_INHIBITOR_CLASS",
+    "CYP2C9_SUBSTRATE",
+    "CYP2D6_SUBSTRATE",
+    "CYP3A4_SUBSTRATE",
+    "PGP_INHIBITION_QUANT",
+    "PGP_INHIBITION",
+    "BCRP_INHIBITOR_QUANT",
+    "BCRP_INHIBITOR",
+    "OATP1B1_INHIBITOR",
+    "OATP1B3_INHIBITOR",
+    "OCT1_INHIBITOR",
+    "OCT2_INHIBITOR",
+    "HERG_LIABILITY",
+    "HERG_CLASS",
+    "AMES_MUTAGENICITY",
+    "DILI_LIABILITY",
+    "METABOLIC_SOFT_SPOTS",
+    "METABOLITE_HYPOTHESES",
+    "HUMAN_HEPATIC_CL",
+    "HUMAN_TOTAL_IV_CL",
+    "IV_HALF_LIFE",
+    "HUMAN_F",
+    "HUMAN_PK_CLF_ORAL",
+    "HUMAN_PK_VDF_ORAL",
+    "KA",
+    "ORAL_AUC",
+    "ORAL_CMAX",
+    "TMAX",
+    "HUMAN_PPB"
+  ],
+  "control_commit": "e9b2a5229383886ff577e76a265c2ffdf06db95e",
+  "created_at": "2026-09-11T06:00:57.367995+00:00",
+  "current_domain": "INTEGRATED_VALIDATION",
+  "current_endpoint": null,
+  "dependency_state": {
+    "HLM_CLINT": "FROZEN_RETAIN_EXISTING_MODEL",
+    "HUMAN_FU_PLASMA": "FROZEN_CURRENT_DATA_CEILING",
+    "HUMAN_HEPATIC_CL": "ASSISTED_RESEARCH_ONLY",
+    "VDSS": "FROZEN_CURRENT_DATA_CEILING"
+  },
+  "engine_baseline": "drugopt-prediction-engine-v3@3.3.3",
+  "integrated_engine_decision": "RETAIN_V3_3_3_NO_QUALIFIED_INTEGRATED_PROMOTION",
+  "next_exact_action": "run integrated route/artifact admission audit and final isolated release validation",
+  "phase0_checkpoint": "e9b2a52",
+  "rejected_candidates": [
+    "PPB descriptor+Morgan V74",
+    "PPB soft regime experts V74",
+    "PPB train-fold local residual V75 (marginal/subgroup regression)",
+    "PPB weighted/high-binding robust V76 (no robust gain)",
+    "HLM/RLM/MLM descriptor+FP/shared heads V77 (inferior/diagnostic-only)",
+    "VDss mechanistic/local/cluster residual V78",
+    "Total IV CL local/cluster/HistGradient V78",
+    "PPB similarity-weighted kNN V80"
+  ],
+  "resume_command": ".venv/bin/python scripts/run_full_model_development_campaign.py --run --max-endpoints 1",
+  "tasks": [
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "MW",
+      "finished_at": "2026-09-11T06:01:47.985707+00:00",
+      "started_at": "2026-09-11T06:01:47.981249+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "CLOGP",
+      "finished_at": "2026-09-11T06:01:48.006185+00:00",
+      "started_at": "2026-09-11T06:01:48.002167+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "TPSA",
+      "finished_at": "2026-09-11T06:01:48.026780+00:00",
+      "started_at": "2026-09-11T06:01:48.021401+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "HBD",
+      "finished_at": "2026-09-11T06:01:48.045700+00:00",
+      "started_at": "2026-09-11T06:01:48.041867+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "HBA",
+      "finished_at": "2026-09-11T06:01:48.067043+00:00",
+      "started_at": "2026-09-11T06:01:48.062345+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "ROTB",
+      "finished_at": "2026-09-11T06:01:48.089429+00:00",
+      "started_at": "2026-09-11T06:01:48.084604+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "FSP3",
+      "finished_at": "2026-09-11T06:01:48.110632+00:00",
+      "started_at": "2026-09-11T06:01:48.105253+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "QED",
+      "finished_at": "2026-09-11T06:01:48.131642+00:00",
+      "started_at": "2026-09-11T06:01:48.126756+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "FORMAL_CHARGE",
+      "finished_at": "2026-09-11T06:01:48.152914+00:00",
+      "started_at": "2026-09-11T06:01:48.147729+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "HEAVY_ATOM_COUNT",
+      "finished_at": "2026-09-11T06:01:48.174409+00:00",
+      "started_at": "2026-09-11T06:01:48.169178+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_ONLY",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "PKA",
+      "finished_at": "2026-09-11T06:01:48.197005+00:00",
+      "started_at": "2026-09-11T06:01:48.191071+00:00",
+      "status": "MECHANISTIC_ONLY",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/stage4e3e_pka_logd_final_decisions.json",
+          "sha256": "86bd6de7e4262ebae8b9cd05e64c7db92be089dfaab163c67e9b7c42728f998f"
+        }
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_ONLY",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "LOGD_7_4",
+      "finished_at": "2026-09-11T06:01:48.217321+00:00",
+      "started_at": "2026-09-11T06:01:48.212228+00:00",
+      "status": "MECHANISTIC_ONLY",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/stage4e3e_pka_logd_final_decisions.json",
+          "sha256": "86bd6de7e4262ebae8b9cd05e64c7db92be089dfaab163c67e9b7c42728f998f"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "A_PHYSICOCHEMICAL",
+      "endpoint": "SOLUBILITY_GENERIC",
+      "finished_at": "2026-09-11T06:01:48.238347+00:00",
+      "started_at": "2026-09-11T06:01:48.232828+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "CACO2_PAPP_AB",
+      "finished_at": "2026-09-11T06:01:48.258696+00:00",
+      "started_at": "2026-09-11T06:01:48.253397+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "HIA",
+      "finished_at": "2026-09-11T06:01:48.279442+00:00",
+      "started_at": "2026-09-11T06:01:48.273683+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "CURRENT_DATA_CEILING",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "HUMAN_FU_PLASMA",
+      "finished_at": "2026-09-11T06:01:48.305853+00:00",
+      "started_at": "2026-09-11T06:01:48.298261+00:00",
+      "status": "CURRENT_DATA_CEILING",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/ppb_canonical_benchmark_v72.json",
+          "sha256": "3d063f8841c556143bc4ff9230d40b73d3c50cc425b01396108b276c87960697"
+        },
+        {
+          "artifact": "validation/global_optimization_ledger_v79.json",
+          "sha256": "13f41da61a1c79040d67f2bae04cbb445ca0f79f3cb961f564f78c4df3a242fc"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "BBB_PENETRATION",
+      "finished_at": "2026-09-11T06:01:48.327500+00:00",
+      "started_at": "2026-09-11T06:01:48.320851+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "CURRENT_DATA_CEILING",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "VDSS",
+      "finished_at": "2026-09-11T06:01:48.351745+00:00",
+      "started_at": "2026-09-11T06:01:48.343486+00:00",
+      "status": "CURRENT_DATA_CEILING",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+          "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "C_METABOLIC_STABILITY",
+      "endpoint": "HLM_CLINT",
+      "finished_at": "2026-09-11T06:01:48.374221+00:00",
+      "started_at": "2026-09-11T06:01:48.367185+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/microsomal_family_audit_v77.json",
+          "sha256": "a96c8f51eaa4440c994f77386ab6cea40ea6c9abad1ea387242112f37087b8dc"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "C_METABOLIC_STABILITY",
+      "endpoint": "RLM_CLINT",
+      "finished_at": "2026-09-11T06:01:48.397919+00:00",
+      "started_at": "2026-09-11T06:01:48.390263+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/microsomal_family_audit_v77.json",
+          "sha256": "a96c8f51eaa4440c994f77386ab6cea40ea6c9abad1ea387242112f37087b8dc"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "C_METABOLIC_STABILITY",
+      "endpoint": "MLM_CLINT",
+      "finished_at": "2026-09-11T06:01:48.420314+00:00",
+      "started_at": "2026-09-11T06:01:48.413238+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        },
+        {
+          "artifact": "validation/microsomal_family_audit_v77.json",
+          "sha256": "a96c8f51eaa4440c994f77386ab6cea40ea6c9abad1ea387242112f37087b8dc"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP1A2_INHIBITION",
+      "finished_at": "2026-09-11T06:01:48.442760+00:00",
+      "started_at": "2026-09-11T06:01:48.435636+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "finished_at": "2026-09-11T06:01:48.465382+00:00",
+      "started_at": "2026-09-11T06:01:48.458175+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2C9_INHIBITION",
+      "finished_at": "2026-09-11T06:01:48.487873+00:00",
+      "started_at": "2026-09-11T06:01:48.480517+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "finished_at": "2026-09-11T06:01:48.511164+00:00",
+      "started_at": "2026-09-11T06:01:48.503173+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "D_CYP",
+      "endpoint": "CYP2C19_INHIBITION",
+      "finished_at": "2026-09-11T06:01:48.533498+00:00",
+      "started_at": "2026-09-11T06:01:48.526039+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "finished_at": "2026-09-11T06:01:48.556798+00:00",
+      "started_at": "2026-09-11T06:01:48.548709+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2D6_INHIBITION",
+      "finished_at": "2026-09-11T06:01:48.580598+00:00",
+      "started_at": "2026-09-11T06:01:48.572636+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "finished_at": "2026-09-11T06:01:48.604820+00:00",
+      "started_at": "2026-09-11T06:01:48.596724+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP3A4_INHIBITION",
+      "finished_at": "2026-09-11T06:01:48.630070+00:00",
+      "started_at": "2026-09-11T06:01:48.621637+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "finished_at": "2026-09-11T06:01:48.654131+00:00",
+      "started_at": "2026-09-11T06:01:48.645574+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2C9_SUBSTRATE",
+      "finished_at": "2026-09-11T06:01:48.679370+00:00",
+      "started_at": "2026-09-11T06:01:48.670572+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP2D6_SUBSTRATE",
+      "finished_at": "2026-09-11T06:01:48.708732+00:00",
+      "started_at": "2026-09-11T06:01:48.700250+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "D_CYP",
+      "endpoint": "CYP3A4_SUBSTRATE",
+      "finished_at": "2026-09-11T06:01:48.733470+00:00",
+      "started_at": "2026-09-11T06:01:48.724678+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "PGP_INHIBITION_QUANT",
+      "finished_at": "2026-09-11T06:01:48.757676+00:00",
+      "started_at": "2026-09-11T06:01:48.748853+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "PGP_INHIBITION",
+      "finished_at": "2026-09-11T06:01:48.783978+00:00",
+      "started_at": "2026-09-11T06:01:48.773739+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "BCRP_INHIBITOR_QUANT",
+      "finished_at": "2026-09-11T06:01:48.810920+00:00",
+      "started_at": "2026-09-11T06:01:48.801577+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "BCRP_INHIBITOR",
+      "finished_at": "2026-09-11T06:01:48.837158+00:00",
+      "started_at": "2026-09-11T06:01:48.827497+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "OATP1B1_INHIBITOR",
+      "finished_at": "2026-09-11T06:01:48.862776+00:00",
+      "started_at": "2026-09-11T06:01:48.853301+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "OATP1B3_INHIBITOR",
+      "finished_at": "2026-09-11T06:01:48.888211+00:00",
+      "started_at": "2026-09-11T06:01:48.878728+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "OCT1_INHIBITOR",
+      "finished_at": "2026-09-11T06:01:48.914595+00:00",
+      "started_at": "2026-09-11T06:01:48.905261+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "E_TRANSPORTERS",
+      "endpoint": "OCT2_INHIBITOR",
+      "finished_at": "2026-09-11T06:01:48.940335+00:00",
+      "started_at": "2026-09-11T06:01:48.930537+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "F_SAFETY",
+      "endpoint": "HERG_LIABILITY",
+      "finished_at": "2026-09-11T06:01:48.965739+00:00",
+      "started_at": "2026-09-11T06:01:48.956295+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "F_SAFETY",
+      "endpoint": "HERG_CLASS",
+      "finished_at": "2026-09-11T06:01:48.991791+00:00",
+      "started_at": "2026-09-11T06:01:48.981699+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MODEL_UNAVAILABLE",
+      "domain": "F_SAFETY",
+      "endpoint": "AMES_MUTAGENICITY",
+      "finished_at": "2026-09-11T06:01:49.018332+00:00",
+      "started_at": "2026-09-11T06:01:49.008410+00:00",
+      "status": "MODEL_UNAVAILABLE",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "F_SAFETY",
+      "endpoint": "DILI_LIABILITY",
+      "finished_at": "2026-09-11T06:01:49.044223+00:00",
+      "started_at": "2026-09-11T06:01:49.034154+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_ONLY",
+      "domain": "G_METABOLISM",
+      "endpoint": "METABOLIC_SOFT_SPOTS",
+      "finished_at": "2026-09-11T06:01:49.070773+00:00",
+      "started_at": "2026-09-11T06:01:49.060190+00:00",
+      "status": "MECHANISTIC_ONLY",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "MECHANISTIC_ONLY",
+      "domain": "G_METABOLISM",
+      "endpoint": "METABOLITE_HYPOTHESES",
+      "finished_at": "2026-09-11T06:01:49.102723+00:00",
+      "started_at": "2026-09-11T06:01:49.091312+00:00",
+      "status": "MECHANISTIC_ONLY",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "CURRENT_DATA_CEILING",
+      "domain": "H_PK_PARAMETER_LAYER",
+      "endpoint": "HUMAN_HEPATIC_CL",
+      "finished_at": "2026-09-11T06:01:49.135734+00:00",
+      "started_at": "2026-09-11T06:01:49.120507+00:00",
+      "status": "CURRENT_DATA_CEILING",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+          "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+        }
+      ]
+    },
+    {
+      "decision": "CURRENT_DATA_CEILING",
+      "domain": "H_PK_PARAMETER_LAYER",
+      "endpoint": "HUMAN_TOTAL_IV_CL",
+      "finished_at": "2026-09-11T06:01:49.168038+00:00",
+      "started_at": "2026-09-11T06:01:49.152280+00:00",
+      "status": "CURRENT_DATA_CEILING",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/pk_core_hybrid_ladders_v78.json",
+          "sha256": "0e5cf15be77895b9b014c645b19931fb47110d39617cfe26f91585f1d5fa134e"
+        }
+      ]
+    },
+    {
+      "decision": "CURRENT_DATA_CEILING",
+      "domain": "H_PK_PARAMETER_LAYER",
+      "endpoint": "IV_HALF_LIFE",
+      "finished_at": "2026-09-11T06:01:49.204137+00:00",
+      "started_at": "2026-09-11T06:01:49.188450+00:00",
+      "status": "CURRENT_DATA_CEILING",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "HUMAN_F",
+      "finished_at": "2026-09-11T06:01:49.234219+00:00",
+      "started_at": "2026-09-11T06:01:49.220137+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "HUMAN_PK_CLF_ORAL",
+      "finished_at": "2026-09-11T06:01:49.264548+00:00",
+      "started_at": "2026-09-11T06:01:49.250257+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "HUMAN_PK_VDF_ORAL",
+      "finished_at": "2026-09-11T06:01:49.295240+00:00",
+      "started_at": "2026-09-11T06:01:49.280914+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "KA",
+      "finished_at": "2026-09-11T06:01:49.326498+00:00",
+      "started_at": "2026-09-11T06:01:49.311799+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "ORAL_AUC",
+      "finished_at": "2026-09-11T06:01:49.357523+00:00",
+      "started_at": "2026-09-11T06:01:49.343228+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "ORAL_CMAX",
+      "finished_at": "2026-09-11T06:01:49.388340+00:00",
+      "started_at": "2026-09-11T06:01:49.373478+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "CONTEXT_REQUIRED",
+      "domain": "I_ORAL_CONTEXTUAL_PK",
+      "endpoint": "TMAX",
+      "finished_at": "2026-09-11T06:01:49.419124+00:00",
+      "started_at": "2026-09-11T06:01:49.404777+00:00",
+      "status": "CONTEXT_REQUIRED",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/endpoint_completion_board.json",
+          "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "HUMAN_PPB",
+      "finished_at": "2026-09-11T06:04:01.876937+00:00",
+      "started_at": "2026-09-11T06:04:01.861258+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    }
+  ],
+  "updated_at": "2026-09-11T06:04:01.877150+00:00"
+}
