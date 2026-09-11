@@ -2,6 +2,15 @@
   "accepted_models": [],
   "campaign": "DRUGOPT_FULL_MODEL_DEVELOPMENT_V1",
   "campaign_version": 1,
+  "status": "COMPLETE",
+  "final_validation": {
+    "browser_e2e": "PASS",
+    "business_integrity": "PASS",
+    "full_isolated_pytest": "1006 passed, 0 failed, 56 warnings in 993.17s",
+    "integrated_engine_decision": "RETAIN_V3_3_3",
+    "production_fingerprint_unchanged": true,
+    "validation_artifact": "validation/full_model_campaign_final_validation.json"
+  },
   "completed_endpoints": [
     "MW",
     "CLOGP",
@@ -63,7 +72,7 @@
     "TMAX",
     "HUMAN_PPB"
   ],
-  "control_commit": "e9b2a5229383886ff577e76a265c2ffdf06db95e",
+  "control_commit": "e93bcce311ac2b82aa224028dff2c839d2709f45",
   "created_at": "2026-09-11T06:00:57.367995+00:00",
   "current_domain": "INTEGRATED_VALIDATION",
   "current_endpoint": null,
@@ -75,7 +84,7 @@
   },
   "engine_baseline": "drugopt-prediction-engine-v3@3.3.3",
   "integrated_engine_decision": "RETAIN_V3_3_3_NO_QUALIFIED_INTEGRATED_PROMOTION",
-  "next_exact_action": "run integrated route/artifact admission audit and final isolated release validation",
+  "next_exact_action": "campaign complete; retain v3.3.3 and do not begin another model or assistant campaign without a new user request",
   "phase0_checkpoint": "e9b2a52",
   "rejected_candidates": [
     "PPB descriptor+Morgan V74",
@@ -355,6 +364,24 @@
       "endpoint": "HIA",
       "finished_at": "2026-09-11T06:01:48.279442+00:00",
       "started_at": "2026-09-11T06:01:48.273683+00:00",
+      "status": "RETAIN_EXISTING_MODEL",
+      "supporting_evidence": [
+        {
+          "artifact": "validation/v333_endpoint_inventory.json",
+          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
+        },
+        {
+          "artifact": "validation/model_performance_inventory_v5_3.json",
+          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
+        }
+      ]
+    },
+    {
+      "decision": "RETAIN_EXISTING_MODEL",
+      "domain": "B_ABSORPTION_DISTRIBUTION",
+      "endpoint": "HUMAN_PPB",
+      "finished_at": "2026-09-11T06:04:01.876937+00:00",
+      "started_at": "2026-09-11T06:04:01.861258+00:00",
       "status": "RETAIN_EXISTING_MODEL",
       "supporting_evidence": [
         {
@@ -1108,25 +1135,7 @@
           "sha256": "ac1025e08d88dd9a8d922b0a989525641edd10dcfb2ac6cf2e87c0228e3881b5"
         }
       ]
-    },
-    {
-      "decision": "RETAIN_EXISTING_MODEL",
-      "domain": "B_ABSORPTION_DISTRIBUTION",
-      "endpoint": "HUMAN_PPB",
-      "finished_at": "2026-09-11T06:04:01.876937+00:00",
-      "started_at": "2026-09-11T06:04:01.861258+00:00",
-      "status": "RETAIN_EXISTING_MODEL",
-      "supporting_evidence": [
-        {
-          "artifact": "validation/v333_endpoint_inventory.json",
-          "sha256": "4a91d35f87faa672a8e99e96091617e9f85cb0732e77e16f6f93ab5a7a9b8fd9"
-        },
-        {
-          "artifact": "validation/model_performance_inventory_v5_3.json",
-          "sha256": "6cf91c61068722f678734c8666f501952561bad93d8d1f9cd856558b22c311b9"
-        }
-      ]
     }
   ],
-  "updated_at": "2026-09-11T06:04:01.877150+00:00"
+  "updated_at": "2026-09-11T06:10:16.501259+00:00"
 }

@@ -29,6 +29,33 @@ def rows(connection, sql, parameters=()):
     return [list(row) for row in connection.execute(sql, parameters)]
 
 
+def evaluate_historical_identity_contract(
+    prediction_ids: tuple[int, ...],
+    historical_records: list[tuple],
+) -> dict:
+    """Validate mirrors plus intentionally detached immutable history.
+
+    Stable Core deliberately preserves HistoricalPrediction rows after a
+    synthetic project's disposable source rows are removed.  Equality of the
+    two ID sets would therefore reject the exact non-cascading behavior this
+    contract is meant to protect.
+    """
+    historical_ids = tuple(row[0] for row in historical_records)
+    prediction_set = set(prediction_ids)
+    historical_set = set(historical_ids)
+    detached = [row for row in historical_records if row[0] not in prediction_set]
+    return {
+        "active_prediction_runs_mirrored": prediction_set.issubset(historical_set),
+        "historical_legacy_ids_unique": len(historical_ids) == len(historical_set),
+        "detached_history_immutable": all(bool(row[1]) for row in detached),
+        "detached_history_provenance_complete": all(
+            all(value is not None and str(value).strip() for value in row[2:])
+            for row in detached
+        ),
+        "detached_history_ids": [row[0] for row in detached],
+    }
+
+
 def verify(database: Path) -> dict:
     connection = sqlite3.connect(f"file:{database.resolve()}?mode=ro", uri=True)
     try:
@@ -38,9 +65,16 @@ def verify(database: Path) -> dict:
             "SELECT id FROM compound_versions WHERE compound_row_id IN (11,12,13,14) ORDER BY id"
         ))
         prediction_ids = tuple(row[0] for row in connection.execute("SELECT id FROM prediction_runs ORDER BY id"))
-        historical_ids = tuple(row[0] for row in connection.execute(
-            "SELECT legacy_prediction_run_id FROM historical_predictions ORDER BY legacy_prediction_run_id"
-        ))
+        historical_records = list(connection.execute("""
+          SELECT legacy_prediction_run_id,immutable,compound_version_id_snapshot,
+                 project_id_snapshot,project_name_snapshot,model_id,model_version,
+                 engine_version,inputs_hash
+          FROM historical_predictions
+          WHERE legacy_prediction_run_id IS NOT NULL
+          ORDER BY legacy_prediction_run_id
+        """))
+        historical_ids = tuple(row[0] for row in historical_records)
+        history_contract = evaluate_historical_identity_contract(prediction_ids, historical_records)
         project300_count = connection.execute("SELECT COUNT(*) FROM compounds WHERE project_id=300").fetchone()[0]
         project300_unique = connection.execute("""
           SELECT COUNT(DISTINCT cv.inchikey)
@@ -141,7 +175,10 @@ def verify(database: Path) -> dict:
             "project5_runs_restored": set(RECOVERED_RUNS).issubset(prediction_ids),
             "later_runs_167_168_preserved": set(LEGITIMATE_POST_BASELINE_RUNS).issubset(prediction_ids),
             "pre_stable_core_unintended_runs_preserved_for_provenance": set(PRE_STABLE_CORE_UNINTENDED_RUNS).issubset(prediction_ids),
-            "history_identity_parity": prediction_ids == historical_ids,
+            "active_prediction_runs_mirrored_in_history": history_contract["active_prediction_runs_mirrored"],
+            "historical_legacy_ids_unique": history_contract["historical_legacy_ids_unique"],
+            "detached_history_immutable": history_contract["detached_history_immutable"],
+            "detached_history_provenance_complete": history_contract["detached_history_provenance_complete"],
             "recovered_identity_baseline_present": len(prediction_ids) >= 142,
             "project300_compounds_1000": project300_count == 1000,
             "project300_unique_current_inchikeys_1000": project300_unique == 1000,
@@ -171,6 +208,7 @@ def verify(database: Path) -> dict:
             "project5_version_ids": p5_versions,
             "prediction_run_total": len(prediction_ids),
             "historical_prediction_total": len(historical_ids),
+            "detached_historical_prediction_ids": history_contract["detached_history_ids"],
             "prediction_run_identity_policy": {
                 "required_recovered_ids": list(RECOVERED_RUNS),
                 "legitimate_post_baseline_ids": list(LEGITIMATE_POST_BASELINE_RUNS),

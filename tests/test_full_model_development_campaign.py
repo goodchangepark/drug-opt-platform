@@ -6,6 +6,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from scripts.verify_stable_core_v1_integrity import evaluate_historical_identity_contract
+
 ROOT = Path(__file__).resolve().parents[1]
 TERMINAL = {
     "PROMOTED", "RETAIN_EXISTING_MODEL", "CURRENT_DATA_CEILING",
@@ -74,3 +76,31 @@ def test_only_verified_runtime_routes_are_marked_on_demand_publishable():
     assert rows["SOLUBILITY_GENERIC"]["registry_status"] == "INCOMPLETE_WEIGHTED_ENSEMBLE_BUNDLE"
     assert not rows["HUMAN_PPB"]["stable_core_publishable_now"]
     assert rows["HUMAN_FU_PLASMA"]["scientific_decision"] == "CURRENT_DATA_CEILING"
+
+
+def test_business_integrity_accepts_only_complete_detached_immutable_history():
+    complete = evaluate_historical_identity_contract(
+        (1,),
+        [
+            (1, 1, 10, 1, "Protected", "model", "1", "engine", "a" * 64),
+            (2, 1, 20, 301, "Deleted fixture", "model", "1", "engine", "b" * 64),
+        ],
+    )
+    assert complete["active_prediction_runs_mirrored"]
+    assert complete["detached_history_immutable"]
+    assert complete["detached_history_provenance_complete"]
+    assert complete["detached_history_ids"] == [2]
+
+    mutable = evaluate_historical_identity_contract(
+        (1,),
+        [(1, 1, 10, 1, "Protected", "model", "1", "engine", "a" * 64),
+         (2, 0, 20, 301, "Deleted fixture", "model", "1", "engine", "b" * 64)],
+    )
+    assert not mutable["detached_history_immutable"]
+
+    incomplete = evaluate_historical_identity_contract(
+        (1,),
+        [(1, 1, 10, 1, "Protected", "model", "1", "engine", "a" * 64),
+         (2, 1, 20, 301, "Deleted fixture", "", "1", "engine", "b" * 64)],
+    )
+    assert not incomplete["detached_history_provenance_complete"]

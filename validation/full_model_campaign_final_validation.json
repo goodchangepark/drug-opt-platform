@@ -1,0 +1,97 @@
+{
+  "artifact": "DRUGOPT_FULL_MODEL_CAMPAIGN_FINAL_VALIDATION_V1",
+  "generated_at": "2026-09-11T06:59:20Z",
+  "status": "PASS",
+  "engine": {
+    "current": "drugopt-prediction-engine-v3@3.3.3",
+    "decision": "RETAIN_V3_3_3_NO_QUALIFIED_INTEGRATED_PROMOTION",
+    "rollback": "drugopt-prediction-engine-v3@3.3.2",
+    "new_models_promoted": 0,
+    "new_engine_created": false
+  },
+  "phase0": {
+    "status": "PASS",
+    "checkpoint": "e9b2a52",
+    "contract": "Predict -> admitted CurrentPredictionSnapshot -> canonical individual row -> canonical Compare row",
+    "publishable_endpoint_count": 13,
+    "browser_e2e_artifact": "validation/phase0_prediction_display_e2e.json",
+    "browser_e2e_sha256": "13d2f3c20833686a7a466e144fad505af4cbfbfd20de81ea0d09348cea9493ad",
+    "individual_display": "PASS",
+    "reload_persistence": "PASS",
+    "compare_snapshot_parity": "PASS",
+    "legacy_only_prediction_hidden": "PASS"
+  },
+  "endpoint_campaign": {
+    "status": "COMPLETE",
+    "endpoint_count": 59,
+    "terminal_counts": {
+      "RETAIN_EXISTING_MODEL": 34,
+      "CURRENT_DATA_CEILING": 5,
+      "MECHANISTIC_ONLY": 4,
+      "MODEL_UNAVAILABLE": 9,
+      "CONTEXT_REQUIRED": 7,
+      "PROMOTED": 0
+    },
+    "ledger": "validation/full_model_optimization_ledger.json",
+    "ledger_sha256": "115045e70b7b52fa63ddd26d7d2269c498f40428502a58ba08b99977d5f18c26",
+    "integrated_admission_audit": "validation/full_model_integrated_admission_audit.json",
+    "integrated_admission_audit_sha256": "962c617b5cba46ad77d2a9f6a39222c00fb199a4a3760a15367e97c311ad203d"
+  },
+  "full_isolated_pytest": {
+    "command": ".venv/bin/python scripts/run_isolated_pytest.py",
+    "service": "drugopt-full-campaign-release-gate-20260911.service",
+    "test_database": "/tmp/drugopt-pytest-wrapper-e1sbdnqt/drugopt-test.db",
+    "production_database": "/home/xavier/chem/drug-opt-platform/drug_opt.db",
+    "physical_paths_distinct": true,
+    "passed": 1006,
+    "failed": 0,
+    "warnings": 56,
+    "runtime_seconds": 993.17,
+    "pytest_exit_code": 0,
+    "production_fingerprint_before": "239ecb0af2876462cdba6526d34a3b185747f3068593826a4ae622dd2321971a",
+    "production_fingerprint_after": "239ecb0af2876462cdba6526d34a3b185747f3068593826a4ae622dd2321971a",
+    "production_fingerprint_unchanged": true
+  },
+  "concurrent_production_write_triage": {
+    "status": "ATTRIBUTED_AND_PRESERVED",
+    "note": "An earlier otherwise-green isolated run correctly failed its outer fingerprint gate because a concurrent real application request wrote production state.",
+    "request_id": "2a69de5a-d93b-4adb-95d5-bddf61ba0505",
+    "route": "POST:/api/compounds/10/predict-all",
+    "project_id": 3,
+    "prediction_run_id": 243,
+    "snapshot_ids": [2239, 2240, 2241, 2242, 2243, 2244, 2245, 2246, 2247, 2248, 2249, 2250, 2251],
+    "classification": "ATTRIBUTED_EXTERNAL_RUNTIME_API_MUTATION_NOT_PYTEST_CONTAMINATION",
+    "records_modified_or_deleted_during_triage": false
+  },
+  "production_integrity": {
+    "status": "PASS",
+    "artifact": "validation/full_model_campaign_production_integrity.json",
+    "artifact_sha256": "b63e438c934393d83c87cd4d959bb1c1030a25b271b763196485453bd9519fa3",
+    "sqlite_integrity_check": "ok",
+    "foreign_key_violations": 0,
+    "protected_projects_present": [1, 3, 5, 300],
+    "project5_compounds": 4,
+    "project5_recovered_prediction_runs_present": 20,
+    "project300_compounds": 1000,
+    "project300_unique_current_inchikeys": 1000,
+    "prediction_runs": 162,
+    "historical_predictions": 217,
+    "detached_immutable_histories": 55,
+    "current_prediction_snapshots": 2251,
+    "eligible_exact_v333_current": 13,
+    "invalid_exact_current": 0,
+    "eligible_species_contradictions": 0,
+    "duplicate_current_scientific_keys": 0,
+    "legacy_unknown_provenance_current": 1026
+  },
+  "known_scientific_limitations": [
+    "HUMAN fu remains at the canonical V72 research ceiling (N=476, AAFE 4.7608404451, within-2-fold 50.4202%).",
+    "Hepatic clearance target performance is available only in ASSISTED research mode with observed fu and Clint and is not a FULL_PREDICTION production promotion.",
+    "VDss and total IV clearance remain research-only current-data ceilings.",
+    "pKa and logD7.4 remain mechanistic rather than validated ML endpoints.",
+    "Oral AUC/Cmax/Tmax and related endpoints remain context-required.",
+    "Five weighted ensemble route bundles remain incomplete and fail closed rather than publishing mismatched legacy/base outputs."
+  ],
+  "gemini": "ON_HOLD_NO_WORK_PERFORMED",
+  "qwen_huas_assistant_development": "OUT_OF_SCOPE_NO_WORK_PERFORMED"
+}

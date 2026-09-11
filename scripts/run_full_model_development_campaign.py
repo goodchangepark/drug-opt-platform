@@ -136,14 +136,18 @@ def initial_state() -> dict[str, Any]:
 def load_or_initialize() -> dict[str, Any]:
     if STATE_PATH.exists():
         state = json.loads(STATE_PATH.read_text(encoding="utf-8"))
-        existing = {row["endpoint"] for row in state["tasks"]}
+        existing = {row["endpoint"]: row for row in state["tasks"]}
+        ordered_tasks = []
         for row in task_rows():
-            if row["endpoint"] not in existing:
-                state["tasks"].append(row)
+            if row["endpoint"] in existing:
+                ordered_tasks.append(existing[row["endpoint"]])
+            else:
+                ordered_tasks.append(row)
                 state["integrated_engine_decision"] = "PENDING"
                 state["current_domain"] = row["domain"]
                 state["current_endpoint"] = row["endpoint"]
                 state["next_exact_action"] = f"audit {row['endpoint']} under {row['domain']}"
+        state["tasks"] = ordered_tasks
         return state
     state = initial_state()
     atomic_json(STATE_PATH, state)
@@ -452,6 +456,9 @@ def main() -> int:
             for _ in range(max(1, args.max_endpoints)):
                 if next_pending(state) is None:
                     run_one(state)
+                    state["updated_at"] = now()
+                    state["control_commit"] = git_head()
+                    atomic_json(STATE_PATH, state)
                     break
                 run_one(state)
                 state["updated_at"] = now()
