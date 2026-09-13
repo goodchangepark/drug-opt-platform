@@ -43,7 +43,11 @@ from .conformal import (CONFORMAL_CALIBRATION_REGISTRY, CalibrationQuality,
                         DataProvenance)
 from .endpoint_contracts import get_endpoint_contract
 from .endpoint_strategy_registry import get_registry_api_response
-from .current_prediction_publisher import publish_cached_admet_current_predictions
+from .current_prediction_publisher import (
+    publish_cached_admet_current_predictions,
+    publish_global_current_predictions,
+    publish_property_current_predictions,
+)
 from .prediction_engine_v1_policy import policy_api_response
 from .production_qualification import (
     ensure_qualification_schema,
@@ -101,6 +105,7 @@ from .human_pk import PKHumanPredictionSnapshot, ensure_human_pk_schema, registe
 from .stable_core import CurrentPredictionSnapshot, ExperimentalObservation, HistoricalPrediction, ScientificMutationAudit, admit_current_prediction, ensure_stable_core_schema
 from .request_context import current_request_trace, reset_request_trace, set_request_trace, trace_from_request
 from .scientific_core_service import build_scientific_endpoint_rows
+from .developability_profile import build_developability_profile
 from .capabilities import build_capability_summary
 from .interpretation import get_interpretation_registry_summary, interpret_property
 from .scientific_interpretation import policy_report
@@ -702,6 +707,14 @@ def get_stable_core_scientific_rows(version_id: int, category: str | None = None
     if not db.get(CompoundVersion, version_id):
         raise HTTPException(status_code=404, detail="CompoundVersion not found")
     return build_scientific_endpoint_rows(db, version_id, category=category)
+
+
+@app.get("/api/compound-versions/{version_id}/developability-profile")
+def get_developability_profile(version_id: int, db: Session = Depends(get_db)):
+    """Bounded prediction-first view over admitted Stable Core values."""
+    if not db.get(CompoundVersion, version_id):
+        raise HTTPException(status_code=404, detail="CompoundVersion not found")
+    return build_developability_profile(db, version_id)
 
 
 @app.get("/api/compound-versions/{version_id}/scientific-tabs/{tab}")
@@ -1420,6 +1433,11 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         raise HTTPException(status_code=400, detail="A validated CompoundVersion is required before prediction")
     if compound.project.molecule_type != "Small Molecule":
         raise HTTPException(status_code=400, detail="This model currently supports small molecules only.")
+    before_profile = build_developability_profile(db, version.id)
+    before_current = {
+        row["query_endpoint"] for row in before_profile["availability_catalog"]
+        if row["availability"] == "AVAILABLE_CURRENT"
+    }
     active_adapters = db.scalars(select(ProjectAdapterVersion).where(
         ProjectAdapterVersion.project_id == compound.project_id,
         ProjectAdapterVersion.active.is_(True),
@@ -1436,7 +1454,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "engine_version": engine_version,
         "stage": CURRENT_STAGE,
         "active_adapters": sorted((row.endpoint_id, row.adapter_version) for row in active_adapters),
-        "calculation_policy": "properties+admet+metabolism+pk-foundation+default-simulations",
+        "calculation_policy": "properties+admet+metabolism+pk-foundation+contextual-pk-excluded",
         "workflow_id": workflow_scope,
     }, sort_keys=True).encode()).hexdigest()
     if not force_rerun:
@@ -1447,7 +1465,11 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         ).order_by(PredictionRun.created_at.desc()))
         if existing_workflow:
             saved = dict(existing_workflow.outputs_json or {})
-            current_publication = publish_cached_admet_current_predictions(db, version)
+            current_publication = [
+                *publish_cached_admet_current_predictions(db, version),
+                *publish_property_current_predictions(db, version),
+                *publish_global_current_predictions(db, version, saved.get("v3_predictions") or {}),
+            ]
             db.commit()
             saved["prediction_run_id"] = existing_workflow.id
             saved["request_fingerprint"] = request_fingerprint
@@ -1466,6 +1488,19 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
                 if published_count else
                 "Calculations exist, but no result passed Stable Core current-prediction admission."
             )
+            after_profile = build_developability_profile(db, version.id)
+            now_current = {
+                row["query_endpoint"] for row in after_profile["availability_catalog"]
+                if row["availability"] == "AVAILABLE_CURRENT"
+            }
+            saved["summary"] = {
+                "predicted": len(now_current - before_current),
+                "already_current": len(now_current & before_current),
+                "unavailable": after_profile["availability_summary"]["MODEL_UNAVAILABLE"],
+                "context_required": after_profile["availability_summary"]["CONTEXT_REQUIRED"],
+                "mechanistic_only": after_profile["availability_summary"]["MECHANISTIC_ONLY"],
+                "failed": 0,
+            }
             return saved
     steps = {
         "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
@@ -1539,16 +1574,8 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
             except Exception:
                 pass
 
-        # 3. Pre-run baseline PK Simulations (Rat PO 1.0 mg/kg, Rat IV 1.0 mg/kg)
-        from .simulation import run_pk_simulation, PKSimulationRequest
-        try:
-            run_pk_simulation(db, version.id, PKSimulationRequest(species="Rat", route="PO", dose=1.0, dose_unit="mg/kg"))
-        except Exception:
-            pass
-        try:
-            run_pk_simulation(db, version.id, PKSimulationRequest(species="Rat", route="IV", dose=1.0, dose_unit="mg/kg"))
-        except Exception:
-            pass
+        # 3. Contextual PK simulations are deliberately excluded. AUC, Cmax,
+        # Tmax, F, CL/F, and Vd/F require explicit route/dose/regimen context.
 
         # 4. Multi-species PK profile
         try:
@@ -1610,6 +1637,16 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         except Exception:
             pass
 
+    property_publication = publish_property_current_predictions(db, version)
+    global_publication = publish_global_current_predictions(
+        db, version, v3_endpoint_predictions, auxiliary_prediction_run_id,
+    )
+    current_publication = [
+        *steps.get("admet", {}).get("current_publication", []),
+        *property_publication,
+        *global_publication,
+    ]
+
     workflow_output = {
         "status": status,
         "steps": steps,
@@ -1624,10 +1661,10 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "legacy_baseline": f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}",
         "endpoint_routing": {k: v["tier"] for k, v in V3_3_1_ENDPOINT_ROUTING.items()},
         "v3_predictions": v3_endpoint_predictions,
-        "current_publication": steps.get("admet", {}).get("current_publication", []),
+        "current_publication": current_publication,
         "publication_status": (
             "CALCULATED_AND_PUBLISHED"
-            if any(row.get("status") == "CALCULATED_AND_PUBLISHED" for row in steps.get("admet", {}).get("current_publication", []))
+            if any(row.get("status") == "CALCULATED_AND_PUBLISHED" for row in current_publication)
             else "CALCULATED_BUT_NOT_ELIGIBLE"
         ),
     }
@@ -1682,6 +1719,20 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
     db.commit()
     workflow_run_id = workflow_run.id
 
+    after_profile = build_developability_profile(db, version.id)
+    now_current = {
+        row["query_endpoint"] for row in after_profile["availability_catalog"]
+        if row["availability"] == "AVAILABLE_CURRENT"
+    }
+    prediction_summary = {
+        "predicted": len(now_current - before_current),
+        "already_current": len(now_current & before_current),
+        "unavailable": after_profile["availability_summary"]["MODEL_UNAVAILABLE"],
+        "context_required": after_profile["availability_summary"]["CONTEXT_REQUIRED"],
+        "mechanistic_only": after_profile["availability_summary"]["MECHANISTIC_ONLY"],
+        "failed": len(failed_endpoints),
+    }
+
     return {
         "status": status,
         "compound_id": compound.id,
@@ -1693,6 +1744,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "completed_count": len(completed_endpoints),
         "unavailable_count": len(unavailable_endpoints),
         "failed_count": len(failed_endpoints),
+        "summary": prediction_summary,
         "timestamp": timestamp,
         "steps": steps,
         "prediction_run_id": workflow_run_id,

@@ -228,3 +228,141 @@ def publish_cached_admet_current_predictions(db, version) -> list[dict[str, Any]
         ADMETPrediction.execution_status == "SUCCESS",
     )))
     return publish_admet_current_predictions(db, version, predictions)
+
+
+PROPERTY_CURRENT_ENDPOINTS: dict[str, tuple[str, str]] = {
+    "MW": ("exact_molecular_weight", "g/mol"),
+    "CLOGP": ("clogp", "log10(o/w)"),
+    "TPSA": ("tpsa", "Å²"),
+    "HBD": ("hbd", "count"),
+    "HBA": ("hba", "count"),
+    "ROTB": ("rotatable_bonds", "count"),
+    "FSP3": ("fraction_csp3", "fraction"),
+    "QED": ("qed", "score (0-1)"),
+    "FORMAL_CHARGE": ("formal_charge", "charge"),
+    "HEAVY_ATOM_COUNT": ("heavy_atom_count", "count"),
+}
+
+
+def _registered_candidate(
+    version,
+    endpoint_id: str,
+    *,
+    value: float | None,
+    unit: str,
+    species: str = "HUMAN",
+    context: dict[str, Any] | None = None,
+    prediction_mode: str = "FULL_PREDICTION",
+    ad: dict[str, Any] | None = None,
+    uncertainty: dict[str, Any] | None = None,
+    source_artifact_type: str,
+    source_artifact_id: int | None = None,
+) -> CurrentPredictionSnapshot | None:
+    registration = model_artifact_registration(endpoint_id)
+    if registration is None or value is None:
+        return None
+    artifact_hash = artifact_bundle_sha256(registration)
+    if not artifact_hash:
+        return None
+    context = context or {}
+    return CurrentPredictionSnapshot(
+        compound_version_id=version.id,
+        canonical_endpoint=endpoint_id,
+        species=species,
+        context_json=context,
+        context_identity=prediction_context_identity(endpoint_id, context),
+        engine_release=CURRENT_ENGINE_ID,
+        value=float(value),
+        unit=unit,
+        classification="",
+        model_id=registration.model_id,
+        model_version=registration.model_version,
+        model_artifact_hash=artifact_hash,
+        applicability_domain_json=ad or {"classification": "IN_DOMAIN"},
+        uncertainty_json=uncertainty or {},
+        prediction_mode=prediction_mode,
+        source_artifact_type=source_artifact_type,
+        source_artifact_id=source_artifact_id,
+        structure_revision=expected_structure_revision(version),
+        is_current=True,
+    )
+
+
+def publish_property_current_predictions(db, version) -> list[dict[str, Any]]:
+    """Publish deterministic Stage-1 outputs through unchanged admission."""
+    properties = dict(version.properties_json or {})
+    ionization = dict((version.calculation_json or {}).get("ionization") or {})
+    values: list[tuple[str, Any, str, dict[str, Any]]] = [
+        (endpoint, properties.get(key), unit, {})
+        for endpoint, (key, unit) in PROPERTY_CURRENT_ENDPOINTS.items()
+    ]
+    values.extend([
+        ("PKA", ionization.get("primary_pka"), "pKa", {}),
+        ("LOGD_7_4", (ionization.get("physiological_state_7_4") or {}).get("estimated_logd74"), "logD", {"pH": 7.4}),
+    ])
+    results = []
+    for endpoint_id, value, unit, context in values:
+        candidate = _registered_candidate(
+            version, endpoint_id, value=value, unit=unit, context=context,
+            source_artifact_type="PropertyCalculation",
+        )
+        if candidate is None:
+            results.append({"endpoint": endpoint_id, "status": "NOT_EMITTED", "reason": "VALUE_OR_REGISTERED_ARTIFACT_UNAVAILABLE"})
+            continue
+        try:
+            published = _upsert_verified_snapshot(db, candidate)
+            results.append({"endpoint": endpoint_id, "status": "CALCULATED_AND_PUBLISHED", "snapshot_id": published.id})
+        except ValueError as exc:
+            results.append({"endpoint": endpoint_id, "status": "CALCULATED_BUT_NOT_ELIGIBLE", "reason": str(exc).split(":", 1)[-1]})
+    return results
+
+
+GLOBAL_CURRENT_CONTEXT: dict[str, tuple[str, dict[str, Any], str]] = {
+    "SOLUBILITY_GENERIC": ("HUMAN", {}, "log10(mol/L)"),
+    "CACO2_PAPP_AB": ("HUMAN", {"matrix": "Caco-2", "direction": "A→B"}, "log10(cm/s)"),
+    "HUMAN_PPB": ("HUMAN", {"matrix": "plasma"}, "% bound"),
+    "HLM_CLINT": ("HUMAN", {"matrix": "microsomes"}, "log10(mL/min/kg)"),
+    "RLM_CLINT": ("RAT", {"matrix": "microsomes"}, "log10(mL/min/kg)"),
+    "MLM_CLINT": ("MOUSE", {"matrix": "microsomes"}, "log10(mL/min/kg)"),
+    "CYP1A2_INHIBITION": ("HUMAN", {"assay_type": "quantitative inhibition"}, "pIC50"),
+    "CYP2C9_INHIBITION": ("HUMAN", {"assay_type": "quantitative inhibition"}, "pIC50"),
+    "CYP2D6_INHIBITION": ("HUMAN", {"assay_type": "quantitative inhibition"}, "pIC50"),
+    "CYP3A4_INHIBITION": ("HUMAN", {"assay_type": "quantitative inhibition"}, "pIC50"),
+    "HERG_LIABILITY": ("HUMAN", {"assay_type": "quantitative inhibition"}, "pIC50"),
+}
+
+GLOBAL_CURRENT_ENDPOINT_ALIASES = {
+    "CACO2_PERMEABILITY": "CACO2_PAPP_AB",
+    "HLM_INTRINSIC_CLEARANCE": "HLM_CLINT",
+}
+
+
+def publish_global_current_predictions(db, version, predictions: dict[str, dict[str, Any]], source_artifact_id: int | None = None) -> list[dict[str, Any]]:
+    """Publish exact routed v3.3.3 values, never legacy-model substitutes."""
+    results = []
+    for raw_endpoint_id, output in predictions.items():
+        endpoint_id = GLOBAL_CURRENT_ENDPOINT_ALIASES.get(raw_endpoint_id, raw_endpoint_id)
+        if endpoint_id not in GLOBAL_CURRENT_CONTEXT:
+            continue
+        species, context, unit = GLOBAL_CURRENT_CONTEXT[endpoint_id]
+        value = output.get("production_prediction")
+        candidate = _registered_candidate(
+            version, endpoint_id, value=value, unit=unit, species=species, context=context,
+            ad={
+                "classification": output.get("applicability_domain", "UNKNOWN"),
+                "nearest_neighbor_similarity": output.get("nearest_neighbor_similarity"),
+                "guard_applied": output.get("ad_extrapolation_guard_applied", False),
+            },
+            uncertainty={"value": output.get("prediction_uncertainty"), "source": "current engine routed output"},
+            source_artifact_type="PredictionWorkflow",
+            source_artifact_id=source_artifact_id,
+        )
+        if candidate is None:
+            results.append({"endpoint": endpoint_id, "status": "NOT_EMITTED", "reason": "VALUE_OR_REGISTERED_ARTIFACT_UNAVAILABLE"})
+            continue
+        try:
+            published = _upsert_verified_snapshot(db, candidate)
+            results.append({"endpoint": endpoint_id, "status": "CALCULATED_AND_PUBLISHED", "snapshot_id": published.id})
+        except ValueError as exc:
+            results.append({"endpoint": endpoint_id, "status": "CALCULATED_BUT_NOT_ELIGIBLE", "reason": str(exc).split(":", 1)[-1]})
+    return results

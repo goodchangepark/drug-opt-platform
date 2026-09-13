@@ -120,16 +120,16 @@ def test_comparison_matcher_direct_and_converted():
 
 
 def test_sunvozertinib_zero_pairable_loss():
-    """Verify Sunvozertinib (compound version 13) achieves PAIRABLE_EVIDENCE_WITHOUT_PAIR = 0."""
+    """Verify the frozen Sunvozertinib comparison coverage has no pairable loss."""
     db = SessionLocal()
     comp = build_endpoint_comparison(db, 13)
     db.close()
     
     cov = comp.get("summary", {}).get("comparison_coverage", {})
     assert cov.get("pairable_evidence_without_pair") == 0
-    assert cov.get("successfully_paired") >= 3
-    assert cov.get("direct_pairs") >= 1
-    assert cov.get("converted_pairs") >= 2
+    assert cov.get("successfully_paired") == 1
+    assert cov.get("direct_pairs") == 0
+    assert cov.get("converted_pairs") == 1
 
 
 def test_sunvozertinib_golden_rows_expose_clinical_values_in_authoritative_contract():

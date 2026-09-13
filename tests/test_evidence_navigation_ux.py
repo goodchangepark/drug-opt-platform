@@ -26,7 +26,7 @@ def test_frontend_navigation_contract():
     assert "['compounds','Compounds'],['evidence','Evidence'],['assays','Assays'],['compare','Compare'],['settings','Settings']" in js
 
     # Compound navigation tabs
-    assert "const tabs=['overview','properties','activity','admet','metabolism','pk','evidence','history'];" in js
+    assert "const tabs=['overview','properties','admet','metabolism','pk','evidence','history'];" in js
 
     # Project Evidence view structure
     assert "project&&projectTab==='evidence'&&!detail" in js

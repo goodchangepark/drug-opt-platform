@@ -1,0 +1,10 @@
+{
+  "contract": "PredictionFirstBrowserE2E/v1",
+  "new_compound": 1574,
+  "orforglipron_experimental_visible": true,
+  "mobile_no_horizontal_overflow": true,
+  "predict_reload_persistence": true,
+  "same_snapshot_api_and_ui": true,
+  "project_300_reference_profile": true,
+  "status": "PASS"
+}

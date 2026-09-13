@@ -1713,4 +1713,63 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   background: #e6f9ed !important;
 }
 
+/* Prediction-first developability workspace */
+.developability-summary { margin: 0 0 16px; }
+.developability-title {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  padding: 18px 20px; color: #f8fafc; background: linear-gradient(120deg,#102a43,#164e63);
+  border-radius: 10px 10px 0 0;
+}
+.developability-title h2 { margin: 2px 0 4px; color: #fff; }
+.developability-title .small, .developability-title .eyebrow { color: #cbd5e1; }
+.developability-card-grid {
+  display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 1px;
+  padding: 1px; background: #cbd5e1; border: 1px solid #cbd5e1; border-radius: 0 0 10px 10px; overflow: hidden;
+}
+.developability-summary-card { min-width: 0; padding: 14px; background: #fff; }
+.developability-summary-card h3 { margin: 0 0 9px; color: #0f3d4c; font-size: 14px; text-transform: uppercase; letter-spacing: .055em; }
+.developability-summary-row {
+  display: grid; grid-template-columns: minmax(90px,1fr) minmax(70px,auto); align-items: center;
+  gap: 3px 8px; padding: 7px 0; border-top: 1px solid #eef2f6; font-size: 12px;
+}
+.developability-summary-row > strong { text-align: right; }
+.developability-summary-row > small { grid-column: 1 / -1; color: #475569; }
+.developability-summary-row .developability-status { grid-column: 1 / -1; justify-self: start; }
+.developability-section { padding: 0; overflow: hidden; }
+.developability-section-head { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 16px 8px; }
+.developability-section-head h3 { margin: 0; }
+.developability-table-wrap { width: 100%; overflow-x: auto; }
+.developability-table { width:100%; margin:0; font-size:12px; }
+.developability-table th, .developability-table td { padding:9px 10px; vertical-align:middle; }
+.developability-table td:first-child { min-width: 170px; }
+.developability-table .endpoint-id { display:block; margin-top:2px; color:#64748b; font-size:9.5px; }
+.developability-table .model-mode { display:block; margin-top:3px; color:#64748b; }
+.developability-status {
+  display:inline-block; max-width:100%; padding:3px 6px; border-radius:4px; background:#f1f5f9;
+  color:#475569; font-size:9.5px; font-weight:800; line-height:1.2; letter-spacing:.025em; overflow-wrap:anywhere;
+}
+.status-predicted, .status-experimental-available { color:#166534; background:#dcfce7; }
+.status-on-demand { color:#1d4ed8; background:#dbeafe; }
+.status-model-unavailable, .status-current-data-ceiling { color:#475569; background:#e2e8f0; }
+.status-context-required { color:#9a3412; background:#ffedd5; }
+.status-mechanistic-only { color:#6d28d9; background:#ede9fe; }
+.advanced-profile-details > summary { cursor:pointer; font-weight:700; }
+
+@media (max-width: 980px) {
+  .developability-card-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 640px) {
+  .developability-title { display:block; padding:15px; }
+  .developability-title > .mono { display:block; margin-top:8px; overflow-wrap:anywhere; }
+  .developability-card-grid { grid-template-columns: 1fr; }
+  .developability-table-wrap { overflow:visible; }
+  .developability-table, .developability-table tbody, .developability-table tr, .developability-table td { display:block; width:100%; }
+  .developability-table thead { display:none; }
+  .developability-table tr { padding:10px 12px; border-top:1px solid #e2e8f0; }
+  .developability-table td { display:grid; grid-template-columns:92px minmax(0,1fr); gap:8px; min-width:0!important; padding:3px 0; border:0; overflow-wrap:anywhere; }
+  .developability-table td::before { content:attr(data-label); color:#64748b; font-size:10px; font-weight:700; text-transform:uppercase; }
+  .developability-table td:first-child { margin-bottom:5px; }
+  .developability-table td:first-child strong { font-size:14px; }
+  .developability-table .maturity-stars { min-width:0; }
+}
 

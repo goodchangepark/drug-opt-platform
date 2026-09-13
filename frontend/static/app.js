@@ -537,6 +537,7 @@ function App(){
  });
  const [workspace,setWorkspace]=useState(null),[workspaceLoading,setWorkspaceLoading]=useState(false),[comparisonPairs,setComparisonPairs]=useState(null),[experimentalOpen,setExperimentalOpen]=useState(false),[experimentalSelected,setExperimentalSelected]=useState([]),[experimentalDrafts,setExperimentalDrafts]=useState({});
  const [scientificTabData,setScientificTabData]=useState(null),[scientificTabLoading,setScientificTabLoading]=useState(false);
+ const [developabilityProfile,setDevelopabilityProfile]=useState(null),[developabilityLoading,setDevelopabilityLoading]=useState(false);
  const [manualEntryOptions,setManualEntryOptions]=useState(null),[manualEvidence,setManualEvidence]=useState({section:'ADMET',canonical_endpoint_id:'HUMAN_PPB',raw_value:'',raw_unit:'% bound',species:'Human',matrix:'plasma',direction:'',route:'',dose:'',dose_unit:'mg',regimen:'Single dose',analyte:'PARENT',measurement_type:'',study_id:'',batch_id:'',notes:''}),[manualEditingEvidenceId,setManualEditingEvidenceId]=useState(null);
  const [compareMetrics,setCompareMetrics]=useState(['MW','cLogP','TPSA','QED','Activity','Solubility','Caco-2','PPB','fu','HLM','RLM','MLM','DLM','CyLM','CYP3A4 Inh','P-gp Inh','Soft Spots','Mouse CL (IV)','Rat CL (IV)','Human CL (IVIVE)','Human Vd (pred)','Human t1/2 (pred)','Human AUC (1mg/kg IV)','hERG','Ames','DILI']),[compareAssay,setCompareAssay]=useState('');
  const [editorReady,setEditorReady]=useState(false);
@@ -672,13 +673,22 @@ function App(){
   setWorkspace(data);setComparisonPairs(pairs);setAdmet(data.admet);setMetabolism(data.metabolism);setPredictionWorkflow(savedWorkflow);setQualificationSummary(qualification);return data;
  };
  const loadScientificTab=async(tab=detailTab,versionId=detail?.version?.id)=>{
-  if(!versionId||!['properties','activity','admet','metabolism','pk','evidence','history'].includes(tab)){setScientificTabData(null);return null}
+  if(!versionId||!['properties','admet','metabolism','pk','evidence','history'].includes(tab)){setScientificTabData(null);return null}
   setScientificTabLoading(true);
   try{
    const data=await api.get('/compound-versions/'+versionId+'/scientific-tabs/'+tab+'?page=1&page_size=100');
    setScientificTabData(current=>Number(data.compound_version_id)===Number(versionId)?data:current);
    return data;
   }finally{setScientificTabLoading(false)}
+ };
+ const loadDevelopabilityProfile=async(versionId=detail?.version?.id)=>{
+  if(!versionId){setDevelopabilityProfile(null);return null}
+  setDevelopabilityLoading(true);
+  try{
+   const data=await api.get('/compound-versions/'+versionId+'/developability-profile');
+   if(Number(data.compound_version_id)===Number(versionId))setDevelopabilityProfile(data);
+   return data;
+  }finally{setDevelopabilityLoading(false)}
  };
  const loadOptimization=async(versionId=detail?.version?.id,id=projectId)=>{
   if(!id||!versionId)return null;
@@ -775,7 +785,8 @@ function App(){
  useEffect(()=>{
   // Stable Core uses one bounded canonical payload for the active scientific
   // tab. The legacy multi-megabyte workspace is never fetched on navigation.
-  if(detail?.version?.id&&['properties','activity','admet','metabolism','pk','evidence','history'].includes(detailTab))loadScientificTab(detailTab,detail.version.id).catch(error=>setMessage(String(error)));
+  if(detail?.version?.id&&['properties','admet','metabolism','pk','evidence','history'].includes(detailTab))loadScientificTab(detailTab,detail.version.id).catch(error=>setMessage(String(error)));
+  if(detail?.version?.id&&detailTab==='metabolism')loadCompoundMetabolism(detail.version.id).catch(error=>setMessage(String(error)));
  },[detail?.row_id,detail?.version?.id,detailTab]);
  useEffect(()=>{
   if(globalView!=='optimization')return;
@@ -1007,6 +1018,7 @@ function App(){
    setWorkspaceLoading(true);
    setWorkspace(null);
    setScientificTabData(null);
+   setDevelopabilityProfile(null);
    setExternalEvidence(null);
    setComparisonPairs(null);
    setAdmet(null);
@@ -1020,6 +1032,7 @@ function App(){
     const compound=await api.get('/compounds/'+rowId+'/summary');
     if(requestId!==detailRequest.current)return null;
     setDetail(compound);if(!options.preserveTab)setDetailTab('overview');setExperimentalOpen(false);
+    if(compound.version?.id)await loadDevelopabilityProfile(compound.version.id);
     setMessage('');
     return compound;
    }catch(error){if(requestId===detailRequest.current)setMessage(String(error));return null}
@@ -1049,7 +1062,7 @@ function App(){
   try{
    await api.post('/projects/'+projectId+'/admet/measurements',{...admetForm,version_id:targetVersionId});
    setAdmetForm(current=>({...current,value:'',mean:'',sd:'',n:'',notes:''}));
-   if(detail?.version?.id===targetVersionId)await Promise.all([loadCompoundAdmet(targetVersionId),loadScientificTab(detailTab,targetVersionId)]);else await loadAdmet();setMessage('Experimental ADMET saved');
+   if(detail?.version?.id===targetVersionId)await Promise.all([loadCompoundAdmet(targetVersionId),loadScientificTab(detailTab,targetVersionId),loadDevelopabilityProfile(targetVersionId)]);else await loadAdmet();setMessage('Experimental ADMET saved');
   }catch(error){setMessage(String(error))}finally{setAdmetBusy(false)}
  };
  const experimentDefaults=name=>({
@@ -1106,7 +1119,7 @@ function App(){
      await api.post('/assays/'+row.assay_id+'/measurements',{version_id:detail.version.id,value:row.value,unit:row.unit,source:row.source,notes:row.notes});
     }else await api.post('/projects/'+projectId+'/admet/measurements',experimentalPayload(name,row));
    }
-   await Promise.all([loadCompoundAdmet(detail.version.id),loadScientificTab(detailTab,detail.version.id)]);setExperimentalOpen(false);setExperimentalSelected([]);setExperimentalDrafts({});setMessage('Experimental data saved for '+detail.name+' only');
+   await Promise.all([loadCompoundAdmet(detail.version.id),loadScientificTab(detailTab,detail.version.id),loadDevelopabilityProfile(detail.version.id)]);setExperimentalOpen(false);setExperimentalSelected([]);setExperimentalDrafts({});setMessage('Experimental data saved for '+detail.name+' only');
   }catch(error){setMessage(String(error))}finally{setAdmetBusy(false)}
  };
  const previewAdmet=async()=>{
@@ -1124,7 +1137,7 @@ function App(){
   setAdmetBusy(true);
   try{
    const result=await api.post('/admet/predict/'+versionId,{});
-   await Promise.all([loadCompoundAdmet(versionId),loadScientificTab(detailTab,versionId)]);
+   await Promise.all([loadCompoundAdmet(versionId),loadScientificTab(detailTab,versionId),loadDevelopabilityProfile(versionId)]);
    const publication=result.current_publication||[],published=publication.filter(row=>row.status==='CALCULATED_AND_PUBLISHED');
    const rejected=publication.filter(row=>row.status==='CALCULATED_BUT_NOT_ELIGIBLE');
    setMessage(published.length
@@ -1138,7 +1151,7 @@ function App(){
   setMetabolismBusy(true);
   setPredictionWorkflow(current=>({...current,status:'RUNNING',steps:{...(current?.steps||{}),metabolism:{status:'RUNNING'}}}));
   try{
-   const result=await api.post('/metabolism/predict/'+versionId,{});const data=await loadCompoundMetabolism(versionId);await loadScientificTab('metabolism',versionId);
+   const result=await api.post('/metabolism/predict/'+versionId,{});const data=await loadCompoundMetabolism(versionId);await Promise.all([loadScientificTab('metabolism',versionId),loadDevelopabilityProfile(versionId)]);
    const run=(data?.runs||[]).find(item=>item.version_id===Number(versionId));
    const metabolismStatus=run?.status==='COMPLETE'?'COMPLETE':(run?.status||'MODEL_UNAVAILABLE');
    setPredictionWorkflow(current=>({...current,status:'PARTIAL',steps:{...(current?.steps||{}),metabolism:{status:metabolismStatus,message:result.message||'Metabolism prediction complete'}}}));
@@ -4405,6 +4418,65 @@ function integratedProfile(versionId){
    ]);
   }
 
+ function profileValue(value,fallbackUnit=''){
+  if(!value)return '—';
+  if(value.classification)return value.classification;
+  const raw=value.display_value??value.value;
+  if(raw==null)return '—';
+  const numeric=Number(raw);
+  const rendered=Number.isFinite(numeric)?(Math.abs(numeric)>=100?numeric.toPrecision(5):Number(numeric.toPrecision(5)).toString()):String(raw);
+  return rendered+(value.unit||fallbackUnit?' '+(value.unit||fallbackUnit):'');
+ }
+ function profileStatus(row){
+  return e('span',{className:'developability-status status-'+String(row.status||row.availability).toLowerCase().replaceAll('_','-')},row.status||row.availability);
+ }
+ function DevelopabilityTable({rows,compact=false}){
+  return e('div',{className:'developability-table-wrap'},e('table',{className:'developability-table '+(compact?'compact':'')},[
+   e('thead',{key:'head'},e('tr',{},['Endpoint','Prediction','Experimental','Difference','Status','AD','Model Maturity'].map(label=>e('th',{key:label},label)))),
+   e('tbody',{key:'body'},rows.map((row,index)=>e('tr',{key:row.query_endpoint+'|'+row.semantic+'|'+index,'data-endpoint':row.query_endpoint},[
+    e('td',{'data-label':'Endpoint'},[e('strong',{key:'name'},row.display_name),e('span',{key:'id',className:'mono endpoint-id'},row.query_endpoint)]),
+    e('td',{'data-label':'Prediction',className:'mono prediction-value'},profileValue(row.prediction,row.unit)),
+    e('td',{'data-label':'Experimental',className:'mono experimental-value'},profileValue(row.experimental,row.unit)),
+    e('td',{'data-label':'Difference',className:'mono'},row.difference?.fold_error!=null?Number(row.difference.fold_error).toFixed(2)+'×':'—'),
+    e('td',{'data-label':'Status'},profileStatus(row)),
+    e('td',{'data-label':'AD',className:'small'},row.AD?.classification||row.AD?.status||'—'),
+    e('td',{'data-label':'Model Maturity'},[row.maturity?MaturityStars({maturity:row.maturity}):e('span',{className:'small'},'—'),e('span',{className:'model-mode small'},row.prediction_mode||row.availability)])
+   ])))
+  ]));
+ }
+ function profileSection(group,title,filter=null){
+  const rows=(developabilityProfile?.groups?.[group]||[]).filter(row=>!filter||filter(row));
+  return e('section',{className:'card developability-section',key:group+'-'+title},[
+   e('div',{className:'developability-section-head'},[e('h3',{},title),e('span',{className:'small'},rows.length+' core endpoints')]),
+   e(DevelopabilityTable,{rows})
+  ]);
+ }
+ function developabilitySummary(){
+  if(developabilityLoading&&!developabilityProfile)return e('section',{className:'card'},'Loading Developability Summary…');
+  const groups=developabilityProfile?.groups;
+  if(!groups)return e('section',{className:'card'},[e('h2',{},'Developability Summary'),e('p',{className:'small'},'Canonical profile unavailable for this CompoundVersion.')]);
+  const cards=[
+   ['PhysChem',[...(groups.physchem||[]).filter(row=>['CLOGP','LOGD_7_4','SOLUBILITY_GENERIC','TPSA'].includes(row.query_endpoint))]],
+   ['Absorption',groups.absorption||[]],
+   ['Distribution',groups.distribution||[]],
+   ['Stability',groups.metabolic_stability||[]],
+   ['Safety',(groups.safety||[]).filter(row=>['HERG_LIABILITY','AMES_MUTAGENICITY','DILI_LIABILITY'].includes(row.query_endpoint))],
+   ['PK',(groups.pk||[]).filter(row=>row.semantic==='PK_PARAMETER').slice(0,5)]
+  ];
+  return e('section',{className:'developability-summary',key:'developability-summary'},[
+   e('div',{className:'developability-title'},[e('div',{},[e('div',{className:'eyebrow'},'PREDICTION-FIRST'),e('h2',{},'Developability Summary'),e('p',{className:'small'},'Predictions lead; accepted experimental evidence is shown inline for validation. Rows remain visible when a model or scientific context is unavailable.')]),e('span',{className:'mono small'},developabilityProfile.prediction_engine?.engine_id)]),
+   e('div',{className:'developability-card-grid'},cards.map(([title,rows])=>e('article',{className:'developability-summary-card',key:title},[
+    e('h3',{},title),
+    ...rows.map(row=>e('div',{className:'developability-summary-row',key:row.query_endpoint},[
+     e('span',{},row.display_name),
+     e('strong',{className:'mono'},profileValue(row.prediction,row.unit)),
+     row.experimental&&e('small',{className:'mono'},'Exp '+profileValue(row.experimental,row.unit)),
+     profileStatus(row)
+    ]))
+   ])))
+  ]);
+ }
+
  function compoundDetail(){
   const version=detail.version;
   const properties=version?.properties||{};
@@ -4436,7 +4508,7 @@ function integratedProfile(versionId){
     ]))
    ]):null
   ]);
-  const tabs=['overview','properties','activity','admet','metabolism','pk','evidence','history'];
+  const tabs=['overview','properties','admet','metabolism','pk','evidence','history'];
   const studies=pkData?.studies||[];
   const studyCount=studies.length;
   const acceptedPkCount=Number(detail.scientific_snapshot?.accepted_pk_evidence_count||0);
@@ -4460,7 +4532,10 @@ function integratedProfile(versionId){
     setPredictionWorkflow(res);
     await openDetail(detail.row_id);
     await Promise.all([loadProject(projectId),loadProjects(),loadDashboard()]);
-    setMessage(res.message||(res.publication_status==='CALCULATED_AND_PUBLISHED'?'Canonical current predictions published':'Prediction completed without an eligible current snapshot'));
+    const summary=res.summary;
+    setMessage(summary
+     ? 'Predicted: '+summary.predicted+' · Already current: '+summary.already_current+' · Unavailable: '+summary.unavailable+' · Context required: '+summary.context_required+' · Failed: '+summary.failed
+     : (res.message||(res.publication_status==='CALCULATED_AND_PUBLISHED'?'Canonical current predictions published':'Prediction completed without an eligible current snapshot')));
    }catch(err){
     setPredictionWorkflow(current=>({...current,status:'FAILED'}));
     setMessage(String(err));
@@ -4552,7 +4627,7 @@ function integratedProfile(versionId){
        ]),
        e('div',{className:'mono small',style:{color:'#595959'}},'Engine ID: '+(currentEngine?.engine_id||'UNKNOWN_CURRENT_ENGINE')+' · Decision: '+(currentEngine?.decision||'UNKNOWN'))
       ]),
-     e('div',{className:'prediction-stage-status'},['properties','activity','admet','metabolism','pk'].map(stage=>{
+     e('div',{className:'prediction-stage-status'},['properties','admet','metabolism','pk'].map(stage=>{
       const stageStatus = Number(detail.scientific_snapshot?.current_prediction_snapshot_count||0)>0?'COMPLETE':'NOT_RUN';
       const displayStatus = stageStatus === 'COMPLETE' ? (stage.toUpperCase() + ' PREDICTION: COMPLETE') : (stage.toUpperCase() + ': ' + stageStatus.replaceAll('_',' '));
       return e('span',{key:stage,className:'prediction-stage-chip '+String(stageStatus).toLowerCase()},displayStatus);
@@ -4574,7 +4649,7 @@ function integratedProfile(versionId){
       ]) : e('p',{className:'small',style:{margin:'6px 0 0'}},detail?.version?.id?'Core summary loaded. Open a scientific tab to load its bounded data.':'Draft compound; no version-linked data exists.')
     ])]),
    (workspace?.external_experimental_evidence||[]).length>0&&e('p',{className:'small',key:'imported-routed-notice'},'Imported external observations are displayed in their canonical Activity, ADMET, Metabolism, or PK endpoint sections.'),
-    ['overview','properties','activity','admet','metabolism','pk'].includes(detailTab)&&e(AIChatSection,{
+    ['overview','properties','admet','metabolism','pk'].includes(detailTab)&&e(AIChatSection,{
      key:'compound-ai-chat-'+detail.row_id+'-'+detailTab,
      compoundId:detail.row_id,
      section:detailTab,
@@ -4590,10 +4665,11 @@ function integratedProfile(versionId){
      :tab==='pk'?(hasExpPk||Number(snapshot.current_prediction_snapshot_count||0)>0?'AVAILABLE':'NO DATA')
      :tab==='properties'?(version?.calculated?'COMPLETE':'NOT_STARTED')
      :'ON DEMAND';
-    return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','activity','admet','metabolism','pk','evidence'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
+    return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','admet','metabolism','pk','evidence'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
    })),
    detailTab==='overview'&&e('div',{key:'overview-tab'},[
-    e('div',{className:'card',key:'overview-properties'},[
+    developabilitySummary(),
+    false&&e('div',{className:'card',key:'overview-properties'},[
      e('div',{className:'eyebrow'},'BASIC PROPERTY SUMMARY'),
      e('h3',{},'Physicochemical & Drug-Likeness Summary (Calculated / RDKit)'),
      e('p',{className:'small'},'Deterministic calculated small molecule properties and drug-likeness compliance.'),
@@ -4613,7 +4689,7 @@ function integratedProfile(versionId){
       ScientificBadge({assessment:item.i.assessment,colorClass:item.i.colorClass,textLabel:item.i.label})
      ])))
     ]),
-    e('div',{className:'card',key:'overview-admet-highlights'},[
+    false&&e('div',{className:'card',key:'overview-admet-highlights'},[
      e('div',{className:'row toolbar'},[
       e('div',{},[
        e('div',{className:'eyebrow'},'EXECUTIVE SCIENTIFIC SUMMARY'),
@@ -4665,7 +4741,7 @@ function integratedProfile(versionId){
       ])
      ])
     ]),
-    e('div',{className:'card',key:'overview-pk-summary'},[
+    false&&e('div',{className:'card',key:'overview-pk-summary'},[
      e('div',{className:'row toolbar'},[
       e('div',{},[
        e('div',{className:'eyebrow'},'TRANSLATIONAL PK SUMMARY'),
@@ -4746,17 +4822,21 @@ function integratedProfile(versionId){
      ])
     ]),
     experimentalOpen&&e('div',{className:'card'},ExperimentalDataPanel()),
-    routedEvidenceSection('ADMET','External ADMET Evidence'),
-    routedEvidenceSection('TOXICITY','External Toxicity Evidence'),
-    routedEvidenceSection('UNCLASSIFIED','Needs Review'),
-    VisualProfileChart({predictions:detailPredictions}),
-    e('section',{key:'integrated'},[
+    profileSection('physchem','PhysChem'),
+    profileSection('absorption','Absorption'),
+    profileSection('distribution','Distribution'),
+    profileSection('metabolic_stability','Stability / Metabolic Stability (MS & PS)'),
+    profileSection('safety','Safety'),
+    profileSection('transporters','Transporters'),
+    false&&VisualProfileChart({predictions:detailPredictions}),
+    false&&e('section',{key:'integrated'},[
      e('div',{className:'eyebrow'},'4 · INTEGRATED PROFILE'),
      integratedProfile(version.id)
     ]),
-    e('section',{className:'card',key:'provenance'},[
-     e('div',{className:'eyebrow'},'5 · MODEL / PROVENANCE DETAILS'),
-     e('h3',{},'Model Governance & Registry'),
+    e('details',{className:'card advanced-profile-details',key:'provenance'},[
+     e('summary',{},'Advanced model provenance and evidence detail'),
+     routedEvidenceSection('ADMET','Canonical ADMET evidence'),
+     routedEvidenceSection('TOXICITY','Canonical toxicity evidence'),
      unavailableModelsCollapsed()
     ])
    ]),
@@ -4765,13 +4845,18 @@ function integratedProfile(versionId){
      e('div',{},[e('h3',{},'Metabolism & Transporter Profile'),e('p',{className:'small'},'Microsomal stability across species, CYP450 panel, and SyGMa metabolic soft spots.')]),
      e('button',{className:'tab-repredict-btn',disabled:admetBusy,onClick:()=>runMetabolism(version.id)},admetBusy?'Predicting…':'↺ RE-PREDICT')
     ]),
-   routedEvidenceSection('METABOLISM','External Metabolism Evidence'),
+    profileSection('metabolic_stability','Metabolic Stability (MS)'),
+    profileSection('cyp','CYP Inhibition — Quantitative',row=>row.semantic==='QUANTITATIVE_INHIBITION'),
+    profileSection('cyp','CYP Inhibitor Classification',row=>row.semantic==='INHIBITOR_CLASSIFICATION'),
+    profileSection('cyp','CYP Substrate Classification',row=>row.semantic==='SUBSTRATE_CLASSIFICATION'),
+    profileSection('metabolism','Metabolic Soft Spots & Predicted Metabolites'),
+    e('section',{className:'card',key:'soft-spots'},[e('h3',{},'Predicted Sites & Ranked Metabolite Hypotheses'),metabolismPanel(version.id)]),
     e('details',{className:'card',key:'metabolism-detail'},[
      e('summary',{},'Advanced metabolism calculation detail'),
      e('p',{className:'small'},'Calculation-specific tables are secondary to the persisted scientific result rows above.'),
+     routedEvidenceSection('METABOLISM','Canonical metabolism evidence'),
      speciesMetabolicStabilityTable(detailPredictions,detailMeasurements),
      e('div',{key:'cyp'},[e('h4',{},'CYP model detail'),cypPredictionTable(detailPredictions.filter(p=>p.endpoint.startsWith('CYP')))]),
-     e('div',{key:'soft'},[e('h4',{},'Soft spots & metabolite hypotheses'),metabolismPanel(version.id)])
     ])
    ]),
    detailTab==='pk'&&e('div',{key:'pk-tab'},[
@@ -4779,10 +4864,13 @@ function integratedProfile(versionId){
      e('div',{},[e('h3',{},'Pharmacokinetics & Translational Profile'),e('p',{className:'small'},'In vivo PK studies, NCA analysis, mechanistic IVIVE, and multi-species translational projections.')]),
      e('button',{className:'tab-repredict-btn',onClick:async()=>{if(window.__pkMultiCache)delete window.__pkMultiCache[version.id];await Promise.all([loadPkData(version.id),loadIviveData(version.id,iviveSpecies)]);setMessage('PK analysis updated');}},'↺ UPDATE PK ANALYSIS')
     ]),
-   routedEvidenceSection('PK','External PK Evidence'),
+    profileSection('pk','Upstream',row=>String(row.semantic).startsWith('UPSTREAM')),
+    profileSection('pk','PK Parameters',row=>row.semantic==='PK_PARAMETER'),
+    profileSection('pk','Contextual PK',row=>row.semantic==='CONTEXTUAL_PK'),
     e('details',{className:'card',key:'pk-detail'},[
      e('summary',{},'Advanced PK calculations & simulation history'),
      e('p',{className:'small'},'Simulation, NCA, and translational calculation detail remains available here; the species-context comparison above is the primary result view.'),
+     routedEvidenceSection('PK','Canonical PK evidence'),
      e(MultiSpeciesPkSummaryTable,{key:'multi-pk-summary',versionId:version.id,studies:pkData?.studies,iviveData}),
      pkProfile(version.id)
     ])

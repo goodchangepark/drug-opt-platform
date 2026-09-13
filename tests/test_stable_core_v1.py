@@ -230,7 +230,7 @@ def test_recovered_project5_history_and_orforglipron_canonical_pk_contract():
     """Production-shaped isolated fixture protects the repaired scientific identities."""
     client = TestClient(app)
     projects = client.get("/api/projects").json()
-    assert {row["id"] for row in projects} >= {1, 3, 5, 300}
+    assert {row["id"] for row in projects} >= {1, 3, 300}
 
     pk = client.get("/api/compound-versions/11/scientific-tabs/pk").json()
     accepted = {
@@ -247,6 +247,10 @@ def test_recovered_project5_history_and_orforglipron_canonical_pk_contract():
     required_runs = {64, 65, 66, 67, 68, 73, 74, 75, 127, 128, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162}
     from backend.database import SessionLocal
     with SessionLocal() as db:
+        project5 = db.get(Project, 5)
+        assert project5 is not None
+        assert project5.protection_policy == "PROTECTED_REAL_PROJECT"
+        assert project5.lifecycle_status == "ARCHIVED"
         restored = set(db.scalars(select(HistoricalPrediction.legacy_prediction_run_id).where(
             HistoricalPrediction.project_id_snapshot == 5,
         )))
