@@ -4455,19 +4455,26 @@ function integratedProfile(versionId){
   if(developabilityLoading&&!developabilityProfile)return e('section',{className:'card'},'Loading Developability Summary…');
   const groups=developabilityProfile?.groups;
   if(!groups)return e('section',{className:'card'},[e('h2',{},'Developability Summary'),e('p',{className:'small'},'Canonical profile unavailable for this CompoundVersion.')]);
+  const pick=(group,endpoints)=>(groups[group]||[]).filter(row=>endpoints.includes(row.query_endpoint));
   const cards=[
-   ['PhysChem',[...(groups.physchem||[]).filter(row=>['CLOGP','LOGD_7_4','SOLUBILITY_GENERIC','TPSA'].includes(row.query_endpoint))]],
-   ['Absorption',groups.absorption||[]],
-   ['Distribution',groups.distribution||[]],
+   ['ADMET',[
+    ...pick('physchem',['SOLUBILITY_GENERIC']),
+    ...pick('absorption',['CACO2_PAPP_AB','HIA','PAMPA_PERMEABILITY'])
+   ]],
+   ['Distribution',pick('distribution',['HUMAN_PPB','HUMAN_FU','BBB_PENETRATION','VDSS'])],
    ['Stability',groups.metabolic_stability||[]],
-   ['Safety',(groups.safety||[]).filter(row=>['HERG_LIABILITY','AMES_MUTAGENICITY','DILI_LIABILITY'].includes(row.query_endpoint))],
-   ['PK',(groups.pk||[]).filter(row=>row.semantic==='PK_PARAMETER').slice(0,5)]
+   ['CYP Quantitative',pick('cyp',['CYP1A2_INHIBITION','CYP2C9_INHIBITION','CYP2C19_INHIBITION','CYP2D6_INHIBITION','CYP3A4_INHIBITION'])],
+   ['CYP Classification',(groups.cyp||[]).filter(row=>row.semantic!=='QUANTITATIVE_INHIBITION')],
+   ['Transporters',pick('transporters',['PGP_INHIBITION','BCRP_INHIBITOR'])],
+   ['Safety',pick('safety',['HERG_LIABILITY','HERG_CLASS','AMES_MUTAGENICITY','DILI_LIABILITY'])],
+   ['Metabolism',groups.metabolism||[]],
+   ['PK',(groups.pk||[]).filter(row=>row.semantic==='PK_PARAMETER'||row.semantic==='CONTEXTUAL_PK')]
   ];
-  return e('section',{className:'developability-summary',key:'developability-summary'},[
-   e('div',{className:'developability-title'},[e('div',{},[e('div',{className:'eyebrow'},'PREDICTION-FIRST'),e('h2',{},'Developability Summary'),e('p',{className:'small'},'Predictions lead; accepted experimental evidence is shown inline for validation. Rows remain visible when a model or scientific context is unavailable.')]),e('span',{className:'mono small'},developabilityProfile.prediction_engine?.engine_id)]),
-   e('div',{className:'developability-card-grid'},cards.map(([title,rows])=>e('article',{className:'developability-summary-card',key:title},[
+  return e('section',{className:'developability-summary',id:'overview-developability-results',key:'developability-summary'},[
+   e('div',{className:'developability-title'},[e('div',{},[e('div',{className:'eyebrow'},'PREDICTION-FIRST'),e('h2',{},'Developability Summary — Core Prediction Results'),e('p',{className:'small'},'Canonical results follow the calculated compound properties. Predictions lead; accepted experimental evidence and precise unavailable or context-required states remain visible inline.')]),e('span',{className:'mono small'},developabilityProfile.prediction_engine?.engine_id)]),
+   e('div',{className:'developability-card-grid'},cards.map(([title,rows])=>e('article',{className:'developability-summary-card',key:title,'data-overview-group':title},[
     e('h3',{},title),
-    ...rows.map(row=>e('div',{className:'developability-summary-row',key:row.query_endpoint},[
+    ...rows.map((row,index)=>e('div',{className:'developability-summary-row',key:row.query_endpoint+'|'+row.semantic+'|'+index,'data-endpoint':row.query_endpoint},[
      e('span',{},row.display_name),
      e('strong',{className:'mono'},profileValue(row.prediction,row.unit)),
      row.experimental&&e('small',{className:'mono'},'Exp '+profileValue(row.experimental,row.unit)),
@@ -4668,8 +4675,7 @@ function integratedProfile(versionId){
     return e('button',{key:tab,className:detailTab===tab?'active-tab':'secondary',disabled:!version&&['properties','admet','metabolism','pk','evidence'].includes(tab),onClick:()=>setDetailTab(tab)},[e('span',{key:'label'},tab.toUpperCase()),tab!=='overview'&&tab!=='history'&&e('small',{key:'status',className:'tab-status'},status)]);
    })),
    detailTab==='overview'&&e('div',{key:'overview-tab'},[
-    developabilitySummary(),
-    false&&e('div',{className:'card',key:'overview-properties'},[
+    e('div',{className:'card overview-properties',key:'overview-properties'},[
      e('div',{className:'eyebrow'},'BASIC PROPERTY SUMMARY'),
      e('h3',{},'Physicochemical & Drug-Likeness Summary (Calculated / RDKit)'),
      e('p',{className:'small'},'Deterministic calculated small molecule properties and drug-likeness compliance.'),
@@ -4689,6 +4695,7 @@ function integratedProfile(versionId){
       ScientificBadge({assessment:item.i.assessment,colorClass:item.i.colorClass,textLabel:item.i.label})
      ])))
     ]),
+    developabilitySummary(),
     false&&e('div',{className:'card',key:'overview-admet-highlights'},[
      e('div',{className:'row toolbar'},[
       e('div',{},[

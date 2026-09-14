@@ -31,6 +31,22 @@ def assert_value(browser, endpoint: str) -> None:
     assert endpoint_cell(browser, endpoint, ".developability-status") in {"PREDICTED", "EXPERIMENTAL_AVAILABLE"}, endpoint
 
 
+def overview_row(browser, endpoint: str):
+    section = browser.find_element(By.ID, "overview-developability-results")
+    return section.find_element(By.CSS_SELECTOR, f".developability-summary-row[data-endpoint='{endpoint}']")
+
+
+def assert_overview_order(browser) -> None:
+    properties = browser.find_element(By.CSS_SELECTOR, ".overview-properties")
+    results = browser.find_element(By.ID, "overview-developability-results")
+    follows = browser.execute_script(
+        "return Boolean(arguments[0].compareDocumentPosition(arguments[1]) & Node.DOCUMENT_POSITION_FOLLOWING)",
+        properties,
+        results,
+    )
+    assert follows, "calculated compound Properties must precede core prediction results"
+
+
 def main() -> None:
     projects = api("/api/projects")
     project = next(row for row in projects if row["name"] == "EGFR")
@@ -60,6 +76,27 @@ def main() -> None:
             open_project_compound(desktop, wait, "EGFR", "Mobocertinib")
             click(desktop, "▶ PREDICT")
             wait.until(lambda d: "Predicted:" in d.page_source and "Failed: 0" in d.page_source)
+
+            wait.until(lambda d: d.find_elements(By.ID, "overview-developability-results"))
+            assert_overview_order(desktop)
+            expected_overview = {
+                "SOLUBILITY_GENERIC": "-5.6371 log10(mol/L)",
+                "CACO2_PAPP_AB": "-4.9117 log10(cm/s)",
+                "HUMAN_PPB": "92.7 % bound",
+                "HLM_CLINT": "1.5253 log10(mL/min/kg)",
+                "CYP3A4_INHIBITION": "7.1835 pIC50",
+                "HERG_LIABILITY": "7.4388 pIC50",
+            }
+            for endpoint, expected in expected_overview.items():
+                row = overview_row(desktop, endpoint)
+                assert row.find_element(By.TAG_NAME, "strong").text.strip() == expected, endpoint
+                assert row.find_element(By.CLASS_NAME, "developability-status").text.strip() == "PREDICTED", endpoint
+            assert overview_row(desktop, "HIA").find_element(By.CLASS_NAME, "developability-status").text.strip() == "MODEL_NOT_REGISTERED"
+            assert overview_row(desktop, "AMES_MUTAGENICITY").find_element(By.CLASS_NAME, "developability-status").text.strip() == "MODEL_UNAVAILABLE"
+            assert overview_row(desktop, "HUMAN_PK_AUC_ORAL").find_element(By.CLASS_NAME, "developability-status").text.strip() == "CONTEXT_REQUIRED"
+            desktop.execute_script("arguments[0].scrollIntoView({block:'start'})", desktop.find_element(By.CSS_SELECTOR, ".overview-properties"))
+            desktop.save_screenshot(str(OUT / "desktop_1440x900_mobocertinib_overview.png"))
+            result["overview_properties_then_core_results"] = "PASS"
 
             click_tab(desktop, "ADMET")
             wait.until(lambda d: d.find_elements(By.CSS_SELECTOR, "tr[data-endpoint='CACO2_PAPP_AB']"))
@@ -99,6 +136,15 @@ def main() -> None:
             mobile.get(os.environ["DRUGOPT_E2E_BASE_URL"])
             mobile_wait.until(lambda d: d.find_elements(By.CLASS_NAME, "shell"))
             open_project_compound(mobile, mobile_wait, "EGFR", "Mobocertinib")
+            mobile_wait.until(lambda d: d.find_elements(By.ID, "overview-developability-results"))
+            assert_overview_order(mobile)
+            assert overview_row(mobile, "SOLUBILITY_GENERIC").is_displayed()
+            assert overview_row(mobile, "HLM_CLINT").is_displayed()
+            overview_overflow = mobile.execute_script("return document.documentElement.scrollWidth-document.documentElement.clientWidth")
+            assert overview_overflow <= 1, f"mobile Overview horizontal overflow: {overview_overflow}px"
+            mobile.execute_script("arguments[0].scrollIntoView({block:'start'})", mobile.find_element(By.CSS_SELECTOR, ".overview-properties"))
+            mobile.save_screenshot(str(OUT / "mobile_390x844_mobocertinib_overview.png"))
+            result["mobile_overview_properties_then_core_results"] = "PASS"
             click_tab(mobile, "ADMET")
             mobile_wait.until(lambda d: d.find_elements(By.CSS_SELECTOR, "tr[data-endpoint='CACO2_PAPP_AB']"))
             assert_value(mobile, "CACO2_PAPP_AB")

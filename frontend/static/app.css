@@ -1715,6 +1715,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 /* Prediction-first developability workspace */
 .developability-summary { margin: 0 0 16px; }
+.overview-properties + .developability-summary { margin-top: 16px; }
 .developability-title {
   display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
   padding: 18px 20px; color: #f8fafc; background: linear-gradient(120deg,#102a43,#164e63);
@@ -1772,4 +1773,3 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .developability-table td:first-child strong { font-size:14px; }
   .developability-table .maturity-stars { min-width:0; }
 }
-
