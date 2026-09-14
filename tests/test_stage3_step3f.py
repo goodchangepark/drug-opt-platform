@@ -53,11 +53,14 @@ def measurement(value, unit, endpoint, species="Human", matrix="safety assay"):
 def test_safety_registry_models_and_explicit_optional_unavailable(db):
     project_id, _ = compound(db)
     models = {row["endpoint"]: row for row in list_admet(project_id, db)["models"]}
-    for endpoint in SAFETY:
+    for endpoint in ("hERG liability", "DILI clinical liability"):
         row = models[endpoint]
         assert row["active"] and row["output_unit"] == "probability"
         assert row["details"]["endpoint_definition"] and row["details"]["training_dataset"]
         assert row["details"]["validation"] and row["details"]["license"]
+    ames = models["Ames mutagenicity"]
+    assert not ames["active"] and ames["status"] == "MODEL_UNAVAILABLE"
+    assert "UNQUALIFIED_LEGACY_MODEL" in ames["unavailable_reason"]
     for endpoint, details in SAFETY_UNAVAILABLE.items():
         row = models[endpoint]
         assert not row["active"] and row["status"] == "MODEL_UNAVAILABLE"
@@ -130,9 +133,12 @@ def test_safety_cache_experimental_precedence_provenance_and_project_isolation(d
     assert first["status"] == "COMPLETE" and second["status"] == "CACHED"
     assert db.query(ADMETPrediction).count() == count
     payload = list_admet(project_id, db)
-    row = next(item for item in payload["predictions"] if item["endpoint"] == "Ames mutagenicity")
-    assert row["preferred_result"]["source"] == "Experimental" and row["preferred_result"]["prediction_preserved"]
-    assert set(row["provenance"]) >= {"record_type", "model_name", "model_version", "endpoint", "unit", "species", "dataset", "license", "validation", "applicability_domain", "confidence", "timestamp", "compound_version_id"}
+    assert not any(item["endpoint"] == "Ames mutagenicity" for item in payload["predictions"])
+    ames_endpoint_id = next(item["id"] for item in payload["endpoints"] if item["name"] == "Ames mutagenicity")
+    assert any(item["endpoint_id"] == ames_endpoint_id for item in payload["measurements"])
+    ames_model = next(item for item in payload["models"] if item["endpoint"] == "Ames mutagenicity")
+    assert ames_model["status"] == "MODEL_UNAVAILABLE"
+    assert "UNQUALIFIED_LEGACY_MODEL" in ames_model["unavailable_reason"]
     profile = payload["integrated_profiles"][str(version_id)]
     assert profile["overall_score"] is None and profile["experimental_precedence"]
     assert profile["provenance_audit"]["status"] == "PASS"

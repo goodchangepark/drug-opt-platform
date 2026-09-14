@@ -50,8 +50,9 @@ def test_dashboard_capabilities_follow_live_backend_registries():
 
     safety = _items(groups["Safety / Toxicology"])
     assert groups["Safety / Toxicology"]["status"] == "PARTIAL"
-    for label in ("hERG", "Ames", "DILI", "Structural Alerts"):
+    for label in ("hERG", "DILI", "Structural Alerts"):
         assert safety[label]["availability"] == "READY"
+    assert safety["Ames"]["availability"] == "MODEL_UNAVAILABLE"
 
     pk = _items(groups["PK / DMPK"])
     assert groups["PK / DMPK"]["status"] == "READY"

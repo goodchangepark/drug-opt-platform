@@ -382,7 +382,13 @@ def test_multimodel_provenance_api_and_shadow_mode_e2e():
         assert pred_resp.status_code == 202
         pred_data = pred_resp.json()
         assert pred_data["status"] in {"COMPLETE", "CACHED", "PARTIAL"}
-        assert len(pred_data["predictions"]) >= 18
+        # Ames is explicitly excluded by the final 59-endpoint campaign: its
+        # pooled bacterial context cannot satisfy canonical publication.
+        assert len(pred_data["predictions"]) >= 17
+        assert any(
+            row["endpoint"] == "Ames mutagenicity" and row["status"] == "MODEL_UNAVAILABLE"
+            for row in pred_data["endpoint_statuses"]
+        )
 
         # 3. Call new Multi-Model Provenance API
         prov_resp = client.get(f"/api/compound-versions/{version_id}/multimodel-provenance")
@@ -391,7 +397,7 @@ def test_multimodel_provenance_api_and_shadow_mode_e2e():
 
         assert prov_data["compound_version_id"] == version_id
         assert prov_data["consensus_mode"] == "SHADOW"
-        assert prov_data["total_endpoints"] >= 18
+        assert prov_data["total_endpoints"] >= 17
 
         # Verify Solubility endpoint structure
         sol_ep = next((e for e in prov_data["endpoints"] if e["endpoint_name"] == "Solubility"), None)

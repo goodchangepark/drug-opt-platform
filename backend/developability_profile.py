@@ -12,6 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
+from sqlalchemy import select
+
 from .canonical_endpoints import REGISTRY
 from .prediction_engine_registry import (
     ROUTE_MODEL_UNAVAILABLE,
@@ -27,7 +29,11 @@ AVAILABLE_CURRENT = "AVAILABLE_CURRENT"
 ON_DEMAND = "ON_DEMAND"
 MECHANISTIC_ONLY = "MECHANISTIC_ONLY"
 MODEL_UNAVAILABLE = "MODEL_UNAVAILABLE"
+MODEL_NOT_REGISTERED = "MODEL_NOT_REGISTERED"
 CONTEXT_REQUIRED = "CONTEXT_REQUIRED"
+CURRENT_DATA_CEILING = "CURRENT_DATA_CEILING"
+CALCULATED_BUT_NOT_ELIGIBLE = "CALCULATED_BUT_NOT_ELIGIBLE"
+FAILED = "FAILED"
 
 
 @dataclass(frozen=True)
@@ -53,21 +59,24 @@ def _p(endpoint: str, group: str, display: str, **kwargs: Any) -> ProfileEndpoin
 CORE_PROFILE: tuple[ProfileEndpoint, ...] = (
     _p("MW", "physchem", "MW"),
     _p("CLOGP", "physchem", "cLogP"),
-    _p("LOGD_7_4", "physchem", "logD7.4"),
-    _p("PKA", "physchem", "pKa"),
+    _p("LOGD_7_4", "physchem", "logD7.4", availability=MECHANISTIC_ONLY),
+    _p("PKA", "physchem", "pKa", availability=MECHANISTIC_ONLY),
     _p("TPSA", "physchem", "TPSA"),
     _p("HBD", "physchem", "HBD"),
     _p("HBA", "physchem", "HBA"),
     _p("ROTB", "physchem", "Rotatable Bonds"),
     _p("FSP3", "physchem", "Fsp3"),
+    _p("QED", "physchem", "QED", importance="SECONDARY"),
+    _p("FORMAL_CHARGE", "physchem", "Formal Charge", importance="SECONDARY"),
+    _p("HEAVY_ATOM_COUNT", "physchem", "Heavy Atom Count", importance="SECONDARY"),
     _p("SOLUBILITY_GENERIC", "physchem", "Solubility", aliases=("HUMAN_SOLUBILITY",)),
     _p("CACO2_PAPP_AB", "absorption", "Caco-2 permeability", aliases=("CACO2_PERMEABILITY",)),
     _p("PAMPA_PERMEABILITY", "absorption", "PAMPA permeability", availability=MODEL_UNAVAILABLE, unit="cm/s"),
-    _p("HIA", "absorption", "HIA"),
+    _p("HIA", "absorption", "HIA", availability=MODEL_NOT_REGISTERED),
     _p("HUMAN_PPB", "distribution", "Human PPB", aliases=("PPB",)),
-    _p("HUMAN_FU", "distribution", "Human fu", aliases=("FU",), source_endpoint="HUMAN_PPB", semantic="FRACTION_UNBOUND"),
-    _p("BBB_PENETRATION", "distribution", "BBB"),
-    _p("VDSS", "distribution", "Vdss", availability=MECHANISTIC_ONLY),
+    _p("HUMAN_FU", "distribution", "Human fu", aliases=("FU",), source_endpoint="HUMAN_PPB", semantic="FRACTION_UNBOUND", availability=CURRENT_DATA_CEILING),
+    _p("BBB_PENETRATION", "distribution", "BBB", availability=MODEL_NOT_REGISTERED),
+    _p("VDSS", "distribution", "Vdss", availability=CURRENT_DATA_CEILING),
     _p("HLM_CLINT", "metabolic_stability", "HLM (microsomal stability)"),
     _p("RLM_CLINT", "metabolic_stability", "RLM (microsomal stability)", species="RAT"),
     _p("MLM_CLINT", "metabolic_stability", "MLM (microsomal stability)", species="MOUSE"),
@@ -94,19 +103,20 @@ CORE_PROFILE: tuple[ProfileEndpoint, ...] = (
     _p("OCT2_INHIBITOR", "transporters", "OCT2"),
     _p("HERG_LIABILITY", "safety", "hERG quantitative inhibition", semantic="QUANTITATIVE_INHIBITION", aliases=("HERG_IC50",)),
     _p("HERG_CLASS", "safety", "hERG risk classification", semantic="RISK_CLASSIFICATION"),
-    _p("AMES_MUTAGENICITY", "safety", "Ames", semantic="RISK_CLASSIFICATION", aliases=("AMES",)),
+    _p("AMES_MUTAGENICITY", "safety", "Ames", semantic="RISK_CLASSIFICATION", aliases=("AMES",), availability=MODEL_UNAVAILABLE),
     _p("DILI_LIABILITY", "safety", "DILI", semantic="RISK_CLASSIFICATION", aliases=("DILI",)),
-    _p("METABOLIC_SOFT_SPOTS", "metabolism", "Metabolic soft spots"),
-    _p("METABOLITE_HYPOTHESES", "metabolism", "Predicted metabolites"),
+    _p("METABOLIC_SOFT_SPOTS", "metabolism", "Metabolic soft spots", availability=MECHANISTIC_ONLY),
+    _p("METABOLITE_HYPOTHESES", "metabolism", "Predicted metabolites", availability=MECHANISTIC_ONLY),
     _p("HLM_CLINT", "pk", "HLM / Clint (upstream)", semantic="UPSTREAM", source_endpoint="HLM_CLINT"),
-    _p("HUMAN_FU", "pk", "Human fu (upstream)", semantic="UPSTREAM_FU", source_endpoint="HUMAN_PPB"),
-    _p("HUMAN_HEPATIC_CL", "pk", "Human hepatic CL", availability=MECHANISTIC_ONLY, semantic="PK_PARAMETER", aliases=("HEPATIC_CL",), unit="mL/min/kg"),
-    _p("HUMAN_PK_CL_IV", "pk", "Human total/systemic IV CL", availability=MECHANISTIC_ONLY, semantic="PK_PARAMETER"),
+    _p("HUMAN_FU", "pk", "Human fu (upstream)", semantic="UPSTREAM_FU", source_endpoint="HUMAN_PPB", availability=CURRENT_DATA_CEILING),
+    _p("HUMAN_HEPATIC_CL", "pk", "Human hepatic CL", availability=CURRENT_DATA_CEILING, semantic="PK_PARAMETER", aliases=("HEPATIC_CL",), unit="mL/min/kg"),
+    _p("HUMAN_PK_CL_IV", "pk", "Human total/systemic IV CL", availability=CURRENT_DATA_CEILING, semantic="PK_PARAMETER"),
     _p("HUMAN_PK_CL_UNSPECIFIED", "pk", "Human systemic CL (context incomplete)", availability=CONTEXT_REQUIRED, semantic="PK_PARAMETER"),
-    _p("HUMAN_PK_VD_IV", "pk", "Human IV volume of distribution", availability=MECHANISTIC_ONLY, semantic="PK_PARAMETER"),
-    _p("VDSS", "pk", "Human Vdss", availability=MECHANISTIC_ONLY, semantic="PK_PARAMETER", source_endpoint="VDSS"),
-    _p("HUMAN_PK_T_HALF_IV", "pk", "Human IV half-life", availability=MECHANISTIC_ONLY, semantic="PK_PARAMETER"),
+    _p("HUMAN_PK_VD_IV", "pk", "Human IV volume of distribution", availability=CURRENT_DATA_CEILING, semantic="PK_PARAMETER"),
+    _p("VDSS", "pk", "Human Vdss", availability=CURRENT_DATA_CEILING, semantic="PK_PARAMETER", source_endpoint="VDSS"),
+    _p("HUMAN_PK_T_HALF_IV", "pk", "Human IV half-life", availability=CURRENT_DATA_CEILING, semantic="PK_PARAMETER"),
     _p("HUMAN_PK_F_ORAL", "pk", "Oral bioavailability (F)", availability=CONTEXT_REQUIRED, semantic="CONTEXTUAL_PK"),
+    _p("HUMAN_PK_KA_ORAL", "pk", "Oral absorption rate (ka)", availability=CONTEXT_REQUIRED, semantic="CONTEXTUAL_PK", aliases=("KA",)),
     _p("HUMAN_PK_AUC_ORAL", "pk", "Oral AUC", availability=CONTEXT_REQUIRED, semantic="CONTEXTUAL_PK"),
     _p("HUMAN_PK_CMAX_ORAL", "pk", "Oral Cmax", availability=CONTEXT_REQUIRED, semantic="CONTEXTUAL_PK"),
     _p("HUMAN_PK_CMAX_UNSPECIFIED", "pk", "Human Cmax (context incomplete)", availability=CONTEXT_REQUIRED, semantic="CONTEXTUAL_PK"),
@@ -148,10 +158,15 @@ def _route_availability(endpoint_id: str, route: dict[str, Any] | None, declared
         return MODEL_UNAVAILABLE
     if route.get("route") == ROUTE_RETAIN_V3_3:
         return MECHANISTIC_ONLY
-    return ON_DEMAND if model_artifact_registration(endpoint_id) is not None else MODEL_UNAVAILABLE
+    return ON_DEMAND if model_artifact_registration(endpoint_id) is not None else MODEL_NOT_REGISTERED
 
 
-def _profile_row(endpoint: ProfileEndpoint, scientific_rows: list[dict[str, Any]], routes: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def _profile_row(
+    endpoint: ProfileEndpoint,
+    scientific_rows: list[dict[str, Any]],
+    routes: dict[str, dict[str, Any]],
+    execution_outcomes: dict[str, dict[str, str]],
+) -> dict[str, Any]:
     source_endpoint = endpoint.source_endpoint or endpoint.endpoint
     stable_row = _select_row(scientific_rows, endpoint)
     route = routes.get(source_endpoint)
@@ -160,17 +175,23 @@ def _profile_row(endpoint: ProfileEndpoint, scientific_rows: list[dict[str, Any]
     if endpoint.semantic in {"FRACTION_UNBOUND", "UPSTREAM_FU"}:
         prediction = _fraction_unbound(prediction)
         experimental = _fraction_unbound(experimental)
-    availability = AVAILABLE_CURRENT if prediction else _route_availability(source_endpoint, route, endpoint.availability)
-    if prediction:
+    resolved_availability = _route_availability(source_endpoint, route, endpoint.availability)
+    availability = (
+        resolved_availability
+        if endpoint.availability in {MECHANISTIC_ONLY, MODEL_UNAVAILABLE, MODEL_NOT_REGISTERED, CURRENT_DATA_CEILING, CONTEXT_REQUIRED}
+        else AVAILABLE_CURRENT if prediction else resolved_availability
+    )
+    if prediction and availability == AVAILABLE_CURRENT:
         status = "EXPERIMENTAL_AVAILABLE" if experimental else "PREDICTED"
     elif experimental:
         status = "EXPERIMENTAL_AVAILABLE"
     else:
         status = (
-            "CURRENT_DATA_CEILING"
-            if availability == MODEL_UNAVAILABLE and route and route.get("route") != ROUTE_MODEL_UNAVAILABLE and not endpoint.availability
-            else availability
+            availability
         )
+    outcome = execution_outcomes.get(source_endpoint)
+    if not prediction and outcome and outcome.get("status") in {CALCULATED_BUT_NOT_ELIGIBLE, FAILED}:
+        status = outcome["status"]
     comparison = stable_row.get("comparison") if stable_row else None
     difference = None
     if endpoint.semantic not in {"FRACTION_UNBOUND", "UPSTREAM_FU"} and comparison and comparison.get("numeric_pairable"):
@@ -190,16 +211,20 @@ def _profile_row(endpoint: ProfileEndpoint, scientific_rows: list[dict[str, Any]
         if prediction else
         (
             "The release registry describes this endpoint, but no exact executable artifact is admitted by Stable Core."
-            if status == "CURRENT_DATA_CEILING" else
+            if status in {"CURRENT_DATA_CEILING", MODEL_NOT_REGISTERED} else
             (route or {}).get("known_limitation")
             or {
                 MODEL_UNAVAILABLE: "No qualified executable model is registered for this endpoint.",
+                MODEL_NOT_REGISTERED: "A route label exists, but no complete authoritative executable model registration can be proven.",
                 CONTEXT_REQUIRED: "Dose, route, regimen, formulation, or other PK context is required.",
                 MECHANISTIC_ONLY: "Only a qualified mechanistic route is available; no structure-only value is implied.",
+                CURRENT_DATA_CEILING: "The current evidence ceiling does not permit a canonical structure-only prediction.",
                 ON_DEMAND: "A qualified model can run after the explicit Predict action.",
             }[availability]
         )
     )
+    if not prediction and outcome and outcome.get("reason"):
+        reason = outcome["reason"]
     return {
         "canonical_endpoint": source_endpoint,
         "query_endpoint": endpoint.endpoint,
@@ -231,14 +256,34 @@ def _profile_row(endpoint: ProfileEndpoint, scientific_rows: list[dict[str, Any]
 
 
 def build_developability_profile(db: Any, version_id: int) -> dict[str, Any]:
+    from .models import PredictionRun
+
     stable = build_scientific_endpoint_rows(db, version_id)
     routes = {row["endpoint_id"]: row for row in get_current_production_routing()}
+    latest_workflow = db.scalar(select(PredictionRun).where(
+        PredictionRun.version_id == version_id,
+        PredictionRun.stage == "prediction_workflow",
+    ).order_by(PredictionRun.created_at.desc(), PredictionRun.id.desc()))
+    workflow_output = dict(latest_workflow.outputs_json or {}) if latest_workflow else {}
+    execution_outcomes: dict[str, dict[str, str]] = {}
+    for row in workflow_output.get("current_publication") or []:
+        if row.get("status") == CALCULATED_BUT_NOT_ELIGIBLE:
+            execution_outcomes[str(row.get("endpoint"))] = {
+                "status": CALCULATED_BUT_NOT_ELIGIBLE,
+                "reason": str(row.get("reason") or "Stable Core admission rejected the calculated result."),
+            }
+    for endpoint_id, output in dict(workflow_output.get("v3_predictions") or {}).items():
+        if output.get("execution_status") == "EXECUTION_FAILED":
+            execution_outcomes[endpoint_id] = {
+                "status": FAILED,
+                "reason": str(output.get("reason") or "Qualified model execution failed."),
+            }
     groups = {name: [] for name in (
         "physchem", "absorption", "distribution", "metabolic_stability",
         "cyp", "transporters", "safety", "metabolism", "pk",
     )}
     for endpoint in CORE_PROFILE:
-        groups[endpoint.group].append(_profile_row(endpoint, stable["rows"], routes))
+        groups[endpoint.group].append(_profile_row(endpoint, stable["rows"], routes, execution_outcomes))
     # Groups may intentionally repeat a canonical value as a compact upstream
     # PK reference.  The capability catalog itself stays unique so clients and
     # Predict summaries never double-count that shared scientific identity.
@@ -248,7 +293,8 @@ def build_developability_profile(db: Any, version_id: int) -> dict[str, Any]:
             entries_by_endpoint.setdefault(row["query_endpoint"], row)
     entries = list(entries_by_endpoint.values())
     counts = {state: sum(row["availability"] == state for row in entries) for state in (
-        AVAILABLE_CURRENT, ON_DEMAND, MECHANISTIC_ONLY, MODEL_UNAVAILABLE, CONTEXT_REQUIRED,
+        AVAILABLE_CURRENT, ON_DEMAND, MECHANISTIC_ONLY, MODEL_UNAVAILABLE,
+        MODEL_NOT_REGISTERED, CURRENT_DATA_CEILING, CONTEXT_REQUIRED,
     )}
     return {
         "contract": "CompoundDevelopabilityProfile/stable-core-v1.2",

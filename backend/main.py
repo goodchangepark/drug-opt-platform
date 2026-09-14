@@ -1454,7 +1454,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "engine_version": engine_version,
         "stage": CURRENT_STAGE,
         "active_adapters": sorted((row.endpoint_id, row.adapter_version) for row in active_adapters),
-        "calculation_policy": "properties+admet+metabolism+pk-foundation+contextual-pk-excluded",
+        "calculation_policy": "canonical-core-execution-v1+properties+admet+metabolism+pk-foundation+contextual-pk-excluded",
         "workflow_id": workflow_scope,
     }, sort_keys=True).encode()).hexdigest()
     if not force_rerun:
@@ -1496,7 +1496,12 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
             saved["summary"] = {
                 "predicted": len(now_current - before_current),
                 "already_current": len(now_current & before_current),
-                "unavailable": after_profile["availability_summary"]["MODEL_UNAVAILABLE"],
+                "unavailable": sum(after_profile["availability_summary"][key] for key in (
+                    "MODEL_UNAVAILABLE", "MODEL_NOT_REGISTERED", "CURRENT_DATA_CEILING",
+                )),
+                "model_unavailable": after_profile["availability_summary"]["MODEL_UNAVAILABLE"],
+                "model_not_registered": after_profile["availability_summary"]["MODEL_NOT_REGISTERED"],
+                "current_data_ceiling": after_profile["availability_summary"]["CURRENT_DATA_CEILING"],
                 "context_required": after_profile["availability_summary"]["CONTEXT_REQUIRED"],
                 "mechanistic_only": after_profile["availability_summary"]["MECHANISTIC_ONLY"],
                 "failed": 0,
@@ -1533,7 +1538,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
                           "consensus_count": len(result.get("consensus_predictions", [])),
                           "current_publication": result.get("current_publication", [])}
         if result["status"] in {"COMPLETE", "CACHED"}:
-            completed_endpoints.extend(["Solubility", "Caco-2 Permeability", "Plasma Protein Binding", "HLM Clearance", "RLM Clearance", "MLM Clearance", "hERG Liability", "DILI Liability", "Ames Mutagenicity"])
+            completed_endpoints.extend(["Solubility", "Caco-2 Permeability", "Plasma Protein Binding", "HLM Clearance", "RLM Clearance", "MLM Clearance", "hERG Liability", "DILI Liability"])
         else:
             unavailable_endpoints.append("ADMET Model Panel")
     except Exception as exc:
@@ -1627,15 +1632,8 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
     status = "COMPLETE" if all(value == "COMPLETE" for value in required) else ("FAILED" if all(value == "FAILED" for value in required) else "PARTIAL")
     completed_at = datetime.now(timezone.utc)
     timestamp = completed_at.strftime("%Y-%m-%d %H:%M")
-    from backend.engine_v3_learning import predict_global_v3_endpoint
-    v3_endpoint_predictions = {}
-    for ep_key, ep_spec in V3_3_1_ENDPOINT_ROUTING.items():
-        try:
-            v3_endpoint_predictions[ep_key] = predict_global_v3_endpoint(
-                db, version.canonical_smiles, ep_key, project_id=compound.project_id
-            )
-        except Exception:
-            pass
+    from backend.current_production_executor import execute_current_production_quantitative
+    v3_endpoint_predictions = execute_current_production_quantitative(version.canonical_smiles)
 
     property_publication = publish_property_current_predictions(db, version)
     global_publication = publish_global_current_predictions(
@@ -1727,7 +1725,12 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
     prediction_summary = {
         "predicted": len(now_current - before_current),
         "already_current": len(now_current & before_current),
-        "unavailable": after_profile["availability_summary"]["MODEL_UNAVAILABLE"],
+        "unavailable": sum(after_profile["availability_summary"][key] for key in (
+            "MODEL_UNAVAILABLE", "MODEL_NOT_REGISTERED", "CURRENT_DATA_CEILING",
+        )),
+        "model_unavailable": after_profile["availability_summary"]["MODEL_UNAVAILABLE"],
+        "model_not_registered": after_profile["availability_summary"]["MODEL_NOT_REGISTERED"],
+        "current_data_ceiling": after_profile["availability_summary"]["CURRENT_DATA_CEILING"],
         "context_required": after_profile["availability_summary"]["CONTEXT_REQUIRED"],
         "mechanistic_only": after_profile["availability_summary"]["MECHANISTIC_ONLY"],
         "failed": len(failed_endpoints),
@@ -2926,13 +2929,18 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
         comparison_row["prediction_snapshot_ids"] = {}
         comparison_row["prediction_metadata"] = {}
         endpoint_labels = {
+            "MW": "MW", "CLOGP": "cLogP", "TPSA": "TPSA", "HBD": "HBD",
+            "HBA": "HBA", "ROTB": "RotB", "FSP3": "Fsp3", "QED": "QED",
+            "FORMAL_CHARGE": "Formal Charge", "HEAVY_ATOM_COUNT": "Heavy Atom Count",
             "SOLUBILITY_GENERIC": "Solubility", "CACO2_PAPP_AB": "Caco-2", "HUMAN_PPB": "PPB",
             "HLM_CLINT": "HLM", "RLM_CLINT": "RLM", "MLM_CLINT": "MLM",
+            "CYP1A2_INHIBITION": "CYP1A2 pIC50", "CYP2C9_INHIBITION": "CYP2C9 pIC50",
+            "CYP2D6_INHIBITION": "CYP2D6 pIC50", "CYP3A4_INHIBITION": "CYP3A4 pIC50",
             "CYP1A2_INHIBITOR_CLASS": "CYP1A2 Inh", "CYP2C9_INHIBITOR_CLASS": "CYP2C9 Inh",
             "CYP2C19_INHIBITOR_CLASS": "CYP2C19 Inh", "CYP2D6_INHIBITOR_CLASS": "CYP2D6 Inh",
             "CYP3A4_INHIBITOR_CLASS": "CYP3A4 Inh", "CYP2C9_SUBSTRATE": "CYP2C9 Sub",
             "CYP2D6_SUBSTRATE": "CYP2D6 Sub", "CYP3A4_SUBSTRATE": "CYP3A4 Sub",
-            "PGP_INHIBITION": "P-gp Inh", "HERG_CLASS": "hERG",
+            "PGP_INHIBITION": "P-gp Inh", "HERG_LIABILITY": "hERG pIC50", "HERG_CLASS": "hERG",
             "AMES_MUTAGENICITY": "Ames", "DILI_LIABILITY": "DILI",
             "METABOLIC_SOFT_SPOTS": "Soft Spots", "RAT_PK_CL_IV": "Rat CL (IV)",
             "RAT_PK_VD_IV": "Rat Vd", "RAT_PK_F_ORAL": "Rat F (%)",
@@ -2982,9 +2990,9 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
     if len(rows) < 2: raise HTTPException(status_code=400, detail="At least two selected compounds must belong to the project")
     property_metrics = ["MW", "cLogP", "TPSA", "HBD", "HBA", "RotB", "Fsp3", "QED"]
     adme_metrics = ["Solubility", "Caco-2", "PPB", "fu"]
-    metabolism_metrics = ["HLM", "RLM", "MLM", "DLM", "CyLM", "CYP1A2 Inh", "CYP2C9 Inh", "CYP2C19 Inh", "CYP2D6 Inh", "CYP3A4 Inh", "CYP2C9 Sub", "CYP2D6 Sub", "CYP3A4 Sub", "P-gp Inh", "Soft Spots"]
+    metabolism_metrics = ["HLM", "RLM", "MLM", "DLM", "CyLM", "CYP1A2 pIC50", "CYP1A2 Inh", "CYP2C9 pIC50", "CYP2C9 Inh", "CYP2C19 Inh", "CYP2D6 pIC50", "CYP2D6 Inh", "CYP3A4 pIC50", "CYP3A4 Inh", "CYP2C9 Sub", "CYP2D6 Sub", "CYP3A4 Sub", "P-gp Inh", "Soft Spots"]
     pk_metrics = ["Mouse CL (IV)", "Mouse Vd", "Mouse t1/2", "Rat CL (IV)", "Rat Vd", "Rat t1/2", "Rat F (%)", "Dog CL (IV)", "Monkey CL (IV)", "Human CL (IVIVE)", "Human Vd (pred)", "Human t1/2 (pred)", "Human AUC (1mg/kg IV)", "Human Cmax (1mg/kg IV)"]
-    safety_metrics = ["hERG", "Ames", "DILI"]
+    safety_metrics = ["hERG pIC50", "hERG", "Ames", "DILI"]
     metrics = property_metrics + ["Activity"] + adme_metrics + metabolism_metrics + pk_metrics + safety_metrics
     ranges = {}
     for metric in property_metrics:
@@ -2993,6 +3001,8 @@ def compare(project_id: int, ids: str = Query(...), db: Session = Depends(get_db
     return {"metrics": metrics, "ranges": ranges, "compounds": rows, "metric_units": {
         "Activity": "nM (latest experimental)", "HLM": "log10(mL/min/kg)", "RLM": "log10(mL/min/kg)", "MLM": "log10(mL/min/kg)",
         "DLM": "MODEL_UNAVAILABLE", "CyLM": "MODEL_UNAVAILABLE",
+        "CYP1A2 pIC50": "pIC50", "CYP2C9 pIC50": "pIC50", "CYP2D6 pIC50": "pIC50", "CYP3A4 pIC50": "pIC50",
+        "hERG pIC50": "pIC50",
         "PPB": "% bound", "fu": "fraction unbound (0-1)", "Solubility": "log10(mol/L)", "Caco-2": "log10(cm/s)",
         "Soft Spots": "count",
         "Mouse CL (IV)": "mL/min/kg", "Mouse Vd": "L/kg", "Mouse t1/2": "hours",
@@ -3063,6 +3073,12 @@ def _admet_model_out(model: ADMETModelRegistry):
     assets_available, unavailable_reason = model_files_available(model.endpoint_name) if model.endpoint_name in MODEL_SPECS else (
         False, (model.provenance_json or {}).get("reason", "No endpoint-specific model installed in the current stage"),
     )
+    if model.endpoint_name == "Ames mutagenicity":
+        assets_available = False
+        unavailable_reason = (
+            "UNQUALIFIED_LEGACY_MODEL: pooled bacterial assay/species semantics do not satisfy "
+            "the final campaign's canonical Stable Core admission contract."
+        )
     available = bool(model.is_active and assets_available and model.implementation_status == "READY")
     if assets_available and not available:
         unavailable_reason = (model.provenance_json or {}).get("reason", "Model registry entry is inactive")
@@ -4470,9 +4486,11 @@ def _check_runtime_freeze_cache(db: Session, version_id: int) -> bool:
     try:
         from .production_qualification import QualificationPredictionFreezeRow
         from .endpoint_strategy_registry import get_all_strategies
+        from .prediction_orchestrator import PREDICT_ALL_MODEL_UNAVAILABLE
         required = {
             policy.endpoint_id for name, policy in get_all_strategies().items()
             if name in MODEL_SPECS and policy.production_execution_allowed
+            and name not in PREDICT_ALL_MODEL_UNAVAILABLE
         }
         found = set(db.scalars(
             select(QualificationPredictionFreezeRow.endpoint_id).where(

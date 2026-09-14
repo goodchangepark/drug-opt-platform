@@ -8,6 +8,7 @@ from backend.current_prediction_publisher import (
     publish_global_current_predictions,
     publish_property_current_predictions,
 )
+from backend.current_production_executor import execute_current_production_quantitative
 from backend.database import Base
 from backend.developability_profile import build_developability_profile
 from backend.main import app
@@ -63,26 +64,22 @@ def test_qualified_property_and_global_values_publish_only_through_admission(tmp
     db, version = _scientific_fixture(tmp_path)
     try:
         property_results = publish_property_current_predictions(db, version)
-        global_results = publish_global_current_predictions(db, version, {
-            "SOLUBILITY_GENERIC": {
-                "production_prediction": -2.75, "applicability_domain": "IN_DOMAIN",
-                "nearest_neighbor_similarity": 0.72, "prediction_uncertainty": 0.31,
-            },
-            "CACO2_PAPP_AB": {
-                "production_prediction": -5.1, "applicability_domain": "BORDERLINE",
-                "nearest_neighbor_similarity": 0.42, "prediction_uncertainty": 0.45,
-            },
-        })
+        routed = execute_current_production_quantitative(version.canonical_smiles)
+        global_results = publish_global_current_predictions(db, version, routed)
         db.commit()
         assert any(row["endpoint"] == "MW" and row["status"] == "CALCULATED_AND_PUBLISHED" for row in property_results)
-        assert all(row["status"] == "CALCULATED_AND_PUBLISHED" for row in global_results)
+        assert next(row for row in global_results if row["endpoint"] == "SOLUBILITY_GENERIC")["status"] == "CALCULATED_AND_PUBLISHED"
+        assert next(row for row in global_results if row["endpoint"] == "CACO2_PAPP_AB")["status"] == "CALCULATED_AND_PUBLISHED"
+        assert next(row for row in global_results if row["endpoint"] == "HUMAN_PPB") == {
+            "endpoint": "HUMAN_PPB", "status": "CALCULATED_BUT_NOT_ELIGIBLE", "reason": "VALUE_OUT_OF_RANGE",
+        }
         snapshots = list(db.scalars(select(CurrentPredictionSnapshot)))
         assert snapshots and all(admit_current_prediction(db, row).eligible for row in snapshots)
         profile = build_developability_profile(db, version.id)
         rows = {row["query_endpoint"]: row for row in profile["availability_catalog"]}
         assert rows["MW"]["prediction"]["value"] == 46.0419
-        assert rows["SOLUBILITY_GENERIC"]["prediction"]["value"] == -2.75
-        assert rows["CACO2_PAPP_AB"]["AD"]["classification"] == "BORDERLINE"
+        assert rows["SOLUBILITY_GENERIC"]["prediction"]["value"] == routed["SOLUBILITY_GENERIC"]["production_prediction"]
+        assert rows["CACO2_PAPP_AB"]["prediction"]["value"] == routed["CACO2_PAPP_AB"]["production_prediction"]
         assert rows["PAMPA_PERMEABILITY"]["prediction"] is None
     finally:
         db.close()

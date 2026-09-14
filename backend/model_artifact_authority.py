@@ -39,10 +39,52 @@ class ModelArtifactRegistration:
 # route omitted here remains visible in registry metadata but cannot publish a
 # CurrentPredictionSnapshot until its exact executable bundle is registered.
 _ARTIFACT_PATHS: dict[str, tuple[str, ...]] = {
-    "SOLUBILITY_GENERIC": ("models/admetica/solubility/model_v2_1.pt",),
-    "CACO2_PAPP_AB": ("models/admetica/caco2/model_v2_1.pt",),
-    "HUMAN_PPB": ("models/admetica/ppbr/model_v2_1.pt",),
-    "HLM_CLINT": ("models/openadmet/microsomal_clearance/model.pth",),
+    # Ensemble registrations include every learned checkpoint and every
+    # deterministic component implementation used by the frozen route.
+    "SOLUBILITY_GENERIC": (
+        "models/admetica/solubility/model_v2_1.pt",
+        "backend/multimodel.py",
+        "backend/current_production_executor.py",
+    ),
+    "CACO2_PAPP_AB": (
+        "models/admetica/caco2/model_v2_1.pt",
+        "backend/multimodel.py",
+        "backend/current_production_executor.py",
+    ),
+    "HUMAN_PPB": (
+        "models/admetica/ppbr/model_v2_1.pt",
+        "backend/multimodel.py",
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py",
+    ),
+    "HLM_CLINT": (
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py",
+    ),
+    "CYP1A2_INHIBITION": (
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py",
+    ),
+    "CYP2C9_INHIBITION": (
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py",
+    ),
+    "CYP2D6_INHIBITION": (
+        "backend/candidate_model_registry.py",
+        "backend/multimodel.py",
+        "backend/openadmet_cyp.py",
+        "backend/current_production_executor.py",
+    ),
+    "CYP3A4_INHIBITION": (
+        "backend/candidate_model_registry.py",
+        "backend/multimodel.py",
+        "backend/openadmet_cyp.py",
+        "backend/current_production_executor.py",
+    ),
+    "HERG_LIABILITY": (
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py",
+    ),
     "RLM_CLINT": ("models/openadmet/microsomal_clearance/model.pth",),
     "MLM_CLINT": ("models/openadmet/microsomal_clearance/model.pth",),
     "MW": ("backend/chemistry.py",),

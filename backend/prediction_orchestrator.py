@@ -85,6 +85,13 @@ ORCHESTRATOR_VERSION = "stage4d6-prediction-orchestrator-v1"
 POLICY_VERSION = f"{ENGINE_V1_POLICY_ID}@{ENGINE_V1_POLICY_VERSION}"
 STANDARDIZER_VERSION = "CHEM_STANDARDIZER_V1"
 
+# The final 59-endpoint campaign supersedes the older Stage 4D availability
+# label for Ames.  Its pooled bacterial assay context cannot satisfy the
+# canonical Stable Core species contract, so Predict All must not execute it.
+PREDICT_ALL_MODEL_UNAVAILABLE: dict[str, str] = {
+    "Ames mutagenicity": "Final campaign decision MODEL_UNAVAILABLE: canonical bacterial assay context is not qualified for current publication.",
+}
+
 # ---------------------------------------------------------------------------
 # Shadow model adapter mapping
 # Maps strategy-registry model_id → multimodel adapter model_id
@@ -281,7 +288,11 @@ def is_core_registry_model(model: ADMETModelRegistry) -> bool:
     selection because authorized shadow rows are executable too.
     """
     policy = get_endpoint_strategy(model.endpoint_name)
-    if policy is None or policy.primary_strategy == StrategyType.MODEL_UNAVAILABLE:
+    if (
+        policy is None
+        or policy.primary_strategy == StrategyType.MODEL_UNAVAILABLE
+        or model.endpoint_name in PREDICT_ALL_MODEL_UNAVAILABLE
+    ):
         return False
     return (
         model.endpoint_name in MODEL_SPECS
@@ -1028,11 +1039,19 @@ class PredictionOrchestrator:
         strategy_endpoints = {
             name for name, policy in get_all_strategies().items()
             if name in MODEL_SPECS and policy.primary_strategy != StrategyType.MODEL_UNAVAILABLE
+            and name not in PREDICT_ALL_MODEL_UNAVAILABLE
         }
 
         endpoint_results: List[EndpointOrchestrationResult] = []
         endpoint_statuses: List[Dict[str, Any]] = []
         unavailable: List[str] = []
+
+        for endpoint_name, reason in PREDICT_ALL_MODEL_UNAVAILABLE.items():
+            endpoint_statuses.append({
+                "endpoint": endpoint_name,
+                "status": "MODEL_UNAVAILABLE",
+                "message": reason,
+            })
 
         for endpoint_name in sorted(strategy_endpoints):
             policy = get_endpoint_strategy(endpoint_name)

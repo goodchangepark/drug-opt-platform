@@ -1,0 +1,489 @@
+{
+  "contract": "DrugOPTPredictAllCore/3.3.3-stable-core-v1.2",
+  "do_not_execute_count": 23,
+  "endpoint_count": 59,
+  "endpoints": [
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "MW",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CLOGP",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "TPSA",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HBD",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HBA",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "ROTB",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "FSP3",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "QED",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "FORMAL_CHARGE",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HEAVY_ATOM_COUNT",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "MECHANISTIC_ONLY",
+      "campaign_decision": "MECHANISTIC_ONLY",
+      "canonical_endpoint": "PKA",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_MECHANISTIC_ONLY",
+      "reason": "The available output is mechanistic/rule-based and is not represented as a scalar CurrentPredictionSnapshot."
+    },
+    {
+      "availability": "MECHANISTIC_ONLY",
+      "campaign_decision": "MECHANISTIC_ONLY",
+      "canonical_endpoint": "LOGD_7_4",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_MECHANISTIC_ONLY",
+      "reason": "The available output is mechanistic/rule-based and is not represented as a scalar CurrentPredictionSnapshot."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "SOLUBILITY_GENERIC",
+      "category": "A_PHYSICOCHEMICAL",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CACO2_PAPP_AB",
+      "category": "B_ABSORPTION_DISTRIBUTION",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "MODEL_NOT_REGISTERED",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HIA",
+      "category": "B_ABSORPTION_DISTRIBUTION",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "A historical route label exists, but no complete authoritative executable artifact/implementation registration was found."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HUMAN_PPB",
+      "category": "B_ABSORPTION_DISTRIBUTION",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "CURRENT_DATA_CEILING",
+      "campaign_decision": "CURRENT_DATA_CEILING",
+      "canonical_endpoint": "HUMAN_FU_PLASMA",
+      "category": "B_ABSORPTION_DISTRIBUTION",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision CURRENT_DATA_CEILING; canonical structure-only publication is not permitted."
+    },
+    {
+      "availability": "MODEL_NOT_REGISTERED",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "BBB_PENETRATION",
+      "category": "B_ABSORPTION_DISTRIBUTION",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "A historical route label exists, but no complete authoritative executable artifact/implementation registration was found."
+    },
+    {
+      "availability": "CURRENT_DATA_CEILING",
+      "campaign_decision": "CURRENT_DATA_CEILING",
+      "canonical_endpoint": "VDSS",
+      "category": "B_ABSORPTION_DISTRIBUTION",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision CURRENT_DATA_CEILING; canonical structure-only publication is not permitted."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HLM_CLINT",
+      "category": "C_METABOLIC_STABILITY",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "RLM_CLINT",
+      "category": "C_METABOLIC_STABILITY",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "MLM_CLINT",
+      "category": "C_METABOLIC_STABILITY",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP1A2_INHIBITION",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2C9_INHIBITION",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "CYP2C19_INHIBITION",
+      "category": "D_CYP",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2D6_INHIBITION",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP3A4_INHIBITION",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2C9_SUBSTRATE",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP2D6_SUBSTRATE",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "CYP3A4_SUBSTRATE",
+      "category": "D_CYP",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "PGP_INHIBITION_QUANT",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "PGP_INHIBITION",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "BCRP_INHIBITOR_QUANT",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "BCRP_INHIBITOR",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "OATP1B1_INHIBITOR",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "OATP1B3_INHIBITOR",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "OCT1_INHIBITOR",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "MODEL_UNAVAILABLE",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "OCT2_INHIBITOR",
+      "category": "E_TRANSPORTERS",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision MODEL_UNAVAILABLE; no qualified executable current model is registered."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HERG_LIABILITY",
+      "category": "F_SAFETY",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "HERG_CLASS",
+      "category": "F_SAFETY",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "UNQUALIFIED_LEGACY_MODEL",
+      "campaign_decision": "MODEL_UNAVAILABLE",
+      "canonical_endpoint": "AMES_MUTAGENICITY",
+      "category": "F_SAFETY",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Installed legacy ensemble exists, but pooled bacterial assay/species semantics cannot satisfy canonical Stable Core admission."
+    },
+    {
+      "availability": "AVAILABLE_CURRENT",
+      "campaign_decision": "RETAIN_EXISTING_MODEL",
+      "canonical_endpoint": "DILI_LIABILITY",
+      "category": "F_SAFETY",
+      "predict_behavior": "EXECUTE_AND_PUBLISH",
+      "reason": "Qualified existing route executed or reused its exact immutable output and passed unchanged Stable Core admission."
+    },
+    {
+      "availability": "MECHANISTIC_ONLY",
+      "campaign_decision": "MECHANISTIC_ONLY",
+      "canonical_endpoint": "METABOLIC_SOFT_SPOTS",
+      "category": "G_METABOLISM",
+      "predict_behavior": "EXECUTE_MECHANISTIC_ONLY",
+      "reason": "The available output is mechanistic/rule-based and is not represented as a scalar CurrentPredictionSnapshot."
+    },
+    {
+      "availability": "MECHANISTIC_ONLY",
+      "campaign_decision": "MECHANISTIC_ONLY",
+      "canonical_endpoint": "METABOLITE_HYPOTHESES",
+      "category": "G_METABOLISM",
+      "predict_behavior": "EXECUTE_MECHANISTIC_ONLY",
+      "reason": "The available output is mechanistic/rule-based and is not represented as a scalar CurrentPredictionSnapshot."
+    },
+    {
+      "availability": "CURRENT_DATA_CEILING",
+      "campaign_decision": "CURRENT_DATA_CEILING",
+      "canonical_endpoint": "HUMAN_HEPATIC_CL",
+      "category": "H_PK_PARAMETER_LAYER",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision CURRENT_DATA_CEILING; canonical structure-only publication is not permitted."
+    },
+    {
+      "availability": "CURRENT_DATA_CEILING",
+      "campaign_decision": "CURRENT_DATA_CEILING",
+      "canonical_endpoint": "HUMAN_TOTAL_IV_CL",
+      "category": "H_PK_PARAMETER_LAYER",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision CURRENT_DATA_CEILING; canonical structure-only publication is not permitted."
+    },
+    {
+      "availability": "CURRENT_DATA_CEILING",
+      "campaign_decision": "CURRENT_DATA_CEILING",
+      "canonical_endpoint": "IV_HALF_LIFE",
+      "category": "H_PK_PARAMETER_LAYER",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Final campaign decision CURRENT_DATA_CEILING; canonical structure-only publication is not permitted."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "HUMAN_F",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "HUMAN_PK_CLF_ORAL",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "HUMAN_PK_VDF_ORAL",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "KA",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "ORAL_AUC",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "ORAL_CMAX",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    },
+    {
+      "availability": "CONTEXT_REQUIRED",
+      "campaign_decision": "CONTEXT_REQUIRED",
+      "canonical_endpoint": "TMAX",
+      "category": "I_ORAL_CONTEXTUAL_PK",
+      "predict_behavior": "DO_NOT_EXECUTE",
+      "reason": "Dose, route, regimen, formulation, or matched PK context is required; structure-only execution is excluded."
+    }
+  ],
+  "engine_id": "drugopt-prediction-engine-v3@3.3.3",
+  "execute_and_publish_count": 32,
+  "execute_mechanistic_only_count": 4,
+  "rules": [
+    "Only an explicit Predict action executes this contract.",
+    "Every frozen ensemble component must succeed; partial ensembles fail closed.",
+    "MODEL_UNAVAILABLE, MODEL_NOT_REGISTERED, CURRENT_DATA_CEILING, and CONTEXT_REQUIRED endpoints are not executed.",
+    "Only unchanged Stable Core v1.2 admission may create CurrentPredictionSnapshot rows."
+  ],
+  "stable_core": "v1.2"
+}

@@ -45,11 +45,13 @@ ADMET_CURRENT_ENDPOINTS: dict[str, tuple[str, str, dict[str, Any]]] = {
 }
 
 ADMET_UNQUALIFIED_ENDPOINTS: dict[str, tuple[str, str]] = {
+    # The legacy ADMET panel still calculates these base-model outputs.  They
+    # are reported as ineligible here; the full Predict workflow separately
+    # executes and publishes the exact current-production routes.
     "Solubility": ("SOLUBILITY_GENERIC", "ROUTED_IMPLEMENTATION_MISMATCH"),
     "Permeability": ("CACO2_PAPP_AB", "ROUTED_IMPLEMENTATION_MISMATCH"),
     "Plasma protein binding": ("HUMAN_PPB", "ROUTED_IMPLEMENTATION_MISMATCH"),
     "HLM intrinsic clearance": ("HLM_CLINT", "ROUTED_IMPLEMENTATION_MISMATCH"),
-    "Ames mutagenicity": ("AMES_MUTAGENICITY", "INVALID_SPECIES"),
 }
 
 
@@ -232,7 +234,7 @@ def publish_cached_admet_current_predictions(db, version) -> list[dict[str, Any]
 
 PROPERTY_CURRENT_ENDPOINTS: dict[str, tuple[str, str]] = {
     "MW": ("exact_molecular_weight", "g/mol"),
-    "CLOGP": ("clogp", "log10(o/w)"),
+    "CLOGP": ("clogp", "logP"),
     "TPSA": ("tpsa", "Å²"),
     "HBD": ("hbd", "count"),
     "HBA": ("hba", "count"),
@@ -291,15 +293,10 @@ def _registered_candidate(
 def publish_property_current_predictions(db, version) -> list[dict[str, Any]]:
     """Publish deterministic Stage-1 outputs through unchanged admission."""
     properties = dict(version.properties_json or {})
-    ionization = dict((version.calculation_json or {}).get("ionization") or {})
     values: list[tuple[str, Any, str, dict[str, Any]]] = [
         (endpoint, properties.get(key), unit, {})
         for endpoint, (key, unit) in PROPERTY_CURRENT_ENDPOINTS.items()
     ]
-    values.extend([
-        ("PKA", ionization.get("primary_pka"), "pKa", {}),
-        ("LOGD_7_4", (ionization.get("physiological_state_7_4") or {}).get("estimated_logd74"), "logD", {"pH": 7.4}),
-    ])
     results = []
     for endpoint_id, value, unit, context in values:
         candidate = _registered_candidate(
@@ -339,10 +336,27 @@ GLOBAL_CURRENT_ENDPOINT_ALIASES = {
 
 def publish_global_current_predictions(db, version, predictions: dict[str, dict[str, Any]], source_artifact_id: int | None = None) -> list[dict[str, Any]]:
     """Publish exact routed v3.3.3 values, never legacy-model substitutes."""
+    from .current_production_executor import EXECUTION_CONTRACT
+
     results = []
     for raw_endpoint_id, output in predictions.items():
         endpoint_id = GLOBAL_CURRENT_ENDPOINT_ALIASES.get(raw_endpoint_id, raw_endpoint_id)
         if endpoint_id not in GLOBAL_CURRENT_CONTEXT:
+            continue
+        registration = model_artifact_registration(endpoint_id)
+        if (
+            output.get("execution_contract") != EXECUTION_CONTRACT
+            or output.get("execution_status") != "SUCCESS"
+            or registration is None
+            or output.get("model_id") != registration.model_id
+            or output.get("model_version") != registration.model_version
+            or output.get("route") != registration.model_route
+        ):
+            results.append({
+                "endpoint": endpoint_id,
+                "status": "CALCULATED_BUT_NOT_ELIGIBLE",
+                "reason": "ROUTED_IMPLEMENTATION_MISMATCH",
+            })
             continue
         species, context, unit = GLOBAL_CURRENT_CONTEXT[endpoint_id]
         value = output.get("production_prediction")
@@ -354,7 +368,7 @@ def publish_global_current_predictions(db, version, predictions: dict[str, dict[
                 "guard_applied": output.get("ad_extrapolation_guard_applied", False),
             },
             uncertainty={"value": output.get("prediction_uncertainty"), "source": "current engine routed output"},
-            source_artifact_type="PredictionWorkflow",
+            source_artifact_type="ADMETPredictionRun",
             source_artifact_id=source_artifact_id,
         )
         if candidate is None:

@@ -1,0 +1,12 @@
+{
+  "contract": "MobocertinibPredictionCompletenessBrowserE2E/1",
+  "project_id": 3,
+  "compound_row_id": 16,
+  "compound_version_id": 23,
+  "production_data_modified": false,
+  "desktop_predict_reload": "PASS",
+  "mobile_prediction_first_no_overflow": "PASS",
+  "available_current": 32,
+  "compare_same_snapshot_and_value": "PASS",
+  "status": "PASS"
+}
