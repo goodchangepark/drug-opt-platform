@@ -1,0 +1,38 @@
+{
+  "contract": "MobocertinibRealPredictProductionBrowserE2E/1",
+  "base_url": "http://127.0.0.1:8765",
+  "project_id": 3,
+  "compound_row_id": 16,
+  "compound_version_id": 23,
+  "production_data_modified_by_explicit_predict": true,
+  "overview_predict": "PASS",
+  "reload_persistence": "PASS",
+  "compare_ui": "PASS",
+  "compare_snapshot_value_parity": {
+    "Solubility": {
+      "snapshot_id_equal": true,
+      "value_equal": true,
+      "snapshot_id": 2327,
+      "value": -5.637093
+    },
+    "Caco-2": {
+      "snapshot_id_equal": true,
+      "value_equal": true,
+      "snapshot_id": 2328,
+      "value": -4.911738
+    },
+    "PPB": {
+      "snapshot_id_equal": true,
+      "value_equal": true,
+      "snapshot_id": 2329,
+      "value": 92.699816
+    },
+    "HLM": {
+      "snapshot_id_equal": true,
+      "value_equal": true,
+      "snapshot_id": 2330,
+      "value": 1.5253
+    }
+  },
+  "status": "PASS"
+}

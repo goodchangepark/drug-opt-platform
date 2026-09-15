@@ -1454,7 +1454,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "engine_version": engine_version,
         "stage": CURRENT_STAGE,
         "active_adapters": sorted((row.endpoint_id, row.adapter_version) for row in active_adapters),
-        "calculation_policy": "canonical-core-execution-v1+properties+admet+metabolism+pk-foundation+contextual-pk-excluded",
+        "calculation_policy": "canonical-core-execution-v3+response-contract-v3+properties+admet+metabolism+pk-foundation+contextual-pk-excluded",
         "workflow_id": workflow_scope,
     }, sort_keys=True).encode()).hexdigest()
     if not force_rerun:
@@ -1506,6 +1506,53 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
                 "mechanistic_only": after_profile["availability_summary"]["MECHANISTIC_ONLY"],
                 "failed": 0,
             }
+            # Cached/idempotent Predict calls must expose the same explicit
+            # endpoint contract as a fresh execution; otherwise the UI cannot
+            # distinguish already-current results from an empty workflow.
+            from .predict_all_core_contract import PREDICT_ALL_EXECUTION_ENDPOINTS
+            current_endpoints = {
+                row["query_endpoint"] for row in after_profile["availability_catalog"]
+                if row["availability"] == "AVAILABLE_CURRENT"
+            }
+            endpoint_execution = []
+            for row in after_profile["availability_catalog"]:
+                endpoint = row["query_endpoint"]
+                profile_status = row.get("status") or row.get("availability")
+                if endpoint in current_endpoints:
+                    terminal = "PUBLISHED"
+                    attempted = endpoint in PREDICT_ALL_EXECUTION_ENDPOINTS
+                    executed = attempted
+                else:
+                    terminal = {
+                        "MODEL_UNAVAILABLE": "MODEL_UNAVAILABLE",
+                        "MODEL_NOT_REGISTERED": "MODEL_NOT_REGISTERED",
+                        "CURRENT_DATA_CEILING": "CURRENT_DATA_CEILING",
+                        "CONTEXT_REQUIRED": "CONTEXT_REQUIRED",
+                        "MECHANISTIC_ONLY": "MECHANISTIC_ONLY",
+                    }.get(profile_status, "NOT_IN_WORKFLOW")
+                    attempted = endpoint in PREDICT_ALL_EXECUTION_ENDPOINTS
+                    executed = attempted and terminal == "MECHANISTIC_ONLY"
+                prediction = row.get("prediction") or {}
+                endpoint_execution.append({
+                    "endpoint": endpoint,
+                    "expected_core": endpoint in PREDICT_ALL_EXECUTION_ENDPOINTS,
+                    "execution_attempted": attempted,
+                    "execution_succeeded": executed,
+                    "publisher_invoked": attempted,
+                    "terminal_state": terminal,
+                    "published_snapshot_id": prediction.get("snapshot_id"),
+                    "reason": row.get("reason") or profile_status,
+                })
+            saved["endpoint_execution"] = endpoint_execution
+            saved["summary"].update({
+                "attempted": sum(row["execution_attempted"] for row in endpoint_execution),
+                "executed": sum(row["execution_succeeded"] for row in endpoint_execution),
+                "published": len(now_current - before_current),
+                "published_total_current": sum(row["terminal_state"] == "PUBLISHED" for row in endpoint_execution),
+                "not_routed": sum(row["terminal_state"] == "NOT_IN_WORKFLOW" for row in endpoint_execution),
+                "admission_failed": 0,
+                "execution_failed": 0,
+            })
             return saved
     steps = {
         "overview": {"status": "COMPLETE", "message": "Compound identity and validated structure are available."},
@@ -1736,6 +1783,76 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "failed": len(failed_endpoints),
     }
 
+    # Expose the final per-endpoint outcome of this explicit Predict request.
+    # ``current_publication`` may contain an earlier legacy-panel rejection
+    # followed by the exact frozen-route publication; the last row for an
+    # endpoint is the authoritative result for this workflow.
+    from .predict_all_core_contract import PREDICT_ALL_EXECUTION_ENDPOINTS
+    publication_by_endpoint = {}
+    for item in current_publication:
+        endpoint = str(item.get("endpoint") or "").strip()
+        if endpoint:
+            publication_by_endpoint[endpoint] = item
+    endpoint_execution = []
+    for endpoint in sorted(PREDICT_ALL_EXECUTION_ENDPOINTS):
+        item = publication_by_endpoint.get(endpoint, {})
+        if item.get("status") == "CALCULATED_AND_PUBLISHED":
+            terminal_state = "PUBLISHED"
+            reason = "Stable Core admission passed and CurrentPredictionSnapshot was created."
+        elif item.get("status") == "CALCULATED_BUT_NOT_ELIGIBLE":
+            terminal_state = "ADMISSION_FAILED"
+            reason = str(item.get("reason") or "Stable Core admission rejected the calculated output.")
+        elif endpoint in {"PKA", "LOGD_7_4", "METABOLIC_SOFT_SPOTS", "METABOLITE_HYPOTHESES"}:
+            terminal_state = "MECHANISTIC_ONLY"
+            reason = "Mechanistic/rule output is available but is not a scalar CurrentPredictionSnapshot."
+        else:
+            terminal_state = "EXECUTION_FAILED"
+            reason = "The endpoint was in the qualified Predict All execution set but produced no publishable output."
+        endpoint_execution.append({
+            "endpoint": endpoint,
+            "expected_core": True,
+            "execution_attempted": True,
+            "execution_succeeded": terminal_state in {"PUBLISHED", "ADMISSION_FAILED", "MECHANISTIC_ONLY"},
+            "publisher_invoked": endpoint in publication_by_endpoint,
+            "terminal_state": terminal_state,
+            "published_snapshot_id": item.get("snapshot_id"),
+            "reason": reason,
+        })
+    for row in after_profile["availability_catalog"]:
+        endpoint = row["query_endpoint"]
+        if endpoint in PREDICT_ALL_EXECUTION_ENDPOINTS:
+            continue
+        profile_status = row.get("status") or row.get("availability")
+        state = {
+            "MODEL_UNAVAILABLE": "MODEL_UNAVAILABLE",
+            "MODEL_NOT_REGISTERED": "MODEL_NOT_REGISTERED",
+            "CURRENT_DATA_CEILING": "CURRENT_DATA_CEILING",
+            "CONTEXT_REQUIRED": "CONTEXT_REQUIRED",
+            "MECHANISTIC_ONLY": "MECHANISTIC_ONLY",
+            "CALCULATED_BUT_NOT_ELIGIBLE": "ADMISSION_FAILED",
+        }.get(profile_status, "NOT_IN_WORKFLOW")
+        endpoint_execution.append({
+            "endpoint": endpoint,
+            "expected_core": endpoint in PREDICT_ALL_EXECUTION_ENDPOINTS,
+            "execution_attempted": False,
+            "execution_succeeded": False,
+            "publisher_invoked": False,
+            "terminal_state": state,
+            "published_snapshot_id": (row.get("prediction") or {}).get("snapshot_id") if row.get("prediction") else None,
+            "reason": row.get("reason") or profile_status or "Endpoint is not part of structure-only Predict All execution.",
+        })
+    attempted_count = sum(row["execution_attempted"] for row in endpoint_execution)
+    executed_count = sum(row["execution_succeeded"] for row in endpoint_execution)
+    published_count = sum(row["terminal_state"] == "PUBLISHED" for row in endpoint_execution)
+    prediction_summary.update({
+        "attempted": attempted_count,
+        "executed": executed_count,
+        "published": len(now_current - before_current),
+        "published_total_current": published_count,
+        "not_routed": sum(row["terminal_state"] == "NOT_IN_WORKFLOW" for row in endpoint_execution),
+        "admission_failed": sum(row["terminal_state"] == "ADMISSION_FAILED" for row in endpoint_execution),
+        "execution_failed": sum(row["terminal_state"] == "EXECUTION_FAILED" for row in endpoint_execution),
+    })
     return {
         "status": status,
         "compound_id": compound.id,
@@ -1748,6 +1865,7 @@ def run_compound_prediction_workflow(row_id: int, db: Session = Depends(get_db),
         "unavailable_count": len(unavailable_endpoints),
         "failed_count": len(failed_endpoints),
         "summary": prediction_summary,
+        "endpoint_execution": endpoint_execution,
         "timestamp": timestamp,
         "steps": steps,
         "prediction_run_id": workflow_run_id,

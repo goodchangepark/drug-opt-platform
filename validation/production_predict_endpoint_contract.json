@@ -1,0 +1,1000 @@
+{
+  "contract": "DrugOPTProductionPredictEndpointContract/3.3.3-stable-core-v1.2",
+  "generated_at": "2026-09-15T10:52:47.073933+00:00",
+  "engine": "drugopt-prediction-engine-v3@3.3.3",
+  "stable_core": "v1.2",
+  "compound_reference": {
+    "project_id": 3,
+    "compound_row_id": 16,
+    "compound_version_id": 23
+  },
+  "endpoint_count": 59,
+  "endpoints": [
+    {
+      "canonical_endpoint": "AMES_MUTAGENICITY",
+      "display_name": "Ames",
+      "category": "safety",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": "ADMET-AI v2 Chemprop ensemble Ames mutagenicity",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "artifact": [
+        "models/admet_ai/classification/model_0.pt",
+        "models/admet_ai/classification/model_1.pt",
+        "models/admet_ai/classification/model_2.pt",
+        "models/admet_ai/classification/model_3.pt",
+        "models/admet_ai/classification/model_4.pt"
+      ],
+      "artifact_hash": "42ff2035cb4065dad2cc2120fb3d50fe08e36dfb3ea7e07d6e244850b59e64bc",
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "BBB_PENETRATION",
+      "display_name": "BBB",
+      "category": "distribution",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_NOT_REGISTERED"
+    },
+    {
+      "canonical_endpoint": "BCRP_INHIBITOR",
+      "display_name": "BCRP inhibitor classification",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_NOT_REGISTERED"
+    },
+    {
+      "canonical_endpoint": "BCRP_INHIBITOR_QUANT",
+      "display_name": "BCRP quantitative inhibition",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "µM",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "CACO2_PAPP_AB",
+      "display_name": "Caco-2 permeability",
+      "category": "absorption",
+      "species": "HUMAN",
+      "unit": "log10(cm/s)",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Multi-Model Stacking Ensemble",
+      "model_version": "v3.3.1-STACKING-caco2-704d4",
+      "artifact": [
+        "models/admetica/caco2/model_v2_1.pt",
+        "backend/multimodel.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "a6120afe1b071509eb9bf228e559dc1e610d38d133c2f104deb78000d2634928",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CLOGP",
+      "display_name": "cLogP",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "logP",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Crippen MolLogP",
+      "model_version": "rdkit-crippen-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP1A2_INHIBITION",
+      "display_name": "CYP1A2 quantitative inhibition",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "pIC50",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Drug-OPT Calibrated Ridge Regressor",
+      "model_version": "v3.3.1-STACKING-cyp1a2-100a0",
+      "artifact": [
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "7ea868072b2a4e097cc90d4b5a13237097963468d8614a42fbc268f5fbe0ac83",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP1A2_INHIBITOR_CLASS",
+      "display_name": "CYP1A2 inhibitor classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP1A2 inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp1a2-inhibitor/model_v2_1.pt"
+      ],
+      "artifact_hash": "31f93fb95e9e9920447e39f33ea65463860a216fede68ac69e686ea44f90c5e6",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2C19_INHIBITION",
+      "display_name": "CYP2C19 quantitative inhibition",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "pIC50",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "CYP2C19_INHIBITOR_CLASS",
+      "display_name": "CYP2C19 inhibitor classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP2C19 inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp2c19-inhibitor/model_v2_1.pt"
+      ],
+      "artifact_hash": "0481b828774c9e10c61eae1fbfbbadaebe17466df8bf345e13d0f4471c5e6a10",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2C9_INHIBITION",
+      "display_name": "CYP2C9 quantitative inhibition",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "pIC50",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Drug-OPT Calibrated Ridge Regressor",
+      "model_version": "v3.3.1-STACKING-cyp2c9-100b1",
+      "artifact": [
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "7ea868072b2a4e097cc90d4b5a13237097963468d8614a42fbc268f5fbe0ac83",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2C9_INHIBITOR_CLASS",
+      "display_name": "CYP2C9 inhibitor classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP2C9 inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp2c9-inhibitor/model_v2_1.pt"
+      ],
+      "artifact_hash": "6d66ac838b0089d72766b310298c3583b7b7d2777c0408d80c3a680ef4bac09b",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2C9_SUBSTRATE",
+      "display_name": "CYP2C9 substrate classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP2C9 substrate",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp2c9-substrate/model_v2_1.pt"
+      ],
+      "artifact_hash": "d65c8282df5a5821dc5ece6f8078cd59c1a5a08a3bb1757ab6c9dc164c0cc9a9",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2D6_INHIBITION",
+      "display_name": "CYP2D6 quantitative inhibition",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "pIC50",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Multi-Model Stacking Ensemble",
+      "model_version": "v3.3.1-STACKING-cyp2d6-615f2",
+      "artifact": [
+        "backend/candidate_model_registry.py",
+        "backend/multimodel.py",
+        "backend/openadmet_cyp.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "d8eee0a1d54d0ff2f1830ddabfa69e29c4d4b0050d3a7f4c5d8912fc70e87415",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2D6_INHIBITOR_CLASS",
+      "display_name": "CYP2D6 inhibitor classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP2D6 inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp2d6-inhibitor/model_v2_1.pt"
+      ],
+      "artifact_hash": "ffdf67675c0c50766cbcce731cb4667fd33145545eb8667546434ca9cc442ad6",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP2D6_SUBSTRATE",
+      "display_name": "CYP2D6 substrate classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP2D6 substrate",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp2d6-substrate/model_v2_1.pt"
+      ],
+      "artifact_hash": "af15319d08b4752ea77b844c81fa6d963af0daa9d7ae9875c2da2f51d1f4266a",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP3A4_INHIBITION",
+      "display_name": "CYP3A4 quantitative inhibition",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "pIC50",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Multi-Model Stacking Ensemble",
+      "model_version": "v3.3.1-STACKING-cyp3a4-882d1",
+      "artifact": [
+        "backend/candidate_model_registry.py",
+        "backend/multimodel.py",
+        "backend/openadmet_cyp.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "d8eee0a1d54d0ff2f1830ddabfa69e29c4d4b0050d3a7f4c5d8912fc70e87415",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP3A4_INHIBITOR_CLASS",
+      "display_name": "CYP3A4 inhibitor classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP3A4 inhibitor",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp3a4-inhibitor/model_v2_1.pt"
+      ],
+      "artifact_hash": "471e830ed4cadff53c0a5abb75bc41f8cea173e316d9a3dbdfdb82073275cf50",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "CYP3A4_SUBSTRATE",
+      "display_name": "CYP3A4 substrate classification",
+      "category": "cyp",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop CYP3A4 substrate",
+      "model_version": "admetica-d4f7056-cyp-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/cyp/cyp3a4-substrate/model_v2_1.pt"
+      ],
+      "artifact_hash": "1ffb29df78644bb41dab9178a808741b68c3d6d833eac213ffcc8b98d40e5aab",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "DILI_LIABILITY",
+      "display_name": "DILI",
+      "category": "safety",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "ADMET-AI v2 Chemprop ensemble DILI clinical liability",
+      "model_version": "admet-ai-v2.0.1-c65bf04-chemprop-v2-ensemble5",
+      "artifact": [
+        "models/admet_ai/classification/model_0.pt",
+        "models/admet_ai/classification/model_1.pt",
+        "models/admet_ai/classification/model_2.pt",
+        "models/admet_ai/classification/model_3.pt",
+        "models/admet_ai/classification/model_4.pt"
+      ],
+      "artifact_hash": "42ff2035cb4065dad2cc2120fb3d50fe08e36dfb3ea7e07d6e244850b59e64bc",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "FORMAL_CHARGE",
+      "display_name": "Formal Charge",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "charge",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Chem GetFormalCharge",
+      "model_version": "rdkit-charge-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "FSP3",
+      "display_name": "Fsp3",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "fraction",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Descriptors FractionCsp3",
+      "model_version": "rdkit-fsp3-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HBA",
+      "display_name": "HBA",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "count",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Lipinski NumHAcceptors",
+      "model_version": "rdkit-hba-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HBD",
+      "display_name": "HBD",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "count",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Lipinski NumHDonors",
+      "model_version": "rdkit-hbd-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HEAVY_ATOM_COUNT",
+      "display_name": "Heavy Atom Count",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "count",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Chem GetNumHeavyAtoms",
+      "model_version": "rdkit-heavy-atoms-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HERG_CLASS",
+      "display_name": "hERG risk classification",
+      "category": "safety",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop human hERG blocker liability",
+      "model_version": "admetica-d4f7056-herg-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/safety/herg/model_v2_1.pt"
+      ],
+      "artifact_hash": "a94ae451202b7de949caeec18cc62034d117cce56b40a31d1e041a0edebc69ce",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HERG_LIABILITY",
+      "display_name": "hERG quantitative inhibition",
+      "category": "safety",
+      "species": "HUMAN",
+      "unit": "pIC50",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Physchem GBR Regressor",
+      "model_version": "v3.3.1-STACKING-herg-100f6",
+      "artifact": [
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "7ea868072b2a4e097cc90d4b5a13237097963468d8614a42fbc268f5fbe0ac83",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HIA",
+      "display_name": "HIA",
+      "category": "absorption",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_NOT_REGISTERED"
+    },
+    {
+      "canonical_endpoint": "HLM_CLINT",
+      "display_name": "HLM (microsomal stability)",
+      "category": "metabolic_stability",
+      "species": "HUMAN",
+      "unit": "log10(mL/min/kg)",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Drug-OPT Chemical Space Residual RF",
+      "model_version": "v3.3.1-STACKING-hlm-100g7",
+      "artifact": [
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "7ea868072b2a4e097cc90d4b5a13237097963468d8614a42fbc268f5fbe0ac83",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HUMAN_F",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "HUMAN_FU_PLASMA",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "RESEARCH_ONLY",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "HUMAN_HEPATIC_CL",
+      "display_name": "Human hepatic CL",
+      "category": "pk",
+      "species": "HUMAN",
+      "unit": "mL/min/kg",
+      "support": "RESEARCH_ONLY",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "CURRENT_DATA_CEILING"
+    },
+    {
+      "canonical_endpoint": "HUMAN_PK_CLF_ORAL",
+      "display_name": "Oral CL/F",
+      "category": "pk",
+      "species": "HUMAN",
+      "unit": "L/h",
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "CONTEXT_REQUIRED"
+    },
+    {
+      "canonical_endpoint": "HUMAN_PK_VDF_ORAL",
+      "display_name": "Oral Vd/F",
+      "category": "pk",
+      "species": "HUMAN",
+      "unit": "L/kg",
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "CONTEXT_REQUIRED"
+    },
+    {
+      "canonical_endpoint": "HUMAN_PPB",
+      "display_name": "Human PPB",
+      "category": "distribution",
+      "species": "HUMAN",
+      "unit": "% bound",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Multi-Model Stacking Ensemble",
+      "model_version": "v3.3.1-STACKING-ppb-728e5",
+      "artifact": [
+        "models/admetica/ppbr/model_v2_1.pt",
+        "backend/multimodel.py",
+        "backend/candidate_model_registry.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "292655574b3fb811b41dcce1bbefabbf8cebf7f139a77cc240b6665699a0ada6",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "HUMAN_TOTAL_IV_CL",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "RESEARCH_ONLY",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "IV_HALF_LIFE",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "RESEARCH_ONLY",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "KA",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "LOGD_7_4",
+      "display_name": "logD7.4",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "logD",
+      "support": "MECHANISTIC",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Henderson-Hasselbalch Derived Calculation",
+      "model_version": "hh-derived-logd74-v1",
+      "artifact": [
+        "backend/ionization.py"
+      ],
+      "artifact_hash": "73331076242f7dd854c15eca03b5cf794767bc97ff9944763d3e18506f12bbc8",
+      "availability_reason": "MECHANISTIC_ONLY"
+    },
+    {
+      "canonical_endpoint": "METABOLIC_SOFT_SPOTS",
+      "display_name": "Metabolic soft spots",
+      "category": "metabolism",
+      "species": "HUMAN",
+      "unit": "ranked sites",
+      "support": "MECHANISTIC",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "SyGMa Phase I/II Rule Engine",
+      "model_version": "sygma-rules-v1",
+      "artifact": [
+        "models/sygma/phase1.txt",
+        "models/sygma/phase2.txt"
+      ],
+      "artifact_hash": "4adc93982fb4bf4a8a5717d5e9060c030650a73013da6bbc88c65bf0435b79dd",
+      "availability_reason": "MECHANISTIC_ONLY"
+    },
+    {
+      "canonical_endpoint": "METABOLITE_HYPOTHESES",
+      "display_name": "Predicted metabolites",
+      "category": "metabolism",
+      "species": "HUMAN",
+      "unit": "hypotheses",
+      "support": "MECHANISTIC",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "SyGMa Reaction Transformer",
+      "model_version": "sygma-transformer-v1",
+      "artifact": [
+        "models/sygma/phase1.txt",
+        "models/sygma/phase2.txt"
+      ],
+      "artifact_hash": "4adc93982fb4bf4a8a5717d5e9060c030650a73013da6bbc88c65bf0435b79dd",
+      "availability_reason": "MECHANISTIC_ONLY"
+    },
+    {
+      "canonical_endpoint": "MLM_CLINT",
+      "display_name": "MLM (microsomal stability)",
+      "category": "metabolic_stability",
+      "species": "MOUSE",
+      "unit": "log10(mL/min/kg)",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "OpenADMET CheMeleon MLM intrinsic clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "artifact": [
+        "models/openadmet/microsomal_clearance/model.pth"
+      ],
+      "artifact_hash": "701e6533d9aa70740b2fa8203cf9373fb3fdc09d15c3173829f978c5bed235ad",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "MW",
+      "display_name": "MW",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "g/mol",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Descriptors ExactMolWt",
+      "model_version": "rdkit-exactmolwt-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "OATP1B1_INHIBITOR",
+      "display_name": "OATP1B1",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "OATP1B3_INHIBITOR",
+      "display_name": "OATP1B3",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "OCT1_INHIBITOR",
+      "display_name": "OCT1",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "OCT2_INHIBITOR",
+      "display_name": "OCT2",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "ORAL_AUC",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "ORAL_CMAX",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "PGP_INHIBITION",
+      "display_name": "P-gp inhibitor classification",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "probability",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Admetica Chemprop human P-gp/ABCB1 inhibitor",
+      "model_version": "admetica-d4f7056-pgp-inhibitor-chemprop-v2.1",
+      "artifact": [
+        "models/admetica/transporter/pgp-inhibitor/model_v2_1.pt"
+      ],
+      "artifact_hash": "7e95b1bd33f24788f358a9e00e06d3bd227091d88873a672e2c967eb3842618c",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "PGP_INHIBITION_QUANT",
+      "display_name": "P-gp quantitative inhibition",
+      "category": "transporters",
+      "species": "HUMAN",
+      "unit": "µM",
+      "support": "UNAVAILABLE",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "MODEL_UNAVAILABLE"
+    },
+    {
+      "canonical_endpoint": "PKA",
+      "display_name": "pKa",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "pKa",
+      "support": "MECHANISTIC",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Rule-Based Ionization Estimator",
+      "model_version": "rule-pka-v1",
+      "artifact": [
+        "backend/ionization.py"
+      ],
+      "artifact_hash": "73331076242f7dd854c15eca03b5cf794767bc97ff9944763d3e18506f12bbc8",
+      "availability_reason": "MECHANISTIC_ONLY"
+    },
+    {
+      "canonical_endpoint": "QED",
+      "display_name": "QED",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "score (0-1)",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Descriptors QED",
+      "model_version": "rdkit-qed-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "RLM_CLINT",
+      "display_name": "RLM (microsomal stability)",
+      "category": "metabolic_stability",
+      "species": "RAT",
+      "unit": "log10(mL/min/kg)",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "OpenADMET CheMeleon RLM intrinsic clearance",
+      "model_version": "openadmet-microsomal-clearance-chemeleon-v1-e135493",
+      "artifact": [
+        "models/openadmet/microsomal_clearance/model.pth"
+      ],
+      "artifact_hash": "701e6533d9aa70740b2fa8203cf9373fb3fdc09d15c3173829f978c5bed235ad",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "ROTB",
+      "display_name": "Rotatable Bonds",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "count",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Lipinski NumRotatableBonds",
+      "model_version": "rdkit-rotb-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "SOLUBILITY_GENERIC",
+      "display_name": "Solubility",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "log10(mol/L)",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "Multi-Model Stacking Ensemble",
+      "model_version": "v3.3.1-STACKING-solubility-723c3",
+      "artifact": [
+        "models/admetica/solubility/model_v2_1.pt",
+        "backend/multimodel.py",
+        "backend/current_production_executor.py"
+      ],
+      "artifact_hash": "33ace1bb8b49822a3bdfc516897e8d14ebbcdebae0180a9be55a95dc7a3885a9",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "TMAX",
+      "display_name": null,
+      "category": null,
+      "species": null,
+      "unit": null,
+      "support": "CONTEXT_REQUIRED",
+      "expected_after_predict": false,
+      "model_route_exists": false,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": null
+    },
+    {
+      "canonical_endpoint": "TPSA",
+      "display_name": "TPSA",
+      "category": "physchem",
+      "species": "HUMAN",
+      "unit": "Å²",
+      "support": "PRODUCTION_EXECUTABLE",
+      "expected_after_predict": true,
+      "model_route_exists": true,
+      "model_id": "RDKit Descriptors TPSA",
+      "model_version": "rdkit-tpsa-v1",
+      "artifact": [
+        "backend/chemistry.py"
+      ],
+      "artifact_hash": "b668c28e1d61c466b2778e16e749f58f395e293eabbbe6402df81fb7e2c744fe",
+      "availability_reason": "PREDICTED"
+    },
+    {
+      "canonical_endpoint": "VDSS",
+      "display_name": "Vdss",
+      "category": "distribution",
+      "species": "HUMAN",
+      "unit": "L/kg",
+      "support": "RESEARCH_ONLY",
+      "expected_after_predict": false,
+      "model_route_exists": true,
+      "model_id": null,
+      "model_version": null,
+      "artifact": [],
+      "artifact_hash": null,
+      "availability_reason": "CURRENT_DATA_CEILING"
+    }
+  ]
+}
